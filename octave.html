@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Octave</title>
+<meta name="description" content="Octave — virtual interactive music worlds.">
+<style>
+  :root{
+    --bg:#0a0a0c; --bg2:#121216; --card:#18181d; --elev:#202027;
+    --line:rgba(255,255,255,.08); --text:#f5f5f7; --muted:#a1a1aa;
+    --accent:#1db954; --accent2:#7c5cff; --gold:#f5c84c; --red:#ff5c7a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100%}
+  button,input{font:inherit} button{cursor:pointer}
+  a{color:inherit}
+  .hidden{display:none !important}
+
+  nav{position:sticky;top:0;z-index:50;display:grid;grid-template-columns:140px 1fr auto;align-items:center;gap:16px;padding:10px 20px;background:rgba(10,10,12,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+  .logo{font-weight:800;letter-spacing:-.04em;font-size:22px;cursor:pointer}
+  .logo i{font-style:normal;color:var(--accent)}
+  .nav-search{position:relative;max-width:560px;width:100%;margin:0 auto}
+  .nav-right{display:flex;align-items:center;gap:8px}
+  .pill{border:1px solid var(--line);background:var(--elev);color:var(--text);padding:7px 11px;border-radius:999px;font-size:12px;font-weight:600}
+  .btn{border:0;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700}
+  .btn-green{background:var(--accent);color:#04140a}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  .btn-white{background:#fff;color:#111}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+
+  .hero{min-height:calc(100vh - 62px);display:flex;align-items:center;justify-content:center;text-align:center;padding:48px 18px 90px;position:relative;overflow:hidden}
+  #viz{position:absolute;inset:0;opacity:.45}
+  .hero-inner{position:relative;z-index:2;width:min(820px,100%)}
+  h1.display{font-size:clamp(44px,8vw,88px);letter-spacing:-.06em;line-height:.92}
+  .lede{color:var(--muted);margin:16px auto 28px;max-width:46ch;font-size:17px}
+
+  .searchbox{position:relative;max-width:640px;margin:0 auto}
+  .searchbox input, .nav-search input{
+    width:100%;background:var(--elev);border:1px solid var(--line);color:var(--text);
+    border-radius:999px;padding:14px 18px 14px 44px;outline:none;font-size:16px
+  }
+  .searchbox input:focus, .nav-search input:focus{border-color:rgba(29,185,84,.6);box-shadow:0 0 0 4px rgba(29,185,84,.12)}
+  .search-ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.55;pointer-events:none}
+  .suggest{
+    position:absolute;left:0;right:0;top:calc(100% + 8px);background:#1a1a20;border:1px solid var(--line);
+    border-radius:14px;overflow:hidden;z-index:60;text-align:left;box-shadow:0 18px 50px rgba(0,0,0,.45)
+  }
+  .suggest .label{padding:10px 14px 6px;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .sug{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer}
+  .sug:hover,.sug.on{background:rgba(255,255,255,.05)}
+  .sug .dot{width:36px;height:36px;border-radius:8px;flex:none}
+  .sug small{display:block;color:var(--muted)}
+
+  .page{max-width:1120px;margin:0 auto;padding:0 20px 90px}
+  .sub{color:var(--muted)}
+
+  .artist-page{padding-bottom:90px}
+  .banner{position:relative;min-height:340px;display:flex;align-items:flex-end;padding:28px 20px 24px}
+  .banner:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 10%,rgba(10,10,12,.92))}
+  .banner-inner{position:relative;z-index:2;width:min(1120px,100%);margin:0 auto}
+  .verified{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;margin-bottom:8px}
+  .verified i{width:16px;height:16px;border-radius:50%;background:#3d91f4;display:inline-grid;place-items:center;font-style:normal;font-size:10px}
+  .banner h1{font-size:clamp(48px,9vw,96px);letter-spacing:-.06em;line-height:.9;margin:0 0 10px}
+  .listeners{color:#ddd;font-size:14px}
+
+  .toolbar{display:flex;align-items:center;gap:12px;padding:18px 0}
+  .play{width:56px;height:56px;border-radius:50%;background:var(--accent);border:0;color:#04140a;font-size:22px;display:grid;place-items:center}
+  .section{margin-top:10px}
+  .section h2{font-size:22px;margin:8px 0 12px}
+
+  .track{display:grid;grid-template-columns:28px 1fr 120px 56px;gap:12px;align-items:center;padding:8px 10px;border-radius:8px}
+  .track:hover{background:rgba(255,255,255,.04)}
+  .track .n{color:var(--muted);text-align:right}
+  .track .t small{display:block;color:var(--muted);font-size:12px}
+  .track .plays,.track .dur{color:var(--muted);font-size:13px;text-align:right}
+  @media(max-width:640px){.track{grid-template-columns:24px 1fr 48px}.plays{display:none}}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+  .album{background:var(--card);padding:12px;border-radius:12px;border:1px solid var(--line)}
+  .album .art{height:136px;border-radius:8px;margin-bottom:10px}
+  .album h3{font-size:14px}
+  .about{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:16px;padding:22px;max-width:720px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+  .tab{border:1px solid var(--line);background:transparent;color:var(--text);padding:8px 13px;border-radius:999px;font-weight:600;font-size:13px}
+  .tab.on{background:#fff;color:#111;border-color:#fff}
+  .panel{display:none}.panel.on{display:block}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .stems{display:grid;gap:12px;margin-top:16px}
+  .stem{display:grid;grid-template-columns:110px 1fr 54px;gap:10px;align-items:center}
+  .stem input[type=range]{width:100%}
+  #roomViz{width:100%;height:160px;border-radius:12px;background:#0b0b12;display:block;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .owned{color:var(--accent);font-size:12px;font-weight:700}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1c1c28;border:1px solid var(--line);padding:10px 16px;border-radius:12px;z-index:80;display:none}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:90;padding:16px}
+  .modal.on{display:flex}
+  .modal .box{max-width:440px;width:100%}
+  .manage p{margin:8px 0}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo" onclick="goHome()">Octave<i>.</i></div>
+  <div class="nav-search" id="navSearchWrap">
+    <span class="search-ico">⌕</span>
+    <input id="navQ" type="search" placeholder="find artist world" autocomplete="off">
+    <div class="suggest hidden" id="navSuggest"></div>
+  </div>
+  <div class="nav-right">
+    <span class="pill" id="walletLabel">$0.00</span>
+    <button class="btn btn-ghost" onclick="goLibrary()">Library</button>
+    <button class="btn btn-green" id="passBtn" onclick="passAction()">Get Pass</button>
+  </div>
+</nav>
+
+<section id="landing" class="hero">
+  <canvas id="viz"></canvas>
+  <div class="hero-inner">
+    <h1 class="display">Step inside the sound.</h1>
+    <p class="lede">Find an artist world. Walk the room. Remix stems. Collect the drop.</p>
+    <div class="searchbox" id="heroSearchWrap">
+      <span class="search-ico">⌕</span>
+      <input id="q" type="search" placeholder="find artist world" autocomplete="off">
+      <div class="suggest hidden" id="suggest"></div>
+    </div>
+  </div>
+</section>
+
+<section id="artist" class="artist-page hidden">
+  <div class="banner" id="banner">
+    <div class="banner-inner">
+      <div class="verified" id="verified"><i>✓</i> Verified Artist</div>
+      <h1 id="name"></h1>
+      <p class="listeners" id="listeners"></p>
+    </div>
+  </div>
+  <div class="page">
+    <div class="toolbar">
+      <button class="play" id="heroPlay" onclick="playPopular()">▶</button>
+      <button class="btn btn-white" id="followBtn" onclick="toggleFollow()">Follow</button>
+      <button class="btn btn-ghost" onclick="showPanel('room')">Enter room</button>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-tab="popular">Popular</button>
+      <button class="tab" data-tab="room">Artist Room</button>
+      <button class="tab" data-tab="live">Live</button>
+      <button class="tab" data-tab="market">Marketplace</button>
+      <button class="tab" data-tab="passpanel">Pass</button>
+    </div>
+
+    <div id="popular" class="panel on">
+      <div class="section">
+        <h2>Popular</h2>
+        <div id="popularList"></div>
+      </div>
+      <div class="section">
+        <h2>Discography</h2>
+        <div class="cards" id="disco"></div>
+      </div>
+      <div class="section">
+        <h2>About</h2>
+        <div class="about" id="about"></div>
+      </div>
+    </div>
+
+    <div id="room" class="panel">
+      <div class="box">
+        <canvas id="roomViz"></canvas>
+        <div class="row">
+          <div>
+            <h3 id="roomTitle">Room</h3>
+            <p class="sub" id="roomCopy"></p>
+          </div>
+          <div class="row">
+            <button class="btn btn-green" id="playBtn" onclick="toggleRoom()">Walk in</button>
+            <button class="btn btn-ghost" onclick="resetMix()">Reset mix</button>
+          </div>
+        </div>
+        <div class="stems" id="stems"></div>
+        <p class="sub" id="unlockNote" style="margin-top:14px"></p>
+      </div>
+    </div>
+    <div id="live" class="panel"><div id="sessions"></div></div>
+    <div id="market" class="panel"><div class="grid" id="marketGrid"></div></div>
+    <div id="passpanel" class="panel"><div class="box manage" id="passBox"></div></div>
+  </div>
+</section>
+
+<section id="library" class="page hidden" style="padding-top:28px">
+  <h2>Library</h2>
+  <p class="sub" style="margin:6px 0 16px">Tickets, remixes, and your subscription live in this browser.</p>
+  <div id="libBody"></div>
+</section>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal">
+  <div class="box">
+    <h3 id="modalTitle"></h3>
+    <p class="sub" id="modalBody"></p>
+    <div class="row" style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" id="modalOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ARTISTS = [
+  {id:"rydelic",name:"Rydelic",aka:["RyDelic"],genre:"Hip-Hop · Rap",
+   color:"linear-gradient(135deg,#3a1024 0%,#7c5cff 45%,#0a0a0c 100%)",
+   bio:"Hip-hop built outside the box. Official singles on Apple Music and Shazam, earlier drops on SoundCloud.",
+   room:"Dark-alley rap room. Stems sit on the floor — pull one and the pocket tightens.",
+   key:45,bpm:92,listeners:"12,840 monthly listeners",searches:12840,verified:true,
+   stems:["Kick","Bass","Keys","Hats","Hook (pass)"],
+   songs:[
+     {title:"White Ferrari (feat. Ryan Rowe)",year:"2025",type:"Single",note:"Sep 5, 2025 · Dark Alley",plays:"12,482",dur:"1:30",official:true},
+     {title:"In the Pocket",year:"2025",type:"Single",note:"Apple Music / Shazam",plays:"8,910",dur:"2:14",official:true},
+     {title:"Buss it",year:"2025",type:"SoundCloud",note:"Mar 2025",plays:"3,204",dur:"2:01"},
+     {title:"For me",year:"2025",type:"SoundCloud",note:"Mar 2025",plays:"2,771",dur:"2:22"},
+     {title:"Skydiving",year:"2025",type:"SoundCloud",note:"Mar 2025",plays:"2,440",dur:"2:36"},
+     {title:"You and I",year:"2024",type:"SoundCloud",note:"Dec 2024",plays:"1,988",dur:"3:02"},
+     {title:"hunting monsters",year:"2024",type:"SoundCloud",note:"Nov 2024",plays:"1,640",dur:"2:18"},
+     {title:"Got paper",year:"2024",type:"SoundCloud",note:"Nov 2024",plays:"1,512",dur:"2:09"}
+   ]},
+  {id:"mara-voss",name:"Mara Voss",genre:"Ambient · Electronic",color:"linear-gradient(135deg,#2a1850,#7c5cff 40%,#0a0a0c)",bio:"Slow-bloom electronic built for rooms you can wander.",room:"Pads hold the room.",key:46,bpm:84,listeners:"9,210 monthly listeners",searches:9210,verified:true,stems:["Kick","Bass","Pad","Hats","Air (pass)"],songs:[{title:"Midnight Bloom",year:"2024",type:"Single",plays:"6,102",dur:"3:41"}]},
+  {id:"dj-kite",name:"DJ Kite",genre:"House · Bass",color:"linear-gradient(135deg,#3a2a08,#ffc857 40%,#0a0a0c)",bio:"Peak-hour bass. The floor moves when the kick hits.",room:"Crowd-triggered pulse.",key:38,bpm:124,listeners:"18,004 monthly listeners",searches:18004,verified:true,stems:["Kick","Bass","Stab","Hats","Siren (pass)"],songs:[{title:"Bassline Drop",year:"2024",type:"Single",plays:"11,430",dur:"3:12"}]},
+  {id:"the-hollows",name:"The Hollows",genre:"Indie · Shoegaze",color:"linear-gradient(135deg,#08332c,#5cffd0 40%,#0a0a0c)",bio:"Walls of guitar. Rooms that feel like weather.",room:"Walk farther and the reverb gets wetter.",key:50,bpm:96,listeners:"7,640 monthly listeners",searches:7640,verified:false,stems:["Kick","Bass","Wash","Hats","Lead (pass)"],songs:[{title:"Fog Session",year:"2023",type:"EP",plays:"4,880",dur:"4:02"}]},
+  {id:"ryn",name:"Ryn",genre:"Lo-fi · Hip-hop",color:"linear-gradient(135deg,#3a1010,#ff5c5c 40%,#0a0a0c)",bio:"Late-night loops. A studio at 2am.",room:"Chop on the table.",key:41,bpm:86,listeners:"5,330 monthly listeners",searches:5330,verified:false,stems:["Kick","Bass","Keys","Hats","Vinyl (pass)"],songs:[{title:"2am Loop",year:"2024",type:"Single",plays:"3,901",dur:"2:28"}]}
+];
+
+const TOP5 = ARTISTS.slice().sort((a,b)=>b.searches-a.searches).slice(0,5);
+const STATE = { wallet:40, pass:false, passSince:null, tickets:{}, owned:{}, mixes:{}, following:{} };
+const LS = "octave-state-v3";
+
+function load(){
+  try{ const raw=localStorage.getItem(LS); if(raw) Object.assign(STATE, JSON.parse(raw)); }catch(e){}
+  renderNav();
+  const hash = location.hash.replace("#/","").replace("#","");
+  if(hash.startsWith("artist/")) openArtist(hash.split("/")[1], true);
+  else if(hash==="library") goLibrary(true);
+}
+function save(){ localStorage.setItem(LS, JSON.stringify(STATE)); renderNav(); renderPassBox(); }
+
+function renderNav(){
+  document.getElementById("walletLabel").textContent = "$"+STATE.wallet.toFixed(2);
+  const btn=document.getElementById("passBtn");
+  if(STATE.pass){
+    btn.textContent="Manage subscription";
+    btn.className="btn btn-ghost";
+  } else {
+    btn.textContent="Get Pass";
+    btn.className="btn btn-green";
+  }
+}
+
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.style.display="block";
+  clearTimeout(toast._id); toast._id=setTimeout(()=>t.style.display="none", 2400);
+}
+let modalFn=null;
+function openModal(title,body,fn,okLabel){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalBody").textContent=body;
+  document.getElementById("modalOk").textContent=okLabel||"Confirm";
+  modalFn=fn; document.getElementById("modal").classList.add("on");
+}
+function closeModal(){ document.getElementById("modal").classList.remove("on"); modalFn=null; }
+document.getElementById("modalOk").onclick=()=>{ if(modalFn) modalFn(); closeModal(); };
+
+let current=null;
+function show(id){
+  ["landing","artist","library"].forEach(p=>document.getElementById(p).classList.toggle("hidden", p!==id));
+  if(id!=="artist") stopRoom();
+  if(id!=="landing") stopHero(); else startHero();
+}
+function goHome(){ location.hash=""; show("landing"); hideAllSuggest(); document.getElementById("q").focus(); }
+function goLibrary(fromHash){
+  if(!fromHash) location.hash="library";
+  document.getElementById("libBody").innerHTML =
+    '<div class="box" style="margin-bottom:12px">'+passCopy()+'</div>'+
+    '<div class="box" style="margin-bottom:12px"><h3>Tickets</h3><p class="sub">'+(Object.values(STATE.tickets).join(" · ")||"None yet.")+'</p></div>'+
+    '<div class="box"><h3>Owned remixes</h3><p class="sub">'+(Object.values(STATE.owned).map(o=>o.title+" — "+o.artist).join(" · ")||"None yet.")+'</p></div>';
+  show("library");
+}
+
+function passCopy(){
+  if(!STATE.pass) return '<h3>Collector Pass</h3><p class="sub">Not active. $9 in this demo unlocks the secret stem, session priority, and 10% off marketplace.</p><button class="btn btn-green" onclick="passAction()">Get Pass</button>';
+  return '<h3>Collector Pass</h3><p>Thanks for subscribing.</p><p class="sub">Active'+(STATE.passSince?" since "+STATE.passSince:"")+' · $9 demo plan</p><button class="btn btn-ghost" onclick="cancelPass()">Cancel subscription</button>';
+}
+function renderPassBox(){
+  const el=document.getElementById("passBox");
+  if(el) el.innerHTML = passCopy();
+}
+
+function passAction(){
+  if(STATE.pass){
+    if(current){ showPanel("passpanel"); show("artist"); }
+    else goLibrary();
+    return;
+  }
+  if(STATE.wallet<9){ toast("Need $9 in the demo wallet."); return; }
+  openModal("Get Collector Pass","$9 comes out of your demo wallet once. After this the button becomes Manage subscription — it will not charge again.","buyPass","Subscribe — $9");
+}
+function buyPass(){
+  if(STATE.pass) return;
+  if(STATE.wallet<9){ toast("Need $9."); return; }
+  STATE.pass=true;
+  STATE.wallet=+(STATE.wallet-9).toFixed(2);
+  STATE.passSince = new Date().toLocaleDateString();
+  save();
+  if(current){ buildStems(); renderSessions(); renderMarket(); }
+  openModal("You're in.","Thanks for the subscription. Secret stems are unlocked. Use Manage subscription anytime to cancel.", function(){}, "Done");
+}
+function cancelPass(){
+  openModal("Cancel subscription","Your pass turns off. The $9 stays charged in this demo so the buy button cannot be used as a money printer.", function(){
+    STATE.pass=false; save();
+    if(current){ buildStems(); renderSessions(); renderMarket(); }
+    toast("Subscription canceled.");
+  }, "Cancel plan");
+}
+
+function matchArtists(term){
+  const t=(term||"").trim().toLowerCase();
+  if(!t) return TOP5;
+  return ARTISTS.filter(a=>{
+    const blob=[a.name,a.genre,(a.aka||[]).join(" "),(a.songs||[]).map(s=>s.title).join(" ")].join(" ").toLowerCase();
+    return blob.includes(t);
+  }).slice(0,6);
+}
+function renderSuggest(box, term, open){
+  if(!open){ box.classList.add("hidden"); return; }
+  const hits=matchArtists(term);
+  const label = (term||"").trim() ? "Artists" : "Top searched worlds";
+  if(!hits.length){
+    box.innerHTML='<div class="label">No match</div><div class="sug"><div><strong>Try Rydelic</strong><small>Hip-Hop · Rap</small></div></div>';
+    box.classList.remove("hidden");
+    box.querySelector(".sug").onclick=()=>openArtist("rydelic");
+    return;
+  }
+  box.innerHTML='<div class="label">'+label+'</div>'+hits.map((a,i)=>
+    '<div class="sug'+(i===0?' on':'')+'" data-id="'+a.id+'"><div class="dot" style="background:'+a.color+'"></div><div><strong>'+a.name+'</strong><small>'+a.genre+'</small></div></div>'
+  ).join("");
+  box.classList.remove("hidden");
+  box.querySelectorAll(".sug").forEach(el=>el.onclick=()=>openArtist(el.dataset.id));
+}
+function hideAllSuggest(){
+  document.getElementById("suggest").classList.add("hidden");
+  document.getElementById("navSuggest").classList.add("hidden");
+}
+function bindSearch(input, box){
+  input.addEventListener("focus", ()=>renderSuggest(box, input.value, true));
+  input.addEventListener("click", ()=>renderSuggest(box, input.value, true));
+  input.addEventListener("input", ()=>renderSuggest(box, input.value, true));
+  input.addEventListener("keydown", e=>{
+    if(e.key==="Escape"){ box.classList.add("hidden"); return; }
+    if(e.key==="Enter"){
+      e.preventDefault();
+      const first = matchArtists(input.value)[0];
+      if(first) openArtist(first.id);
+    }
+  });
+}
+bindSearch(document.getElementById("q"), document.getElementById("suggest"));
+bindSearch(document.getElementById("navQ"), document.getElementById("navSuggest"));
+document.addEventListener("click", e=>{
+  if(!e.target.closest("#heroSearchWrap") && !e.target.closest("#navSearchWrap")) hideAllSuggest();
+});
+
+function openArtist(id, fromHash){
+  const a=ARTISTS.find(x=>x.id===id); if(!a) return;
+  if(current && current.id!==a.id) stopRoom();
+  current=a;
+  if(!fromHash) location.hash="artist/"+a.id;
+  hideAllSuggest();
+  document.getElementById("q").value=a.name;
+  document.getElementById("navQ").value=a.name;
+  document.getElementById("name").textContent=a.name;
+  document.getElementById("listeners").textContent=a.listeners;
+  document.getElementById("verified").style.display=a.verified?"inline-flex":"none";
+  document.getElementById("banner").style.background=a.color;
+  document.getElementById("roomTitle").textContent=a.name+" Room";
+  document.getElementById("roomCopy").textContent=a.room+" · "+a.bpm+" BPM";
+  document.getElementById("about").innerHTML="<p>"+a.bio+"</p><p class='sub' style='margin-top:10px'>"+a.genre+"</p>";
+  document.getElementById("followBtn").textContent = STATE.following[a.id] ? "Following" : "Follow";
+  renderPopular();
+  renderDisco();
+  buildStems(); renderSessions(); renderMarket(); renderPassBox();
+  showPanel("popular");
+  show("artist");
+}
+function toggleFollow(){
+  if(!current) return;
+  STATE.following[current.id]=!STATE.following[current.id];
+  save();
+  document.getElementById("followBtn").textContent = STATE.following[current.id] ? "Following" : "Follow";
+}
+function renderPopular(){
+  const list=current.songs||[];
+  document.getElementById("popularList").innerHTML = list.map((s,i)=>
+    '<div class="track" onclick="cueSong('+i+')">'+
+      '<div class="n">'+(i+1)+'</div>'+
+      '<div class="t"><strong>'+s.title+'</strong><small>'+s.type+(s.official?" · Official":"")+'</small></div>'+
+      '<div class="plays">'+s.plays+'</div>'+
+      '<div class="dur">'+(s.dur||"—")+'</div>'+
+    '</div>'
+  ).join("");
+}
+function renderDisco(){
+  const groups={};
+  (current.songs||[]).forEach(s=>{
+    const k=s.title.split(" (")[0]+" · "+s.year;
+    if(!groups[k]) groups[k]=s;
+  });
+  document.getElementById("disco").innerHTML = Object.keys(groups).map(k=>{
+    const s=groups[k];
+    return '<div class="album"><div class="art" style="background:'+current.color+'"></div><h3>'+s.title.split(" (")[0]+'</h3><p class="sub">'+s.type+' · '+s.year+'</p></div>';
+  }).join("");
+}
+function cueSong(i){
+  const s=current.songs[i];
+  toast((s?s.title:"Track")+" — room mix stands in until real audio is wired.");
+  showPanel("room");
+  if(!playing) toggleRoom();
+}
+function playPopular(){ cueSong(0); }
+function showPanel(id){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", t.dataset.tab===id));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on", p.id===id));
+}
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.onclick=()=>showPanel(tab.dataset.tab);
+});
+
+function priceOf(n){ return STATE.pass ? +(n*0.9).toFixed(2) : n; }
+function renderSessions(){
+  if(!current) return;
+  const sid=current.id+"-live";
+  const owned=!!STATE.tickets[sid];
+  document.getElementById("sessions").innerHTML =
+    '<div class="box"><div class="row"><div><h3>'+current.name+' — Live Session</h3>'+
+    '<p class="sub">Tonight · 45 min · '+(STATE.pass?"Priority access":"12 tickets left")+'</p>'+
+    (owned?'<div class="owned">TICKET OWNED</div>':'')+
+    '</div><div><div style="font-weight:800;color:var(--gold);margin-bottom:8px">$12.00</div>'+
+    (owned
+      ? '<button class="btn btn-green" onclick="joinLive()">Enter session</button>'
+      : '<button class="btn btn-green" onclick="buyTicket()">Buy ticket</button>')+
+    '</div></div></div>';
+}
+function buyTicket(){
+  const sid=current.id+"-live";
+  if(STATE.tickets[sid]) return;
+  if(STATE.wallet<12){ toast("Need $12."); return; }
+  openModal("Buy live ticket","$12 from your demo wallet.", function(){
+    STATE.wallet=+(STATE.wallet-12).toFixed(2); STATE.tickets[sid]=current.name+" Live"; save(); renderSessions(); toast("Ticket locked in.");
+  });
+}
+function joinLive(){
+  if(!STATE.tickets[current.id+"-live"]){ toast("Need a ticket first."); return; }
+  if(!playing) toggleRoom();
+  toast("You are in the session.");
+}
+function renderMarket(){
+  if(!current) return;
+  const items=[
+    {id:current.id+"-remix", title:current.name+" Fan Remix", price:4.5},
+    {id:current.id+"-pack", title:current.name+" Visual Pack", price:7},
+    {id:current.id+"-stems", title:current.name+" Stem Kit", price:5}
+  ];
+  document.getElementById("marketGrid").innerHTML = items.map(it=>{
+    const own=!!STATE.owned[it.id];
+    const p=priceOf(it.price);
+    return '<div class="box"><h3>'+it.title+'</h3><p class="sub">'+current.name+(STATE.pass && !own?" · 10% pass discount":"")+'</p>'+
+      (own ? '<div class="owned">OWNED</div>' :
+      '<div class="row"><b style="color:var(--gold)">$'+p.toFixed(2)+'</b><button class="btn btn-green" onclick="buyItem(\''+it.id+'\',\''+it.title.replace(/'/g,"")+"',"+p+')">Buy</button></div>')+
+      '</div>';
+  }).join("");
+}
+function buyItem(id,title,price){
+  if(STATE.owned[id]) return;
+  if(STATE.wallet<price){ toast("Not enough credit."); return; }
+  openModal("Buy "+title, "Charge $"+Number(price).toFixed(2)+".", function(){
+    STATE.wallet=+(STATE.wallet-price).toFixed(2); STATE.owned[id]={title:title, artist:current.name}; save(); renderMarket(); toast("Added to library.");
+  });
+}
+
+let audioCtx=null, master=null, analyser=null, playing=false, loops=[], gains=[], oscs=[];
+function ensureAudio(){
+  if(audioCtx) return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  master=audioCtx.createGain(); master.gain.value=0.22;
+  analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
+  master.connect(analyser); analyser.connect(audioCtx.destination);
+}
+function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
+function makeGain(v){ const g=audioCtx.createGain(); g.gain.value=v; return g; }
+function startStem(kind, dest, bpm, key){
+  const beat=60/bpm;
+  if(kind==="Kick"){
+    const fire=function(){
+      if(!playing) return;
+      const o=audioCtx.createOscillator(); const g=makeGain(0);
+      o.type="sine"; o.frequency.setValueAtTime(140, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime+0.12);
+      g.gain.setValueAtTime(0.9, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.18);
+      o.connect(g); g.connect(dest); o.start(); o.stop(audioCtx.currentTime+0.2);
+    };
+    fire(); loops.push(setInterval(fire, beat*1000)); return;
+  }
+  if(kind==="Hats"){
+    const fire=function(){
+      if(!playing) return;
+      const o=audioCtx.createOscillator(); const g=makeGain(0);
+      const f=audioCtx.createBiquadFilter(); f.type="highpass"; f.frequency.value=7000;
+      o.type="square"; o.frequency.value=9000;
+      g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.05);
+      o.connect(f); f.connect(g); g.connect(dest); o.start(); o.stop(audioCtx.currentTime+0.06);
+    };
+    fire(); loops.push(setInterval(fire, (beat/2)*1000)); return;
+  }
+  if(kind==="Bass"){
+    const notes=[0,0,7,5]; let i=0;
+    const fire=function(){
+      if(!playing) return;
+      const o=audioCtx.createOscillator(); const g=makeGain(0);
+      o.type="sawtooth"; o.frequency.value=midiToFreq(key-12+notes[i%notes.length]);
+      g.gain.setValueAtTime(0.22, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.04, audioCtx.currentTime+beat*0.8);
+      o.connect(g); g.connect(dest); o.start(); o.stop(audioCtx.currentTime+beat*0.9);
+      i++;
+    };
+    fire(); loops.push(setInterval(fire, beat*1000)); return;
+  }
+  const o=audioCtx.createOscillator();
+  const o2=audioCtx.createOscillator();
+  const f=audioCtx.createBiquadFilter();
+  f.type="lowpass"; f.frequency.value = (kind==="Siren"||kind==="Lead") ? 1800 : 900;
+  o.type="sine"; o2.type="sine";
+  let base=midiToFreq(key + ((kind==="Lead"||kind==="Siren")?12:0));
+  if(kind==="Vinyl"||kind==="Air") base=midiToFreq(key-7);
+  o.frequency.value=base; o2.frequency.value=base*1.005;
+  o.connect(f); o2.connect(f); f.connect(dest);
+  o.start(); o2.start(); oscs.push(o,o2);
+}
+function defaultGains(name){
+  const saved=STATE.mixes[current.id];
+  if(saved && saved[name]!=null) return saved[name];
+  if(name.indexOf("(pass)")>=0) return STATE.pass ? 0.4 : 0;
+  if(name==="Kick") return 0.8;
+  if(name==="Bass") return 0.7;
+  if(name==="Hats") return 0.55;
+  return 0.5;
+}
+function buildStems(){
+  if(!current) return;
+  const wrap=document.getElementById("stems"); wrap.innerHTML="";
+  current.stems.forEach(function(name,i){
+    const locked = name.indexOf("(pass)")>=0 && !STATE.pass;
+    const val = locked ? 0 : defaultGains(name);
+    const row=document.createElement("div"); row.className="stem";
+    row.innerHTML="<div>"+name+"</div><input type='range' min='0' max='1' step='0.01' value='"+val+"' "+(locked?"disabled":"")+"><span>"+(locked?"LOCK":Math.round(val*100)+"%")+"</span>";
+    wrap.appendChild(row);
+    row.querySelector("input").oninput=function(e){
+      const v=+e.target.value;
+      e.target.nextElementSibling.textContent=Math.round(v*100)+"%";
+      if(gains[i]) gains[i].gain.value=v;
+      STATE.mixes[current.id]=STATE.mixes[current.id]||{};
+      STATE.mixes[current.id][name]=v; save();
+    };
+  });
+  document.getElementById("unlockNote").textContent = STATE.pass ? "Pass on — secret stem is live." : "Collector Pass unlocks the fifth stem.";
+  document.getElementById("playBtn").textContent = playing ? "Leave room" : "Walk in";
+}
+function toggleRoom(){
+  if(playing){ stopRoom(); return; }
+  ensureAudio(); audioCtx.resume();
+  playing=true; gains=[]; oscs=[]; loops=[];
+  current.stems.forEach(function(name,i){
+    const locked = name.indexOf("(pass)")>=0 && !STATE.pass;
+    const g=makeGain(locked?0:defaultGains(name));
+    g.connect(master); gains[i]=g;
+    startStem(name.replace(" (pass)",""), g, current.bpm, current.key);
+  });
+  document.getElementById("playBtn").textContent="Leave room";
+  startRoomViz();
+  toast("Room is live.");
+}
+function resetMix(){
+  if(!current) return;
+  delete STATE.mixes[current.id]; save();
+  if(playing){ stopRoom(); toggleRoom(); } else buildStems();
+}
+function stopRoom(){
+  playing=false;
+  loops.forEach(clearInterval); loops=[];
+  oscs.forEach(function(o){ try{o.stop();}catch(e){} try{o.disconnect();}catch(e){} });
+  oscs=[];
+  gains.forEach(function(g){ try{g.disconnect();}catch(e){} });
+  gains=[];
+  const btn=document.getElementById("playBtn"); if(btn) btn.textContent="Walk in";
+}
+
+const hero=document.getElementById("viz");
+const hctx=hero.getContext("2d");
+let HW,HH,ht=0,heroOn=true;
+function sizeHero(){ HW=hero.width=innerWidth; HH=hero.height=innerHeight; }
+sizeHero(); addEventListener("resize", sizeHero);
+function startHero(){ heroOn=true; }
+function stopHero(){ heroOn=false; }
+(function loopHero(){
+  hctx.clearRect(0,0,HW,HH);
+  if(heroOn){
+    const cx=HW/2,cy=HH/2;
+    for(let i=0;i<64;i++){
+      const a=(i/64)*Math.PI*2+ht*0.25;
+      const wave=Math.sin(ht*0.9+i*0.14)*0.5+0.5;
+      const r=Math.min(HW,HH)*0.16+wave*Math.min(HW,HH)*0.18;
+      const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;
+      hctx.beginPath(); hctx.arc(x,y,2+wave*3,0,Math.PI*2);
+      hctx.fillStyle="hsla("+(145+i)+",80%,55%,"+(0.25+wave*0.4)+")"; hctx.fill();
+    }
+    ht+=0.012;
+  }
+  requestAnimationFrame(loopHero);
+})();
+const rv=document.getElementById("roomViz");
+const rctx=rv.getContext("2d");
+function startRoomViz(){
+  const buf=new Uint8Array(analyser?analyser.frequencyBinCount:128);
+  (function draw(){
+    if(!playing){ rctx.clearRect(0,0,rv.width,rv.height); return; }
+    rv.width=rv.clientWidth; rv.height=160;
+    rctx.fillStyle="#0b0b12"; rctx.fillRect(0,0,rv.width,rv.height);
+    if(analyser) analyser.getByteFrequencyData(buf);
+    const w=rv.width/32;
+    for(let i=0;i<32;i++){
+      const v=buf[i*2]||0; const h=(v/255)*rv.height;
+      rctx.fillStyle="hsl("+(140+i*3)+",80%,50%)";
+      rctx.fillRect(i*w+2, rv.height-h, w-4, h);
+    }
+    requestAnimationFrame(draw);
+  })();
+}
+addEventListener("hashchange", ()=>{
+  const hash=location.hash.replace("#/","").replace("#","");
+  if(hash.startsWith("artist/")) openArtist(hash.split("/")[1], true);
+  else if(hash==="library") goLibrary(true);
+  else goHome();
+});
+load();
+</script>
+</body>
+</html>
