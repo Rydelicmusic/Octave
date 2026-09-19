@@ -3,12 +3,9 @@
 Virtual interactive music worlds — Artist Rooms, Live Sessions, Collector Pass, Remix Marketplace.
 
 ## Live site (canonical)
-**https://rydelicmusic.github.io/Octave/**
+**https://rydelicmusic.github.io/octave/**
 
-Use capital **O** in `Octave`. Lowercase `/octave/` 404s on GitHub Pages.
-
-- Short link: https://rydelicmusic.github.io/Octave/
-- Explicit: https://rydelicmusic.github.io/Octave/index.html
+Use lowercase `octave` in the URL (repo was renamed so the short link no longer 404s).
 
 ## Local
 Open `index.html` in a browser.
