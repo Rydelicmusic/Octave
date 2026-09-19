@@ -64,14 +64,16 @@
   .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
 
   /* —— Lobby —— */
-  .lobby{position:relative;min-height:300vh;overflow:hidden}
+  .lobby{position:relative;min-height:180vh;overflow:hidden}
   .stage{position:sticky;top:0;height:100vh;overflow:hidden}
   .bg{
     position:absolute;inset:-12%;
     background:
-      radial-gradient(ellipse at 50% 120%, rgba(201,180,138,.22), transparent 55%),
-      radial-gradient(ellipse at 20% 10%, rgba(80,60,40,.45), transparent 40%),
-      linear-gradient(180deg,#141210 0%, #0b0b0c 55%, #070706 100%);
+      radial-gradient(ellipse at 50% 18%, rgba(232,208,160,.28), transparent 42%),
+      radial-gradient(ellipse at 50% 110%, rgba(201,180,138,.32), transparent 52%),
+      radial-gradient(ellipse at 15% 40%, rgba(90,70,45,.55), transparent 45%),
+      radial-gradient(ellipse at 85% 35%, rgba(60,50,80,.35), transparent 40%),
+      linear-gradient(180deg,#1c1814 0%, #100e0c 45%, #0b0b0c 100%);
     animation:drift 28s ease-in-out infinite alternate;
     transform:scale(1.08);
   }
@@ -87,26 +89,33 @@
   @keyframes walk{from{transform:translateX(0)}to{transform:translateX(-80px)}}
 
   .hall{
-    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:18vh 24px 12vh;
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    text-align:center;padding:14vh 24px 42vh;z-index:2;
     transition:transform .2s linear, opacity .2s linear;
   }
+  .brand-mark{
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;
+    letter-spacing:.55em;text-transform:uppercase;font-size:12px;color:var(--gold);
+    margin-bottom:28px;
+  }
+  .brand-mark span{display:inline-block;width:48px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);vertical-align:middle;margin:0 14px}
   .kicker{letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:18px;font-family:-apple-system,sans-serif}
-  h1{font-weight:400;font-size:clamp(48px,9vw,104px);letter-spacing:-.03em;line-height:.92}
-  h1 em{font-style:italic;color:var(--gold2)}
-  .lede{margin:22px auto 0;max-width:28ch;color:var(--mute);font-size:17px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+  .hall h1{font-weight:400;font-size:clamp(44px,8vw,92px);letter-spacing:-.03em;line-height:.95;color:var(--paper);text-shadow:0 8px 40px rgba(0,0,0,.55)}
+  .hall h1 em{font-style:italic;color:var(--gold2)}
+  .lede{margin:22px auto 0;max-width:32ch;color:#d9d2c6;font-size:17px;line-height:1.55;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
   .hint{
-    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
-    font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--mute);
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;
+    font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);
     animation:pulse 2.4s ease-in-out infinite;transition:opacity .6s var(--ease);
   }
   @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
 
   .lifts{
     position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;gap:18px;
-    padding:0 20px 11vh;opacity:0;pointer-events:none;transition:opacity .8s var(--ease);
+    padding:0 20px 11vh;opacity:.55;pointer-events:auto;z-index:2;transition:opacity .8s var(--ease), transform .8s var(--ease);
+    transform:translateY(18px);
   }
-  .lifts.on{opacity:1;pointer-events:auto}
+  .lifts.on{opacity:1;transform:translateY(0)}
   .lift{
     width:min(240px,28vw);height:min(58vh,520px);
     border-radius:18px 18px 8px 8px;position:relative;overflow:hidden;
@@ -253,9 +262,10 @@
     <div class="bg"></div>
     <div class="grain"></div>
     <div class="hall" id="hall">
+      <div class="brand-mark"><span></span>Octave<span></span></div>
       <div class="kicker">A house for sound</div>
       <h1>Walk in.<br><em>Don’t press play.</em></h1>
-      <p class="lede">Octave is a private lobby of sonic realms. Scroll as if you were crossing the marble.</p>
+      <p class="lede">A private lobby of sonic realms. Three lifts ahead — About, Origin, Explore. Scroll as if you were crossing the marble.</p>
     </div>
     <div class="lifts" id="lifts">
       <button class="lift glass" type="button" onclick="openSheet('about')">
@@ -402,10 +412,12 @@ function onScroll(){
   if(lobby.classList.contains("hidden")) return;
   const max=Math.max(1, lobby.scrollHeight-innerHeight);
   const t=Math.min(1, scrollY/max);
-  hall.style.opacity=String(1-Math.min(1,t*1.35));
-  hall.style.transform="translateY("+(-t*80)+"px) scale("+(1-t*0.08)+")";
-  lifts.classList.toggle("on", t>0.28);
-  hint.style.opacity=String(t>0.12?0:1);
+  // Keep hero copy visible on the first screen; soften only after real scroll
+  const fade=Math.min(1, Math.max(0,(t-0.15)/0.55));
+  hall.style.opacity=String(1-fade*0.92);
+  hall.style.transform="translateY("+(-t*56)+"px) scale("+(1-t*0.06)+")";
+  lifts.classList.toggle("on", t>0.08);
+  hint.style.opacity=String(t>0.2?0:1);
 }
 addEventListener("scroll", onScroll, {passive:true});
 onScroll();
