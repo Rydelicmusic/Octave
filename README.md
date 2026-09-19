@@ -2,13 +2,13 @@
 
 Virtual interactive music worlds — Artist Rooms, Live Sessions, Collector Pass, Remix Marketplace.
 
-**Live site (after GitHub Pages is on):** https://rydelicmusic.github.io/Octave/
+## Live site (canonical)
+**https://rydelicmusic.github.io/Octave/**
 
-## Enable Pages
-1. Repo **Settings → Pages**
-2. Source: **Deploy from a branch**
-3. Branch: **main** / root (`/`)
-4. Save — wait 1–2 minutes
+Use capital **O** in `Octave`. Lowercase `/octave/` 404s on GitHub Pages.
+
+- Short link: https://rydelicmusic.github.io/Octave/
+- Explicit: https://rydelicmusic.github.io/Octave/index.html
 
 ## Local
 Open `index.html` in a browser.
