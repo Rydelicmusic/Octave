@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> guest seating densify</div>
+  <div><b>This pass:</b> canopy understory densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass58-seats';
+import * as LockMod from './lock.js?v=pass59-under';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -848,6 +848,61 @@ for(let i=0;i<10;i++){
     // filter samples that sit on the 14 m spine
     const filtered=pts.filter(([x,z])=>!(Math.abs(x)<LOCK.spineWidth/2+1 && Math.abs(z)<=LOCK.B));
     if(filtered.length>8) pathRibbon(filtered, 2.4);
+  });
+})();
+// Pass 59 — denser canopy understory beds/planting (canopy ellipses held)
+(function pass59CanopyUnderstory(){
+  const dirt=new THREE.MeshLambertMaterial({color:0x4a3a28});
+  const dirt2=new THREE.MeshLambertMaterial({color:0x5a4830});
+  const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
+  const hedge2=new THREE.MeshLambertMaterial({color:0x3a6a38});
+  const bloom=new THREE.MeshLambertMaterial({color:0x6a4a68});
+  const half=LOCK.spineWidth/2+2.2;
+  function blocked(x,z,pad=1.5){
+    if(Math.abs(x)<half) return true;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+pad), dz=(z-cz)/(rz+pad); return dx*dx+dz*dz<=1;
+    })) return true;
+    if(nearRing(x,z,8+pad)) return true;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+pad+1&&Math.abs(z-b.z)<b.d/2+pad+1)) return true;
+    if(Math.hypot(x,z)<LOCK.hubOuter+3) return true;
+    return false;
+  }
+  function bed(x,z,w,d,yaw,ci){
+    if(blocked(x,z,Math.max(w,d)*0.35)) return;
+    const g=new THREE.Group();
+    const soil=new THREE.Mesh(new THREE.BoxGeometry(w,0.16,d),ci%2?dirt2:dirt);
+    soil.position.y=0.09;g.add(soil);
+    const n=Math.max(4, Math.floor(w*d*0.55));
+    for(let i=0;i<n;i++){
+      const bx=((i*0.37)%1-0.5)*w*0.72, bz=((i*0.61)%1-0.5)*d*0.72;
+      const mat=i%5===0?bloom:(i%2?hedge2:hedge);
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.28+(i%3)*0.1,6,5),mat);
+      bush.position.set(bx,0.32+(i%2)*0.08,bz);g.add(bush);
+    }
+    g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+  }
+  Object.entries(LOCK.canopies).forEach(([name,c],ci)=>{
+    // radial bed rings under canopy (ellipses unmoved)
+    for(let ring=0;ring<3;ring++){
+      const rad=0.35+ring*0.22;
+      const n=8+ring*4;
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+ci*0.3+ring*0.15;
+        const x=c.cx+Math.cos(a)*c.rx*rad;
+        const z=c.cz+Math.sin(a)*c.rz*rad;
+        bed(x,z, 3.2+ring*0.4+(i%2), 2.2+ring*0.3, a+Math.PI/2, ci+i);
+      }
+    }
+    // small understory tree clumps mid-canopy
+    for(let i=0;i<5;i++){
+      const a=(i/5)*Math.PI*2+0.5;
+      const x=c.cx+Math.cos(a)*c.rx*0.5;
+      const z=c.cz+Math.sin(a)*c.rz*0.5;
+      if(blocked(x,z,4)) continue;
+      const prefer=name.includes('Block')?'willow':name.includes('Hours')?'pine':name.includes('Board')?'oak':'poplar';
+      clump(x,z, 6, 5.5, 0.7, prefer);
+    }
   });
 })();
 function landSign(text,x,z,yaw){
