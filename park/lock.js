@@ -88,6 +88,15 @@ export function nearRing(x, z, pad = 8) {
   return Math.hypot(x - a.x, z - a.z) < a.outer + pad || Math.hypot(x - b.x, z - b.z) < b.outer + pad;
 }
 
+/** True if a disk of `radius` intersects a Pocket ring walking annulus (inner–outer). */
+export function onRingWalk(x, z, radius = 0) {
+  for (const ring of Object.values(LOCK.rings)) {
+    const d = Math.hypot(x - ring.x, z - ring.z);
+    if (d + radius > ring.inner && d - radius < ring.outer) return true;
+  }
+  return false;
+}
+
 /**
  * SKU building may sit inside a land canopy, not on the 14 m spine,
  * not in water, not through the stadium rail, not overlapping locked rings.
@@ -121,6 +130,8 @@ export function occupiesSpine(x, z, radius = 0) {
 
 export function canPlaceSoft(x, z, radius = 1) {
   if (occupiesSpine(x, z, radius)) return false;
+  if (inWater(x, z, radius)) return false;
+  if (onRingWalk(x, z, radius)) return false;
   for (const b of BUILDINGS) {
     if (Math.abs(x - b.x) < b.w / 2 + radius + 1.5 && Math.abs(z - b.z) < b.d / 2 + radius + 1.5) return false;
   }
@@ -135,33 +146,45 @@ export const MATERIALS = {
   curb: 0x5a4630
 };
 
+function shoreAround(cx, cz, rx, rz, extra, n, phase = 0.2) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + phase;
+    out.push([cx + Math.cos(a) * (rx + extra), cz + Math.sin(a) * (rz + extra)]);
+  }
+  return out;
+}
+
 export const TREE_BELTS = {
   'west lakes': {
-    anchors: [
-      [-95, -20], [-125, 25], [-160, -55], [-70, -70], [-110, 70], [-185, 10],
-      [-210, -20], [-165, 10], [-120, 70], [-150, -40], [-185, -40], [-80, 20],
-      [-230, 20], [-140, -100], [-200, -70]
-    ],
-    spread: 16,
-    count: 14
+    anchors: LOCK.waters
+      .filter(([x]) => x < -80)
+      .flatMap(([x, z, rx, rz]) => shoreAround(x, z, rx, rz, 12, 8))
+      .concat([[-70, -70], [-80, 20], [-230, 20], [-140, -100], [-185, -40]]),
+    spread: 7,
+    count: 10
   },
   'SE grove': {
     anchors: [
+      ...shoreAround(LOCK.rings.A.x, LOCK.rings.A.z, LOCK.rings.A.outer, LOCK.rings.A.outer, 12, 8),
+      ...shoreAround(LOCK.rings.B.x, LOCK.rings.B.z, LOCK.rings.B.outer, LOCK.rings.B.outer, 12, 8),
       [75, 70], [100, 50], [55, 100], [130, 85], [85, 125],
-      [95, 95], [118, 108], [145, 70], [70, 130], [110, 130],
-      [150, 40], [110, 120], [70, 145]
+      [145, 70], [70, 130], [110, 130], [150, 40], [110, 120], [70, 145]
     ],
-    spread: 13,
-    count: 12
+    spread: 8,
+    count: 10
   },
   'north split': {
-    anchors: [
-      [-45, -110], [20, -120], [-20, -160], [50, -95], [-80, -130],
-      [-10, -140], [40, -155], [-60, -90], [10, -175], [-90, -150],
-      [90, -170], [-100, -165], [0, -190]
-    ],
-    spread: 14,
-    count: 12
+    anchors: LOCK.waters
+      .filter(([, z]) => z < -70)
+      .flatMap(([x, z, rx, rz]) => shoreAround(x, z, rx, rz, 12, 8))
+      .concat([
+        [-45, -110], [20, -120], [-20, -160], [50, -95], [-80, -130],
+        [-10, -140], [40, -155], [-60, -90], [10, -175], [-90, -150],
+        [90, -170], [-100, -165], [0, -190]
+      ]),
+    spread: 8,
+    count: 10
   }
 };
 
@@ -227,11 +250,14 @@ export function lakesideRibbonSegments(cx, cz, rx, rz, n = 40) {
   return segs;
 }
 
+export function lakesideRibbonMesh(cx, cz, rx, rz, n = 40) {
+  const segs = lakesideRibbonSegments(cx, cz, rx, rz, n);
+  const skipped = n - segs.length;
+  return { x: cx, z: cz, rx, rz, segs, skipped, closedRing: skipped === 0 };
+}
+
 export function allLakesideRibbons() {
-  return LOCK.waters.map(([x, z, rx, rz]) => ({
-    x, z, rx, rz,
-    segs: lakesideRibbonSegments(x, z, rx, rz)
-  }));
+  return LOCK.waters.map(([x, z, rx, rz]) => lakesideRibbonMesh(x, z, rx, rz));
 }
 
 /** 1 song = kiosk, EP = pavilion, album = full building. */

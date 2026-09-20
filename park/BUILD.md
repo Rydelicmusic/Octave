@@ -38,6 +38,7 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - pass 2: recessed water basin + coping + water reflection; lakeside ribbons on all 12 locked ellipses (spine-clipped)
 - pass 3: hub eight radial planting beds denser; sand-path / concrete-plaza / grass / packed-earth / curb materials from lock.js
 - pass 4: land wash lights, spine/gate lamps kept, planters, ropes; Walk / 3rd / Drone unchanged
+- pass 5: belts skip water ellipses + Pocket ring walks; closed lakeside ring only when skipped===0
 
 ## Still fake (worst next)
 1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple) — buildings agent
