@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> denser lamp PointLights</div>
+  <div><b>This pass:</b> gate ticket booth polish</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass48-lamps';
+import * as LockMod from './lock.js?v=pass49-gate';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -571,9 +571,57 @@ function gateHouse(){
   const cornice=new THREE.Mesh(new THREE.BoxGeometry(span+1,0.28,4.4),new THREE.MeshLambertMaterial({color:pal.trim}));
   cornice.position.set(0,deckY+deckH/2+0.16,z);
   scene.add(bridge,cornice);
+  // Pass 49 — ticket window / counter / queue rail polish (GATE x/z/w/d/h held)
+  const glassMat=new THREE.MeshLambertMaterial({color:0xa8c8e8,emissive:0x446688,emissiveIntensity:0.22,transparent:true,opacity:0.85});
+  const brass=new THREE.MeshLambertMaterial({color:0xb08a4a});
+  const counterMat=new THREE.MeshLambertMaterial({color:0x3a2e24});
+  const railMat=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
   GATE.forEach((wing)=>{
-    const ticket=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.9,0.14),new THREE.MeshLambertMaterial({color:pal.window,emissive:pal.window,emissiveIntensity:0.12}));
-    ticket.position.set(wing.x,1.2,wing.z+wing.d/2+0.1);scene.add(ticket);
+    const faceZ=wing.z+wing.d/2;
+    const side=Math.sign(wing.x)||1;
+    // framed ticket windows (two panes)
+    [-0.85,0.85].forEach((ox)=>{
+      const frame=new THREE.Mesh(new THREE.BoxGeometry(1.35,1.15,0.12),new THREE.MeshLambertMaterial({color:pal.trim}));
+      frame.position.set(wing.x+ox,1.35,faceZ+0.08);scene.add(frame);
+      const glass=new THREE.Mesh(new THREE.BoxGeometry(1.1,0.85,0.06),glassMat);
+      glass.position.set(wing.x+ox,1.38,faceZ+0.14);scene.add(glass);
+      const sill=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.1,0.22),brass);
+      sill.position.set(wing.x+ox,0.78,faceZ+0.18);scene.add(sill);
+    });
+    // counter shelf under windows
+    const counter=new THREE.Mesh(new THREE.BoxGeometry(3.4,0.14,0.55),counterMat);
+    counter.position.set(wing.x,0.95,faceZ+0.42);scene.add(counter);
+    const kick=new THREE.Mesh(new THREE.BoxGeometry(3.4,0.7,0.12),new THREE.MeshLambertMaterial({color:pal.body}));
+    kick.position.set(wing.x,0.4,faceZ+0.28);scene.add(kick);
+    // canopy over ticket face
+    const canopy=new THREE.Mesh(new THREE.BoxGeometry(4.2,0.12,1.1),new THREE.MeshLambertMaterial({color:pal.trim}));
+    canopy.position.set(wing.x,2.15,faceZ+0.55);scene.add(canopy);
+    [-1.8,1.8].forEach((ox)=>{
+      const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.85,6),brass);
+      rod.position.set(wing.x+ox,1.7,faceZ+0.9);scene.add(rod);
+    });
+    // TICKETS band
+    const band=new THREE.Mesh(new THREE.BoxGeometry(2.8,0.38,0.08),brass);
+    band.position.set(wing.x,2.45,faceZ+0.12);scene.add(band);
+    // queue stanchions + rails in front of each wing (guest side +Z toward approach is −Z from gate? gate at z=233, approach from south is lower z)
+    const qZ0=faceZ+1.4;
+    for(let i=0;i<5;i++){
+      const qz=qZ0+i*1.15;
+      const qx=wing.x+side*0.15;
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post.position.set(qx,0.5,qz);scene.add(post);
+      const cap=new THREE.Mesh(new THREE.SphereGeometry(0.11,6,5),brass);
+      cap.position.set(qx,1.05,qz);scene.add(cap);
+      if(i<4){
+        const rail=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,1.05),railMat);
+        rail.position.set(qx,0.92,qz+0.55);scene.add(rail);
+        const rail2=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,1.05),railMat);
+        rail2.position.set(qx+side*0.85,0.92,qz+0.55);scene.add(rail2);
+      }
+      const post2=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post2.position.set(qx+side*0.85,0.5,qz);scene.add(post2);
+    }
   });
   [-11,11].forEach(x=>{
     const t=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.7,1.05,10),new THREE.MeshLambertMaterial({color:pal.trim}));

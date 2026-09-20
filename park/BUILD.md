@@ -272,12 +272,17 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Spine: both sides lit every pole; corridor+hub every lantern (not every other); denser −Z + WALKS lit
 - Fill-rate: lower intensity/distance so denser set stays under hard cap
 
+## Pass 49 — gate ticket booth polish
+- Framed dual ticket windows, sill, counter, canopy, TICKETS band per GATE wing
+- Queue stanchions + rails on guest face (GATE x/z/w/d/h held)
+
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
 3. ~~Sparse PointLights~~ — addressed Pass 48 (cap 80 + denser lit; still not 1:1 every mesh under fill-rate)
-4. Gate ticket booth still a blank kiosk slab (no ticket window / queue rail polish)
+4. ~~Gate ticket booth blank kiosk~~ — addressed Pass 49 (windows/counter/queue)
 5. Water material still flat Lambert (no foam lip / deeper tint variation)
+6. Building facades still light on mid-block detail (pilaster/bay density uneven)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -375,7 +380,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 46: ride-station kit densify + zig queues in sku-kit
 - SHIPPED Pass 47: Catmull ribbon sample length for tour meters
 - SHIPPED Pass 48: denser PointLights (cap 80, spine/corridor/hub/WALKS)
-- **NEXT:** Pass 49 — gate ticket polish OR water material densify (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 49: gate ticket booth polish (windows/counter/queue; GATE held)
+- **NEXT:** (await Keith) water material densify or facade detail (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165
