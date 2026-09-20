@@ -1111,3 +1111,18 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** (fill after push)
 - **FILES:** park-site/guest/index.html, park-site/booking/index.html, park-site/STATUS.md
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+
+## Check-in — Pass 124 nested IA hospitality densify
+
+- **TIME:** 2026-09-20 13:55 CDT (America/Chicago)
+- **LANE:** shell / nested IA
+- **STARTED:** Tip ba665e5 after FIX-GUEST-BOOKING-INDEX; densify collision-safe nested trees only
+- **GOING:** Hospitality desks on booking/{night,day}, materials/{kiosk,pavilion,building,lamps,glass,metal}, notes/{the-block,after-hours,the-board,the-pocket}, guest/{gate-desk,ask} — tickets/booking · atelier/materials · programs/notes · land+artist · nests/related; guest/index + booking/index linked; MOCK locked; relative links; 0 broken in densify set (1101 hrefs)
+- **NEXT:** Pass 125 — full park-site link audit 0 broken + STATUS tip sync; then stop for parent
+- **CONSTRAINTS:** park-site/ only; NEVER html/dir basename collisions; no hotel-tower; FIX c95c7e2 + Home→Land→Venue→Work + 12 short-slugs clean; no rebuild
+- **SOLUTIONS:** One substance densify into existing nested IA; indexes remain collision-safe directory landings
+- **COMMIT / LAST COMMIT:** (fill after push)
+- **TIP:** (fill after push)
+- **FILES:** 14 nested HTML + STATUS.md
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
