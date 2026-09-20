@@ -1023,6 +1023,22 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **NEXT:** Pass 111 — link audit 0 broken; STATUS tip sync; then stop for parent
 - **CONSTRAINTS:** park-site/ only; MOCK locked (Vale/Juniper/Solenne/Ori); relative links; no hotel-tower; FIX c95c7e2 clean; no clone
 - **SOLUTIONS:** One substance densify; menus open menus; short slugs densified only (SKU stubs untouched)
+- **COMMIT / LAST COMMIT:** 864b58e — park-site Pass 110: denser 12 short-slug venue hospitality desks
+- **TIP:** 864b58e96373d7ee16ade76183e4e8fde8349f2e
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+
+## Check-in — Pass 111 link audit + STATUS tip sync
+
+- **TIME:** 2026-09-20 13:45 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 864b58e Pass 110 denser 12 short-slug venue hospitality desks; full park-site relative href audit
+- **GOING:** 0 broken local hrefs (5613 checked); 12/12 short venues + 12/12 SKU aliases present; Home→Land→Venue→Work chains OK; FIX c95c7e2 clean; no hotel-tower language
+- **NEXT:** Stop for parent (Pass 110+111 shipped)
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower
+- **SOLUTIONS:** Audit-only pass — no dead links to fix; STATUS tip sync to live
 - **COMMIT / LAST COMMIT:** (fill after push)
-- **TIP:** (pre-110 base at push time)
+- **TIP:** 864b58e96373d7ee16ade76183e4e8fde8349f2e (Pass 110 base)
+- **BROKEN:** 0
+- **CHECKED:** 5613
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
