@@ -1391,3 +1391,38 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 184 densify + Pass 185 audit
+
+- **TIME:** 2026-09-20 14:20 CDT (America/Chicago)
+- **LANE:** shell / map·geometry·programs (Site Luxury)
+- **STARTED:** Tip after Pass 183 STATUS (~c61266d / later e32c825); densify map.html + geometry.html + programs.html
+- **GOING:** Pass 184 densify @7491f96 (nested IA → short venues/nests/guest/booking/notes/materials/tonight+daylight); Pass 185 full link audit
+- **NEXT:** Stop for parent / continue densify-audit order unless STOP
+- **CONSTRAINTS:** park-site/ only; no clone; MOCK locked; relative links; no hotel-tower; no rebuild; no new html/dir basename collisions; keep guest/+booking/ indexes + FIX markers; Home→Land→Venue→Work; 12 short-slugs @200
+- **SOLUTIONS:** One densify commit for three hubs; nested menus into existing IA only; preexisting land hub html/dir collisions unchanged
+- **COMMIT / LAST COMMIT:** 7491f96 — park-site Pass 184: densify map/geometry/programs
+- **TIP:** 7491f96ed5f4eca118503dd0186e6f3447aad2e1 (STATUS commit will advance tip)
+- **AUDIT:** 161 html · 9774 hrefs · **0 broken**
+- **COLLISIONS:** preexisting only — lands/{the-block,after-hours,the-board,the-pocket}.html ↔ dirs (none new)
+- **SHORT SLUGS:** 12/12 present
+- **GUEST/BOOKING:** indexes + FIX markers; live probes 200
+- **DENSIFY FILES:** map.html · geometry.html · programs.html
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/guest/` | 200 |
+| `/guest/index.html` | 200 |
+| `/booking/` | 200 |
+| `/booking/index.html` | 200 |
+| `/map.html` | 200 |
+| `/geometry.html` | 200 |
+| `/programs.html` | 200 |
+| `/lands/the-block/west-gate-echo.html` | 200 |
+| `/lands/after-hours/northern-quiet.html` | 200 |
+| `/lands/the-board/boardline.html` | 200 |
+| `/lands/the-pocket/spine-fourteen.html` | 200 |
+
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+
