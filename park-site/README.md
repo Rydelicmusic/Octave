@@ -11,7 +11,7 @@ Companion hospitality site for the locked artist park.
 - Origin hub (0,0)
 - +X The Board · −X The Block · +Z Gate / The Pocket · −Z After Hours
 - Stadium 760×460 · A=380 B=230 · Cap R=230 · Gate (0,+230) · hub r18/32 · spine 14 m
-- Canopies: Block (−165,−10,130,160) · After Hours (10,−140,150,70) · Board (160,10,130,130) · Pocket label (0,120)
+- Canopies: Block (cx−165,cy−10,rx130,ry160) · After Hours (cx10,cy−140,rx150,ry70) · Board (cx160,cy10,rx130,ry130) · Pocket label (0,120)
 - Song=kiosk · EP=pavilion · album=building
 
 ## MOCK roster (stable)
