@@ -984,3 +984,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** eb99a5d — Pass 112
 - **TIP:** eb99a5d65c6a65baeecdae74bb9e4e8902656fd7
 
+
+## Check-in — Pass 108 land hospitality desks
+
+- **TIME:** 2026-09-20 13:42 CDT (America/Chicago)
+- **LANE:** lands
+- **STARTED:** Tip 64917c5 (Pass 112 Pages collision fix); densify four land pages hospitality desks
+- **GOING:** the-block / after-hours / the-board / the-pocket — short venues + artist works + tickets/atelier/programs + nested boards (tonight/daylight/journal/guest/booking)
+- **NEXT:** Pass 109 — link audit 0 broken; STATUS tip sync; then stop for parent
+- **CONSTRAINTS:** park-site/ only; MOCK locked (Vale/Juniper/Solenne/Ori); relative links; no hotel-tower; FIX c95c7e2 clean; Home→Land→Venue→Work
+- **SOLUTIONS:** One substance densify; SKU aliases remain 200; menus open menus
+- **COMMIT / LAST COMMIT:** (fill after push)
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
