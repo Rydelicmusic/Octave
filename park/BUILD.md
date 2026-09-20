@@ -366,10 +366,16 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Corridor + hub lantern posts were 2.4 / 2.2 m (toy vs person-scale)
 - Now PATH_SCALE.lampH = 3.6 m on CAD corridor edges and hub ring (spine gaps held)
 
+## Pass 72 — 0.45 m spine curbs outside 14 m walk
+- CAD curb ribbons were 0.9 m centered on x=±7 (ate 0.45 m of the 14 m asphalt)
+- Now PATH_SCALE.spineCurbW = 0.45 m, center offset 0.225 m outside the strip
+- Blueprint hover edges stay x=±7; waters / hub / rings unmoved
+
 ## Still fake (worst next)
-- CAD spine curb ribbons are 0.9 m on top of 14 m asphalt
 - Water coping still scales with ellipse rx
 - Stadium rail posts 1.15 m with 0.18 m section (paper-thin vs 14 m spine)
+- Hub inner continuous curb is 0.22 m (step-over) while outer parapet is 0.55 m
+
 
 
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)

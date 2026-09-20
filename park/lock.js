@@ -104,8 +104,8 @@ export function onSpine(x, z, half = LOCK.spineWidth / 2) {
  * Blueprint CAD edges for the 14 m spine (hover meters).
  * Matches blueprint.html rect: x=±spineWidth/2, z=0 (hub) → z=gate.z (+230).
  */
-export function spineCadPolyline(side, step = 8) {
-  const x = side * (LOCK.spineWidth / 2);
+export function spineCadPolyline(side, step = 8, offset = 0) {
+  const x = side * (LOCK.spineWidth / 2 + offset);
   const pts = [];
   for (let z = 0; z <= LOCK.gate.z; z += step) pts.push([x, z]);
   if (pts[pts.length - 1][1] !== LOCK.gate.z) pts.push([x, LOCK.gate.z]);
@@ -116,8 +116,8 @@ export function spineCadPolyline(side, step = 8) {
  * Blueprint CAD edges for the north −Z corridor (mirror of Gate spine).
  * x=±spineWidth/2, z=0 (hub) → z=−B (−230, stadium north rail).
  */
-export function northSpineCadPolyline(side, step = 8) {
-  const x = side * (LOCK.spineWidth / 2);
+export function northSpineCadPolyline(side, step = 8, offset = 0) {
+  const x = side * (LOCK.spineWidth / 2 + offset);
   const zEnd = -LOCK.B;
   const pts = [];
   for (let z = 0; z >= zEnd; z -= step) pts.push([x, z]);
@@ -132,6 +132,7 @@ export const PATH_SCALE = {
   copingW: 0.5,
   copingH: 0.32,
   lampH: 3.6,
+  spineCurbW: 0.45,
 };
 
 /** Closed polyline around a locked water ellipse at a constant offset (meters). */
