@@ -900,29 +900,26 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 97566c8594fe040cae8f2763278adc646ac4769f
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-## Check-in — Pass 73 link audit + tip sync
+## Check-in — Pass 94–99 substance
 
-- **TIME:** 2026-09-20 13:35 CDT (America/Chicago)
-- **LANE:** Site Luxury / audit
-- **STARTED:** After Pass 72 (0bf18f4); full relative link audit; STATUS tip sync; light programs foot polish
-- **GOING:** Audit ok=3674 broken=0; 12 short-slugs + 12 SKU aliases present; Home→Land→Venue→Work intact; FIX c95c7e2 clean
-- **NEXT:** STOP for parent re-dispatch
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild
-- **SOLUTIONS:** Audit first; tip pointer accurate; foot meta only polish
-- **LINK AUDIT:** ok=3674 broken=0
-- **COMMITS:** 0bf18f4 Pass 72 programs desk · (this) Pass 73 audit+STATUS
-- **COMMIT / LAST COMMIT:** pending Pass 73 push
-- **TIP:** 0bf18f4a2983122ce1b97b5d3399c4b737c893d8
+- **TIME:** 2026-09-20 13:33 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 3233af7 / main 3f23159; Pass 94 geometry desks; 95 programs voice; 96 night measure; 97 day desks; 98 venue meters; 99 roster measure
+- **GOING:** Push 94–99
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; substance-first; no new lands; LAYOUT; FF retries
+- **SOLUTIONS:** Hub desks; night still measured; day desks; nest meters; roster measure/voice
+- **COMMIT / LAST COMMIT:** 3233af7 — Pass 93 tip
+
+## Check-in — Pass 99 tip
+
+- **TIME:** 2026-09-20 13:34 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Passes 94–99 from tip 3233af7 / main 3f23159
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT; substance-first; FF retries
+- **SOLUTIONS:** Geometry desks; programs voice; night measured; day desks; nest meters; roster measure
+- **COMMIT / LAST COMMIT:** 998de2d — Pass 98
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-
-## KEITH fleet check-in — 2026-09-20 13:33 CDT
-- **TIME:** 2026-09-20 13:33 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
-- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
-- **GOING:** Site through Pass 93 Gate hubs + Pass 73 link audit (ok=3674 broken=0). Live https://rydelicmusic.github.io/octave/park-site/ . Park tip Pass 34. Site Luxury marked STOP-for-re-dispatch — not Ryan STOP; continuing.
-- **NEXT:** Pass 94+ — denser substance on thin hubs (tickets/atelier/programs foot + land voice); keep MOCK roster + LAYOUT axes
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild; no park/ or root index.html
-- **SOLUTIONS:** Re-ordered Site Luxury Pass 94+; Quality spot-check Gate + visit-paths + geometry live
-- **COMMITS:** tip ec93ae6; 3f23159 Pass 73; 97566c8 Pass 93; 0bf18f4 Pass 72
-- **BLOCKED BOTS:** Site Luxury was idle — ordered continue now
