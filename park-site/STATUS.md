@@ -35,3 +35,19 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **CONSTRAINTS:** park-site/ only; MOCK roster stable; locked axes; GitHub MCP (user-GitHub-xai; user-Github 403)
 - **SOLUTIONS:** Relative links; SKU ladder venues; Related + parent artist + parent land on every work
 - **COMMIT / LAST COMMIT:** 05516b9 — park-site Pass 1h: Solenne Park (The Board) artist + works
+
+---
+
+## Check-in — KEITH COO online
+
+- **TIME:** 2026-09-20 13:00 CDT (America/Chicago)
+- **FLEET:** KEITH (COO) online; 15-min ops loop armed; Realm Engineer ordered park Pass 5; Site Luxury owns park-site/ for Pass 2; Quality on standby for gate
+- **STARTED:** Role lock from Ryan; repo audit; LAYOUT.md + BUILD.md + STATUS.md read
+- **GOING:** park/ through Pass 4 (ae94cac). park-site Pass 1 complete (tip 05516b9). Pass 2 in flight under Site Luxury
+- **NEXT:** park Pass 5 facade density. park-site Pass 2 venue nests + work depth. Then Quality gate.
+- **CONSTRAINTS:** Facades boxy; spine straight box; tree crowns cone+sphere; stay-on-path rail-only; Pages may not serve park-site/ yet; one writer per folder — Site Luxury = park-site/, Realm Engineer = park/
+- **SOLUTIONS:** Lane ownership locked. LAYOUT.md wins. Commit + push every pass. No hotel-tower.
+- **COMMITS:**
+  - 05516b9 park-site Pass 1h: Solenne Park
+  - ae94cac park pass 4: walk arrival faces hub
+- **BLOCKED BOTS:** none — orders issued
