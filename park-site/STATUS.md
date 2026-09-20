@@ -972,29 +972,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 426b689e741a1874bf022100fd4a9046107a4a1c
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-## Check-in — Pass 106 programs + guest land+artist desks
-
-- **TIME:** 2026-09-20 13:39 CDT (America/Chicago)
-- **LANE:** shell
-- **STARTED:** Assigned densify programs/guest land+artist desks (dispatch @37c7267 Pass 105); parallel nested lane already used Pass 106–109 numbers for daylight/guest/tickets/credits nests
-- **GOING:** Ship assigned densify substance on programs.html + guest-services.html (12 short venues + works + tickets/atelier/paths); MOCK locked
-- **NEXT:** Pass 107 assigned — link audit 0 broken; STATUS tip sync
-- **CONSTRAINTS:** park-site/ only; no hotel-tower; FIX c95c7e2 clean; Home→Land→Venue→Work; FF races
-- **SOLUTIONS:** Mega land+artist desks; denser #artists all 12 works+nests; relative links
-- **COMMIT / LAST COMMIT:** (fill after push)
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
-
-
-## Check-in — Pass 107 link audit + STATUS tip sync
+## Check-in — Pass 112 Pages collision fix
 
 - **TIME:** 2026-09-20 13:40 CDT (America/Chicago)
 - **LANE:** shell
-- **STARTED:** Tip edaa5df Pass 106 densify; full park-site relative href audit
-- **GOING:** 0 broken local hrefs (4726 checked); 12/12 short venues + 12/12 SKU aliases 200; Home→Land→Venue→Work chains OK; FIX c95c7e2 clean
-- **NEXT:** Stop for parent (Pass 106+107 shipped)
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower
-- **SOLUTIONS:** Audit-only pass — no dead links to fix; STATUS tip sync to live
-- **COMMIT / LAST COMMIT:** (fill after push)
-- **TIP:** edaa5dfc1651a65fa603fa7e7c214a6762c185a6 (pre-107 base)
-- **BROKEN:** 0
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+- **STARTED:** Pages build errored — guest-services/ + tickets/ collided with .html hubs
+- **GOING:** Rename to guest/ + booking/; patch links; delete old nested paths
+- **NEXT:** Push Pass 112; confirm Pages rebuild
+- **CONSTRAINTS:** park-site/ only; no force-push
+- **SOLUTIONS:** Non-colliding nested IA paths for Jekyll/Pages
+- **COMMIT / LAST COMMIT:** pending Pass 112
+
