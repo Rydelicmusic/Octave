@@ -141,6 +141,8 @@ assert.match(indexHtml, /canopyEdgeRibbons/);
 assert.match(indexHtml, /railFenceDensify/);
 assert.match(indexHtml, /Pass 32/);
 assert.match(indexHtml, /HemisphereLight/);
+assert.match(indexHtml, /Pass 33/);
+assert.match(indexHtml, /emissiveIntensity:0\.45/);
 
 
 assert.ok(ITINERARY.sequence.every((id) => walkById(id)));

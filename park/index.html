@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> evening fog / sky</div>
+  <div><b>This pass:</b> water rim shimmer</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -68,8 +68,14 @@ const concreteMat=new THREE.MeshLambertMaterial({color:CONCRETE});
 const earthMat=new THREE.MeshLambertMaterial({color:EARTH});
 function water(x,z,rx,rz){
   // Recessed pool + raised coping (not flush with ground)
-  const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:48}));
+  const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:72,specular:0x88ccee}));
   pool.rotation.x=-Math.PI/2;pool.position.set(x,0.06,z);pool.scale.set(rx*0.96,rz*0.96,1);scene.add(pool);
+  // Pass 33 — water rim shimmer (ellipse meters unmoved)
+  const shimmer=new THREE.Mesh(
+    new THREE.RingGeometry(0.82,0.94,48),
+    new THREE.MeshLambertMaterial({color:0x7ec8d8, emissive:0x2a6070, emissiveIntensity:0.45, transparent:true, opacity:0.55})
+  );
+  shimmer.rotation.x=-Math.PI/2;shimmer.position.set(x,0.09,z);shimmer.scale.set(rx,rz,1);scene.add(shimmer);
   const rimH=0.38,rimT=0.7;
   const shape=new THREE.Shape();
   shape.absarc(0,0,1+rimT*0.55,0,Math.PI*2,false);

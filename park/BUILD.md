@@ -155,6 +155,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 32 — evening fog / sky
 - Dusk background + warmer Fog + HemisphereLight; layout locks held
 
+## Pass 33 — water rim shimmer
+- Specular pool + emissive inner ring; LOCK.waters ellipses unmoved
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -192,6 +195,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 30: land canopy edge ribbons
 - SHIPPED Pass 31: stadium rail fence densify
 - SHIPPED Pass 32: evening fog / sky
+- SHIPPED Pass 33: water rim shimmer
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
