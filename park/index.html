@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> spine lamps actually light</div>
+  <div><b>This pass:</b> ride-station kit densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass45-lamps';
+import * as LockMod from './lock.js?v=pass46-stations';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -985,25 +985,14 @@ function fencePost(x,z){
     const bar2=bar.clone(); bar2.position.y=0.65; scene.add(bar2);
   }
 })();
-// Pass 36 — denser ride queues + post caps (stations / rings unmoved)
-function queueZig(x,z,yaw,n=10){
-  const rail=new THREE.MeshLambertMaterial({color:0x8a7a60});
-  const post=new THREE.MeshLambertMaterial({color:0x3d3428});
-  for(let i=0;i<n;i++){
-    const bar=new THREE.Mesh(new THREE.BoxGeometry(5.2,0.85,0.07),rail);
-    const along=i*1.2,side=(i%2?1:-1)*1.15;
-    const bx=x+Math.cos(yaw)*along+Math.cos(yaw+Math.PI/2)*side;
-    const bz=z+Math.sin(yaw)*along+Math.sin(yaw+Math.PI/2)*side;
-    bar.position.set(bx,0.48,bz);
-    bar.rotation.y=yaw+(i%2?0.12:-0.12);scene.add(bar);
-    const p=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,1.05,6),post);
-    p.position.set(bx,0.52,bz);scene.add(p);
-  }
-}
+// Pass 46 — zig queues live in sku-kit rails; rideStation densifies shed body only
 function rideStation(s){
   const g=addSkuKit(THREE,scene,s);
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(s.w+0.6,0.22,s.d+0.6),concreteMat);
-  deck.position.set(0,0.11,0);g.add(deck);
+  // platform lip under kit (STATIONS x/z/w/d held)
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(s.w+0.9,0.26,s.d+0.9),concreteMat);
+  deck.position.set(0,0.13,0);g.add(deck);
+  const curb=new THREE.Mesh(new THREE.BoxGeometry(s.w+1.05,0.12,s.d+1.05),stoneDark);
+  curb.position.set(0,0.04,0);g.add(curb);
 }
 STATIONS.forEach(rideStation);
 plate(90,70,-200,-50,EARTH);

@@ -259,6 +259,10 @@ Gate wings used album `queueL` 5.6 m, projecting to z≈242 (outside B=230). Gat
 ## Pass 45 — spine lamps actually light
 Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a spine z. Shared `spineLampLitWest` (`z%28===18`) / `spineLampLitEast` (`z%28===4`) + `spineLampPointLights()` light z=18 west and z=32 east (then every 28 m). 3D `lamp()` consumes `spineLampZs()` + those predicates. Locks held.
 
+## Pass 46 — ride-station kit densify + zig queues in kit
+- Station shed: belt, side windows, canopy posts, thicker platform (STATIONS/rings unmoved)
+- Pass-36 zig queues folded into `skuKit` queue rails (`yaw` on emit.box); standalone `queueZig` removed
+
 ## Still fake (worst next)
 1. Ride-station kit body is a shed; extra Pass-36 zig queues still sit beside the kit rails
 2. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
@@ -357,7 +361,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
 - **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
 - **GOING:** Park tip Pass 45 (spine lamps actually light) + buildings passes 22–28 (roof gap, album mass, marquee 3.35 m, queue rails 1.05 m, gate bridge, ground windows, gate queues 2.2 m). Site racing Pass 160–166 (materials→nests, credits, visit-paths, land hubs, densify notes/materials→venues/works/guest/booking). Tip b5b11ad. Pages API still reports errored; live hubs mostly 200.
-- **NEXT:** Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 46: ride-station kit densify + zig queues in sku-kit
+- **NEXT:** Pass 47 — Catmull ribbon sample length for tour meters (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165

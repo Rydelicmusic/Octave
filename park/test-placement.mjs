@@ -138,7 +138,13 @@ test('skuKit always emits roof overhang window queue marquee service with palett
     assert.ok(service.z < 0, `${p.id} service door on rear`);
     const queues = report.parts.filter((x) => x.name === 'queue');
     assert.ok(queues.length >= 6, `${p.id} queue rails+posts ${queues.length}`);
-    assert.ok(queues[0].h >= 1.0 && queues[0].h <= 1.12, `${p.id} queue H ${queues[0].h}`);
+    if (p.role === 'station') {
+      assert.ok(queues.length >= 20, `${p.id} zig queue parts ${queues.length}`);
+      assert.ok(queues.some((x) => x.yaw), `${p.id} zig bars need yaw`);
+      assert.ok(queues.some((x) => x.w > 4), `${p.id} zig bar width`);
+    } else {
+      assert.ok(queues[0].h >= 1.0 && queues[0].h <= 1.12, `${p.id} queue H ${queues[0].h}`);
+    }
     if (p.role === 'gate') {
       const rail = queues.find((x) => x.d > 1);
       assert.ok(rail && rail.d <= 2.25, `${p.id} gate queue ${rail && rail.d} must stay ~2.2 m`);
