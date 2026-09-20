@@ -1556,3 +1556,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 210–217
+
+- **TIME:** 2026-09-20 14:40 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 3819f00; NEW nested IA (atlas/ritual/lantern/thresholds)
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
+- **SOLUTIONS:** NEW atlas/ (7); ritual/ (5); lantern/ (5); diary+portrait ×4; land threshold ×4; song seats ×4; grain/veil; ritual-walk/note; badge; waive; thin wires
+- **COMMIT / LAST COMMIT:** a057056 — Pass 216
+- **COLLISIONS:** NONE
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
