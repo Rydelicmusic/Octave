@@ -1097,50 +1097,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-
-## Check-in — FIX-GUEST-BOOKING-INDEX
-
-- **TIME:** 2026-09-20 13:54 CDT (America/Chicago)
-- **LANE:** shell / quality
-- **STARTED:** Quality FAIL — guest/index.html + booking/index.html 404 on live tip
-- **GOING:** Ship collision-safe nested index hubs under guest/ and booking/; menus to ask + gate-desk + day + night + guest-services + tickets; MOCK locked; relative links
-- **NEXT:** Resume Pass 124 densify after FIX SHA lands
-- **CONSTRAINTS:** park-site/ only; NEVER html/dir basename collision (indexes live inside dirs); no hotel-tower; FIX c95c7e2 clean
-- **SOLUTIONS:** guest/index.html + booking/index.html directory landings; parent hubs remain guest-services.html + tickets.html
-- **COMMIT / LAST COMMIT:** (fill after push)
-- **TIP:** (fill after push)
-- **FILES:** park-site/guest/index.html, park-site/booking/index.html, park-site/STATUS.md
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
-
-
-## Check-in — Pass 124 nested IA hospitality densify
-
-- **TIME:** 2026-09-20 13:55 CDT (America/Chicago)
-- **LANE:** shell / nested IA
-- **STARTED:** Tip ba665e5 after FIX-GUEST-BOOKING-INDEX; densify collision-safe nested trees only
-- **GOING:** Hospitality desks on booking/{night,day}, materials/{kiosk,pavilion,building,lamps,glass,metal}, notes/{the-block,after-hours,the-board,the-pocket}, guest/{gate-desk,ask} — tickets/booking · atelier/materials · programs/notes · land+artist · nests/related; guest/index + booking/index linked; MOCK locked; relative links; 0 broken in densify set (1101 hrefs)
-- **NEXT:** Pass 125 — full park-site link audit 0 broken + STATUS tip sync; then stop for parent
-- **CONSTRAINTS:** park-site/ only; NEVER html/dir basename collisions; no hotel-tower; FIX c95c7e2 + Home→Land→Venue→Work + 12 short-slugs clean; no rebuild
-- **SOLUTIONS:** One substance densify into existing nested IA; indexes remain collision-safe directory landings
-- **COMMIT / LAST COMMIT:** (fill after push)
-- **TIP:** (fill after push)
-- **FILES:** 14 nested HTML + STATUS.md
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
-
-
-## Check-in — Pass 125 link audit + STATUS tip sync
+## Check-in — Pass 130–135
 
 - **TIME:** 2026-09-20 13:56 CDT (America/Chicago)
 - **LANE:** shell
-- **STARTED:** Tip 5c3a691 Pass 124 nested IA densify; full park-site relative href audit
-- **GOING:** 0 broken local hrefs (6829 checked); guest/index + booking/index present; 12/12 short venues; Home→Land→Venue→Work OK; FIX c95c7e2 clean; no hotel-tower language; collision-safe nested IA intact
-- **NEXT:** Stop for parent (Pass 124+125 shipped; FIX-GUEST-BOOKING-INDEX ba665e5)
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower
-- **SOLUTIONS:** Audit-only — no dead links to fix; STATUS tip sync to live
-- **COMMIT / LAST COMMIT:** (fill after push)
-- **TIP:** 5c3a6913fe0356a07f6c2887fb75f4a25726d1ee (Pass 124 base)
-- **BROKEN:** 0
-- **CHECKED:** 6829
-- **FIX_SHA:** ba665e555f100e1fb1a1d37abc912e9117ff6062
-- **PASS124_SHA:** 5c3a6913fe0356a07f6c2887fb75f4a25726d1ee
+- **STARTED:** Tip 5c3a691 lineage; stadium/hub live still 404 — deepened elsewhere
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; no html/dir collisions; ≤1 Pages rebuild if stadium/hub still 404
+- **SOLUTIONS:** Related EP/song deepen; materials deepen; tonight/daylight→rooms; guest/booking→related; directory mega
+- **COMMIT / LAST COMMIT:** 3afa587 — Pass 133
+- **COLLISIONS:** NONE
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
