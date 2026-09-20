@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> CAD-traced spine edges</div>
+  <div><b>This pass:</b> named walk circuit</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { PLACEMENTS, RINGS, LAND_PALETTE, skuSpec } from './buildings.js';
-import { LOCK, BUILDINGS, GATE, STATIONS, inStadium, spineCadPolyline } from './lock.js';
+import { LOCK, BUILDINGS, GATE, STATIONS, inStadium, spineCadPolyline, WALKS, walkLake, walkPairs, walkSegmentCrossesSpine } from './lock.js';
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
 const PATH=0xe6d3a4,CURB=0x5a4630,ASPHALT=0x3e3e42,CONCRETE=0xb9b3a8,EARTH=0x6b5340;
 const canvas=document.getElementById('c');
@@ -365,13 +365,6 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     }
     pathRibbon(pts,4.2);
   });
-  function hitsSpine(p0,p1){
-    for(let i=0;i<=8;i++){
-      const t=i/8,x=p0[0]+(p1[0]-p0[0])*t,z=p0[1]+(p1[1]-p0[1])*t;
-      if(Math.abs(x)<LOCK.spineWidth/2 && z>=0 && z<=LOCK.B) return true;
-    }
-    return false;
-  }
   function linkLakes(A,B){
     const aAb=angTo(A,B.x,B.z), aBa=angTo(B,A.x,A.z);
     const arcA=shoreArc(A, aAb-0.55, aAb+0.15, 10);
@@ -380,33 +373,23 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     const mid=[(aTip[0]+bTip[0])/2,(aTip[1]+bTip[1])/2];
     const px=-(bTip[1]-aTip[1]), pz=(bTip[0]-aTip[0]), plen=Math.hypot(px,pz)||1;
     mid[0]+=px/plen*2.2; mid[1]+=pz/plen*2.2;
-    if(hitsSpine(aTip,mid)||hitsSpine(mid,bTip)) return false;
+    if(walkSegmentCrossesSpine(aTip[0],aTip[1],mid[0],mid[1])||walkSegmentCrossesSpine(mid[0],mid[1],bTip[0],bTip[1])) return false;
     pathRibbon([...arcA, mid, ...arcB], 4.4);
     return true;
   }
-  // Pass 15 — guest-routing graph: each lake links to 2 nearest neighbors (not MST-only)
-  const linked=new Set();
-  function ek(i,j){return i<j?i+','+j:j+','+i;}
-  lakes.forEach((A,i)=>{
-    const nbrs=lakes.map((B,j)=>({j,d:Math.hypot(B.x-A.x,B.z-A.z),B})).filter(n=>n.j!==i).sort((a,b)=>a.d-b.d);
-    let added=0;
-    for(const n of nbrs){
-      if(added>=2) break;
-      if(n.d>140||n.d<A.rx+n.B.rx+6) continue;
-      const k=ek(i,n.j);
-      if(linked.has(k)){added++;continue;}
-      if(!linkLakes(A,n.B)) continue;
-      linked.add(k);added++;
+  // Pass 17 — designed named circuits (WALKS in lock.js), not k-NN
+  WALKS.forEach(walk=>{
+    walkPairs(walk).forEach(([ia,ib])=>{
+      const A=walkLake(ia), B=walkLake(ib);
+      linkLakes(A,B);
+    });
+    if(walk.spur && walk.lakes[0]!=null){
+      const L=walkLake(walk.lakes[0]);
+      const start=shorePt(L, angTo(L, walk.spur[0], walk.spur[1]), 5.2);
+      const end=walk.spur;
+      if(!walkSegmentCrossesSpine(start[0],start[1],end[0],end[1]))
+        pathRibbon([start, [(start[0]+end[0])/2, start[1]], end], 4.0);
     }
-  });
-  // Spurs from large lakes toward spine shoulder without crossing the 14 m walk
-  lakes.filter(L=>L.rx>=28&&Math.abs(L.x)>40).forEach(L=>{
-    const a=angTo(L,0,L.z);
-    const start=shorePt(L,a,5.2);
-    const end=[Math.sign(start[0])*12, start[1]];
-    if(hitsSpine(start,end)) return;
-    if(Math.hypot(end[0]-start[0],end[1]-start[1])>8)
-      pathRibbon([start, [(start[0]+end[0])/2, start[1]], end], 4.0);
   });
 })();
 const railPts=[];
@@ -557,6 +540,7 @@ landSign('The Block',-42,6,Math.PI/2);
 landSign('The Board',42,6,-Math.PI/2);
 landSign('After Hours',0,-42,0);
 landSign('The Pocket',0,46,Math.PI);
+WALKS.forEach(w=>{if(w.sign)landSign(w.name,w.sign.x,w.sign.z,w.sign.yaw);});
 function lamp(x,z){
   const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,3.5,6),stoneDark);pole.position.set(x,1.75,z);
   const arm=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.08,0.55),stoneDark);arm.position.set(x,3.4,z);

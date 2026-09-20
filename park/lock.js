@@ -109,6 +109,61 @@ export function spineCadPolyline(side, step = 8) {
   return pts;
 }
 
+/**
+ * Designed named guest walks (not k-NN). Lake indices into LOCK.waters.
+ * Circuits stay west of the 14 m spine (Block) or east of it (Board).
+ */
+export const WALKS = [
+  {
+    id: 'block-lakeshore',
+    name: 'Block Lakeshore',
+    land: 'The Block',
+    loop: true,
+    lakes: [0, 4, 3, 2, 1],
+    sign: { x: -88, z: 8, yaw: Math.PI / 2 },
+  },
+  {
+    id: 'board-promenade',
+    name: 'Board Promenade',
+    land: 'The Board',
+    loop: true,
+    lakes: [10, 11],
+    sign: { x: 140, z: -55, yaw: -Math.PI / 2 },
+  },
+  {
+    id: 'block-spine-approach',
+    name: 'Block Spine Approach',
+    land: 'The Block',
+    loop: false,
+    lakes: [2],
+    spur: [-12, 70],
+    sign: { x: -55, z: 55, yaw: Math.PI / 2 },
+  },
+];
+
+export function walkLake(i) {
+  const [x, z, rx, rz] = LOCK.waters[i];
+  return { i, x, z, rx, rz };
+}
+
+export function walkPairs(walk) {
+  const idx = walk.lakes;
+  const pairs = [];
+  for (let i = 0; i < idx.length - 1; i++) pairs.push([idx[i], idx[i + 1]]);
+  if (walk.loop && idx.length > 1) pairs.push([idx[idx.length - 1], idx[0]]);
+  return pairs;
+}
+
+export function walkSegmentCrossesSpine(ax, az, bx, bz) {
+  for (let i = 0; i <= 8; i++) {
+    const t = i / 8;
+    const x = ax + (bx - ax) * t;
+    const z = az + (bz - az) * t;
+    if (Math.abs(x) < LOCK.spineWidth / 2 && z >= 0 && z <= LOCK.B) return true;
+  }
+  return false;
+}
+
 export function inWater(x, z, margin = 0) {
   return LOCK.waters.some(([cx, cz, rx, rz]) => inEllipse(x, z, cx, cz, rx + margin, rz + margin));
 }

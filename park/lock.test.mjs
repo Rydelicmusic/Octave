@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
-  spineCadPolyline,
+  spineCadPolyline, WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -104,8 +104,35 @@ assert.match(indexHtml, /BUILDINGS/);
 assert.match(indexHtml, /LOCK\.walk/);
 assert.match(indexHtml, /function pathRibbon/);
 assert.match(indexHtml, /function lakeWalk/);
-assert.match(indexHtml, /guest-routing graph/);
-assert.match(indexHtml, /function linkLakes/);
+assert.match(indexHtml, /named circuits \(WALKS/);
+assert.match(indexHtml, /WALKS\.forEach/);
+assert.doesNotMatch(indexHtml, /2 nearest neighbors/);
+assert.ok(WALKS.length >= 2);
+assert.ok(WALKS.every((w) => w.name && w.land && Array.isArray(w.lakes)));
+assert.deepEqual(WALKS.find((w) => w.id === 'block-lakeshore').lakes, [0, 4, 3, 2, 1]);
+assert.deepEqual(WALKS.find((w) => w.id === 'board-promenade').lakes, [10, 11]);
+for (const w of WALKS) {
+  for (const i of w.lakes) {
+    assert.ok(i >= 0 && i < LOCK.waters.length, w.id + ' lake ' + i);
+    const L = walkLake(i);
+    if (w.land === 'The Block') assert.ok(L.x < -LOCK.spineWidth / 2, w.id);
+    if (w.land === 'The Board') assert.ok(L.x > LOCK.spineWidth / 2, w.id);
+  }
+  for (const [ia, ib] of walkPairs(w)) {
+    const A = walkLake(ia), B = walkLake(ib);
+    assert.equal(walkSegmentCrossesSpine(A.x, A.z, B.x, B.z), false, w.id);
+  }
+  if (w.spur) {
+    const L = walkLake(w.lakes[0]);
+    assert.equal(walkSegmentCrossesSpine(L.x, L.z, w.spur[0], w.spur[1]), false, w.id + ' spur');
+    assert.ok(Math.abs(w.spur[0]) >= LOCK.spineWidth / 2);
+  }
+  if (w.sign) {
+    assert.ok(inCanopy(w.sign.x, w.sign.z, w.land), w.id + ' sign canopy');
+    assert.equal(onSpine(w.sign.x, w.sign.z), false, w.id + ' sign spine');
+  }
+}
+assert.match(blueprintHtml, /WALKS/);
 assert.match(indexHtml, /8 radial walk spokes \+ planted beds/);
 assert.match(indexHtml, /West lakes \/ The Block/);
 assert.match(indexHtml, /SE grove/);

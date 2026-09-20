@@ -100,9 +100,14 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - Centerline still x=0, width LOCK.spineWidth 14 m; hub / gate / rings / waters unmoved
 - Removed procedural sin scallops (Pass 12 visual-only flare)
 
+## Pass 17 — named guest-walk circuit
+- Replaced k-NN shore graph with `WALKS` in lock.js: Block Lakeshore (loop 0-4-3-2-1), Board Promenade (10-11), Block Spine Approach (lake 2 → x=-12)
+- Eye-height walk-name signs; blueprint draws the same named dashed circuits
+- No walk segment crosses the 14 m Gate→Hub spine; waters / rings / hub / gate unmoved
+
 ## Still fake (worst next)
-1. Guest-routing graph is k-NN, not a designed circuit with named walks
-2. North −Z corridor edges are not on the 2D blueprint CAD rect (south Gate spine only)
+1. North −Z corridor edges are not on the 2D blueprint CAD rect (south Gate spine only)
+2. Named walks are lakeshore circuits, not a full park-wide guest itinerary
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -122,7 +127,8 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - **GOING:** Park Pass 12 blueprint spine shipped; site Pass 11 polish shipped; no STOP
 - SHIPPED Pass 15: guest-routing shore graph (k-NN, spine-safe)
 - SHIPPED Pass 16: CAD-traced 14 m spine edges from blueprint hover
-- **NEXT:** Pass 17 — named guest-walk circuit (replace k-NN shore graph)
+- SHIPPED Pass 17: named guest-walk circuit (Block Lakeshore / Board Promenade)
+- **NEXT:** Pass 18 — CAD-trace north −Z corridor edges, or a park-wide itinerary
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551

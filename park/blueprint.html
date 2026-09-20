@@ -24,7 +24,7 @@
 <div id="wrap"></div>
 <div class="hud" id="hud">hover grid — m</div>
 <script type="module">
-import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, hoverLabel } from './lock.js';
+import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, walkLake, hoverLabel } from './lock.js';
 const A = LOCK.A, B = LOCK.B;
 const CX = BLUEPRINT.CX, CY = BLUEPRINT.CY, W = BLUEPRINT.W, H = BLUEPRINT.H;
 const toX = x => CX + x;
@@ -67,6 +67,19 @@ svg.appendChild(el('ellipse', {cx:toX(LOCK.rings.B.x), cy:toY(LOCK.rings.B.z), r
 });
 svg.appendChild(el('path', {d:stadiumPath(A, B), fill:'none', stroke:'#2b241c', 'stroke-width':'6'}));
 svg.appendChild(el('path', {d:stadiumPath(A, B), fill:'none', stroke:'#9a8a70', 'stroke-width':'1.2', 'stroke-dasharray':'8 6'}));
+WALKS.forEach(walk => {
+  const pts = [];
+  walk.lakes.forEach((i) => { const L = walkLake(i); pts.push([L.x, L.z]); });
+  if (walk.loop && pts.length > 1) pts.push(pts[0]);
+  if (walk.spur) pts.push(walk.spur);
+  if (pts.length < 2) return;
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'} ${toX(p[0])} ${toY(p[1])}`).join(' ');
+  svg.appendChild(el('path', { d, fill: 'none', stroke: '#6b5a3a', 'stroke-width': '2.2', 'stroke-dasharray': '7 5' }));
+  const mid = pts[Math.floor(pts.length / 2)];
+  const t = el('text', { x: toX(mid[0]), y: toY(mid[1]) - 8, fill: '#6b5a3a', 'font-size': 11, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
+  t.textContent = walk.name;
+  svg.appendChild(t);
+});
 svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(0), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
 svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:LOCK.hubOuter, fill:'none', stroke:'#6b5a3a', 'stroke-width':'2'}));
 svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:LOCK.hubInner, fill:'none', stroke:'#6b5a3a', 'stroke-width':'2'}));
