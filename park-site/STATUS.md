@@ -1304,3 +1304,34 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 174 densify + Pass 175 audit
+
+- **TIME:** 2026-09-20 14:12 CDT (America/Chicago)
+- **LANE:** lands / shell (Site Luxury)
+- **STARTED:** Tip after Pass 173 STATUS; densify lands/*/tonight.html + daylight.html cross-park boards
+- **GOING:** Pass 174 densify @a149ad7 (8 boards → short venues/works/guest/booking/notes/materials); Pass 175 full link audit
+- **NEXT:** Continue densify/audit per Keith 168+ order unless Ryan STOP
+- **CONSTRAINTS:** park-site/ only; no clone; MOCK locked; relative links; no hotel-tower; no rebuild; no new html/dir basename collisions; keep guest/+booking/ indexes; Home→Land→Venue→Work; 12 short-slugs @200
+- **SOLUTIONS:** Nested density on night/day boards only; guest/booking hubs + nested rooms linked; preexisting land hub html/dir collisions unchanged (not new)
+- **COMMIT / LAST COMMIT:** a149ad7 — park-site Pass 174: densify lands/*/tonight+daylight
+- **TIP:** a149ad7e0999c40be07eb2e8e9a4a4cef8d21d3e (STATUS commit will advance tip)
+- **AUDIT:** 137 html · 8544 hrefs · **0 broken**
+- **COLLISIONS:** preexisting only — lands/{the-block,after-hours,the-board,the-pocket}.html ↔ dirs (none new)
+- **SHORT SLUGS:** 12/12 present
+- **GUEST/BOOKING:** indexes + nested pages present; live probes 200
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+|  | 200 |
+|  | 200 |
+|  | 200 |
+|  | 200 |
+|  | 200 |
+|  | 200 |
+|  | 200 |
+|  | 200 |
+|  | 200 |
+
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
