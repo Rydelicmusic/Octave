@@ -7,6 +7,7 @@ import {
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
   spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine,
   measureItinerary, hubApronPath, polylineMeters, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
+  LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast, spineLampPointLights,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -129,7 +130,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.match(lockSrc, /export const ITINERARY/);
 assert.match(lockSrc, /FIX-ITINERARY/);
 assert.ok(ITINERARY);
-assert.match(indexHtml, /pass43-apron/);
+assert.match(indexHtml, /pass45-lamps/);
 assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
@@ -158,13 +159,34 @@ assert.match(indexHtml, /Pass 36/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
-assert.match(indexHtml, /denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades/);
+assert.match(indexHtml, /spine lamps actually light|denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades/);
 assert.match(indexHtml, /walkLinkPolyline/);
 assert.match(indexHtml, /walkSpurPolyline/);
-assert.match(indexHtml, /pass43-apron/);
+assert.match(indexHtml, /pass45-lamps/);
 assert.match(indexHtml, /function lamp\(x,z,lit=false\)/);
-assert.match(indexHtml, /PointLight\(0xffe1b0,12,26\)/);
+assert.match(indexHtml, /addLampPointLight/);
+assert.match(indexHtml, /spineLampLitWest\(z\)/);
+assert.match(indexHtml, /spineLampLitEast\(z\)/);
+assert.match(indexHtml, /spineLampZs\(\)/);
+assert.match(indexHtml, /SPINE_LAMP\.xWest/);
+assert.match(indexHtml, /LAMP_LIGHT\.color/);
 assert.match(indexHtml, /lamp\(36,0,true\)/);
+{
+  const zs = spineLampZs();
+  assert.ok(zs[0] === SPINE_LAMP.z0);
+  assert.ok(zs.includes(SPINE_LAMP.z0 + SPINE_LAMP.step));
+  assert.ok(zs.some((z) => spineLampLitWest(z)), 'some +Z spine z west-lit');
+  assert.ok(zs.some((z) => spineLampLitEast(z)), 'some +Z spine z east-lit');
+  assert.equal(spineLampLitWest(18), true);
+  assert.equal(spineLampLitEast(18), false);
+  assert.equal(spineLampLitEast(32), true);
+  const lights = spineLampPointLights();
+  assert.ok(lights.length >= 4, 'Gate→Hub spine gets PointLights');
+  assert.ok(lights.some((l) => l.z === 18 && l.side === 'west'));
+  assert.ok(lights.every((l) => Math.abs(l.x) > LOCK.spineWidth / 2));
+  assert.equal(typeof LAMP_LIGHT.color, 'number');
+  assert.ok(LAMP_LIGHT.intensity > 0 && LAMP_LIGHT.dist > 0);
+}
 assert.match(indexHtml, /walkPathPlanting/);
 assert.ok(ITINERARY.stops.length === ITINERARY.sequence.length);
 assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
@@ -270,7 +292,7 @@ for (const s of STATIONS) {
   assert.deepEqual(placementIssues(s), [], s.id);
 }
 
-assert.match(blueprintHtml, /lock\.js\?v=pass43-apron/);
+assert.match(blueprintHtml, /lock\.js\?v=pass45-lamps/);
 assert.match(blueprintHtml, /GATE/);
 assert.match(blueprintHtml, /STATIONS/);
 assert.match(blueprintHtml, /hoverLabel/);
@@ -284,4 +306,4 @@ console.log('lock tests ok', BUILDINGS.length, 'buildings');
 assert.match(indexHtml, /hubApronPath/);
 assert.match(indexHtml, /LAMP_LIGHT_CAP/);
 assert.match(indexHtml, /pass44LampLights/);
-assert.match(indexHtml, /pass43-apron/);
+assert.match(indexHtml, /pass45-lamps/);

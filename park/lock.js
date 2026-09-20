@@ -231,6 +231,33 @@ export function walkById(id) {
   return WALKS.find((w) => w.id === id);
 }
 
+/** Gate→Hub lamp row: z = 18, 32, 46, … (never remainder 0 mod 28). */
+export const LAMP_LIGHT = { color: 0xffe1b0, intensity: 9, dist: 22, y: 3.2 };
+export const SPINE_LAMP = { xWest: -8.3, xEast: 8.3, z0: 18, step: 14 };
+
+export function spineLampZs(z0 = SPINE_LAMP.z0, step = SPINE_LAMP.step, zMax = LOCK.B - 12) {
+  const zs = [];
+  for (let z = z0; z < zMax; z += step) zs.push(z);
+  return zs;
+}
+
+export function spineLampLitWest(z) {
+  return z % 28 === SPINE_LAMP.z0 % 28;
+}
+
+export function spineLampLitEast(z) {
+  return z % 28 === (SPINE_LAMP.z0 + SPINE_LAMP.step) % 28;
+}
+
+export function spineLampPointLights() {
+  const lights = [];
+  for (const z of spineLampZs()) {
+    if (spineLampLitWest(z)) lights.push({ x: SPINE_LAMP.xWest, z, side: 'west' });
+    if (spineLampLitEast(z)) lights.push({ x: SPINE_LAMP.xEast, z, side: 'east' });
+  }
+  return lights;
+}
+
 export function distMeters(ax, az, bx, bz) {
   return Math.hypot(bx - ax, bz - az);
 }

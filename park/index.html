@@ -41,7 +41,7 @@ const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
   WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
   walkLinkPolyline, walkSpurPolyline, hubApronPath,
-  LAMP_LIGHT, spineLampLitWest, spineLampLitEast,
+  LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast,
 } = LockMod;
 const ITINERARY = LockMod.ITINERARY || {
   id: 'park-circuit', name: 'Park Circuit', sequence: [], stops: [], totalMin: 45,
@@ -828,7 +828,7 @@ function trashCan(x,z){
   const c=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.72,8),new THREE.MeshLambertMaterial({color:0x2a2a28}));
   c.position.set(x,0.36,z);scene.add(c);
 }
-for(let z=18;z<B-12;z+=14){lamp(-8.3,z,spineLampLitWest(z));lamp(8.3,z,spineLampLitEast(z));if(spineLampLitWest(z)){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
+for(const z of spineLampZs()){lamp(SPINE_LAMP.xWest,z,spineLampLitWest(z));lamp(SPINE_LAMP.xEast,z,spineLampLitEast(z));if(spineLampLitWest(z)){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
 for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z,z%36===-18);lamp(8.3,z,z%36===0);}
 lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
 // Pass 44 — PointLights on corridor + hub lanterns (shared LAMP_LIGHT_CAP)
