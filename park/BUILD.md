@@ -75,6 +75,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Soft scalloped edge ribbons inside half-width (not a hard box silhouette)
 - Gate apron / hub / waters / BUILDINGS unchanged
 
+## Pass 14 — denser Pocket understory / planted beds
+- Dirt beds + hedge/bloom near Pocket SKUs; oak understory clumps in Pocket canopy
+- Spine-shoulder hedge strips in +Z Pocket; rings / spine / hub / BUILDINGS held
+
 ## Still fake (worst next)
 1. Scalloped spine edges are procedural, not traced from blueprint CAD
 2. Shore network still MST-ish, not full guest-routing graph
@@ -87,7 +91,7 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - SHIPPED Pass 11: fuller lake shoreline path network
 - SHIPPED Pass 12: blueprint spine centerline + soft edges
 - SHIPPED Pass 13: Pocket SKU density near locked rings
-- NEXT candidate: denser Pocket understory/beds (Pass 14)
+- SHIPPED Pass 14: denser Pocket understory / planted beds
 - CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower
 
 ## KEITH fleet check-in — 2026-09-20 13:08 CDT
@@ -95,7 +99,7 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
 - **STARTED:** First scheduled 15-min loop
 - **GOING:** Park Pass 12 blueprint spine shipped; site Pass 11 polish shipped; no STOP
-- **NEXT:** Pass 13 — fuller guest-routing shore graph (replace MST-ish); then Pass 14 spine edge polish if still fake
+- **NEXT:** Pass 15 — fuller guest-routing shore graph (replace MST-ish)
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551
