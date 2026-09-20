@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> walk = blueprint</div>
+  <div><b>This pass:</b> hub volume + water edges</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -57,15 +57,104 @@ plate(260,320,-165,-10,0x3d6a48);
 plate(300,140,10,-140,0x456848);
 plate(260,260,160,10,0x5a7c42);
 plate(36,B+20,0,B/2,0x6b8a4a);
-function water(x,z,rx,rz){const m=new THREE.Mesh(new THREE.CircleGeometry(1,32),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:40}));m.rotation.x=-Math.PI/2;m.position.set(x,0.05,z);m.scale.set(rx,1,rz);scene.add(m);}
+const stone=new THREE.MeshLambertMaterial({color:0x6a5844});
+const stoneDark=new THREE.MeshLambertMaterial({color:CURB});
+const pathMat=new THREE.MeshLambertMaterial({color:PATH});
+function water(x,z,rx,rz){
+  // Recessed pool + raised coping (not flush with ground)
+  const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:48}));
+  pool.rotation.x=-Math.PI/2;pool.position.set(x,0.06,z);pool.scale.set(rx*0.96,rz*0.96,1);scene.add(pool);
+  const rimH=0.38,rimT=0.7;
+  const shape=new THREE.Shape();
+  shape.absarc(0,0,1+rimT*0.55,0,Math.PI*2,false);
+  const hole=new THREE.Path();
+  hole.absarc(0,0,0.97,0,Math.PI*2,true);
+  shape.holes.push(hole);
+  const rimGeo=new THREE.ExtrudeGeometry(shape,{depth:rimH,bevelEnabled:false,curveSegments:48});
+  const rim=new THREE.Mesh(rimGeo,stoneDark);
+  rim.rotation.x=-Math.PI/2;rim.position.set(x,0,z);rim.scale.set(rx,rz,1);scene.add(rim);
+  const lip=new THREE.Mesh(new THREE.RingGeometry(0.97,1+rimT*0.55,48),stone);
+  lip.rotation.x=-Math.PI/2;lip.position.set(x,rimH+0.01,z);lip.scale.set(rx,rz,1);scene.add(lip);
+}
 [[-210,-20,48,70],[-165,10,55,42],[-120,70,32,26],[-95,-85,28,22],[-150,-40,24,18],[-20,-18,16,10],[22,-22,18,12],[-18,22,16,9],[28,20,17,10],[8,-8,10,7],[155,-85,22,16],[200,-40,18,12]].forEach(w=>water(...w));
-function pathBox(w,len,x,z,rotY=0){const curb=new THREE.Mesh(new THREE.BoxGeometry(w+1.6,0.12,len),new THREE.MeshLambertMaterial({color:CURB}));const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.16,len),new THREE.MeshLambertMaterial({color:PATH}));curb.position.set(x,0.06,z);curb.rotation.y=rotY;top.position.set(x,0.14,z);top.rotation.y=rotY;scene.add(curb,top);}
-function pathRing(inner,outer,x,z){const m=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),new THREE.MeshLambertMaterial({color:PATH,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.set(x,0.14,z);scene.add(m);const c=new THREE.Mesh(new THREE.RingGeometry(inner-0.8,outer+0.8,64),new THREE.MeshLambertMaterial({color:CURB,side:THREE.DoubleSide}));c.rotation.x=-Math.PI/2;c.position.set(x,0.1,z);scene.add(c);}
+function pathBox(w,len,x,z,rotY=0){const curb=new THREE.Mesh(new THREE.BoxGeometry(w+1.6,0.12,len),stoneDark);const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.16,len),pathMat);curb.position.set(x,0.06,z);curb.rotation.y=rotY;top.position.set(x,0.14,z);top.rotation.y=rotY;scene.add(curb,top);}
+function pathRing(inner,outer,x,z){const m=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),pathMat);m.rotation.x=-Math.PI/2;m.position.set(x,0.14,z);scene.add(m);const c=new THREE.Mesh(new THREE.RingGeometry(inner-0.8,outer+0.8,64),stoneDark);c.rotation.x=-Math.PI/2;c.position.set(x,0.1,z);scene.add(c);}
 pathBox(14,B,0,B/2);
 pathBox(22,18,0,B);
 pathBox(14,B,0,-B/2);
-pathRing(18,32,0,0);
-pathBox(20,20,0,0);
+// Hub plaza volume — stepped pad + thick ring walls (readable at eye), not flat ring only
+function ringWall(innerR,outerR,h,y0,mat){
+  const shape=new THREE.Shape();
+  shape.absarc(0,0,outerR,0,Math.PI*2,false);
+  const hole=new THREE.Path();
+  hole.absarc(0,0,innerR,0,Math.PI*2,true);
+  shape.holes.push(hole);
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false,curveSegments:72});
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.rotation.x=-Math.PI/2;mesh.position.y=y0;scene.add(mesh);
+  return mesh;
+}
+function arcWall(innerR,outerR,h,y0,a0,a1,mat){
+  // Solid wall segment between angles a0..a1 (XZ plane)
+  const shape=new THREE.Shape();
+  const n=Math.max(8,Math.ceil((a1-a0)/ (Math.PI*2) * 72));
+  for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;const r=outerR;const x=Math.cos(a)*r,y=Math.sin(a)*r;i?shape.lineTo(x,y):shape.moveTo(x,y);}
+  for(let i=n;i>=0;i--){const a=a0+(a1-a0)*i/n;const r=innerR;shape.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
+  shape.closePath();
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.rotation.x=-Math.PI/2;mesh.position.y=y0;scene.add(mesh);
+}
+function hubPlaza(){
+  const IN=18,OUT=32,SLAB=0.28,WALL=0.55,WALL_T=0.75;
+  const GAP=0.28; // half-angle (~18 m chord) openings at ±Z for 14 m Gate spine
+  // Raised outer plaza slab mass (solid ring under deck)
+  ringWall(IN,OUT,SLAB,0,stone);
+  const deck=new THREE.Mesh(new THREE.RingGeometry(IN,OUT,72),pathMat);
+  deck.rotation.x=-Math.PI/2;deck.position.set(0,SLAB+0.01,0);scene.add(deck);
+  // Outer curb/parapet ~0.55 m; gaps at +Z (Gate) and -Z (north) so spine walk clears
+  // angle 0=+X, π/2=+Z south/Gate, π=-X, 3π/2=-Z north
+  const segs=[[Math.PI/2+GAP,Math.PI*3/2-GAP],[Math.PI*3/2+GAP,Math.PI*2+Math.PI/2-GAP]];
+  segs.forEach(([a0,a1])=>{
+    arcWall(OUT,OUT+WALL_T,WALL,SLAB,a0,a1,stoneDark);
+  });
+  // Cap only on wall arcs (skip path gaps)
+  segs.forEach(([a0,a1])=>{
+    const n=24;const pts=[];
+    for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;pts.push(new THREE.Vector2(Math.cos(a)*OUT,Math.sin(a)*OUT));}
+    for(let i=n;i>=0;i--){const a=a0+(a1-a0)*i/n;pts.push(new THREE.Vector2(Math.cos(a)*(OUT+WALL_T),Math.sin(a)*(OUT+WALL_T)));}
+    const sh=new THREE.Shape(pts);
+    const cap=new THREE.Mesh(new THREE.ShapeGeometry(sh),stone);
+    cap.rotation.x=-Math.PI/2;cap.position.y=SLAB+WALL+0.01;scene.add(cap);
+  });
+  // Inner low curb (continuous, step-over ~0.22 m) — volume without blocking pocket entry
+  ringWall(IN-0.55,IN,0.22,SLAB,stoneDark);
+  const innerCap=new THREE.Mesh(new THREE.RingGeometry(IN-0.55,IN,64),stone);
+  innerCap.rotation.x=-Math.PI/2;innerCap.position.y=SLAB+0.23;scene.add(innerCap);
+  // Center pocket pad
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(IN-0.6,IN-0.6,0.18,48),pathMat);
+  pad.position.y=0.09;scene.add(pad);
+  // Radial spokes (abstract kit)
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2;
+    const spoke=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.12,OUT-IN-0.5),stoneDark);
+    spoke.position.set(Math.cos(a)*(IN+OUT)/2,SLAB+0.08,Math.sin(a)*(IN+OUT)/2);
+    spoke.rotation.y=-a;scene.add(spoke);
+  }
+  // Low benches on outer deck (seat ~0.45 m) — skip spine axes
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2+Math.PI/8;
+    const bench=new THREE.Mesh(new THREE.BoxGeometry(2.4,0.45,0.55),stone);
+    bench.position.set(Math.cos(a)*26,SLAB+0.225,Math.sin(a)*26);
+    bench.rotation.y=-a;scene.add(bench);
+  }
+  // Pocket marker — abstract torus center
+  const pocket=new THREE.Mesh(new THREE.TorusGeometry(5.5,0.28,10,48),new THREE.MeshLambertMaterial({color:0xc9b48a}));
+  pocket.rotation.x=Math.PI/2;pocket.position.y=1.15;scene.add(pocket);
+  const glow=new THREE.Mesh(new THREE.TorusGeometry(5.5,0.06,6,48),new THREE.MeshLambertMaterial({color:0xe8d5a3}));
+  glow.rotation.x=Math.PI/2;glow.position.y=0.22;scene.add(glow);
+}
+hubPlaza();
 pathRing(14,20,95,95);
 pathRing(6,11,118,108);
 const railPts=[];
@@ -80,7 +169,7 @@ const pL=new THREE.Mesh(new THREE.BoxGeometry(2.2,6.5,2.2),gm);const pR=pL.clone
 pL.position.set(-9,3.25,B+4);pR.position.set(9,3.25,B+4);
 const lintel=new THREE.Mesh(new THREE.BoxGeometry(22,1.2,2.4),gm);lintel.position.set(0,6.8,B+4);scene.add(pL,pR,lintel);
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});
-function tree(x,z,s=1){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(0.25*s,0.38*s,2.2*s,5),bark);t.position.y=1.1*s;const c=new THREE.Mesh(new THREE.ConeGeometry(2*s,5*s,6),leaf);c.position.y=4*s;g.add(t,c);g.position.set(x,0,z);scene.add(g);}
+function tree(x,z,s=1){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(0.32*s,0.48*s,2.4*s,6),bark);t.position.y=1.2*s;const c=new THREE.Mesh(new THREE.ConeGeometry(2.35*s,5.2*s,7),leaf);c.position.y=4.2*s;g.add(t,c);g.position.set(x,0,z);scene.add(g);}
 railPts.forEach((p,i)=>{if(i%3)return;if(Math.abs(p.x)<22&&p.z>40)return;tree(p.x*0.92,p.z*0.92,0.8+(i%4)*0.12);});
 for(let i=0;i<18;i++)tree(-70-(i%6)*14,-30-Math.floor(i/6)*16,0.9);
 const avatar=new THREE.Group();
