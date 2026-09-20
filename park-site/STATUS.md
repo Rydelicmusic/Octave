@@ -530,3 +530,58 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** a2c94f128ab8e2178c29b5d0b6520c33c90c6a87
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 41 start
+
+- **TIME:** 2026-09-20 13:18 CDT (America/Chicago)
+- **LANE:** shell / geometry
+- **STARTED:** Tip park-site path d2cae64 / prior STATUS a2c94f1; director not STOP; densify geometry canopy footprints + song-work cross-links + visit-paths boards + artist tonight hours
+- **GOING:** Pass 41 geometry LAYOUT canopy/water densify
+- **NEXT:** Pass 42 song works cross-land; Pass 43 visit-paths; Pass 44 artist indexes
+- **CONSTRAINTS:** park-site/ only; MOCK stable; LAYOUT meters; no force-push
+- **SOLUTIONS:** Real gaps only; gh Data API pushes
+- **COMMIT / LAST COMMIT:** 452d63b / d2cae64 (park-site path tip) — pending Pass 41
+
+## Check-in — Pass 41 geometry canopies
+
+- **TIME:** 2026-09-20 13:19 CDT (America/Chicago)
+- **LANE:** geometry
+- **STARTED:** Pass 41 — geometry.html land canopy ellipses from LAYOUT + SKU ladder note + map/day/night/guest links
+- **GOING:** Push; Pass 42 song sister kiosks
+- **NEXT:** Pass 42–44
+- **CONSTRAINTS:** LAYOUT canopy numbers only
+- **SOLUTIONS:** Cite ellipses; no footprint invention
+- **COMMIT / LAST COMMIT:** pending Pass 41 push
+
+## Check-in — Pass 42 song sister kiosks
+
+- **TIME:** 2026-09-20 13:20 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Pass 42 — four song works (West Gate Echo, Northern Quiet, Boardline, Plaza Rings) cross-link sister kiosks on other lands
+- **GOING:** Push
+- **NEXT:** Pass 43 visit-paths boards
+- **CONSTRAINTS:** MOCK song SKU only
+- **SOLUTIONS:** Same rung across axes
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 43 visit-paths boards
+
+- **TIME:** 2026-09-20 13:21 CDT (America/Chicago)
+- **LANE:** wayfinding
+- **STARTED:** Pass 43 — visit-paths boards/measure desk + album/song path mega-menus
+- **GOING:** Push
+- **NEXT:** Pass 44 artist tonight hours
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Paths page opens boards before walks
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 44 artist tonight hours
+
+- **TIME:** 2026-09-20 13:22 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Pass 44 — each MOCK artist index gets tonight hour + works↔nests mega-menu
+- **GOING:** Push 41–44; continue 45+
+- **NEXT:** Pass 45 Gate index lamp-rail / Pass 46 STATUS
+- **CONSTRAINTS:** MOCK roster stable
+- **SOLUTIONS:** Artist world → night board + land nests
+- **COMMIT / LAST COMMIT:** pending
+
