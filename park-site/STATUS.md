@@ -948,3 +948,26 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** e386e29af9ca2b9d985e10c124c48f5589530ea1
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 106–111 nested IA
+
+- **TIME:** 2026-09-20 13:38 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 37c7267 / main 832e737; Pass 106 daylight×4; 107 guest rooms; 108 tickets night/day; 109 artist credits×4; 110–111 wire
+- **GOING:** Push nested IA
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; nested pages over desk strips; MOCK; LAYOUT; FF retries
+- **SOLUTIONS:** daylight/; guest-services/; tickets/; artists/*/credits.html + parent wiring
+- **COMMIT / LAST COMMIT:** 37c7267 — Pass 105 tip
+
+## Check-in — Pass 111 tip
+
+- **TIME:** 2026-09-20 13:39 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Passes 106–111 nested IA from tip 37c7267
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; nested over desk strips; MOCK; LAYOUT; FF retries
+- **SOLUTIONS:** daylight×4; guest rooms; tickets night/day; credits×4; directory/visit/tonight wire
+- **COMMIT / LAST COMMIT:** 43d1319 — Pass 110
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
