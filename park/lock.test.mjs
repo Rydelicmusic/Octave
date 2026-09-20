@@ -6,7 +6,7 @@ import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
   spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine,
-  measureItinerary, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
+  measureItinerary, hubApronPath, polylineMeters, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -129,7 +129,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.match(lockSrc, /export const ITINERARY/);
 assert.match(lockSrc, /FIX-ITINERARY/);
 assert.ok(ITINERARY);
-assert.match(indexHtml, /pass41-ribbon/);
+assert.match(indexHtml, /pass43-apron/);
 assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
@@ -141,7 +141,7 @@ assert.match(indexHtml, /FIX-ITINERARY/);
     assert.equal(ITINERARY.stops[i].meters, m.stops[i].meters);
   }
   const first = walkById(ITINERARY.sequence[0]);
-  const approach = distMeters(ITINERARY.sign.x, ITINERARY.sign.z, first.sign.x, first.sign.z);
+  const approach = polylineMeters(hubApronPath(ITINERARY.sign.x, ITINERARY.sign.z, first.sign.x, first.sign.z));
   const onWalk = walkRibbonMeters(first);
   assert.equal(ITINERARY.stops[0].meters, Math.round(approach + onWalk));
   assert.ok(Math.abs(ITINERARY.stops[0].legMin - metersToMin(approach + onWalk)) < 1);
@@ -158,10 +158,10 @@ assert.match(indexHtml, /Pass 36/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
-assert.match(indexHtml, /ribbon-length tour meters|lamp lights on facades/);
+assert.match(indexHtml, /hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades/);
 assert.match(indexHtml, /walkLinkPolyline/);
 assert.match(indexHtml, /walkSpurPolyline/);
-assert.match(indexHtml, /pass41-ribbon/);
+assert.match(indexHtml, /pass43-apron/);
 assert.match(indexHtml, /function lamp\(x,z,lit=false\)/);
 assert.match(indexHtml, /PointLight\(0xffe1b0,12,26\)/);
 assert.match(indexHtml, /lamp\(36,0,true\)/);
@@ -270,7 +270,7 @@ for (const s of STATIONS) {
   assert.deepEqual(placementIssues(s), [], s.id);
 }
 
-assert.match(blueprintHtml, /lock\.js\?v=pass41-ribbon/);
+assert.match(blueprintHtml, /lock\.js\?v=pass43-apron/);
 assert.match(blueprintHtml, /GATE/);
 assert.match(blueprintHtml, /STATIONS/);
 assert.match(blueprintHtml, /hoverLabel/);
@@ -280,3 +280,6 @@ assert.doesNotMatch(blueprintHtml, /\btower\b/i);
 assert.doesNotMatch(blueprintHtml, /\belevator\b/i);
 
 console.log('lock tests ok', BUILDINGS.length, 'buildings');
+
+assert.match(indexHtml, /hubApronPath/);
+assert.match(indexHtml, /pass43-apron/);

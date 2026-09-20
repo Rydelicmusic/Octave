@@ -218,8 +218,14 @@ Pass 41 dropped `import { addSkuKit }` and double-bound LAND_PALETTE (Walk Synta
 - Window glow remains; count capped (every ~42 m on spine, sparse on walk furniture)
 - Layout locks unmoved
 
+## Pass 43 — hub-apron itinerary approach/return
+- `hubApronPath` shared by measureItinerary + 3D parkItinerary/return ribbons
+- Approach/return meters use apron polylines (not sign-to-sign chords); locks held
+
+- SHIPPED Pass 43: hub-apron itinerary ribbons
+
 ## Still fake (worst next)
-1. Approach/return legs are still sign-to-sign chords, not hub-apron ribbons
+1. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
 2. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
 
 ## KEITH check-in — 2026-09-20 13:04 CDT

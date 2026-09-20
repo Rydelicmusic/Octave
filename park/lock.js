@@ -293,6 +293,34 @@ export function polylineMeters(pts) {
   return m;
 }
 
+/** Hub-apron shoulder used by Pass 19 3D itinerary ribbons (x/z ±22). */
+export function hubApronPoint(x, z) {
+  return [Math.sign(x || 1) * 22, Math.sign(z || 1) * 22];
+}
+
+/**
+ * Pass 43 — same polyline as parkItinerary 3D ribbons:
+ * a → hubA → (hubB) → b, spine-safe fallback via x=±28, z=0.
+ */
+export function hubApronPath(ax, az, bx, bz) {
+  const a = [ax, az];
+  const b = [bx, bz];
+  const hubA = hubApronPoint(ax, az);
+  const hubB = hubApronPoint(bx, bz);
+  const path = [a, hubA];
+  if (hubA[0] !== hubB[0] || hubA[1] !== hubB[1]) path.push(hubB);
+  path.push(b);
+  let ok = true;
+  for (let k = 0; k < path.length - 1; k++) {
+    if (walkSegmentCrossesSpine(path[k][0], path[k][1], path[k + 1][0], path[k + 1][1])) {
+      ok = false;
+      break;
+    }
+  }
+  if (!ok) return [a, [Math.sign(ax || bx || 1) * 28, 0], b];
+  return path;
+}
+
 /** Pass 41 — ribbon length of a named walk (shore arcs, not lake-center chords). */
 export function walkRibbonMeters(walk) {
   let m = 0;
@@ -309,8 +337,8 @@ export function metersToMin(m) {
 }
 
 /**
- * Pass 39/41 — tour times from ribbon polyline meters / walk 1.34 m/s.
- * Gate sign → each walk sign + shore-arc walk length → returnToGate.
+ * Pass 39/41/43 — tour times from ribbon polyline meters / walk 1.34 m/s.
+ * Gate sign → hub-apron → each walk + shore-arc walk → hub-apron return.
  */
 export function measureItinerary(it = ITINERARY) {
   const seq = it.sequence.map((id) => walkById(id)).filter(Boolean);
@@ -319,7 +347,8 @@ export function measureItinerary(it = ITINERARY) {
   let prev = { x: it.sign.x, z: it.sign.z };
   for (const w of seq) {
     const p = w.sign;
-    const approach = distMeters(prev.x, prev.z, p.x, p.z);
+    // Pass 43 — approach via hub-apron ribbon (not sign-to-sign chord)
+    const approach = polylineMeters(hubApronPath(prev.x, prev.z, p.x, p.z));
     const onWalk = walkRibbonMeters(w);
     const legM = approach + onWalk;
     const legMin = metersToMin(legM);
@@ -333,7 +362,8 @@ export function measureItinerary(it = ITINERARY) {
     prev = { x: p.x, z: p.z };
   }
   const ret = it.returnToGate;
-  const retM = distMeters(prev.x, prev.z, ret.x, ret.z);
+  // Pass 43 — return via hub-apron ribbon
+  const retM = polylineMeters(hubApronPath(prev.x, prev.z, ret.x, ret.z));
   tMin += metersToMin(retM);
   return {
     stops,
