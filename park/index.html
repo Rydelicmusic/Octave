@@ -296,6 +296,11 @@ for(let i=0;i<=segs;i++){const a=-Math.PI/2+(i/segs)*Math.PI;railPts.push(new TH
 for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(S-t*2*S,0.4,B));}
 for(let i=0;i<=segs;i++){const a=Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(-S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
 scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts),new THREE.LineBasicMaterial({color:0x2b241c})));
+{
+  const curbPts=railPts.map(p=>new THREE.Vector3(p.x,0.2,p.z));
+  const railCurb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curbPts,true),160,0.2,6,true),stoneDark);
+  scene.add(railCurb);
+}
 function gateHouse(){
   const mat=new THREE.MeshLambertMaterial({color:0x5a4634});
   const trim=new THREE.MeshLambertMaterial({color:0x3d2e22});
