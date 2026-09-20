@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> gate ticket booth polish</div>
+  <div><b>This pass:</b> water material densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass49-gate';
+import * as LockMod from './lock.js?v=pass50-water';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -80,15 +80,35 @@ const asphaltMat=new THREE.MeshLambertMaterial({color:ASPHALT});
 const concreteMat=new THREE.MeshLambertMaterial({color:CONCRETE});
 const earthMat=new THREE.MeshLambertMaterial({color:EARTH});
 function water(x,z,rx,rz){
-  // Recessed pool + raised coping (not flush with ground)
-  const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:72,specular:0x88ccee}));
-  pool.rotation.x=-Math.PI/2;pool.position.set(x,0.06,z);pool.scale.set(rx*0.96,rz*0.96,1);scene.add(pool);
-  // Pass 33 — water rim shimmer (ellipse meters unmoved)
+  // Recessed pool + raised coping (ellipse meters unmoved)
+  // Pass 50 — deeper tint core + mid band + foam lip (waters x/z/rx/rz held)
+  const deep=new THREE.Mesh(
+    new THREE.CircleGeometry(1,64),
+    new THREE.MeshPhongMaterial({color:0x1a4a5c,shininess:90,specular:0x66aacc})
+  );
+  deep.rotation.x=-Math.PI/2;deep.position.set(x,0.05,z);deep.scale.set(rx*0.62,rz*0.62,1);scene.add(deep);
+  const pool=new THREE.Mesh(
+    new THREE.RingGeometry(0.58,0.96,64),
+    new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:72,specular:0x88ccee,transparent:true,opacity:0.92})
+  );
+  pool.rotation.x=-Math.PI/2;pool.position.set(x,0.06,z);pool.scale.set(rx,rz,1);scene.add(pool);
+  // Pass 33/50 — multi-band rim shimmer
   const shimmer=new THREE.Mesh(
-    new THREE.RingGeometry(0.82,0.94,48),
+    new THREE.RingGeometry(0.82,0.94,64),
     new THREE.MeshLambertMaterial({color:0x7ec8d8, emissive:0x2a6070, emissiveIntensity:0.45, transparent:true, opacity:0.55})
   );
   shimmer.rotation.x=-Math.PI/2;shimmer.position.set(x,0.09,z);shimmer.scale.set(rx,rz,1);scene.add(shimmer);
+  const shimmer2=new THREE.Mesh(
+    new THREE.RingGeometry(0.70,0.80,64),
+    new THREE.MeshLambertMaterial({color:0x9ad4e4, emissive:0x3a7080, emissiveIntensity:0.28, transparent:true, opacity:0.35})
+  );
+  shimmer2.rotation.x=-Math.PI/2;shimmer2.position.set(x,0.095,z);shimmer2.scale.set(rx,rz,1);scene.add(shimmer2);
+  // foam lip just inside coping
+  const foam=new THREE.Mesh(
+    new THREE.RingGeometry(0.945,0.985,64),
+    new THREE.MeshLambertMaterial({color:0xd8eef4, emissive:0x88aab8, emissiveIntensity:0.35, transparent:true, opacity:0.7})
+  );
+  foam.rotation.x=-Math.PI/2;foam.position.set(x,0.11,z);foam.scale.set(rx,rz,1);scene.add(foam);
   const rimH=0.38,rimT=0.7;
   const shape=new THREE.Shape();
   shape.absarc(0,0,1+rimT*0.55,0,Math.PI*2,false);
