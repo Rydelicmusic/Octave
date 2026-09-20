@@ -1169,3 +1169,19 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COLLISIONS:** NONE
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 148 link audit + tip sync (Site Luxury)
+
+- **TIME:** 2026-09-20 14:02 CDT (America/Chicago)
+- **LANE:** shell / guest+booking hubs
+- **STARTED:** Steering aborted Pass 130/131 (tip past); Pass 136–147 already on main; densified collision-safe guest/+booking/ hubs from tip 3b47320
+- **GOING:** Pass 142 densify @ d2b8920 (guest/index + booking/index → ask/gate-desk/day/night + lands/venues/works/nests/related/notes/materials); full link audit 0 broken @ tip 81d9e2a
+- **NEXT:** Stop for parent (Pass 148 audit+STATUS)
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild; no html/dir basename collisions; keep guest/index + booking/index + FIX c95c7e2/ba665e5 + Home→Land→Venue→Work + 12 short-slugs
+- **SOLUTIONS:** One densify/commit; FIX markers retained; audit 6993 hrefs / 0 broken; critical paths + 12 short-slugs present
+- **COMMIT / LAST COMMIT:** d2b8920 — Pass 142 densify guest/+booking/ hubs; audit tip 81d9e2a
+- **TIP:** 81d9e2a592188f409567d4a5a3aa4eea97ba6931
+- **PASS142_SHA:** d2b89202b3ab3c2607ed452fbb9b1862b30b11bf
+- **AUDIT:** hrefs≈6993; broken=0; FIX markers=yes; pass142 densify markers=yes; guest≈8957B; booking≈9038B
+- **COLLISIONS:** NONE
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
