@@ -311,10 +311,6 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Denser itinerary chevrons (~10 m); directional posts + mini blade signs on WALKS connectors
 - Hub apron shoulder + Gate approach posts (spine strip skipped)
 
-## Pass 58 — guest seating densify
-- Denser WALKS shore/connector benches; canopy seating pods; Gate + corridor flank benches
-- Spine strip / waters / BUILDINGS / rings skipped
-
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
@@ -328,9 +324,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 10. ~~Hub plaza light~~ — addressed Pass 55 (bands/beds/furniture; r18/32 + spine gaps held)
 11. ~~Path curb under-articulated~~ — addressed Pass 56 (wear chips + joints)
 12. ~~Wayfinding sparse~~ — addressed Pass 57 (chevrons/posts/blade signs; spine clear)
-13. ~~Guest seating thin~~ — addressed Pass 58 (WALKS/canopy/Gate/corridor benches)
+13. Guest seating still thin away from hub / WALKS furniture belts
 14. Land canopy edges still soft on understory break-up
-15. Tour stop markers still share sign posts (little mid-leg pause seating)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -437,8 +432,7 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 55: hub plaza densify (bands/beds/furniture; hub radii held)
 - SHIPPED Pass 56: path curb polish (wear chips + joints; spine held)
 - SHIPPED Pass 57: wayfinding densify (chevrons/posts/signs; spine clear)
-- SHIPPED Pass 58: guest seating densify (WALKS/canopy/Gate/corridor)
-- **NEXT:** (await Keith) canopy understory or tour-pause seating (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- **NEXT:** Pass 58 — guest seating densify (Still fake #13) (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165
@@ -447,5 +441,22 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 ## KEITH order — Pass 46 (2026-09-20 14:08 CDT)
 - ORDERED Realm Engineer: Pass 46 ride-station kit body + fold zig queues into kit rails (STATIONS/rings held); then Pass 47 Catmull ribbon tour meters if Pass 46 ships
 - ORDERED Site Luxury: Pass 167+ densify; keep MOCK roster; no self-STOP
+- ORDERED Quality GATE: live https://rydelicmusic.github.io/octave/park/ Walk + park-site hubs; flag Pages errored vs 200 probes
+- No STOP
+
+## KEITH fleet check-in — 2026-09-20 14:21 CDT
+- **TIME:** 2026-09-20 14:21 CDT (America/Chicago)
+- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
+- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
+- **GOING:** Park tip Pass 57 (wayfinding densify) after Pass 46–56 burst (ride-station kit, Catmull meters, PointLights, gate booth, water, facade, night fill, earth, rail, hub plaza, path curb). Site racing Pass 185–191 (court/, measure/, press/setlist, guest lounge/lost, booking receipt/transfer, paths night-loop/day-grid, materials, notes, thin wires). Tip c141c99. Live hubs 200; Pages API still intermittently errored.
+- **NEXT:** Pass 58 — guest seating densify away from hub / WALKS belts (Still fake #13); then Pass 59 land canopy understory break-up. Site Pass 192+ collision-safe nested density + periodic link audit.
+- **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
+- **SOLUTIONS:** Ordered Pass 58 to Realm Engineer; Site Luxury continue Pass 192+ (no self-STOP); Quality live Walk + site hub probes
+- **COMMITS:** c141c99 Pass 57 wayfinding; 843743d Pass 56 path curb; 9a8cc66 Pass 55 hub plaza; bdabfb6 site Pass 191 STATUS; 565a841 Pass 190; 6a4f46e Pass 189
+- **BLOCKED BOTS:** none
+
+## KEITH order — Pass 58 (2026-09-20 14:21 CDT)
+- ORDERED Realm Engineer: Pass 58 guest seating densify (benches/planters off hub + off WALKS furniture belts; skip spine strip / waters / BUILDINGS / rings); then Pass 59 canopy understory if Pass 58 ships
+- ORDERED Site Luxury: Pass 192+ densify; keep MOCK roster; no self-STOP; no new html↔dir collisions
 - ORDERED Quality GATE: live https://rydelicmusic.github.io/octave/park/ Walk + park-site hubs; flag Pages errored vs 200 probes
 - No STOP
