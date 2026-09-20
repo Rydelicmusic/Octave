@@ -186,3 +186,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LINK AUDIT:** ok=2199 broken=0
 
+## Check-in — Pass 13 atelier desk density
+
+- **TIME:** 2026-09-20 13:22 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 13 — atelier service-menu material desk; tickets→programs
+- **GOING:** Push; continue
+- **NEXT:** Pass 14 or STOP
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Menus open menus
+- **COMMIT / LAST COMMIT:** 6240551 — Pass 12 STATUS
+
