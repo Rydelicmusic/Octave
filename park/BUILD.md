@@ -41,6 +41,7 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - pass 5: belts skip water ellipses + Pocket ring walks; closed lakeside ring only when skipped===0
 - pass 6: lakeside walks are constant 3.2 m wide (no rx,rz-scaled rings)
 - pass 7: park trees 5.2–11 m trunks, 0.13–0.28 m radius (not toy, not poles)
+- pass 8: lamps 3.6 m + fixture; benches 0.45 m with legs; rope rail 1.55 m off 14 m spine
 
 ## Still fake (worst next)
 1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple) — buildings agent

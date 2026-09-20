@@ -218,6 +218,9 @@ for (const name of GROUNDS_DRESSING.materials) {
 assert.match(indexHtml, /land wash/i);
 assert.match(indexHtml, /water reflection/i);
 assert.match(indexHtml, /function lamp/);
+assert.match(indexHtml, /GROUNDS_SCALE\.lampH/);
+assert.match(indexHtml, /GROUNDS_SCALE\.benchSeat/);
+assert.match(indexHtml, /LOCK\.spineWidth\/2\+1\.55/);
 assert.match(indexHtml, /benchAt/);
 assert.match(indexHtml, /trashCan/);
 assert.match(indexHtml, /planters/);
