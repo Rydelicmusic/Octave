@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> ride station queue polish</div>
+  <div><b>This pass:</b> building window glow</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -1066,6 +1066,26 @@ function addHall(b){
   g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
 }
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
+// Pass 37 — evening window glow on SKUs (footprints unmoved)
+(function windowGlowPass(){
+  const glow=new THREE.MeshLambertMaterial({color:0xf0d090, emissive:0xc9a050, emissiveIntensity:0.65});
+  BUILDINGS.forEach(b=>{
+    const n=b.sku==='hall'?6:b.sku==='pavilion'?4:2;
+    for(let i=0;i<n;i++){
+      const face=i%4;
+      const u=(Math.floor(i/4)+0.5)/(Math.ceil(n/4)+0.01);
+      let x=0,z=0,sx=0.7,sz=0.08;
+      if(face===0){x=(u-0.5)*b.w*0.7;z=b.d/2+0.04;sx=Math.min(1.4,b.w*0.22);sz=0.08;}
+      else if(face===1){x=(u-0.5)*b.w*0.7;z=-b.d/2-0.04;sx=Math.min(1.4,b.w*0.22);sz=0.08;}
+      else if(face===2){z=(u-0.5)*b.d*0.7;x=b.w/2+0.04;sx=0.08;sz=Math.min(1.2,b.d*0.22);}
+      else{z=(u-0.5)*b.d*0.7;x=-b.w/2-0.04;sx=0.08;sz=Math.min(1.2,b.d*0.22);}
+      const pane=new THREE.Mesh(new THREE.BoxGeometry(sx,0.9,sz),glow);
+      pane.position.set(b.x+x*Math.cos(b.yaw||0)-z*Math.sin(b.yaw||0), 1.35+((i%3)*0.15), b.z+x*Math.sin(b.yaw||0)+z*Math.cos(b.yaw||0));
+      scene.add(pane);
+    }
+  });
+})();
+
 const avatar=new THREE.Group();
 const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
 const head=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12),new THREE.MeshLambertMaterial({color:0xe8d7b0}));head.position.y=1.72;
