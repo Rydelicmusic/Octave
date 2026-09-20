@@ -168,29 +168,65 @@
   .scroll-story{
     position:relative;z-index:1;
     background:
-      linear-gradient(180deg,#0c0b0a 0%, #14110e 40%, #0b0b0c 100%);
-    padding:0 20px 18vh;
+      radial-gradient(ellipse at 50% 0%, rgba(232,208,160,.08), transparent 42%),
+      linear-gradient(180deg,#0c0b0a 0%, #12100d 35%, #0e0c0a 70%, #090908 100%);
+    padding:8vh 22px 22vh;
+  }
+  .scroll-story:before{
+    content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);
+    width:1px;height:min(12vh,96px);
+    background:linear-gradient(180deg,transparent,rgba(201,180,138,.45),transparent);
+    opacity:.7;pointer-events:none;
   }
   .story-panel{
-    max-width:720px;margin:0 auto;padding:min(18vh,140px) 8px;
-    text-align:center;
+    max-width:640px;margin:0 auto;padding:min(16vh,120px) 12px;
+    text-align:center;position:relative;
   }
-  .story-panel + .story-panel{border-top:1px solid rgba(255,255,255,.08)}
+  .story-panel + .story-panel{
+    border-top:0;
+  }
+  .story-panel + .story-panel:before{
+    content:"";display:block;width:48px;height:1px;margin:0 auto min(10vh,72px);
+    background:linear-gradient(90deg,transparent,rgba(201,180,138,.55),transparent);
+  }
   .story-panel .eyebrow{
-    font-family:-apple-system,sans-serif;letter-spacing:.36em;text-transform:uppercase;
-    font-size:11px;color:var(--gold);margin-bottom:22px;
+    font-family:-apple-system,sans-serif;letter-spacing:.4em;text-transform:uppercase;
+    font-size:10px;color:var(--gold);margin-bottom:26px;opacity:.9;
   }
   .story-panel h2{
-    font-weight:400;font-size:clamp(28px,5vw,48px);letter-spacing:-.02em;line-height:1.15;
-    margin-bottom:18px;
+    font-weight:400;font-size:clamp(30px,5.2vw,52px);letter-spacing:-.025em;line-height:1.12;
+    margin-bottom:20px;color:var(--paper);
   }
   .story-panel h2 em{font-style:italic;color:var(--gold2)}
   .story-panel p{
     font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-    color:#cfc7bb;font-size:16px;line-height:1.65;max-width:38ch;margin:0 auto;
+    color:#c8c0b3;font-size:16px;line-height:1.7;max-width:36ch;margin:0 auto;
   }
   .story-panel .soft{
-    margin-top:28px;display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center;
+    margin-top:32px;display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  }
+  .story-close{
+    max-width:640px;margin:min(8vh,64px) auto 0;padding:48px 12px 0;
+    text-align:center;border-top:1px solid rgba(255,255,255,.06);
+  }
+  .story-close .mark{
+    font-family:-apple-system,sans-serif;letter-spacing:.5em;text-transform:uppercase;
+    font-size:11px;color:var(--gold);margin-bottom:18px;
+  }
+  .story-close p{
+    font-family:-apple-system,sans-serif;color:#a89f92;font-size:13px;letter-spacing:.04em;
+    line-height:1.6;max-width:32ch;margin:0 auto;
+  }
+  .explore-hero{
+    padding:min(12vh,96px) 20px 48px;text-align:center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,180,138,.1), transparent 50%),
+      linear-gradient(180deg,#0b0b0c,#0b0b0c);
+  }
+  .explore-hero .kicker{margin-bottom:18px}
+  .explore-hero h1{font-weight:400;letter-spacing:-.03em;line-height:.95}
+  .explore-hero .lede{
+    margin:18px auto 0;font-size:16px;line-height:1.6;color:#d4cdc0 !important;
   }
 
   .sheet{
@@ -312,8 +348,10 @@
     .door{padding:12px}
     .door strong{font-size:clamp(15px,4vw,18px)}
     .hint{letter-spacing:.22em;font-size:10px}
-    .story-panel{padding:min(14vh,96px) 4px}
+    .story-panel{padding:min(12vh,88px) 8px}
     .story-panel p{font-size:15px}
+    .story-close{padding-top:36px}
+    .scroll-story{padding:6vh 18px 16vh}
   }
   @media(max-width:700px) and (max-height:700px){
     .stage-inner{padding-top:max(64px,8vh)}
@@ -378,24 +416,34 @@
   </div>
   <div class="scroll-story" id="scrollStory">
     <article class="story-panel">
-      <div class="eyebrow">The house</div>
+      <div class="eyebrow">01 · The house</div>
       <h2>A lobby, <em>not a feed.</em></h2>
       <p>Few words. Long corridors. Doors that mean something. You do not hunt a catalog — you arrive.</p>
     </article>
     <article class="story-panel">
-      <div class="eyebrow">The floors</div>
+      <div class="eyebrow">02 · The floors</div>
       <h2>Each artist keeps <em>a room.</em></h2>
-      <p>Walk the space. Hear the room breathe. Remix stems when you are ready — never before desire.</p>
+      <p>Walk the space. Hear the room breathe. When desire is ready, the stems open — never before.</p>
     </article>
     <article class="story-panel">
-      <div class="eyebrow">Enter</div>
+      <div class="eyebrow">03 · The quiet</div>
+      <h2>Stillness before <em>sound.</em></h2>
+      <p>Champagne light on marble. No autoplay. No rush. The building waits for you to walk in.</p>
+    </article>
+    <article class="story-panel">
+      <div class="eyebrow">04 · Enter</div>
       <h2>Cross the marble.</h2>
-      <p>Take a lift above, or continue into the realms. Soft light. No rush.</p>
+      <p>Take a lift above, or continue into the realms. Soft light. One step is enough.</p>
       <div class="soft ui">
-        <button class="btn btn-ghost" type="button" onclick="openSheet('about')">House</button>
-        <button class="btn btn-gold" type="button" onclick="goExplore()">Discover realms</button>
+        <button class="btn btn-ghost" type="button" onclick="openSheet('about')">The house</button>
+        <button class="btn btn-ghost" type="button" onclick="openSheet('origin')">Origin</button>
+        <button class="btn btn-gold" type="button" onclick="goExplore()">Discover</button>
       </div>
     </article>
+    <div class="story-close">
+      <div class="mark">Octave</div>
+      <p>A private lobby of sonic realms. Walk in. Don’t press play.</p>
+    </div>
   </div>
 </section>
 
@@ -403,7 +451,7 @@
   <div id="landing" class="explore-hero">
     <div class="kicker">Realms</div>
     <h1 style="font-size:clamp(34px,6.5vw,64px)">Find a floor.</h1>
-    <p class="lede" style="max-width:36ch;color:#d9d2c6">Search an artist. Walk the room. Desire first — then the drop.</p>
+    <p class="lede" style="max-width:34ch">Search an artist. Walk the room. Desire first — then the drop.</p>
     <div class="searchbox ui" id="heroSearchWrap">
       <span class="search-ico" style="left:16px;top:50%;transform:translateY(-50%);position:absolute;opacity:.5">⌕</span>
       <input id="q" type="search" placeholder="find artist world" autocomplete="off">
