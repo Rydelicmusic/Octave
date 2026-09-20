@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> guest-routing shore graph</div>
+  <div><b>This pass:</b> CAD-traced spine edges</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { PLACEMENTS, RINGS, LAND_PALETTE, skuSpec } from './buildings.js';
-import { LOCK, BUILDINGS, GATE, STATIONS, inStadium } from './lock.js';
+import { LOCK, BUILDINGS, GATE, STATIONS, inStadium, spineCadPolyline } from './lock.js';
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
 const PATH=0xe6d3a4,CURB=0x5a4630,ASPHALT=0x3e3e42,CONCRETE=0xb9b3a8,EARTH=0x6b5340;
 const canvas=document.getElementById('c');
@@ -188,28 +188,21 @@ function lakeWalk(x,z,rx,rz){
   outerC.rotation.x=Math.PI/2;outerC.position.y=0.28;
   g.add(innerC,outerC);g.position.set(x,0,z);g.scale.set(rx,1,rz);scene.add(g);
 }
-// Pass 12 — blueprint centerline (x=0) + soft scalloped edges (not a hard box)
+// Pass 12/16 — blueprint centerline (x=0) + CAD-traced edges at hover x=±7 m
 pathBox(22,18,0,B,0,asphaltMat);
 addWalkSeg(-11,B-9,11,B-9,10);
 addWalkSeg(-11,B,11,B,10);
 (function spineBlueprint(){
   const w=LOCK.spineWidth; // 14 m locked
-  // Centerline on blueprint x=0; sample denser for soft edge ribbon
   const south=[], north=[];
   for(let z=0;z<=B;z+=6) south.push([0,z]);
   for(let z=0;z>=-B;z-=6) north.push([0,z]);
   pathRibbon(south,w,asphaltMat);
   pathRibbon(north,w,asphaltMat);
-  // Soft edge scallops just inside half-width — visual only, width held
-  const half=w/2, edge=[];
-  for(let z=-B;z<=B;z+=5){
-    const flare=0.55*Math.sin(z/18)+0.35*Math.sin(z/7);
-    edge.push([-(half-0.9+flare), z]);
-  }
-  pathRibbon(edge,1.1,asphaltMat);
-  const edgeR=edge.map(([x,z])=>[-x,z]);
-  pathRibbon(edgeR,1.1,asphaltMat);
-  // Walk follows blueprint centerline corridor
+  // Pass 16 — CAD edges from blueprint hover meters: x=±spineWidth/2, z=0→Gate +230
+  pathRibbon(spineCadPolyline(-1),0.9,stoneDark);
+  pathRibbon(spineCadPolyline(1),0.9,stoneDark);
+  const half=w/2;
   addWalkSeg(0,0,0,B,half+1.2);
   addWalkSeg(0,0,0,-B,half+1.2);
 })();

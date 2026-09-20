@@ -97,6 +97,18 @@ export function onSpine(x, z, half = LOCK.spineWidth / 2) {
   return Math.abs(x) < half && z >= 0 && z <= LOCK.B;
 }
 
+/**
+ * Blueprint CAD edges for the 14 m spine (hover meters).
+ * Matches blueprint.html rect: x=±spineWidth/2, z=0 (hub) → z=gate.z (+230).
+ */
+export function spineCadPolyline(side, step = 8) {
+  const x = side * (LOCK.spineWidth / 2);
+  const pts = [];
+  for (let z = 0; z <= LOCK.gate.z; z += step) pts.push([x, z]);
+  if (pts[pts.length - 1][1] !== LOCK.gate.z) pts.push([x, LOCK.gate.z]);
+  return pts;
+}
+
 export function inWater(x, z, margin = 0) {
   return LOCK.waters.some(([cx, cz, rx, rz]) => inEllipse(x, z, cx, cz, rx + margin, rz + margin));
 }

@@ -95,9 +95,14 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - Gate wings + ring stations in `lock.js` `GATE` / `STATIONS`; 3D `rideStation` iterates `STATIONS`
 - Clearance: `park/test-placement.mjs` + `park/lock.test.mjs`
 
+## Pass 16 — CAD-traced 14 m spine edges
+- Edge curbs from `spineCadPolyline` = blueprint hover meters x=±7, z=0 (hub) → z=+230 (Gate)
+- Centerline still x=0, width LOCK.spineWidth 14 m; hub / gate / rings / waters unmoved
+- Removed procedural sin scallops (Pass 12 visual-only flare)
+
 ## Still fake (worst next)
-1. Scalloped spine edges are procedural, not traced from blueprint CAD
-2. Guest-routing graph is k-NN, not a designed circuit with named walks
+1. Guest-routing graph is k-NN, not a designed circuit with named walks
+2. North −Z corridor edges are not on the 2D blueprint CAD rect (south Gate spine only)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -116,7 +121,8 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - **STARTED:** First scheduled 15-min loop
 - **GOING:** Park Pass 12 blueprint spine shipped; site Pass 11 polish shipped; no STOP
 - SHIPPED Pass 15: guest-routing shore graph (k-NN, spine-safe)
-- **NEXT:** Pass 16 — CAD-traced spine edges if still fake
+- SHIPPED Pass 16: CAD-traced 14 m spine edges from blueprint hover
+- **NEXT:** Pass 17 — named guest-walk circuit (replace k-NN shore graph)
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551
