@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> land canopy edge ribbons</div>
+  <div><b>This pass:</b> stadium rail fence densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -812,7 +812,28 @@ lamp(0,-36);lamp(36,0);lamp(-36,0);
 function fencePost(x,z){
   const p=new THREE.Mesh(new THREE.BoxGeometry(0.18,1.15,0.18),stoneDark);p.position.set(x,0.57,z);scene.add(p);
 }
-railPts.forEach((p,i)=>{if(i%3)return;if(Math.abs(p.x)<16&&p.z>B-12)return;fencePost(p.x*0.985,p.z*0.985);});
+// Pass 31 — denser stadium rail fence (rail path unmoved)
+(function railFenceDensify(){
+  const posts=[];
+  railPts.forEach((p,i)=>{
+    if(i%2) return;
+    if(Math.abs(p.x)<16&&p.z>B-12) return;
+    const x=p.x*0.985, z=p.z*0.985;
+    fencePost(x,z);
+    posts.push([x,z]);
+  });
+  const rail=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  for(let i=0;i<posts.length-1;i++){
+    const a=posts[i], b=posts[i+1];
+    const dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz);
+    if(len<1||len>18) continue;
+    const bar=new THREE.Mesh(new THREE.BoxGeometry(len,0.12,0.08),rail);
+    bar.position.set((a[0]+b[0])/2, 1.15, (a[1]+b[1])/2);
+    bar.rotation.y=Math.atan2(dx,dz);
+    scene.add(bar);
+    const bar2=bar.clone(); bar2.position.y=0.65; scene.add(bar2);
+  }
+})();
 function queueZig(x,z,yaw,n=6){
   const rail=new THREE.MeshLambertMaterial({color:0x8a7a60});
   for(let i=0;i<n;i++){
