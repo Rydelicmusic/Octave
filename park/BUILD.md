@@ -66,14 +66,18 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Travel-aligned segment preference in nearestWalk; tighter ribbon half-widths
 - LAYOUT / waters / spine width / BUILDINGS unchanged
 
+## Pass 11 — fuller lake shoreline path network
+- Outer promenade bands on large lakes + shore-arc connectors (MST-ish) between rx≥16 waters
+- West-lake spurs toward spine shoulder; waters / LAYOUT / BUILDINGS unchanged
+
 ## Still fake (worst next)
-1. Spine weave still procedural S-curve vs blueprint centerline (optional later)
-2. Lake connectors are short mid-links, not full shoreline networks
+1. Spine weave still procedural S-curve vs blueprint centerline  ← Pass 12 candidate
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
 - SHIPPED Pass 5–8: ef8c8f8 / e987bd3 / 82da95d / 1f9a911
 - SHIPPED Pass 9: finer lake-edge ribbon tracing
 - SHIPPED Pass 10: stay-on-path corner cuts
-- NEXT candidate: blueprint spine centerline / fuller lake shoreline network
+- SHIPPED Pass 11: fuller lake shoreline path network
+- NEXT candidate: spine weave vs blueprint centerline (Pass 12)
 - CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower

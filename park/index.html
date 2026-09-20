@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> stay-on-path corner fix</div>
+  <div><b>This pass:</b> fuller lake shoreline network</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -346,21 +346,63 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
   const w=rx>=40?5.6:rx>=24?5.2:4.8;
   lakeEdgeRibbon(cx,cz,rx,rz,w,n,2.6+Math.min(1.2,rx*0.02));
 });
-// Short connectors between nearest large lakes (still edge-hugging, not freehand)
-(function lakeConnectors(){
-  const big=LOCK.waters.filter(([, ,rx])=>rx>=24);
-  for(let i=0;i<big.length;i++){
-    for(let j=i+1;j<big.length;j++){
-      const [ax,az,arx,arz]=big[i],[bx,bz,brx,brz]=big[j];
-      const dx=bx-ax,dz=bz-az,d=Math.hypot(dx,dz);
-      if(d>95||d<arx+brx+8) continue;
-      const ux=dx/d,uz=dz/d;
-      const aOut=[ax+ux*(arx+2.8),az+uz*(arz+2.8)];
-      const bOut=[bx-ux*(brx+2.8),bz-uz*(brz+2.8)];
-      const mid=[(aOut[0]+bOut[0])/2+uz*3.5,(aOut[1]+bOut[1])/2-ux*3.5];
-      pathRibbon([aOut,mid,bOut],4.6);
+// Pass 11 — fuller shoreline network: promenade bands + shore-hugging links (waters unmoved)
+(function lakeShoreNetwork(){
+  const lakes=LOCK.waters.filter(([, ,rx])=>rx>=16).map(([x,z,rx,rz])=>({x,z,rx,rz}));
+  function angTo(L,x,z){return Math.atan2(z-L.z,x-L.x);}
+  function shorePt(L,a,m=2.85){return [L.x+Math.cos(a)*(L.rx+m), L.z+Math.sin(a)*(L.rz+m)];}
+  function shoreArc(L,a0,a1,n=12,m=2.85){
+    let d=a1-a0;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
+    const pts=[];for(let i=0;i<=n;i++)pts.push(shorePt(L,a0+d*(i/n),m));return pts;
+  }
+  // Outer promenade ring on large lakes (second shoreline band)
+  lakes.forEach(L=>{
+    if(L.rx<28) return;
+    const pts=[],n=L.rx>=40?64:48;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push(shorePt(L,a,5.4));
+    }
+    pathRibbon(pts,4.2);
+  });
+  // Shore-hugging connectors: arc along A → bridge → arc along B (not a single mid chord)
+  const edges=[];
+  for(let i=0;i<lakes.length;i++){
+    for(let j=i+1;j<lakes.length;j++){
+      const A=lakes[i],B=lakes[j];
+      const d=Math.hypot(B.x-A.x,B.z-A.z);
+      if(d>120||d<A.rx+B.rx+6) continue;
+      edges.push({i,j,d,A,B});
     }
   }
+  edges.sort((a,b)=>a.d-b.d);
+  // MST-ish: take cheapest links until each lake has ≥1 link when possible (cap count)
+  const deg=new Array(lakes.length).fill(0);
+  let used=0;
+  for(const e of edges){
+    if(used>lakes.length+4) break;
+    if(deg[e.i]>=3&&deg[e.j]>=3) continue;
+    if(deg[e.i]>=1&&deg[e.j]>=1&&e.d>70) continue;
+    const A=e.A,B=e.B;
+    const aAb=angTo(A,B.x,B.z), aBa=angTo(B,A.x,A.z);
+    const arcA=shoreArc(A, aAb-0.55, aAb+0.15, 10);
+    const arcB=shoreArc(B, aBa-0.15, aBa+0.55, 10);
+    const aTip=arcA[arcA.length-1], bTip=arcB[0];
+    const mid=[(aTip[0]+bTip[0])/2,(aTip[1]+bTip[1])/2];
+    // bend mid slightly perpendicular so bridge clears both rims
+    const px=-(bTip[1]-aTip[1]), pz=(bTip[0]-aTip[0]), plen=Math.hypot(px,pz)||1;
+    mid[0]+=px/plen*2.2; mid[1]+=pz/plen*2.2;
+    pathRibbon([...arcA, mid, ...arcB], 4.4);
+    deg[e.i]++;deg[e.j]++;used++;
+  }
+  // Spurs from large west lakes toward spine corridor (x≈0) without changing spine width
+  lakes.filter(L=>L.rx>=32&&L.x<-40).forEach(L=>{
+    const a=angTo(L,0,L.z);
+    const start=shorePt(L,a,5.2);
+    const end=[Math.sign(start[0])*12, start[1]]; // approach spine soft shoulder
+    if(Math.hypot(end[0]-start[0],end[1]-start[1])>8)
+      pathRibbon([start, [(start[0]+end[0])/2, start[1]], end], 4.0);
+  });
 })();
 const railPts=[];
 const segs=24;
