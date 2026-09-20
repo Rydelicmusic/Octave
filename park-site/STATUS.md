@@ -57,3 +57,26 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **CONSTRAINTS:** park-site/ only; MOCK roster; locked axes; race with other agents on main (retry FF)
 - **SOLUTIONS:** Fresh-tip push retries; relative nests Home→Land→Venue→Work
 - **COMMIT / LAST COMMIT:** 7c02834 — park-site Pass 2h: deepen Solenne Park + Ori Hale works
+
+## Check-in — Pass 2 shipped
+
+- **TIME:** 2026-09-20 13:05 CDT (America/Chicago)
+- **FLEET:** park-site / lands / artists
+- **STARTED:** Pass 2 venue nests under lands/*/ with LOCKED work slugs; deepen 12 works; land mega-menus; link retarget from SKU-suffixed aliases
+- **GOING:** Pass 2 complete on main — 12 nested venues (canonical names) + 12 SKU redirect stubs; 4 lands denser; 12 works Listen/Look/Credit/Related; zero dead local hrefs
+- **NEXT:** Pass 3 — journal entries with night/day beats; denser Gate home; cross-land Related; guest-services desk menus; directory venue columns
+- **CONSTRAINTS:** park-site/ only; MOCK roster stable; LAYOUT geometry; relative links under /octave/park-site/; no hotel-tower language
+- **SOLUTIONS:** Home→Land→Venue nest→Work; menus→menus; SKU aliases redirect to LOCKED slugs; Related = siblings + artist + land + venue
+- **COMMITS:** (see tip after push) — park-site Pass 2: nested venues + deepen works
+
+## Check-in — Pass 3 complete → Pass 4
+
+- **TIME:** 2026-09-20 13:04 CDT (America/Chicago)
+- **LANE:** shell / lands
+- **STARTED:** Pass 3a–3d on main (tip 8a43fe6): Gate/directory density, journal, guest desk, cross-land related
+- **GOING:** Pass 4 — atelier material menus, tickets paths, artist-index nest links, map land→venue CTAs
+- **NEXT:** Pass 4 pushes then Pass 5 polish / link audit
+- **CONSTRAINTS:** park-site/ only; MOCK roster; FF races with parallel park agents
+- **SOLUTIONS:** Retry on 422; relative nests only
+- **COMMIT / LAST COMMIT:** 8a43fe6 — park-site Pass 3d: cross-land related on four album works
+
