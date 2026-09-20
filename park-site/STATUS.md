@@ -347,3 +347,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** f56e3ee — Pass 26
 - **TIP:** f56e3eefdaea9ab1bc3413796055098b74b7f1aa
 
+## Check-in — Pass 25 short-slug hospitality + dual SKU
+
+- **TIME:** 2026-09-20 13:46 CDT (America/Chicago)
+- **LANE:** shell / lands venues
+- **STARTED:** Pass 23=effede3 Pass 24=59bc4c8 already on tip; continue Pass 25 density
+- **GOING:** Deepened 12 short-slug venues (alias desk); dual short+SKU on venues/map/visit-paths/journal/tickets/directory
+- **NEXT:** Pass 26 — night/day beats on thin utility (programs/atelier)
+- **CONSTRAINTS:** park-site/ only; MOCK locked; no rebuild
+- **SOLUTIONS:** Canonical short slug; SKU aliases keep 200 redirects; hubs expose both
+- **COMMIT / LAST COMMIT:** 59bc4c8 — Pass 24 (pending Pass 25 push)
+- **LINK AUDIT:** (see push note)
+
