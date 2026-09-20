@@ -143,6 +143,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 28 — Gate arrival plaza
 - Arrival pad, welcome curbs/planters flanking spine, bollards; gate house / 14 m spine held
 
+## Pass 29 — hub plaza benches
+- Wood/iron benches on mid hub ring; spine gaps clear; hub meters held
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -176,6 +179,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 26: hub plaza lantern ring
 - SHIPPED Pass 27: ring approach aprons
 - SHIPPED Pass 28: Gate arrival plaza
+- SHIPPED Pass 29: hub plaza benches
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL

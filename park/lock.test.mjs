@@ -136,6 +136,7 @@ assert.match(indexHtml, /corridorLanterns/);
 assert.match(indexHtml, /hubLanternRing/);
 assert.match(indexHtml, /ringApproachAprons/);
 assert.match(indexHtml, /gateArrivalPlaza/);
+assert.match(indexHtml, /hubBenches/);
 
 
 assert.ok(ITINERARY.sequence.every((id) => walkById(id)));
