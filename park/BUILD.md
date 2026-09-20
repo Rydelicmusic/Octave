@@ -16,10 +16,13 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Placement predicates refuse spine, water, stadium rail, hub plaza, locked rings
 - Blueprint draws the same footprints; hover still `x … m` / `z … m`
 
+## Pass 2 — winding path ribbons + hub 8 radial beds + tree belts
+- Elliptical lake walks on waters rx>=16; four land ribbons following water edges
+- Hub: 8 sand spokes + 8 planted dirt/hedge beds (clear of 14 m spine)
+- Denser west-lakes, SE grove, north-split belts; trees skip spine + building footprints
+
 ## Still fake (worst next)
-1. Paths still boxy vs winding lakeside walks — no ribbons along water edges
-2. Hub eight radial beds are thin spokes, not planted beds
-3. Tree massing still sparse cones vs west-lakes / SE grove / north-split belts
-4. Empty plazas, no queues, lamps, trash, eye-height land names
-5. Gate is two posts; rings have no station massing
-6. Materials mostly one sand + one grass; facades still simple boxes
+1. Empty plazas, no queues, lamps, trash, eye-height land names
+2. Gate is two posts; rings have no station massing
+3. Materials mostly one sand + one grass; facades still simple boxes
+4. Spine path still a box; collision / stay-on-path not in yet

@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> SKU buildings in land canopies</div>
+  <div><b>This pass:</b> lake path ribbons + hub beds + tree belts</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -78,6 +78,7 @@ function water(x,z,rx,rz){
   lip.rotation.x=-Math.PI/2;lip.position.set(x,rimH+0.01,z);lip.scale.set(rx,rz,1);scene.add(lip);
 }
 LOCK.waters.forEach(w=>water(...w));
+LOCK.waters.forEach(([x,z,rx,rz])=>{if(rx>=16)lakeWalk(x,z,rx,rz);});
 // Paths: raised sand surface + tall side curbs (hub-curb spirit, walk stays clear)
 function pathBox(w,len,x,z,rotY=0){
   const g=new THREE.Group();
@@ -118,6 +119,43 @@ function pathRing(inner,outer,x,z){
   }
   curbRing(outer,outer+0.7,0.4,0);
   curbRing(Math.max(0.5,inner-0.7),inner,0.4,0);
+}
+function pathRibbon(pts,width=6){
+  if(pts.length<2)return;
+  const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,0.15,z)),false,'catmullrom',0.18);
+  const segs=Math.max(20,pts.length*10);
+  const hw=width/2;
+  const pos=[],idx=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs,p=curve.getPoint(t),tg=curve.getTangent(t);
+    const sx=-tg.z,sz=tg.x,len=Math.hypot(sx,sz)||1;
+    const nx=sx/len*hw,nz=sz/len*hw;
+    pos.push(p.x-nx,0.16,p.z-nz,p.x+nx,0.16,p.z+nz);
+  }
+  for(let i=0;i<segs;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  geo.setIndex(idx);geo.computeVertexNormals();
+  scene.add(new THREE.Mesh(geo,pathMat));
+  [-1,1].forEach(side=>{
+    const cpts=[];
+    for(let i=0;i<=segs;i++){
+      const t=i/segs,p=curve.getPoint(t),tg=curve.getTangent(t);
+      const sx=-tg.z,sz=tg.x,len=Math.hypot(sx,sz)||1;
+      cpts.push(new THREE.Vector3(p.x+side*sx/len*(hw+0.32),0.3,p.z+side*sz/len*(hw+0.32)));
+    }
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(cpts),segs,0.2,5,false),stoneDark));
+  });
+}
+function lakeWalk(x,z,rx,rz){
+  const g=new THREE.Group();
+  const ring=new THREE.Mesh(new THREE.RingGeometry(1.04,1.2,64),pathMat);
+  ring.rotation.x=-Math.PI/2;ring.position.y=0.15;g.add(ring);
+  const innerC=new THREE.Mesh(new THREE.TorusGeometry(1.04,0.025,6,48),stoneDark);
+  innerC.rotation.x=Math.PI/2;innerC.position.y=0.28;
+  const outerC=new THREE.Mesh(new THREE.TorusGeometry(1.2,0.025,6,48),stoneDark);
+  outerC.rotation.x=Math.PI/2;outerC.position.y=0.28;
+  g.add(innerC,outerC);g.position.set(x,0,z);g.scale.set(rx,1,rz);scene.add(g);
 }
 pathBox(LOCK.spineWidth,B,0,B/2);
 pathBox(22,18,0,B);
@@ -184,12 +222,29 @@ function hubPlaza(){
   // Center pocket pad
   const pad=new THREE.Mesh(new THREE.CylinderGeometry(IN-0.6,IN-0.6,0.18,48),pathMat);
   pad.position.y=0.09;scene.add(pad);
-  // Radial spokes (abstract kit)
+  // 8 radial walk spokes + planted beds between them (skip covering the 14 m spine)
+  const dirt=new THREE.MeshLambertMaterial({color:0x5a4030});
+  const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
+  const bloom=new THREE.MeshLambertMaterial({color:0xa45a6a});
   for(let i=0;i<8;i++){
     const a=(i/8)*Math.PI*2;
-    const spoke=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.12,OUT-IN-0.5),stoneDark);
-    spoke.position.set(Math.cos(a)*(IN+OUT)/2,SLAB+0.08,Math.sin(a)*(IN+OUT)/2);
+    const spoke=new THREE.Mesh(new THREE.BoxGeometry(1.15,0.14,OUT-IN-0.4),pathMat);
+    spoke.position.set(Math.cos(a)*(IN+OUT)/2,SLAB+0.1,Math.sin(a)*(IN+OUT)/2);
     spoke.rotation.y=-a;scene.add(spoke);
+    const mid=a+Math.PI/8;
+    const a0=mid-0.26,a1=mid+0.26,r0=IN+1.15,r1=OUT-1.15;
+    const sh=new THREE.Shape();
+    const n=8;
+    for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;k?sh.lineTo(Math.cos(t)*r1,Math.sin(t)*r1):sh.moveTo(Math.cos(t)*r1,Math.sin(t)*r1);}
+    for(let k=n;k>=0;k--){const t=a0+(a1-a0)*k/n;sh.lineTo(Math.cos(t)*r0,Math.sin(t)*r0);}
+    sh.closePath();
+    const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:0.2,bevelEnabled:false}),dirt);
+    bed.rotation.x=-Math.PI/2;bed.position.y=SLAB+0.02;scene.add(bed);
+    for(let k=1;k<=3;k++){
+      const t=a0+(a1-a0)*k/4,rr=(r0+r1)/2;
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.48+k%2*0.1,6,5),k===2?bloom:hedge);
+      bush.position.set(Math.cos(t)*rr,SLAB+0.55,Math.sin(t)*rr);bush.scale.set(1,0.65,1);scene.add(bush);
+    }
   }
   // Low benches on outer deck (seat ~0.45 m) — skip spine axes
   for(let i=0;i<8;i++){
@@ -207,6 +262,12 @@ function hubPlaza(){
 hubPlaza();
 pathRing(LOCK.rings.A.inner,LOCK.rings.A.outer,LOCK.rings.A.x,LOCK.rings.A.z);
 pathRing(LOCK.rings.B.inner,LOCK.rings.B.outer,LOCK.rings.B.x,LOCK.rings.B.z);
+// Winding path ribbons that follow blueprint water edges (lands, not the 14 m spine)
+pathRibbon([[-62,28],[-95,8],[-132,-18],[-168,-48],[-198,-82],[-170,-112],[-128,-98],[-96,-62]],5.6);
+pathRibbon([[-70,-40],[-100,-18],[-148,8],[-188,28],[-210,55],[-178,78],[-140,88]],5.2);
+pathRibbon([[138,-48],[168,-72],[198,-88],[228,-52],[232,-18],[208,8],[178,22]],5.4);
+pathRibbon([[-48,-98],[8,-118],[58,-128],[88,-158],[42,-172],[-8,-168],[-38,-148]],5.2);
+pathRibbon([[48,70],[72,88],[88,70],[70,52],[52,68]],4.6);
 const railPts=[];
 const segs=24;
 for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(-S+t*2*S,0.4,-B));}
@@ -236,7 +297,8 @@ function clump(cx,cz,n,r,s0=1){
     const d=r*(0.2+((i*19)%11)/14);
     const tx=cx+Math.cos(a)*d,tz=cz+Math.sin(a)*d;
     // Keep Pocket spine walk clear (±9 m)
-    if(Math.abs(tx)<9&&Math.abs(tz)<B)continue;
+    if(Math.abs(tx)<9&&tz>-8&&tz<B)continue;
+    if(BUILDINGS.some(b=>Math.abs(tx-b.x)<b.w/2+2.5&&Math.abs(tz-b.z)<b.d/2+2.5))continue;
     tree(tx,tz,s0*(0.72+(i%5)*0.13));
   }
 }
@@ -248,11 +310,11 @@ for(let z=34;z<B-10;z+=11){
   clump(18.5,z,8,6.2,1.05);
 }
 // West lakes / The Block — belt clumps
-[[-95,-20,9,12],[-125,25,8,11],[-160,-55,8,10],[-70,-70,7,9],[-110,70,7,9],[-185,10,8,11]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.05));
+[[-95,-20,16,14],[-125,25,14,12],[-160,-55,14,12],[-70,-70,12,11],[-110,70,13,11],[-185,10,14,12],[-230,20,12,10],[-140,-100,12,10],[-200,-70,11,9]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.08));
 // SE grove near Board figure-8
-[[75,70,8,10],[100,50,7,9],[55,100,7,8],[130,85,6,8],[85,125,6,8]].forEach(([x,z,n,r])=>clump(x,z,n,r,0.98));
+[[75,70,14,12],[100,50,12,11],[55,100,12,10],[130,85,11,10],[85,125,11,10],[150,40,10,9],[110,120,10,9],[70,145,9,8]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.02));
 // North / After Hours split
-[[-45,-110,7,10],[20,-120,7,10],[-20,-160,6,9],[50,-95,6,8],[-80,-130,6,9]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.0));
+[[-45,-110,13,12],[20,-120,13,12],[-20,-160,12,11],[50,-95,11,10],[-80,-130,12,11],[90,-170,10,9],[-100,-165,10,9],[0,-190,9,8]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.05));
 // Hub ring outer plantings (outside r32, skip spine axes)
 for(let i=0;i<10;i++){
   const a=(i/10)*Math.PI*2+0.3;

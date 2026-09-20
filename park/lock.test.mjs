@@ -84,6 +84,12 @@ assert.equal(hoverLabel(BLUEPRINT.CX + 25, BLUEPRINT.CY + 230), 'x 25 m   z 230 
 assert.match(indexHtml, /from ['"]\.\/lock\.js['"]/);
 assert.match(indexHtml, /BUILDINGS/);
 assert.match(indexHtml, /LOCK\.walk/);
+assert.match(indexHtml, /function pathRibbon/);
+assert.match(indexHtml, /function lakeWalk/);
+assert.match(indexHtml, /8 radial walk spokes \+ planted beds/);
+assert.match(indexHtml, /West lakes \/ The Block/);
+assert.match(indexHtml, /SE grove/);
+assert.match(indexHtml, /North \/ After Hours split/);
 assert.match(indexHtml, />Walk</);
 assert.match(indexHtml, />3rd</);
 assert.match(indexHtml, />Drone</);
