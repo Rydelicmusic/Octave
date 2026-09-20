@@ -244,10 +244,13 @@ addHall no longer stacks a second lower (`h*0.56`) / upper (`h*0.36`) hall on th
 ## Buildings pass 24 — marquee at 3.35 m walk-under
 Album marquees sat at `0.28+h*0.78` ≈ 7.5 m (second-story). Now `min(3.35, eaves-0.5)` so a guest walks under a 0.78 × 1.15 m projecting sign. Kiosk marquee stays ~2.85 m. Width capped 8.5 m. Footprints unchanged.
 
+## Buildings pass 25 — 1.05 m queue rails + posts
+Kit queues were 0.92 m high, 0.09 m thick, two rails only. Now 1.05 m rails (0.05 m thick) with 0.1 m posts every 1.2 m along `queueL` (kiosk 2.6 / pavilion 4.4 / album 5.6 m). Footprints unchanged.
+
 ## Still fake (worst next)
-1. Queue rails 0.92 m, 0.09 m thick, no posts (typical rail 1.05 m)
-2. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
-3. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
+1. Gate house bridge still centered at wing `h` (8.6 m) — may float off the filled kit roof
+2. Kiosk windows sit at `0.28+h*0.5` ≈ 1.85 m (high for a 3.15 m shed)
+3. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered

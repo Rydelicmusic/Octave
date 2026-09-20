@@ -30,8 +30,15 @@ export function skuKit(p, emit) {
   const marqueeY = Math.min(3.35, plinth + bodyH - 0.5);
   emit.box({ name: 'marquee', w: Math.min(w * 0.72, 8.5), h: 0.78, d: 1.15, x: 0, y: marqueeY, z: d / 2 + 0.72, color: pal.marquee });
   emit.box({ name: 'service', w: 1.1, h: 2.05, d: 0.12, x: w * 0.28, y: 1.05, z: -d / 2 - 0.07, color: pal.door });
-  emit.box({ name: 'queue', w: 0.09, h: 0.92, d: qL, x: -qW / 2, y: 0.46, z: d / 2 + qL / 2, color: pal.queue });
-  emit.box({ name: 'queue', w: 0.09, h: 0.92, d: qL, x: qW / 2, y: 0.46, z: d / 2 + qL / 2, color: pal.queue });
+  const railH = 1.05;
+  emit.box({ name: 'queue', w: 0.05, h: railH, d: qL, x: -qW / 2, y: railH / 2, z: d / 2 + qL / 2, color: pal.queue });
+  emit.box({ name: 'queue', w: 0.05, h: railH, d: qL, x: qW / 2, y: railH / 2, z: d / 2 + qL / 2, color: pal.queue });
+  const nPost = Math.max(2, Math.round(qL / 1.2) + 1);
+  for (let i = 0; i < nPost; i++) {
+    const pz = d / 2 + (i / (nPost - 1)) * qL;
+    emit.box({ name: 'queue', w: 0.1, h: railH, d: 0.1, x: -qW / 2, y: railH / 2, z: pz, color: pal.queue });
+    emit.box({ name: 'queue', w: 0.1, h: railH, d: 0.1, x: qW / 2, y: railH / 2, z: pz, color: pal.queue });
+  }
   return { spec, pal };
 }
 
