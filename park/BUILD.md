@@ -267,10 +267,17 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - `catmullRibbonMeters` / `catmullPoint` match THREE pathRibbon (tension 0.18, segs=max(20,n*10))
 - `walkRibbonMeters` + itinerary approach/return use Catmull sample length (not control-point polyline)
 
+## Pass 48 — denser PointLights (Still fake #3)
+- Cap 56→80; LAMP_LIGHT intensity 9→7, dist 22→17
+- Spine: both sides lit every pole; corridor+hub every lantern (not every other); denser −Z + WALKS lit
+- Fill-rate: lower intensity/distance so denser set stays under hard cap
+
 ## Still fake (worst next)
-1. Ride-station kit body is a shed; extra Pass-36 zig queues still sit beside the kit rails
-2. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
-3. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
+1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
+2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
+3. ~~Sparse PointLights~~ — addressed Pass 48 (cap 80 + denser lit; still not 1:1 every mesh under fill-rate)
+4. Gate ticket booth still a blank kiosk slab (no ticket window / queue rail polish)
+5. Water material still flat Lambert (no foam lip / deeper tint variation)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -367,7 +374,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - **GOING:** Park tip Pass 45 (spine lamps actually light) + buildings passes 22–28 (roof gap, album mass, marquee 3.35 m, queue rails 1.05 m, gate bridge, ground windows, gate queues 2.2 m). Site racing Pass 160–166 (materials→nests, credits, visit-paths, land hubs, densify notes/materials→venues/works/guest/booking). Tip b5b11ad. Pages API still reports errored; live hubs mostly 200.
 - SHIPPED Pass 46: ride-station kit densify + zig queues in sku-kit
 - SHIPPED Pass 47: Catmull ribbon sample length for tour meters
-- **NEXT:** (await Keith) density / proportion polish (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 48: denser PointLights (cap 80, spine/corridor/hub/WALKS)
+- **NEXT:** Pass 49 — gate ticket polish OR water material densify (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165

@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> Catmull ribbon tour meters</div>
+  <div><b>This pass:</b> denser lamp PointLights</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass47-catmull';
+import * as LockMod from './lock.js?v=pass48-lamps';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -802,7 +802,7 @@ if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINE
 
 // Pass 44 — denser PointLights with fill-rate budget
 let lampLightCount=0;
-const LAMP_LIGHT_CAP=56;
+const LAMP_LIGHT_CAP=80; // Pass 48 — denser lit set, lower intensity/dist
 function addLampPointLight(x,z,intensity=LAMP_LIGHT.intensity,dist=LAMP_LIGHT.dist){
   if(lampLightCount>=LAMP_LIGHT_CAP) return false;
   const pl=new THREE.PointLight(LAMP_LIGHT.color,intensity,dist);
@@ -829,24 +829,24 @@ function trashCan(x,z){
   c.position.set(x,0.36,z);scene.add(c);
 }
 for(const z of spineLampZs()){lamp(SPINE_LAMP.xWest,z,spineLampLitWest(z));lamp(SPINE_LAMP.xEast,z,spineLampLitEast(z));if(spineLampLitWest(z)){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
-for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z,z%36===-18);lamp(8.3,z,z%36===0);}
+for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z,true);lamp(8.3,z,z%36===0||z%36===-18);} // Pass 48 denser −Z lit
 lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
-// Pass 44 — PointLights on corridor + hub lanterns (shared LAMP_LIGHT_CAP)
+// Pass 44/48 — PointLights on corridor + hub lanterns (shared LAMP_LIGHT_CAP)
 (function pass44LampLights(){
   const half=LOCK.spineWidth/2+0.85;
-  let i=0;
+  // Pass 48 — every corridor lantern (was every other)
   for(let z=12;z<=LOCK.gate.z-8;z+=28){
-    if(i++%2===0){addLampPointLight(-half,z,8,20);addLampPointLight(half,z,8,20);}
+    addLampPointLight(-half,z,6,15);addLampPointLight(half,z,6,15);
   }
   for(let z=-12;z>=-LOCK.B+8;z-=28){
-    if(i++%2===0){addLampPointLight(-half,z,8,20);addLampPointLight(half,z,8,20);}
+    addLampPointLight(-half,z,6,15);addLampPointLight(half,z,6,15);
   }
   const r=LOCK.hubOuter+2.2;
   for(let k=0;k<16;k++){
     const a=(k/16)*Math.PI*2;
     if(Math.abs(Math.sin(a))>0.92) continue;
-    if(k%2) continue;
-    addLampPointLight(Math.cos(a)*r, Math.sin(a)*r, 7, 18);
+    // Pass 48 — full hub ring (was every other)
+    addLampPointLight(Math.cos(a)*r, Math.sin(a)*r, 5.5, 14);
   }
 })();
 // Pass 38 — denser path furniture along named WALKS (outside 14 m spine strip)
@@ -859,7 +859,7 @@ lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
       const dx=(x-cx)/(rx+1.5), dz=(z-cz)/(rz+1.5); return dx*dx+dz*dz<=1;
     })) return;
     if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.5&&Math.abs(z-b.z)<b.d/2+1.5)) return;
-    if(kind==='lamp') lamp(x,z,Math.abs(Math.round(x)+Math.round(z))%3===0);
+    if(kind==='lamp') lamp(x,z,Math.abs(Math.round(x)+Math.round(z))%2===0); // Pass 48 denser WALKS lit
     else if(kind==='bench') benchAt(x,z,yaw);
     else trashCan(x,z);
   }
