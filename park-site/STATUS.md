@@ -924,3 +924,17 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 0c0555fcd9cb3399a118d449d159970ddfa1ae85
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 100 tickets land+artist desks
+
+- **TIME:** 2026-09-20 13:35 CDT (America/Chicago)
+- **LANE:** Site Luxury / tickets
+- **STARTED:** LIVE tip Pass 99 (0c0555f); substance densify tickets book desks
+- **GOING:** Pass 100 densify + FIX 7d97085 restored tickets after PLACEHOLDER botch 6eb79ac; four land+artist desks; 12 short venues + works
+- **NEXT:** Pass 101 — atelier densify (programs/land+artist material desks); then STOP for parent
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild; FIX c95c7e2 clean
+- **SOLUTIONS:** Book by land & artist mega-menu; short slugs first; immediate content restore
+- **COMMITS:** 6eb79ac PLACEHOLDER botch · 7d97085 FIX restore densify
+- **COMMIT / LAST COMMIT:** 7d97085
+- **TIP:** 7d97085 (pending STATUS sync)
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
