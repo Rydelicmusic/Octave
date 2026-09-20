@@ -1,4 +1,4 @@
-import { LOCK, inStadium, inCanopy, ITINERARY } from './lock-a1.js';
+import { LOCK, inStadium, ITINERARY } from './lock-a1.js';
 
 export const BUILDINGS = [
   { id: 'block-album', land: 'The Block', sku: 'album', name: 'Block Hall', x: -250, z: 48, w: 22, d: 14, h: 9.2, yaw: 0.18, body: 0x6a4030, trim: 0x3a2418 },
@@ -40,51 +40,4 @@ export const STATIONS = [
 ];
 
 export const PLACEMENTS = [...BUILDINGS, ...GATE, ...STATIONS];
-
-export function occupancyAABB(b) {
-  const hw = b.w / 2, hd = b.d / 2;
-  return { minX: b.x - hw, maxX: b.x + hw, minZ: b.z - hd, maxZ: b.z + hd };
-}
-
-function clamp(v, a, b) {
-  return Math.max(a, Math.min(b, v));
-}
-
-export function aabbHitsCircle(aabb, cx, cz, r) {
-  const qx = clamp(cx, aabb.minX, aabb.maxX);
-  const qz = clamp(cz, aabb.minZ, aabb.maxZ);
-  return Math.hypot(qx - cx, qz - cz) < r;
-}
-
-export function aabbHitsEllipse(aabb, cx, cz, rx, rz) {
-  const nx0 = (aabb.minX - cx) / rx, nx1 = (aabb.maxX - cx) / rx;
-  const nz0 = (aabb.minZ - cz) / rz, nz1 = (aabb.maxZ - cz) / rz;
-  const minX = Math.min(nx0, nx1), maxX = Math.max(nx0, nx1);
-  const minZ = Math.min(nz0, nz1), maxZ = Math.max(nz0, nz1);
-  const qx = clamp(0, minX, maxX);
-  const qz = clamp(0, minZ, maxZ);
-  return qx * qx + qz * qz < 1;
-}
-
-export function aabbHitsAabb(a, b) {
-  return a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
-}
-
-export function hitsHub(aabb) {
-  return aabbHitsCircle(aabb, 0, 0, LOCK.hubOuter);
-}
-
-export function hitsSpine(aabb) {
-  return aabbHitsAabb(aabb, {
-    minX: -LOCK.spineWidth / 2,
-    maxX: LOCK.spineWidth / 2,
-    minZ: 0,
-    maxZ: LOCK.B,
-  });
-}
-
-export function hitsWater(aabb) {
-  return LOCK.waters.some(([x, z, rx, rz]) => aabbHitsEllipse(aabb, x, z, rx, rz));
-}
-
 export { ITINERARY as PARK_ITINERARY };
