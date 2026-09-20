@@ -8,95 +8,84 @@
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="index.html">
-      <span class="brand-mark">Rydelic Park</span>
-      <span class="brand-sub">Luxury Site</span>
-    </a>
-    <nav aria-label="Primary">
-      <ul class="nav-primary">
-        <li><a href="index.html" >Gate</a></li>
-        <li><a href="map.html" >Map</a></li>
-        <li><a href="directory.html" >Directory</a></li>
-        <li><a href="artists/index.html" >Artists</a></li>
-        <li><a href="lands/the-block.html" >The Block</a></li>
-        <li><a href="lands/after-hours.html" >After Hours</a></li>
-        <li><a href="lands/the-board.html" >The Board</a></li>
-        <li><a href="lands/the-pocket.html" >The Pocket</a></li>
-      </ul>
-    </nav>
+    <a class="brand" href="index.html"><span class="brand-mark">Rydelic Park</span><span class="brand-sub">Luxury Site</span></a>
+    <nav aria-label="Primary"><ul class="nav-primary">
+      <li><a href="index.html">Gate</a></li><li><a href="map.html">Map</a></li>
+      <li><a href="directory.html">Directory</a></li><li><a href="artists/index.html">Artists</a></li>
+      <li><a href="lands/the-block.html">The Block</a></li><li><a href="lands/after-hours.html">After Hours</a></li>
+      <li><a href="lands/the-board.html">The Board</a></li><li><a href="lands/the-pocket.html">The Pocket</a></li>
+    </ul></nav>
     <ul class="nav-utility">
       <li><a href="tickets.html">Tickets</a></li>
       <li><a href="journal.html">Journal</a></li>
-      <li><a href="atelier.html">Atelier</a></li>
+      <li><a href="atelier.html" aria-current="page">Atelier</a></li>
       <li><a href="guest-services.html">Guest Services</a></li>
     </ul>
   </div>
 </header>
 
-
 <main>
   <div class="wrap">
     <ul class="crumbs"><li><a href="index.html">Home</a></li><li>Atelier</li></ul>
     <header class="page-hero">
-      <p class="eyebrow">Utility · hospitality</p>
+      <p class="eyebrow">Materials · lamps · skins</p>
       <h1>Atelier</h1>
-      <p class="sub">Material and lighting atelier for skins that fit the SKU ladder without moving locked footprints.</p>
-      <div class="cta-row" style="margin-top:1.25rem"><a class="btn btn-ghost" href="lands/the-board.html">The Board</a><a class="btn btn-ghost" href="journal.html">Journal</a><a class="btn btn-ghost" href="directory.html">Directory</a><a class="btn" href="index.html">Return to Gate</a></div>
+      <p class="sub">Skins that fit the SKU ladder without moving locked footprints. Dark metal, glass, warm lamps — density over minimalism.</p>
+      <nav class="submenu">
+        <a href="#metal">Dark metal</a>
+        <a href="#glass">Glass</a>
+        <a href="#lamp">Warm lamp</a>
+        <a href="#sku">SKU ladder</a>
+        <a href="journal.html">Journal</a>
+      </nav>
     </header>
-    <section class="section" style="border:0;padding-top:0">
-      <div class="grid-3">
-        <article class="card"><p class="card-kicker">Wayfinding</p><h3><a href="map.html">Meter map</a></h3><p>Stadium, hub, spine, four lands.</p></article>
-        <article class="card"><p class="card-kicker">Roster</p><h3><a href="artists/index.html">MOCK artists</a></h3><p>Four residents, twelve works.</p></article>
-        <article class="card"><p class="card-kicker">Lands</p><h3><a href="directory.html">Directory</a></h3><p>Venues by SKU ladder.</p></article>
-      </div>
-    </section>
+    <div class="mega-menu">
+      <div><h4>Apply on Block</h4><ul>
+        <li><a href="lands/the-block/night-ledger-building.html">Night Ledger</a></li>
+        <li><a href="artists/vale-mercer/concrete-hymn.html">Concrete Hymn</a></li>
+      </ul></div>
+      <div><h4>Apply on After Hours</h4><ul>
+        <li><a href="lands/after-hours/velvet-cap-r-pavilion.html">Velvet Cap R</a></li>
+        <li><a href="artists/juniper-kline/last-call-geometry.html">Last Call Geometry</a></li>
+      </ul></div>
+      <div><h4>Apply on Board</h4><ul>
+        <li><a href="lands/the-board/east-glass-walk-building.html">East Glass Walk</a></li>
+        <li><a href="artists/solenne-park/measured-light.html">Measured Light</a></li>
+      </ul></div>
+      <div><h4>Apply on Pocket</h4><ul>
+        <li><a href="lands/the-pocket/spine-fourteen-building.html">Spine Fourteen</a></li>
+        <li><a href="artists/ori-hale/gate-distance.html">Gate Distance</a></li>
+      </ul></div>
+    </div>
+    <article class="venue-nest" id="metal"><p class="sku">Material</p><h2>Dark metal</h2>
+      <p style="color:var(--mist)">Structural skin for album buildings and pavilion ribs. Night reads first; day holds measure.</p>
+      <div class="nest-links"><a class="btn" href="lands/the-block.html">The Block</a><a class="btn btn-ghost" href="artists/vale-mercer/night-ledger.html">Night Ledger</a></div>
+    </article>
+    <article class="venue-nest" id="glass"><p class="sku">Material</p><h2>Glass</h2>
+      <p style="color:var(--mist)">East walks and lamp faces. Cap R reflections after dark.</p>
+      <div class="nest-links"><a class="btn" href="lands/the-board.html">The Board</a><a class="btn btn-ghost" href="artists/solenne-park/east-glass-walk.html">East Glass Walk</a></div>
+    </article>
+    <article class="venue-nest" id="lamp"><p class="sku">Light</p><h2>Warm lamp</h2>
+      <p style="color:var(--mist)">Hospitality density along spine and canopy edges. Not a theme toggle — a content mode.</p>
+      <div class="nest-links"><a class="btn" href="lands/after-hours.html">After Hours</a><a class="btn btn-ghost" href="map.html">Meter map</a></div>
+    </article>
+    <article class="venue-nest" id="sku"><p class="sku">Rule</p><h2>SKU ladder</h2>
+      <p style="color:var(--mist)">Song = kiosk · EP = pavilion · Album = building. Lands host rides; albums do not invent footprints.</p>
+      <div class="nest-links"><a class="btn" href="directory.html">Directory</a><a class="btn btn-ghost" href="guest-services.html">Guest desk</a></div>
+    </article>
+    <section class="section" style="border:0"><div class="mode-split">
+      <div class="mode-night"><h3>Night atelier</h3><p>Lamp studies against Cap R and glass walks.</p></div>
+      <div class="mode-day"><h3>Day atelier</h3><p>Grid 25/100 m; canopy ellipses unchanged.</p></div>
+    </div></section>
   </div>
 </main>
 
-
 <footer class="site-foot">
-  <div class="wrap foot-grid">
-    <div>
-      <div class="foot-brand">Rydelic Park</div>
-      <p>Editorial hospitality for a night park measured in meters. Stadium 760×460 · Hub r18/32 · Spine 14 m · Gate (0,+230).</p>
-    </div>
-    <div>
-      <h4>Lands</h4>
-      <ul>
-        <li><a href="lands/the-block.html">The Block (−X)</a></li>
-        <li><a href="lands/after-hours.html">After Hours (−Z)</a></li>
-        <li><a href="lands/the-board.html">The Board (+X)</a></li>
-        <li><a href="lands/the-pocket.html">The Pocket (+Z)</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Artists</h4>
-      <ul>
-        <li><a href="artists/index.html">MOCK Roster</a></li>
-        <li><a href="artists/vale-mercer/index.html">Vale Mercer</a></li>
-        <li><a href="artists/juniper-kline/index.html">Juniper Kline</a></li>
-        <li><a href="artists/solenne-park/index.html">Solenne Park</a></li>
-        <li><a href="artists/ori-hale/index.html">Ori Hale</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Live Park</h4>
-      <ul>
-        <li><a href="https://rydelicmusic.github.io/octave/park/" rel="noopener">3D Walk</a></li>
-        <li><a href="https://rydelicmusic.github.io/octave/park/blueprint.html" rel="noopener">Blueprint</a></li>
-        <li><a href="map.html">Meter Map</a></li>
-        <li><a href="directory.html">Directory</a></li>
-      </ul>
-    </div>
-  </div>
   <div class="wrap foot-note">
-    <span>Geometry locked per park/LAYOUT.md · Mock roster marked MOCK</span>
-    <span>Luxury target: /octave/park-site/</span>
+    <span>Geometry locked · MOCK roster</span>
+    <span><a href="index.html">Gate</a> · <a href="map.html">Map</a> · <a href="directory.html">Directory</a></span>
   </div>
 </footer>
-
-</body>
-</html>
+</body></html>
