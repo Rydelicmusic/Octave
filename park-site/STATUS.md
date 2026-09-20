@@ -312,3 +312,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** cac3c8e — Pass 22
 - **TIP LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 24 README
+
+- **TIME:** 2026-09-20 13:44 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 24 — park-site/README.md operator sheet (live URLs, LAYOUT, MOCK roster, key paths)
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 25+
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Human onboarding without leaving tree
+- **COMMIT / LAST COMMIT:** effede3 — Pass 23
+
