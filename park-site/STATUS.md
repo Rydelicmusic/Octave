@@ -460,3 +460,36 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Atelier → venue nests
 - **COMMIT / LAST COMMIT:** pending
 
+## Check-in — Pass 35 day measure board
+
+- **TIME:** 2026-09-20 13:24 CDT (America/Chicago)
+- **LANE:** programs
+- **STARTED:** Pass 35 — day-measure.html timed MOCK board (09:00–18:00) linking geometry/map/nests/atelier/night handoff
+- **GOING:** Pass 36 directory desks; Pass 37 programs boards
+- **NEXT:** Push 35–37
+- **CONSTRAINTS:** LAYOUT meters unchanged
+- **SOLUTIONS:** Day board mirrors night with measure focus
+- **COMMIT / LAST COMMIT:** 5babef5 — Pass 34
+
+## Check-in — Pass 36 directory quick desks
+
+- **TIME:** 2026-09-20 13:25 CDT (America/Chicago)
+- **LANE:** directory
+- **STARTED:** Pass 36 — directory mega-menu (programs/wayfind/hospitality/album nests)
+- **GOING:** Pass 37
+- **NEXT:** Push
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Directory as denser hub
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 37 programs boards
+
+- **TIME:** 2026-09-20 13:26 CDT (America/Chicago)
+- **LANE:** programs
+- **STARTED:** Pass 37 — programs.html service menu to night/day/paths/geometry
+- **GOING:** Push 35–37; continue if budget
+- **NEXT:** Pass 38 live probe + tip STATUS
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Programs hub aggregates boards
+- **COMMIT / LAST COMMIT:** pending
+
