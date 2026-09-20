@@ -135,3 +135,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Shared chrome accents; LAYOUT numbers on Gate
 - **COMMIT / LAST COMMIT:** c9a1b15 — Pass 7 STATUS (pending Pass 8)
 
+## Check-in — Pass 9 programs hub
+
+- **TIME:** 2026-09-20 13:14 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 9 — programs.html hub (night + day); Gate lamp-rail link
+- **GOING:** Push; await director STOP or continue Pass 10
+- **NEXT:** Pass 10 optional polish
+- **CONSTRAINTS:** park-site/ only; MOCK roster; LAYOUT lock
+- **SOLUTIONS:** Program hub aggregates content modes
+- **COMMIT / LAST COMMIT:** 3f546db — Pass 8 STATUS (pending Pass 9)
+
