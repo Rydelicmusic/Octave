@@ -87,6 +87,8 @@ assert.match(indexHtml, /from ['"]\.\/lock\.js['"]/);
 assert.match(indexHtml, /BUILDINGS/);
 assert.match(indexHtml, /LOCK\.walk/);
 assert.match(indexHtml, /function pathRibbon/);
+assert.match(indexHtml, /pathRibbon\([^)]*,3\.8\)/);
+assert.match(indexHtml, /function pathRibbon\(pts,width=GROUNDS_SCALE\.lakesideW\)/);
 assert.match(indexHtml, /function lakeWalk/);
 assert.match(indexHtml, /8 radial walk spokes \+ planted beds/);
 assert.match(indexHtml, /West lakes \/ The Block/);

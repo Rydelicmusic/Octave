@@ -45,6 +45,7 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - pass 9: water coping 0.5 m wide × 0.32 m high in world meters (not rx-scaled)
 - pass 10: hub radial beds 0.38 m soil planters with 0.12 m stone lip; shrubs 0.7–1.2 m
 - pass 11: stadium rail 0.4 m diameter stone curb on the locked 760×460 oval
+- pass 12: land path ribbons 3.8 m (spine stays 14 m) so Drone can tell the main walk from side walks
 
 ## Still fake (worst next)
 1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple) — buildings agent
@@ -52,4 +53,4 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 3. Stay-on-path is rail-only, not ribbon-constrained
 4. Lakeside ribbons that hit the spine are segmented boxes, not one spline
 5. Mobile look + stick still coarse
-6. Land pathRibbon widths still 5–6 m (wide vs 3.2 m lakeside) — optional later
+6. Lakeside segs still boxy at spine clips (not a spline)

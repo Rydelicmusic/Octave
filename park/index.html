@@ -142,7 +142,7 @@ function pathRing(inner,outer,x,z){
   curbRing(outer,outer+0.7,0.4,0);
   curbRing(Math.max(0.5,inner-0.7),inner,0.4,0);
 }
-function pathRibbon(pts,width=6){
+function pathRibbon(pts,width=GROUNDS_SCALE.lakesideW){
   if(pts.length<2)return;
   const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,0.15,z)),false,'catmullrom',0.18);
   const segs=Math.max(20,pts.length*10);
@@ -284,11 +284,11 @@ hubPlaza();
 pathRing(LOCK.rings.A.inner,LOCK.rings.A.outer,LOCK.rings.A.x,LOCK.rings.A.z);
 pathRing(LOCK.rings.B.inner,LOCK.rings.B.outer,LOCK.rings.B.x,LOCK.rings.B.z);
 // Winding path ribbons that follow blueprint water edges (lands, not the 14 m spine)
-pathRibbon([[-62,28],[-95,8],[-132,-18],[-168,-48],[-198,-82],[-170,-112],[-128,-98],[-96,-62]],5.6);
-pathRibbon([[-70,-40],[-100,-18],[-148,8],[-188,28],[-210,55],[-178,78],[-140,88]],5.2);
-pathRibbon([[138,-48],[168,-72],[198,-88],[228,-52],[232,-18],[208,8],[178,22]],5.4);
-pathRibbon([[-48,-98],[8,-118],[58,-128],[88,-158],[42,-172],[-8,-168],[-38,-148]],5.2);
-pathRibbon([[48,70],[72,88],[88,70],[70,52],[52,68]],4.6);
+pathRibbon([[-62,28],[-95,8],[-132,-18],[-168,-48],[-198,-82],[-170,-112],[-128,-98],[-96,-62]],3.8);
+pathRibbon([[-70,-40],[-100,-18],[-148,8],[-188,28],[-210,55],[-178,78],[-140,88]],3.8);
+pathRibbon([[138,-48],[168,-72],[198,-88],[228,-52],[232,-18],[208,8],[178,22]],3.8);
+pathRibbon([[-48,-98],[8,-118],[58,-128],[88,-158],[42,-172],[-8,-168],[-38,-148]],3.8);
+pathRibbon([[48,70],[72,88],[88,70],[70,52],[52,68]],3.2);
 const railPts=[];
 const segs=24;
 for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(-S+t*2*S,0.4,-B));}
