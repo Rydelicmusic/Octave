@@ -124,3 +124,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Relative links; content modes
 - **COMMIT / LAST COMMIT:** 41538a1 — Pass 6 STATUS (pending Pass 7)
 
+## Check-in — Pass 8 density accents
+
+- **TIME:** 2026-09-20 13:12 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 8 CSS lamp-rail/stat-strip/density-rule; Gate + map accents
+- **GOING:** Push; continue Pass 9
+- **NEXT:** Pass 9 — secondary nest polish / STATUS tip
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Shared chrome accents; LAYOUT numbers on Gate
+- **COMMIT / LAST COMMIT:** c9a1b15 — Pass 7 STATUS (pending Pass 8)
+
