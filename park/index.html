@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> ring approach aprons</div>
+  <div><b>This pass:</b> Gate arrival plaza</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -563,6 +563,29 @@ function gateHouse(){
   banner.position.set(0,9.6,z+2.2);scene.add(banner);
 }
 gateHouse();
+// Pass 28 — Gate arrival plaza polish (spine 14 m / gate house held)
+(function gateArrivalPlaza(){
+  const z=LOCK.gate.z;
+  // arrival pad south of gate house (outside stadium? keep just inside rail)
+  const pad=new THREE.Mesh(new THREE.BoxGeometry(28,0.16,16),concreteMat);
+  pad.position.set(0,0.08,z-10);scene.add(pad);
+  addWalkSeg(-14,z-10,14,z-10,8);
+  // welcome curb rings flanking spine (not on strip)
+  [-1,1].forEach(side=>{
+    const curb=new THREE.Mesh(new THREE.BoxGeometry(1.1,0.35,14),stoneDark);
+    curb.position.set(side*(LOCK.spineWidth/2+1.4),0.18,z-12);scene.add(curb);
+    const planter=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.6,0.55,10),stone);
+    planter.position.set(side*18,0.28,z-8);scene.add(planter);
+    const bush=new THREE.Mesh(new THREE.SphereGeometry(1.1,8,6),new THREE.MeshLambertMaterial({color:0x2f5a32}));
+    bush.position.set(side*18,1.0,z-8);scene.add(bush);
+  });
+  // bollard line at gate threshold
+  for(let x=-10;x<=10;x+=5){
+    if(Math.abs(x)<4) continue;
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.25,0.9,8),stoneDark);
+    b.position.set(x,0.45,z-4);scene.add(b);
+  }
+})();
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});
 const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});
 const leafOlive=new THREE.MeshLambertMaterial({color:0x3d6b38});
