@@ -125,6 +125,7 @@ test('skuKit always emits roof overhang window queue marquee service with palett
     assert.equal(marquee.color, LAND_PALETTE[p.land].marquee, `${p.id} LAND_PALETTE.marquee`);
     const overhang = report.parts.find((x) => x.name === 'overhang');
     assert.ok(overhang.w > p.w, `${p.id} overhang must outspan body`);
+    assert.ok(overhang.z > 0, `${p.id} overhang must project forward`);
     const service = report.parts.find((x) => x.name === 'service');
     assert.ok(service.z < 0, `${p.id} service door on rear`);
     assert.ok(report.parts.filter((x) => x.name === 'queue').length >= 2, `${p.id} queue rails`);
@@ -150,7 +151,7 @@ test('skuKit is a callable emit unit (not regex bait)', () => {
 
 test('index.html mounts sku-kit and drives GATE/STATIONS footprints', () => {
   const src = readFileSync(join(here, 'index.html'), 'utf8');
-  assert.match(src, /from ['"]\.\/sku-kit\.js['"]/);
+  assert.match(src, /import \{ addSkuKit \} from ['"]\.\/sku-kit\.js['"]/);
   assert.match(src, /addSkuKit/);
   assert.match(src, /GATE\.forEach/);
   assert.match(src, /STATIONS\.forEach\(rideStation\)/);
@@ -159,6 +160,11 @@ test('index.html mounts sku-kit and drives GATE/STATIONS footprints', () => {
   assert.match(src, />Walk</);
   assert.match(src, />3rd</);
   assert.match(src, />Drone</);
+  const landBinds = [
+    /import \{[^}]*\bLAND_PALETTE\b/.test(src),
+    /const \{\s*[^}]*\bLAND_PALETTE\b/.test(src),
+  ].filter(Boolean).length;
+  assert.equal(landBinds, 1, 'LAND_PALETTE must be bound once (duplicate is a SyntaxError)');
   assert.doesNotMatch(src, /overhang\s*=\s*null/);
   assert.doesNotMatch(src, /BoxGeometry\(14,0\.32,7\.5\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);

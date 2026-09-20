@@ -202,6 +202,17 @@ Callable `park/sku-kit.js` `skuKit()` always emits roof, overhang, window, queue
 - `measureItinerary()` uses ribbon meters / LOCK.walk (1.34 m/s); 3D `linkLakes` consumes `walkLinkPolyline`
 - Layout locks / WALKS / rings / waters unmoved
 
+## Buildings pass 21 — restore sku-kit on Walk (meters)
+Pass 41 dropped `import { addSkuKit }` and double-bound LAND_PALETTE (Walk SyntaxError). Walk mounts `sku-kit.js` again. Overhang is a front canopy (not a lid). Marquee projects 1.15 m. Extra front windows on w≥6 m volumes. Footprints unchanged:
+
+| role | source | x,z | w × d × h (m) |
+|---|---|---|---|
+| gate-west | GATE | -13.5, 233 | 9 × 7.2 × 8.6 |
+| gate-east | GATE | 13.5, 233 | 9 × 7.2 × 8.6 |
+| station-a | STATIONS | ring A + outer+9 | 14 × 7.5 × 4.05 |
+| station-b | STATIONS | ring B + outer+9 | 8 × 6 × 3.6 |
+| pocket-album | BUILDINGS | 22, 112 | 18 × 14 × 8.4 |
+
 ## Pass 42 — lamp PointLights on facades
 - Spine / hub / selected WALKS lamps emit `PointLight` (warm 0xffe1b0) so Lambert building walls pick up night light
 - Window glow remains; count capped (every ~42 m on spine, sparse on walk furniture)

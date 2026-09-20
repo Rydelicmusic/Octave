@@ -17,10 +17,14 @@ export function skuKit(p, emit) {
   const qL = Math.max(2.2, spec.queueL);
   const qW = Math.max(1.6, spec.queueW);
   emit.box({ name: 'body', w, h: h * 0.7, d, x: 0, y: 0.28 + h * 0.35, z: 0, color: pal.body });
-  emit.box({ name: 'overhang', w: w + eaves * 2, h: 0.16, d: d + eaves * 2, x: 0, y: 0.28 + h + 0.08, z: 0, color: pal.trim });
+  emit.box({ name: 'overhang', w: w + eaves * 2, h: 0.2, d: Math.max(1.15, eaves * 2.4), x: 0, y: 0.28 + h * 0.9, z: d / 2 + eaves * 0.55, color: pal.trim });
   emit.box({ name: 'roof', w: w + eaves, h: Math.max(0.28, roofH * 0.32), d: d + eaves, x: 0, y: 0.28 + h + 0.16 + roofH * 0.28, z: 0, color: pal.roof });
   emit.box({ name: 'window', w: Math.min(2.4, w * 0.45), h: Math.min(1.5, h * 0.32), d: 0.14, x: 0, y: 0.28 + h * 0.5, z: d / 2 + 0.08, color: pal.window });
-  emit.box({ name: 'marquee', w: w * 0.72, h: 0.7, d: 0.95, x: 0, y: 0.28 + h * 0.78, z: d / 2 + 0.55, color: pal.marquee });
+  if (w >= 6) {
+    emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: -w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
+    emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
+  }
+  emit.box({ name: 'marquee', w: w * 0.72, h: 0.78, d: 1.15, x: 0, y: 0.28 + h * 0.78, z: d / 2 + 0.72, color: pal.marquee });
   emit.box({ name: 'service', w: 1.1, h: 2.05, d: 0.12, x: w * 0.28, y: 1.05, z: -d / 2 - 0.07, color: pal.door });
   emit.box({ name: 'queue', w: 0.09, h: 0.92, d: qL, x: -qW / 2, y: 0.46, z: d / 2 + qL / 2, color: pal.queue });
   emit.box({ name: 'queue', w: 0.09, h: 0.92, d: qL, x: qW / 2, y: 0.46, z: d / 2 + qL / 2, color: pal.queue });
