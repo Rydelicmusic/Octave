@@ -1248,11 +1248,27 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:10 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip e27bafe; deepen materials/credits/visit-paths/day-measure/land hubs
-- **GOING:** Tip pending
+- **GOING:** Tip 9e2c6f2; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no collisions; no rebuild spam
 - **SOLUTIONS:** SKU→rooms; studies→park; credits→rooms; paths/day megas; land hub room desks
-- **COMMIT / LAST COMMIT:** fd5c7b7 — Pass 164
+- **COMMIT / LAST COMMIT:** 9e2c6f2 — Pass 165
+- **TIP:** 9e2c6f2df5e6581b102d7c38560b5bd3537e2ff3
 - **COLLISIONS:** NONE
+- **PAGES:** errored
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `materials/kiosk.html` | 200 |
+| `materials/metal.html` | 200 |
+| `artists/vale-mercer/credits.html` | 200 |
+| `visit-paths.html` | 200 |
+| `day-measure.html` | 200 |
+| `lands/the-block.html` | 200 |
+| `lands/the-pocket/nests/spine-fourteen-room.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
