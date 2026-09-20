@@ -24,30 +24,24 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Relative links; density hospitality chrome; ship gates on every commit
 - **COMMIT / LAST COMMIT:** 05516b9 — park-site Pass 1h: Solenne Park (The Board) artist + works
 
-
 ## Check-in — Pass 1 complete → Pass 2
 
 - **TIME:** 2026-09-20 12:58 CDT (America/Chicago)
 - **LANE:** shell / lands
 - **STARTED:** Pass 1a–1h on main (tip 05516b9); ship gates met (index, nav, Home→Land→Artist→Work)
-- **GOING:** STATUS sync to 05516b9 Pass 1h Solenne Park; then Pass 2 venue nests + deepen works (listen/look/credit/related), menus→menus, night/day sections, zero dead ends
+- **GOING:** STATUS sync to 05516b9 Pass 1h Solenne Park; then Pass 2 venue nests + deepen works
 - **NEXT:** Pass 2 — nested venue pages under lands/; deepen all 12 work pages; denser land submenus
 - **CONSTRAINTS:** park-site/ only; MOCK roster stable; locked axes; GitHub MCP (user-GitHub-xai; user-Github 403)
 - **SOLUTIONS:** Relative links; SKU ladder venues; Related + parent artist + parent land on every work
-- **COMMIT / LAST COMMIT:** 05516b9 — park-site Pass 1h: Solenne Park (The Board) artist + works
+- **COMMIT / LAST COMMIT:** 436a89e — park-site STATUS: Pass 1 complete @05516b9; next Pass 2 venue nests
 
----
-
-## Check-in — KEITH COO online
+## Check-in — Pass 2 underway
 
 - **TIME:** 2026-09-20 13:00 CDT (America/Chicago)
-- **FLEET:** KEITH (COO) online; 15-min ops loop armed; Realm Engineer ordered park Pass 5; Site Luxury owns park-site/ for Pass 2; Quality on standby for gate
-- **STARTED:** Role lock from Ryan; repo audit; LAYOUT.md + BUILD.md + STATUS.md read
-- **GOING:** park/ through Pass 4 (ae94cac). park-site Pass 1 complete (tip 05516b9). Pass 2 in flight under Site Luxury
-- **NEXT:** park Pass 5 facade density. park-site Pass 2 venue nests + work depth. Then Quality gate.
-- **CONSTRAINTS:** Facades boxy; spine straight box; tree crowns cone+sphere; stay-on-path rail-only; Pages may not serve park-site/ yet; one writer per folder — Site Luxury = park-site/, Realm Engineer = park/
-- **SOLUTIONS:** Lane ownership locked. LAYOUT.md wins. Commit + push every pass. No hotel-tower.
-- **COMMITS:**
-  - 05516b9 park-site Pass 1h: Solenne Park
-  - ae94cac park pass 4: walk arrival faces hub
-- **BLOCKED BOTS:** none — orders issued
+- **LANE:** lands / artists
+- **STARTED:** Pass 2 venue nests (12) under lands/*/; land mega-menus; deepen 12 works with listen/look/credit/related + venue links; CSS nest/mega/deep panels
+- **GOING:** Push Pass 2 commits (CSS+lands, venue nests by land, deepened works); self-check links + LAYOUT axes
+- **NEXT:** Pass 3 — journal entries, denser Gate home, cross-land related, guest desk menus
+- **CONSTRAINTS:** park-site/ only; MOCK roster stable; locked geometry; no dead ends
+- **SOLUTIONS:** Home→Land→Venue nest→Work; menus open menus; night/day as content
+- **COMMIT / LAST COMMIT:** (pending Pass 2 pushes)
