@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> stadium rail fence densify</div>
+  <div><b>This pass:</b> evening fog / sky</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -43,8 +43,9 @@ const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x87a0b0);
-scene.fog=new THREE.Fog(0x87a0b0,80,900);
+// Pass 32 — evening atmosphere (dusk sky + warmer fog)
+scene.background=new THREE.Color(0x6a7a90);
+scene.fog=new THREE.Fog(0x7a8494,70,820);
 const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.2,2500);
 let yaw=0,pitch=-0.04,mode='walk',droneYaw=Math.PI,dronePitch=-0.72,lift=0;
 const pos=new THREE.Vector3(0,EYE,B-6);

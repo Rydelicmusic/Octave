@@ -152,6 +152,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 31 — stadium rail fence densify
 - Denser posts (every 2nd rail sample) + double rail bars between; stadium rail path unmoved
 
+## Pass 32 — evening fog / sky
+- Dusk background + warmer Fog + HemisphereLight; layout locks held
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -188,6 +191,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 29: hub plaza benches
 - SHIPPED Pass 30: land canopy edge ribbons
 - SHIPPED Pass 31: stadium rail fence densify
+- SHIPPED Pass 32: evening fog / sky
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
