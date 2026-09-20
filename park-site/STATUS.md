@@ -323,3 +323,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Human onboarding without leaving tree
 - **COMMIT / LAST COMMIT:** effede3 — Pass 23
 
+## Check-in — Pass 25 artist → geometry/paths
+
+- **TIME:** 2026-09-20 13:46 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Pass 25 — geometry/visit-paths/programs on all four MOCK artist indexes
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 26+
+- **CONSTRAINTS:** park-site/ only; MOCK roster
+- **SOLUTIONS:** Artist worlds escape to measure pages
+- **COMMIT / LAST COMMIT:** 59bc4c8 — Pass 24
+
