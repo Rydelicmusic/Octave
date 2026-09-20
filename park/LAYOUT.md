@@ -46,7 +46,7 @@ M (-s, -B) L (s, -B) A r r 0 0 1 (s, B) L (-s, B) A r r 0 0 1 (-s, -B) Z
 | The Block | −X | (−165, −10, 130, 160) |
 | After Hours | −Z | (10, −140, 150, 70) |
 | The Board | +X | (160, 10, 130, 130) |
-| The Pocket | +Z / hub south | label (0, 120) |
+| The Pocket | +Z / hub south | (80, 105, 95, 80) — Pass 13 canopy; label (0, 120) |
 
 Land rule: song = ride, album = land. Gate: 1 song = kiosk; EP = pavilion; album = full building. Do not design a hotel until multiple songs exist.
 

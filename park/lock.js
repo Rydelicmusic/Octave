@@ -18,6 +18,8 @@ export const LOCK = {
     'The Block': { cx: -165, cz: -10, rx: 130, rz: 160 },
     'After Hours': { cx: 10, cz: -140, rx: 150, rz: 70 },
     'The Board': { cx: 160, cz: 10, rx: 130, rz: 130 },
+    // Pass 13 — Pocket canopy (hub-south / rings neighborhood); rings stay unmoved
+    'The Pocket': { cx: 80, cz: 105, rx: 95, rz: 80 },
   },
   waters: [
     [-210, -20, 48, 70],
@@ -126,4 +128,10 @@ export const BUILDINGS = [
   { id: 'board-ep', land: 'The Board', sku: 'pavilion', name: 'Board Pavilion', x: 175, z: 95, w: 12, d: 8.5, h: 5.1, yaw: -0.45, body: 0xd2c4a0, trim: 0x6a5840 },
   { id: 'board-song', land: 'The Board', sku: 'kiosk', name: 'Board Kiosk', x: 88, z: -18, w: 3.8, d: 3.8, h: 3.15, yaw: 0.3, body: 0xd8c8a4, trim: 0x5a4830 },
   { id: 'board-song-2', land: 'The Board', sku: 'kiosk', name: 'Board Cart', x: 210, z: 88, w: 3.6, d: 3.6, h: 3.05, yaw: 0.6, body: 0xd8c8a4, trim: 0x5a4830 },
+  // Pass 13 — Pocket SKU ladder near locked ∞ rings (song=kiosk, EP=pavilion; no album hall)
+  { id: 'pocket-ep-a', land: 'The Pocket', sku: 'pavilion', name: 'Pocket Pavilion A', x: 55, z: 95, w: 11, d: 8, h: 4.9, yaw: 0.4, body: 0x5a6a58, trim: 0x2a3228 },
+  { id: 'pocket-ep-b', land: 'The Pocket', sku: 'pavilion', name: 'Pocket Pavilion B', x: 150, z: 108, w: 11, d: 8, h: 4.9, yaw: -0.5, body: 0x5a6a58, trim: 0x2a3228 },
+  { id: 'pocket-song-a', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Kiosk A', x: 95, z: 55, w: 3.6, d: 3.6, h: 3.1, yaw: -0.2, body: 0x6a7a68, trim: 0x243028 },
+  { id: 'pocket-song-b', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Kiosk B', x: 118, z: 140, w: 3.6, d: 3.6, h: 3.1, yaw: 0.3, body: 0x6a7a68, trim: 0x243028 },
+  { id: 'pocket-song-c', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Cart', x: 70, z: 130, w: 3.6, d: 3.6, h: 3.05, yaw: 0.15, body: 0x6a7a68, trim: 0x243028 },
 ];

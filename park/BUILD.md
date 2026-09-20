@@ -86,7 +86,8 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - SHIPPED Pass 10: stay-on-path corner cuts
 - SHIPPED Pass 11: fuller lake shoreline path network
 - SHIPPED Pass 12: blueprint spine centerline + soft edges
-- NEXT candidate: await ORDER
+- SHIPPED Pass 13: Pocket SKU density near locked rings
+- NEXT candidate: denser Pocket understory/beds (Pass 14)
 - CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower
 
 ## KEITH fleet check-in — 2026-09-20 13:08 CDT
