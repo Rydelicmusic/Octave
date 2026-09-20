@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> 0.45 m spine curbs</div>
+  <div><b>This pass:</b> 0.28 m rail posts</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass72-curb';
+import * as LockMod from './lock.js?v=pass73-rail';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1509,9 +1509,10 @@ lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
   });
 })();
 function fencePost(x,z){
-  const p=new THREE.Mesh(new THREE.BoxGeometry(0.18,1.15,0.18),stoneDark);p.position.set(x,0.57,z);scene.add(p);
-  // Pass 54 — post cap
-  const cap=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.1,0.28),stoneDark);cap.position.set(x,1.18,z);scene.add(cap);
+  // Pass 73 — PATH_SCALE.railPost 0.28 m, railH 1.2 m (was 0.18×1.15 paper posts)
+  const H=PATH_SCALE.railH, S=PATH_SCALE.railPost;
+  const p=new THREE.Mesh(new THREE.BoxGeometry(S,H,S),stoneDark);p.position.set(x,H/2,z);scene.add(p);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(S+0.1,0.1,S+0.1),stoneDark);cap.position.set(x,H+0.05,z);scene.add(cap);
 }
 // Pass 31/54 — denser stadium rail fence (stadium S/B/R meters held; rail path same shape)
 (function railFenceDensify(){
@@ -1541,8 +1542,9 @@ function fencePost(x,z){
     if(len<0.4||len>14) continue;
     const midX=(a[0]+b[0])/2, midZ=(a[1]+b[1])/2;
     const yaw=Math.atan2(dx,dz);
-    [1.15,0.9,0.65].forEach((y)=>{
-      const bar=new THREE.Mesh(new THREE.BoxGeometry(len,0.1,0.07),rail);
+    const H=PATH_SCALE.railH, T=PATH_SCALE.railBarT;
+    [H-0.12, H*0.62, H*0.36].forEach((y)=>{
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(len,T,T),rail);
       bar.position.set(midX,y,midZ);
       bar.rotation.y=yaw;
       scene.add(bar);

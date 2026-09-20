@@ -133,6 +133,9 @@ export const PATH_SCALE = {
   copingH: 0.32,
   lampH: 3.6,
   spineCurbW: 0.45,
+  railH: 1.2,
+  railPost: 0.28,
+  railBarT: 0.12,
 };
 
 /** Closed polyline around a locked water ellipse at a constant offset (meters). */

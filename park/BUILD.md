@@ -371,10 +371,15 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Now PATH_SCALE.spineCurbW = 0.45 m, center offset 0.225 m outside the strip
 - Blueprint hover edges stay x=±7; waters / hub / rings unmoved
 
+## Pass 73 — 0.28 m stadium rail posts (layout)
+- Posts were 0.18×1.15 m with 0.07 m bars (paper from Drone)
+- Now PATH_SCALE.railPost 0.28 m, railH 1.2 m, railBarT 0.12 m; stadium S/B/R and gate opening held
+
 ## Still fake (worst next)
 - Water coping still scales with ellipse rx
-- Stadium rail posts 1.15 m with 0.18 m section (paper-thin vs 14 m spine)
 - Hub inner continuous curb is 0.22 m (step-over) while outer parapet is 0.55 m
+- Gate arrival pathBox is 22 m wide vs 14 m spine
+
 
 
 
