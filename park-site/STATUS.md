@@ -844,10 +844,11 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 13:29 CDT (America/Chicago)
 - **LANE:** directory
 - **STARTED:** Passes 76–81 from tip 37909db
-- **GOING:** Tip pending
+- **GOING:** Tip 8c512f3; audits clean
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT; substance-first
 - **SOLUTIONS:** Canopy meters; night/day land strips; program walks; venues desks; directory Gate arrivals
-- **COMMIT / LAST COMMIT:** 01399d9 — Pass 80
+- **COMMIT / LAST COMMIT:** 8c512f3 — Pass 81
+- **TIP:** 8c512f3554e125591882d034e668231d7e14d935
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
