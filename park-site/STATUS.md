@@ -585,3 +585,36 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Artist world → night board + land nests
 - **COMMIT / LAST COMMIT:** pending
 
+## Check-in — Pass 45 Gate first hours
+
+- **TIME:** 2026-09-20 13:24 CDT (America/Chicago)
+- **LANE:** shell / Gate
+- **STARTED:** Pass 45 — index first-hours arrivals from Gate (Plaza Rings → Distance → Night Ledger + boards)
+- **GOING:** Pass 46 EP sisters; Pass 47 venues SKU rails
+- **NEXT:** Push 45–47
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Gate home opens timed wayfinding
+- **COMMIT / LAST COMMIT:** 7106974 — Pass 44
+
+## Check-in — Pass 46 EP sister pavilions
+
+- **TIME:** 2026-09-20 13:25 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Pass 46 — four EP works cross-link sister pavilions across lands
+- **GOING:** Pass 47
+- **NEXT:** Push
+- **CONSTRAINTS:** MOCK EP SKU
+- **SOLUTIONS:** Same rung across axes
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 47 venues SKU rails
+
+- **TIME:** 2026-09-20 13:26 CDT (America/Chicago)
+- **LANE:** venues
+- **STARTED:** Pass 47 — venues index SKU rails (song/EP/album × 4 lands) + boards
+- **GOING:** Push 45–47; STATUS tip sync
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Venues hub as SKU ladder map
+- **COMMIT / LAST COMMIT:** pending
+
