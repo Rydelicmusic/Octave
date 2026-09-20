@@ -1348,3 +1348,38 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COLLISIONS:** NONE
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 176 densify + Pass 183 audit
+
+- **TIME:** 2026-09-20 14:16 CDT (America/Chicago)
+- **LANE:** shell (Site Luxury)
+- **STARTED:** Tip ~3aafec2 Pass 175; 176/177 taken by parallel NEW pages → densify shipped as Pass 176 (duplicate number OK with roster 176); audit as Pass 183 (181–182 taken)
+- **GOING:** Pass 176 densify @`b21404b` directory.html + venues.html + visit-paths.html nested IA → short venues / nest rooms / guest/ / booking/ / notes/ / materials/ / tonight+daylight; Pass 183 full link audit
+- **NEXT:** Continue densify/audit per Keith order unless Ryan STOP
+- **CONSTRAINTS:** park-site/ only; no clone; MOCK locked; relative links; no hotel-tower; no rebuild; no new html/dir basename collisions; keep guest/+booking/ indexes + FIX markers; Home→Land→Venue→Work; 12 short-slugs @200
+- **SOLUTIONS:** Nested density on three hubs only; guest/booking hubs + nested rooms linked; preexisting land hub html/dir collisions unchanged (not new)
+- **COMMIT / LAST COMMIT:** b21404b — park-site Pass 176: densify directory/venues/visit-paths
+- **TIP:** 824313b790b682410c3f10b840f890fad199281f (STATUS commit will advance tip)
+- **AUDIT:** 161 html · 9513 hrefs · **0 broken**
+- **COLLISIONS:** preexisting only — lands/{the-block,after-hours,the-board,the-pocket}.html ↔ dirs (none new)
+- **SHORT SLUGS:** 12/12 present
+- **GUEST/BOOKING:** indexes + FIX markers present; live probes 200
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/guest/` | 200 |
+| `/guest/index.html` | 200 |
+| `/booking/` | 200 |
+| `/booking/index.html` | 200 |
+| `/directory.html` | 200 |
+| `/venues.html` | 200 |
+| `/visit-paths.html` | 200 |
+| `/lands/the-block/west-gate-echo.html` | 200 |
+| `/lands/after-hours/northern-quiet.html` | 200 |
+| `/lands/the-board/boardline.html` | 200 |
+| `/lands/the-pocket/spine-fourteen.html` | 200 |
+| `/guest/ask.html` | 200 |
+| `/booking/night.html` | 200 |
+
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
