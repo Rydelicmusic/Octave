@@ -33,20 +33,20 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Start yaw 0 so Gate Walk looks down the 14 m asphalt spine into the hub
 - Optional `#drone` hash opens Drone at 90 m (cameras unchanged)
 
-## Pass 5 — hall facade depth
-- Album halls: recessed window bays on four faces, corner pilasters, belt + cornice
-- Front portico (columns, entablature, door recess) and stepped entry
-- Building x,z,w,d unchanged — still in-canopy, off spine, off water, inside rail
+## Pass 5 — SKU facade polish (density + proportion)
+- Album halls (kept): recessed window bays, pilasters, belt/cornice, portico, stepped entry
+- Kiosks: plinth + fascia + pitched awning, service-window recess + glass, side insets, corner posts
+- Pavilions: plinth/belt, 8 columns, four face window bays + sills, two-tier roof + finial
+- Material variation via body/trim/glass/base; BUILDINGS x,z,w,d,yaw footprints unchanged
+- Placement predicates untouched (canopy / off spine / off water / inside rail)
 
 ## Still fake (worst next)
 1. Spine is still a straight box (ribbons are on land water edges only)
-2. Tree crowns still cone+sphere, not species-varied
+2. Tree crowns still cone+sphere, not species-varied  ← Pass 6 candidate
 3. Stay-on-path is rail-only, not ribbon-constrained
-4. Kiosks/pavilions still kit-simple vs the new halls
 
 ## KEITH check-in — 2026-09-20 13:00 CDT
-- FLEET: KEITH COO online; 15-min loop armed; Realm Engineer = park/; Site Luxury = park-site/; Quality standby
-- GOING: Pass 5 halls noted in log; verifying push then Pass 6
-- NEXT ORDER (Pass 6): kiosk/pavilion facade density to match halls OR species-varied tree crowns — pick worse fake, one concern only
+- FLEET: KEITH COO online; Realm Engineer = park/; Site Luxury = park-site/; Quality standby
+- SHIPPED: Pass 5 SKU facade polish (kiosk/pavilion/hall) — footprints held
+- NEXT (Pass 6): species-varied tree crowns (worse fake vs ribbon stay-on-path)
 - CONSTRAINTS: no rebuild; LAYOUT.md meters held; no hotel-tower
-- SOLUTIONS: density/proportion only; commit + push; begin next pass when this ships

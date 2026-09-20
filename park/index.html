@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> hall facade depth</div>
+  <div><b>This pass:</b> SKU facade polish (kiosk/pavilion/hall)</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -417,34 +417,84 @@ const hubLight=new THREE.PointLight(0xfff0d0,28,40);hubLight.position.set(0,7,0)
 sun.intensity=1.25;sun.color.set(0xffe6c4);
 function addKiosk(b){
   const g=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.7,b.d),new THREE.MeshLambertMaterial({color:b.body}));
-  body.position.y=b.h*0.35;
-  const roof=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.15,0.1,b.d+1.5),new THREE.MeshLambertMaterial({color:b.trim}));
-  roof.position.y=b.h*0.78;roof.rotation.x=-0.1;
-  const trim=new THREE.MeshLambertMaterial({color:b.trim});
+  const bodyMat=new THREE.MeshLambertMaterial({color:b.body});
+  const trimMat=new THREE.MeshLambertMaterial({color:b.trim});
+  const glass=new THREE.MeshLambertMaterial({color:0x1a2430,emissive:0x081018});
+  const baseMat=new THREE.MeshLambertMaterial({color:0x4a4036});
+  const base=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.35,0.28,b.d+0.45),baseMat);base.position.y=0.14;
+  const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.62,b.d),bodyMat);body.position.y=0.28+b.h*0.31;
+  const fascia=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.4,0.22,b.d+0.55),trimMat);fascia.position.y=0.28+b.h*0.62;
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.35,0.12,b.d+1.7),trimMat);
+  roof.position.y=b.h*0.82;roof.rotation.x=-0.12;
+  const awning=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.95,0.06,0.85),trimMat);
+  awning.position.set(0,1.55,b.d/2+0.55);awning.rotation.x=-0.35;
   [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>{
-    const p=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,b.h*0.72,6),trim);
-    p.position.set(sx*(b.w/2+0.28),b.h*0.36,sz*(b.d/2+0.38));g.add(p);
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.09,b.h*0.7,6),trimMat);
+    post.position.set(sx*(b.w/2+0.32),b.h*0.38,sz*(b.d/2+0.42));g.add(post);
   });
-  const counter=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.92,0.1,0.5),new THREE.MeshLambertMaterial({color:0x3d3428}));
-  counter.position.set(0,1.08,b.d/2+0.22);
-  g.add(body,roof,counter);g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
+  // Service window recess (front)
+  const recess=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.72,1.15,0.22),new THREE.MeshLambertMaterial({color:0x1a1510}));
+  recess.position.set(0,1.25,b.d/2-0.05);
+  const pane=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.58,0.85,0.06),glass);
+  pane.position.set(0,1.28,b.d/2-0.14);
+  const sill=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.78,0.1,0.28),trimMat);
+  sill.position.set(0,0.72,b.d/2+0.08);
+  // Side window insets
+  [-1,1].forEach(side=>{
+    const rec=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.9,b.d*0.45),trimMat);
+    rec.position.set(side*(b.w/2-0.02),1.2,0);
+    const gp=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.7,b.d*0.35),glass);
+    gp.position.set(side*(b.w/2-0.12),1.2,0);g.add(rec,gp);
+  });
+  const counter=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.88,0.12,0.48),new THREE.MeshLambertMaterial({color:0x3d3428}));
+  counter.position.set(0,1.0,b.d/2+0.28);
+  g.add(base,body,fascia,roof,awning,recess,pane,sill,counter);
+  g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
 }
 function addPavilion(b){
   const g=new THREE.Group();
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.8,0.22,b.d+1.8),new THREE.MeshLambertMaterial({color:0xb9b3a8}));
-  deck.position.y=0.11;
-  const hall=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.7,b.h*0.68,b.d*0.68),new THREE.MeshLambertMaterial({color:b.body}));
-  hall.position.y=0.22+b.h*0.34;
-  const colM=new THREE.MeshLambertMaterial({color:b.trim});
+  const bodyMat=new THREE.MeshLambertMaterial({color:b.body});
+  const trimMat=new THREE.MeshLambertMaterial({color:b.trim});
+  const glass=new THREE.MeshLambertMaterial({color:0x1c2830,emissive:0x0a1520});
+  const deckMat=new THREE.MeshLambertMaterial({color:0xb9b3a8});
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.8,0.22,b.d+1.8),deckMat);deck.position.y=0.11;
+  const plinth=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.78,0.35,b.d*0.78),trimMat);plinth.position.y=0.28;
+  const hall=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.68,b.h*0.58,b.d*0.68),bodyMat);
+  hall.position.y=0.35+b.h*0.29;
+  const belt=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.74,0.16,b.d*0.74),trimMat);
+  belt.position.y=0.35+b.h*0.58;
   for(let i=0;i<8;i++){
-    const t=(i/8)*Math.PI*2;
-    const col=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,b.h*0.82,8),colM);
-    col.position.set(Math.cos(t)*(b.w/2-0.35),b.h*0.41,Math.sin(t)*(b.d/2-0.35));g.add(col);
+    const a=(i/8)*Math.PI*2;
+    const col=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.22,b.h*0.78,8),trimMat);
+    col.position.set(Math.cos(a)*(b.w/2-0.3),b.h*0.4,Math.sin(a)*(b.d/2-0.3));g.add(col);
   }
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(b.w,b.d)*0.7,2.15,4),new THREE.MeshLambertMaterial({color:b.trim}));
-  roof.position.y=b.h+0.45;roof.rotation.y=Math.PI/4;
-  g.add(deck,hall,roof);g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
+  // Four window bays on hall faces
+  const hw=b.w*0.68, hd=b.d*0.68, hy=0.35+b.h*0.29;
+  [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx,dz])=>{
+    const rec=new THREE.Mesh(
+      new THREE.BoxGeometry(dx?0.2:hw*0.42, b.h*0.32, dz?0.2:hd*0.42),
+      new THREE.MeshLambertMaterial({color:0x1a1510})
+    );
+    rec.position.set(dx*(hw/2-0.05), hy, dz*(hd/2-0.05));
+    const pane=new THREE.Mesh(
+      new THREE.BoxGeometry(dx?0.06:hw*0.32, b.h*0.24, dz?0.06:hd*0.32),
+      glass
+    );
+    pane.position.set(dx*(hw/2-0.14), hy, dz*(hd/2-0.14));
+    const sill=new THREE.Mesh(
+      new THREE.BoxGeometry(dx?0.28:hw*0.38, 0.08, dz?0.28:hd*0.38),
+      trimMat
+    );
+    sill.position.set(dx*(hw/2+0.05), hy-b.h*0.18, dz*(hd/2+0.05));
+    g.add(rec,pane,sill);
+  });
+  const roofLow=new THREE.Mesh(new THREE.CylinderGeometry(Math.max(b.w,b.d)*0.55,Math.max(b.w,b.d)*0.62,0.35,4),trimMat);
+  roofLow.position.y=b.h*0.78;roofLow.rotation.y=Math.PI/4;
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(b.w,b.d)*0.72,2.35,4),trimMat);
+  roof.position.y=b.h+0.55;roof.rotation.y=Math.PI/4;
+  const finial=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,8),trimMat);finial.position.y=b.h+1.85;
+  g.add(deck,plinth,hall,belt,roofLow,roof,finial);
+  g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
 }
 function addPilaster(g,x,y,z,h,trim,faceZ=true){
   const p=new THREE.Mesh(new THREE.BoxGeometry(faceZ?0.38:0.22,h,faceZ?0.22:0.38),trim);
