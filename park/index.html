@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> path curb polish</div>
+  <div><b>This pass:</b> wayfinding densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass56-curb';
+import * as LockMod from './lock.js?v=pass57-way';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -920,15 +920,92 @@ if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINE
     for(let k=0;k<path.length-1;k++){
       const x0=path[k][0],z0=path[k][1],x1=path[k+1][0],z1=path[k+1][1];
       const dist=Math.hypot(x1-x0,z1-z0);
-      const n=Math.max(1,Math.floor(dist/18));
+      const n=Math.max(2,Math.floor(dist/10)); // Pass 57 denser chevrons
       for(let j=1;j<=n;j++){
         const t=j/(n+1);
         const x=x0+(x1-x0)*t, z=z0+(z1-z0)*t;
-        if(Math.abs(x)<LOCK.spineWidth/2+0.5) continue; // keep off spine strip
+        if(Math.abs(x)<LOCK.spineWidth/2+1.2) continue; // keep off spine strip
         chevron(x,z,Math.atan2(x1-x0,z1-z0));
       }
     }
   }
+})();
+
+// Pass 57 — denser wayfinding: blade signs + directional posts along WALKS / hub approaches
+(function pass57Wayfinding(){
+  const half=LOCK.spineWidth/2+2.0;
+  const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+  const bladeMat=new THREE.MeshLambertMaterial({color:0xc9b48a});
+  const tipMat=new THREE.MeshLambertMaterial({color:0x8a4030});
+  function offSpine(x){return Math.abs(x)>=half;}
+  function chevronLite(x,z,yaw){
+    if(!offSpine(x)) return;
+    const mat=new THREE.MeshLambertMaterial({color:0x8a4030});
+    const g=new THREE.Group();
+    const a=new THREE.Mesh(new THREE.BoxGeometry(0.75,0.05,0.22),mat);
+    const b=a.clone(); a.position.set(0.2,0.04,0); a.rotation.y=0.45;
+    b.position.set(-0.2,0.04,0); b.rotation.y=-0.45;
+    g.add(a,b); g.position.set(x,0.02,z); g.rotation.y=yaw; scene.add(g);
+  }
+  function dirPost(x,z,yaw){
+    if(!offSpine(x)) return;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;
+    })) return;
+    const g=new THREE.Group();
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,1.85,8),postMat);
+    post.position.y=0.92;g.add(post);
+    const blade=new THREE.Mesh(new THREE.BoxGeometry(1.35,0.28,0.08),bladeMat);
+    blade.position.set(0.45,1.65,0);g.add(blade);
+    const tip=new THREE.Mesh(new THREE.BoxGeometry(0.35,0.28,0.08),tipMat);
+    tip.position.set(1.2,1.65,0);g.add(tip);
+    g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+  }
+  function miniSign(text,x,z,yaw){
+    if(!offSpine(x)) return;
+    const c=document.createElement('canvas');c.width=512;c.height=128;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#2c2418';ctx.fillRect(0,0,512,128);
+    ctx.fillStyle='#c9b48a';ctx.fillRect(8,8,496,112);
+    ctx.fillStyle='#2c2418';ctx.fillRect(14,14,484,100);
+    ctx.fillStyle='#f4efe6';ctx.font='bold 42px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(text,256,64);
+    const board=new THREE.Mesh(new THREE.PlaneGeometry(3.2,0.8),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(c),side:THREE.DoubleSide}));
+    board.position.set(x,1.85,z);board.rotation.y=yaw;
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.11,1.7,8),postMat);post.position.set(x,0.85,z);
+    scene.add(board,post);
+  }
+  WALKS.forEach(walk=>{
+    if(walk.sign){
+      const sx=walk.sign.x, sz=walk.sign.z, yaw=walk.sign.yaw||0;
+      const side=Math.sign(sx||1)||1;
+      dirPost(sx+side*5.5, sz+3.5, yaw+0.2);
+      dirPost(sx+side*5.5, sz-3.5, yaw-0.2);
+      miniSign(walk.name.split(' ')[0], sx+side*8, sz, yaw);
+    }
+    walkPairs(walk).forEach(([ia,ib])=>{
+      const A=walkLake(ia), B=walkLake(ib);
+      const poly=walkLinkPolyline(A,B);
+      for(let i=2;i<poly.length-2;i+=3){
+        const p0=poly[i-1], p1=poly[i];
+        const x=(p0[0]+p1[0])/2, z=(p0[1]+p1[1])/2;
+        const yaw=Math.atan2(p1[0]-p0[0], p1[1]-p0[1]);
+        const side=Math.sign(x||1)||1;
+        dirPost(x+side*3.2, z, yaw);
+        if(i%6===2) chevronLite(x+side*2.2, z, yaw);
+      }
+    });
+  });
+  [[22,22],[-22,22],[22,-22],[-22,-22],[28,0],[-28,0]].forEach(([x,z],i)=>{
+    if(!offSpine(x)) return;
+    const yaw=Math.atan2(-x,-z);
+    dirPost(x,z,yaw);
+    miniSign(i<4?'Hub':'Corridor', x*1.15, z*(Math.abs(z)<1?1:1.15), yaw);
+  });
+  dirPost(18, LOCK.gate.z-18, Math.PI);
+  dirPost(-18, LOCK.gate.z-18, Math.PI);
+  miniSign('Gate', 22, LOCK.gate.z-28, -Math.PI/2);
+  miniSign('Gate', -22, LOCK.gate.z-28, Math.PI/2);
 })();
 
 // Pass 44 — denser PointLights with fill-rate budget

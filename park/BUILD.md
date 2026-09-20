@@ -307,6 +307,10 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - pathBox curb-top wear chips + vertical joint grooves
 - CAD spine-edge curb chips (14 m spine held)
 
+## Pass 57 — wayfinding densify
+- Denser itinerary chevrons (~10 m); directional posts + mini blade signs on WALKS connectors
+- Hub apron shoulder + Gate approach posts (spine strip skipped)
+
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
@@ -319,8 +323,9 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 9. ~~Stadium rail sparse~~ — addressed Pass 54 (every/mid posts + triple bars)
 10. ~~Hub plaza light~~ — addressed Pass 55 (bands/beds/furniture; r18/32 + spine gaps held)
 11. ~~Path curb under-articulated~~ — addressed Pass 56 (wear chips + joints)
-12. Wayfinding signs still sparse off named-walk markers
+12. ~~Wayfinding sparse~~ — addressed Pass 57 (chevrons/posts/blade signs; spine clear)
 13. Guest seating still thin away from hub / WALKS furniture belts
+14. Land canopy edges still soft on understory break-up
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -426,7 +431,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 54: stadium rail densify (posts/bars; S/B/R held)
 - SHIPPED Pass 55: hub plaza densify (bands/beds/furniture; hub radii held)
 - SHIPPED Pass 56: path curb polish (wear chips + joints; spine held)
-- **NEXT:** (await Keith) wayfinding densify or seating polish (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 57: wayfinding densify (chevrons/posts/signs; spine clear)
+- **NEXT:** Pass 58 — guest seating densify (Still fake #13) (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165
