@@ -697,3 +697,38 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Editorial → wayfinding
 - **COMMIT / LAST COMMIT:** pending
 
+## Check-in — Pass 55 atelier boards
+
+- **TIME:** 2026-09-20 13:27 CDT (America/Chicago)
+- **LANE:** atelier
+- **STARTED:** Pass 55 — atelier when-to-skin desk → day/night/paths/geometry/venues
+- **GOING:** Pass 56 map artists; Pass 57 STATUS rollup
+- **NEXT:** Push
+- **CONSTRAINTS:** skins only — no footprint moves
+- **SOLUTIONS:** Atelier opens boards not new geometry
+- **COMMIT / LAST COMMIT:** 7037bb6 — Pass 54
+
+## Check-in — Pass 56 map artists on axes
+
+- **TIME:** 2026-09-20 13:28 CDT (America/Chicago)
+- **LANE:** map
+- **STARTED:** Pass 56 — map artist-on-axis service menu (Vale/Juniper/Solenne/Ori)
+- **GOING:** Pass 57 rollup
+- **NEXT:** Push + tip sync
+- **CONSTRAINTS:** LAYOUT axes
+- **SOLUTIONS:** Map → artist worlds
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 57 run rollup (50–56)
+
+- **TIME:** 2026-09-20 13:29 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Passes 50–56 from tip 8fc2b5b
+- **GOING:** Tip 48cd601; live probed; audits clean
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; MOCK stable; LAYOUT; FF retries
+- **SOLUTIONS:** Roster tonight; land boards; tickets by artist; README; journal SKU; atelier boards; map artists
+- **COMMIT / LAST COMMIT:** 48cd601 — Pass 56
+- **TIP:** 48cd6012efcd6a6411b42a92977aec963078c6b3
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
