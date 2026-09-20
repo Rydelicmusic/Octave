@@ -208,3 +208,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Explicit ship-gate path page
 - **COMMIT / LAST COMMIT:** e109911 — Pass 13 STATUS
 
+## Check-in — Pass 15 wire + audit
+
+- **TIME:** 2026-09-20 13:26 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 15 — visit-paths wired into programs/venues/map/night/day; re-audit ok=2249 broken=0
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 16+
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Path page discoverable from hubs
+- **COMMIT / LAST COMMIT:** 8b6c37d — Pass 14 STATUS
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/ (HTTP 200)
+
