@@ -43,3 +43,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 2. Tree crowns still cone+sphere, not species-varied
 3. Stay-on-path is rail-only, not ribbon-constrained
 4. Kiosks/pavilions still kit-simple vs the new halls
+
+## KEITH check-in — 2026-09-20 13:00 CDT
+- FLEET: KEITH COO online; 15-min loop armed; Realm Engineer = park/; Site Luxury = park-site/; Quality standby
+- GOING: Pass 5 halls noted in log; verifying push then Pass 6
+- NEXT ORDER (Pass 6): kiosk/pavilion facade density to match halls OR species-varied tree crowns — pick worse fake, one concern only
+- CONSTRAINTS: no rebuild; LAYOUT.md meters held; no hotel-tower
+- SOLUTIONS: density/proportion only; commit + push; begin next pass when this ships
