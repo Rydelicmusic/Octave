@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> Gate approach densify</div>
+  <div><b>This pass:</b> station queue shade</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass65-gate';
+import * as LockMod from './lock.js?v=pass66-shade';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1451,6 +1451,26 @@ function rideStation(s){
   deck.position.set(0,0.13,0);g.add(deck);
   const curb=new THREE.Mesh(new THREE.BoxGeometry(s.w+1.05,0.12,s.d+1.05),stoneDark);
   curb.position.set(0,0.04,0);g.add(curb);
+  // Pass 66 — queue shade canopy over zig rails (STATIONS x/z/w/d held)
+  // pass66QueueShade
+  (function pass66QueueShade(){
+    const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+    const fabric=new THREE.MeshLambertMaterial({color:0xc4a574});
+    const qDepth=12.5;
+    const halfW=Math.min(s.w*0.55, 4.2);
+    [-1,1].forEach(side=>{
+      for(let i=0;i<4;i++){
+        const pz=s.d/2+2.2+i*2.8;
+        const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.11,2.8,6),postMat);
+        pole.position.set(side*halfW,1.4,pz);g.add(pole);
+      }
+    });
+    // fabric strips over zig lane
+    for(let i=0;i<3;i++){
+      const sheet=new THREE.Mesh(new THREE.BoxGeometry(halfW*2.1,0.06,3.4),fabric);
+      sheet.position.set(0,2.75,s.d/2+3.5+i*3.2);g.add(sheet);
+    }
+  })();
 }
 STATIONS.forEach(rideStation);
 plate(90,70,-200,-50,EARTH);
