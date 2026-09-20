@@ -161,3 +161,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
   - Repo: https://github.com/Rydelicmusic/octave/tree/main/park-site
 - **COMMIT / LAST COMMIT:** cfab1e0 — park-site STATUS: Pass 9 programs hub; standing by for STOP or Pass 10
 
+## Check-in — Pass 11 polish
+
+- **TIME:** 2026-09-20 13:18 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 11 — grid-2 CSS; programs hub wired into guest/tickets/map/directory
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 12 or director STOP
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Shared programs entry points
+- **COMMIT / LAST COMMIT:** dac242f — Pass 10 STATUS (pending Pass 11)
+
