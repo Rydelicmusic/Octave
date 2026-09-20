@@ -767,3 +767,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Boards↔artists↔geometry cross-links
 - **COMMIT / LAST COMMIT:** pending
 
+## Check-in — Pass 63 tip
+
+- **TIME:** 2026-09-20 13:26 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Passes 58–63 substance from tip 86ea898
+- **GOING:** Tip 5b7613c; audits clean; live pending probe
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; no STATUS-only gold-plate this run
+- **SOLUTIONS:** Venue boards; programs artists; night/day boards; directory; geometry artists
+- **COMMIT / LAST COMMIT:** 5b7613c — Pass 63
+- **TIP:** 5b7613c3a5c28bbc8fb0dffb12aebff6ca4fc80f
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
