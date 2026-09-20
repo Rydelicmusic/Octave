@@ -462,3 +462,37 @@ a:focus-visible { outline: 1px solid var(--lamp); outline-offset: 3px; }
 }
 .tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0; }
 .page-hero .sub { color: var(--mist); max-width: 40rem; margin: 0; }
+
+
+/* Pass 8 density accents — editorial hospitality */
+.lamp-rail {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;
+  padding: 0.75rem 0; margin: 0.5rem 0 1rem;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--mute);
+}
+.lamp-rail a { color: var(--lamp-soft); }
+.lamp-rail a:hover { color: var(--lamp); }
+.stat-strip {
+  display: grid; gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  margin: 1.25rem 0;
+}
+.stat-strip .stat {
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--line-soft);
+  background: rgba(0,0,0,0.28);
+}
+.stat-strip .stat .n {
+  font-family: var(--mono); font-size: 1.05rem; color: var(--lamp);
+}
+.stat-strip .stat .l {
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--mute); margin-top: 0.2rem;
+}
+.density-rule {
+  height: 1px; margin: 1.5rem 0;
+  background: linear-gradient(90deg, transparent, var(--lamp-glow), transparent);
+}
+.venue-nest + .venue-nest { margin-top: 1rem; }
