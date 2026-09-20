@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> Gate secondary queue furniture</div>
+  <div><b>This pass:</b> SKU service aprons</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass61-gateq';
+import * as LockMod from './lock.js?v=pass62-apron';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1553,6 +1553,38 @@ function addHall(b){
   g.add(steps,step2);
 }
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
+// Pass 62 — SKU service/loading aprons at rear doors (BUILDINGS footprints held)
+(function pass62ServiceAprons(){
+  const apronMat=new THREE.MeshLambertMaterial({color:0x9a958c});
+  const curbMat=stoneDark;
+  BUILDINGS.forEach(b=>{
+    const yaw=b.yaw||0;
+    const back=b.d/2+1.4;
+    const ax=b.x-Math.sin(yaw)*back;
+    const az=b.z-Math.cos(yaw)*back;
+    if(Math.abs(ax)<LOCK.spineWidth/2+1) return;
+    if(nearRing(ax,az,6)) return;
+    const g=new THREE.Group();
+    const pad=new THREE.Mesh(new THREE.BoxGeometry(Math.min(b.w*0.85,6.5),0.12,2.4),apronMat);
+    pad.position.y=0.06;g.add(pad);
+    [-1,1].forEach(side=>{
+      const c=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.28,2.4),curbMat);
+      c.position.set(side*(Math.min(b.w*0.85,6.5)/2+0.15),0.14,0);g.add(c);
+    });
+    const bump=new THREE.Mesh(new THREE.BoxGeometry(Math.min(b.w*0.5,3.2),0.35,0.35),new THREE.MeshLambertMaterial({color:0x3d3428}));
+    bump.position.set(0,0.2,-1.0);g.add(bump);
+    g.position.set(ax,0,az);g.rotation.y=yaw;scene.add(g);
+  });
+  GATE.forEach(wing=>{
+    const yaw=wing.yaw||0;
+    const back=wing.d/2+1.2;
+    const ax=wing.x-Math.sin(yaw)*back;
+    const az=wing.z-Math.cos(yaw)*back;
+    const pad=new THREE.Mesh(new THREE.BoxGeometry(4.5,0.12,2.0),apronMat);
+    pad.position.set(ax,0.06,az);pad.rotation.y=yaw;scene.add(pad);
+  });
+})();
+
 // Pass 37 — evening window glow on SKUs (footprints unmoved)
 (function windowGlowPass(){
   // Pass 52 — denser evening window glow (footprints unmoved; free fill vs PointLights)
