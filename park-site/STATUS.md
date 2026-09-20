@@ -220,3 +220,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** 8b6c37d — Pass 14 STATUS
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/ (HTTP 200)
 
+## Check-in — Pass 16 geometry sheet
+
+- **TIME:** 2026-09-20 13:28 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 16 — geometry.html fact sheet from LAYOUT lock; wired day/map/Gate/programs
+- **GOING:** Push; continue
+- **NEXT:** Pass 17 or STOP
+- **CONSTRAINTS:** park-site/ only; numbers from LAYOUT.md
+- **SOLUTIONS:** Luxury companion cites locked meters
+- **COMMIT / LAST COMMIT:** ff60b20 — Pass 15
+
