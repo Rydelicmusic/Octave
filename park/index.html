@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> hub plaza densify</div>
+  <div><b>This pass:</b> After Hours walk furniture</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass67-hub';
+import * as LockMod from './lock.js?v=pass68-ah';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1357,6 +1357,43 @@ lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
     });
   });
 })();
+// Pass 68 — denser After Hours mid-loop furniture (walk meters held; spine clear)
+// pass68AfterHours
+(function pass68AfterHours(){
+  const walk=walkById('after-hours-quiet');
+  if(!walk) return;
+  const half=LOCK.spineWidth/2+2.8;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(nearRing(x,z,8)) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+1.2),dz=(z-cz)/(rz+1.2);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.2&&Math.abs(z-b.z)<b.d/2+1.2)) return false;
+    return true;
+  }
+  // spur → sign belt
+  if(walk.spur&&walk.sign){
+    const [sx,sz]=walk.spur;
+    const tx=walk.sign.x, tz=walk.sign.z;
+    const dx=tx-sx, dz=tz-sz, len=Math.hypot(dx,dz)||1;
+    const ux=dx/len, uz=dz/len, px=-uz, pz=ux;
+    for(let d=4;d<len-3;d+=5.5){
+      const x=sx+ux*d+px*3.2, z=sz+uz*d+pz*3.2;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,Math.atan2(dx,dz)+Math.PI/2);
+      if(Math.round(d)%11===0) trashCan(x+px*1.2,z+pz*1.2);
+      if(Math.round(d)%11===5) lamp(x-px*1.4,z-pz*1.4,true);
+    }
+  }
+  // north canopy belt seating clusters (z<-60, |x| off spine)
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2;
+    const x=10+Math.cos(a)*28, z=-110+Math.sin(a)*22;
+    if(!ok(x,z)) continue;
+    benchAt(x,z,a+Math.PI/2);
+    trashCan(x+1.5,z);
+  }
+})();
+
 // Pass 58 — guest seating densify away from hub / denser WALKS belts (spine clear)
 (function pass58Seating(){
   const half=LOCK.spineWidth/2+2.5;
