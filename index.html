@@ -93,9 +93,9 @@
   .stage-inner{
     position:relative;z-index:2;flex:1;min-height:0;
     display:flex;flex-direction:column;align-items:center;
-    justify-content:space-between;
+    justify-content:flex-start;
     padding:max(84px,10vh) 20px max(18px,2.5vh);
-    gap:18px;
+    gap:0;
   }
   .hall{
     width:100%;display:flex;flex-direction:column;align-items:center;
@@ -118,10 +118,12 @@
     position:relative;z-index:3;
   }
   .enter-row{
-    margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
+    margin-top:18px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
+    position:relative;z-index:4;
   }
   .hint{
     flex:0 0 auto;position:relative;left:auto;bottom:auto;transform:none;z-index:3;
+    margin-top:14px;
     font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold2);
     animation:pulse 3.2s ease-in-out infinite;transition:opacity .6s var(--ease);
   }
@@ -130,11 +132,14 @@
   .lifts{
     width:100%;max-width:820px;display:flex;align-items:stretch;justify-content:center;gap:14px;
     flex:0 0 auto;opacity:1;pointer-events:auto;z-index:2;
+    margin-top:auto; /* park lifts under hall CTAs — no overlap at 1280×800 */
+    padding-top:28px;
     transition:opacity .8s var(--ease), transform .8s var(--ease);
   }
   .lifts.on{opacity:1}
   .lift{
-    flex:1 1 0;min-width:0;max-width:240px;height:clamp(140px,22vh,240px);
+    flex:1 1 0;min-width:0;max-width:240px;height:clamp(120px,16vh,200px);
+    align-self:stretch;
     border-radius:16px 16px 6px 6px;position:relative;overflow:hidden;
     transition:transform .9s var(--ease), box-shadow .9s var(--ease);
     box-shadow:0 14px 36px rgba(0,0,0,.28);
@@ -279,6 +284,12 @@
   .manage p{margin:8px 0}
   .sub{color:var(--mute);font-size:14px}
 
+  @media(min-width:701px){
+    .hall{max-width:640px}
+    .enter-row{margin-bottom:12px}
+    .lifts{padding-top:36px;gap:16px}
+    .lift{height:clamp(130px,15vh,190px)}
+  }
   @media(max-width:700px){
     .nav-links{display:none}
     .nav-search{display:none}
