@@ -6,7 +6,7 @@ import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
   spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine,
-  measureItinerary, walkPathMeters, metersToMin, distMeters,
+  measureItinerary, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -129,7 +129,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.match(lockSrc, /export const ITINERARY/);
 assert.match(lockSrc, /FIX-ITINERARY/);
 assert.ok(ITINERARY);
-assert.match(indexHtml, /fix-itinerary/);
+assert.match(indexHtml, /pass41-ribbon/);
 assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
@@ -142,9 +142,14 @@ assert.match(indexHtml, /FIX-ITINERARY/);
   }
   const first = walkById(ITINERARY.sequence[0]);
   const approach = distMeters(ITINERARY.sign.x, ITINERARY.sign.z, first.sign.x, first.sign.z);
-  const onWalk = walkPathMeters(first);
+  const onWalk = walkRibbonMeters(first);
   assert.equal(ITINERARY.stops[0].meters, Math.round(approach + onWalk));
   assert.ok(Math.abs(ITINERARY.stops[0].legMin - metersToMin(approach + onWalk)) < 1);
+  const loop = WALKS.find((w) => w.loop && w.lakes.length > 2);
+  assert.ok(loop);
+  assert.ok(walkRibbonMeters(loop) > walkPathMeters(loop), 'ribbon longer than lake-center chords');
+  const A = walkLake(loop.lakes[0]), B = walkLake(loop.lakes[1]);
+  assert.ok(walkLinkPolyline(A, B).length > 3);
   assert.equal(ITINERARY.returnToGate.atMin, m.totalMin);
 }
 assert.ok(ITINERARY.returnToGate);
@@ -153,6 +158,10 @@ assert.match(indexHtml, /Pass 36/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
+assert.match(indexHtml, /ribbon-length tour meters/);
+assert.match(indexHtml, /walkLinkPolyline/);
+assert.match(indexHtml, /walkSpurPolyline/);
+assert.match(indexHtml, /pass41-ribbon/);
 assert.match(indexHtml, /walkPathPlanting/);
 assert.ok(ITINERARY.stops.length === ITINERARY.sequence.length);
 assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
@@ -258,7 +267,7 @@ for (const s of STATIONS) {
   assert.deepEqual(placementIssues(s), [], s.id);
 }
 
-assert.match(blueprintHtml, /lock\.js\?v=fix-itinerary/);
+assert.match(blueprintHtml, /lock\.js\?v=pass41-ribbon/);
 assert.match(blueprintHtml, /GATE/);
 assert.match(blueprintHtml, /STATIONS/);
 assert.match(blueprintHtml, /hoverLabel/);
