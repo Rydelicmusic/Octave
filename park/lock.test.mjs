@@ -156,7 +156,7 @@ for (const name of GROUNDS_DRESSING.treeBelts) {
   const pts = beltTreePositions(name);
   assert.ok(pts.length >= 40, name + ' sparse ' + pts.length);
   for (const p of pts) {
-    const rad = 2.2 * p.s;
+    const rad = treeMetrics(p.s, p.seed).canopyR * 0.5;
     assert.equal(occupiesSpine(p.x, p.z, rad), false, name + ' spine');
     assert.equal(inWater(p.x, p.z), false, name + ' in-water ' + p.x + ',' + p.z);
     assert.equal(onRingWalk(p.x, p.z, rad), false, name + ' ring-walk ' + p.x + ',' + p.z);
@@ -165,7 +165,22 @@ for (const name of GROUNDS_DRESSING.treeBelts) {
   assert.match(indexHtml, new RegExp(name.replace('north split', 'North \\/ After Hours split').replace('west lakes', 'West lakes').replace('SE grove', 'SE grove')));
 }
 assert.match(indexHtml, /overlapping canop|canopy overlap/i);
+assert.match(indexHtml, /treeMetrics/);
 assert.match(indexHtml, /trunk/);
+{
+  const [h0, h1] = GROUNDS_SCALE.treeTrunkH;
+  const [r0, r1] = GROUNDS_SCALE.treeTrunkR;
+  for (const s of [0.9, 1, 1.25]) {
+    for (let seed = 0; seed < 5; seed++) {
+      const m = treeMetrics(s, seed);
+      assert.ok(m.trunkH >= h0 - 0.05, 'trunk short ' + m.trunkH);
+      assert.ok(m.trunkH <= h1 + 0.6, 'trunk tall ' + m.trunkH);
+      assert.ok(m.trunkR >= r0 - 0.02, 'trunk thin ' + m.trunkR);
+      assert.ok(m.trunkR <= r1, 'telephone-pole trunk ' + m.trunkR);
+      assert.ok(m.canopyR > 2 && m.canopyR < 6, 'canopy ' + m.canopyR);
+    }
+  }
+}
 assert.equal(hubBedCenters().length, 8);
 assert.match(indexHtml, /radial planting bed/i);
 assert.match(indexHtml, /lakesideRibbon/);

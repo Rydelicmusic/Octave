@@ -225,8 +225,10 @@ export function beltTreePositions(name) {
       const d = spec.spread * (0.18 + ((i * 19 + ai * 7) % 11) / 14);
       const x = cx + Math.cos(a) * d;
       const z = cz + Math.sin(a) * d;
-      const s = 0.68 + (i % 5) * 0.17 + (ai % 3) * 0.05;
-      if (canPlaceSoft(x, z, 2.2 * s)) pts.push({ x, z, s, seed: i + ai * 13, belt: name });
+      const s = 0.9 + (i % 5) * 0.08 + (ai % 3) * 0.04;
+      const seed = i + ai * 13;
+      const rad = treeMetrics(s, seed).canopyR * 0.5;
+      if (canPlaceSoft(x, z, rad)) pts.push({ x, z, s, seed, belt: name });
     }
   });
   return pts;

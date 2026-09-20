@@ -321,19 +321,18 @@ gateHouse();
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});const leafHi=new THREE.MeshLambertMaterial({color:0x3a6e32});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});const barkDark=new THREE.MeshLambertMaterial({color:0x3f2a1c});
 // Abstract kit tree: trunk + overlapping canopies / canopy overlap (mixed crown masses, not one cone)
 function tree(x,z,s=1,seed=0){
-  if(!canPlaceSoft(x,z,1.8*s))return;
+  const m=treeMetrics(s,seed);
+  if(!canPlaceSoft(x,z,m.canopyR*0.5))return;
   const g=new THREE.Group();
-  const trunkH=(2.15+(seed%5)*0.55)*s;
-  const trunkR=(0.18+(seed%3)*0.07)*s;
-  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(trunkR*0.68,trunkR*1.2,trunkH,6),seed%2?bark:barkDark);
-  trunk.position.y=trunkH/2;
-  const canopyY=trunkH*0.82;
-  const c1=new THREE.Mesh(new THREE.SphereGeometry((1.85+(seed%4)*0.28)*s,8,6),leaf);
-  c1.position.set(0.2*s,canopyY+1.15*s,-0.12*s);c1.scale.set(1.18,0.72,1.08);
-  const c2=new THREE.Mesh(new THREE.SphereGeometry((1.45+(seed%3)*0.25)*s,8,6),leafDeep);
-  c2.position.set(-0.5*s,canopyY+0.55*s,0.38*s);c2.scale.set(1.12,0.68,1.0);
-  const c3=new THREE.Mesh(new THREE.SphereGeometry((1.15+(seed%2)*0.2)*s,7,5),leafHi);
-  c3.position.set(0.42*s,canopyY+1.7*s,0.22*s);c3.scale.set(0.92,0.62,0.95);
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(m.trunkR*0.72,m.trunkR*1.15,m.trunkH,8),seed%2?bark:barkDark);
+  trunk.position.y=m.trunkH/2;
+  const canopyY=m.trunkH*0.72;
+  const c1=new THREE.Mesh(new THREE.SphereGeometry(m.canopyR,8,6),leaf);
+  c1.position.set(0.25,canopyY+m.canopyR*0.35,-0.15);c1.scale.set(1.12,0.7,1.05);
+  const c2=new THREE.Mesh(new THREE.SphereGeometry(m.canopyR*0.78,8,6),leafDeep);
+  c2.position.set(-0.55,canopyY+m.canopyR*0.08,0.4);c2.scale.set(1.08,0.68,1.0);
+  const c3=new THREE.Mesh(new THREE.SphereGeometry(m.canopyR*0.55,7,5),leafHi);
+  c3.position.set(0.5,canopyY+m.canopyR*0.55,0.22);c3.scale.set(0.95,0.62,0.92);
   g.add(trunk,c1,c2,c3);g.position.set(x,0,z);scene.add(g);
 }
 function clump(cx,cz,n,r,s0=1){
