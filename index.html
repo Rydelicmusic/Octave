@@ -91,16 +91,20 @@
   @keyframes drift{from{transform:scale(1.06) translate3d(0,0,0)}to{transform:scale(1.1) translate3d(-1.2%,.6%,0)}}
 
   .stage-inner{
-    position:relative;z-index:2;flex:1;min-height:0;
-    display:flex;flex-direction:column;align-items:center;
-    justify-content:flex-start;
-    padding:max(84px,10vh) 20px max(18px,2.5vh);
-    gap:0;
+    position:relative;z-index:2;flex:1;min-height:0;height:100%;
+    display:grid;
+    grid-template-rows:auto auto minmax(0,1fr) auto;
+    grid-template-columns:1fr;
+    align-items:start;
+    justify-items:center;
+    padding:max(84px,10vh) 20px max(16px,2vh);
+    box-sizing:border-box;
   }
   .hall{
-    width:100%;display:flex;flex-direction:column;align-items:center;
+    grid-row:1;width:100%;max-width:640px;
+    display:flex;flex-direction:column;align-items:center;
     text-align:center;flex:0 0 auto;
-    transition:transform .2s linear, opacity .2s linear;
+    transition:opacity .2s linear;
   }
   .brand-mark{
     font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;
@@ -118,35 +122,41 @@
     position:relative;z-index:3;
   }
   .enter-row{
-    margin-top:18px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
-    position:relative;z-index:4;
+    grid-row:2;
+    margin:18px 0 0;
+    padding-bottom:28px; /* reserved band — hard gap before lifts */
+    display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
+    position:relative;z-index:5;
+    background:linear-gradient(180deg, rgba(12,11,10,.0), rgba(12,11,10,.35) 70%, rgba(12,11,10,.0));
   }
   .hint{
-    flex:0 0 auto;position:relative;left:auto;bottom:auto;transform:none;z-index:3;
-    margin-top:14px;
+    grid-row:4;position:relative;left:auto;bottom:auto;transform:none;z-index:3;
+    margin-top:12px;
     font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold2);
     animation:pulse 3.2s ease-in-out infinite;transition:opacity .6s var(--ease);
   }
   @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.9}}
 
   .lifts{
+    grid-row:3;align-self:end;justify-self:center;
     width:100%;max-width:820px;display:flex;align-items:stretch;justify-content:center;gap:14px;
-    flex:0 0 auto;opacity:1;pointer-events:auto;z-index:2;
-    margin-top:auto; /* park lifts under hall CTAs — no overlap at 1280×800 */
-    padding-top:28px;
-    transition:opacity .8s var(--ease), transform .8s var(--ease);
+    opacity:1;pointer-events:auto;z-index:2;
+    margin:0;padding:0;
+    transition:opacity .8s var(--ease);
   }
   .lifts.on{opacity:1}
   .lift{
-    flex:1 1 0;min-width:0;max-width:240px;height:clamp(120px,16vh,200px);
-    align-self:stretch;
+    flex:1 1 0;min-width:0;max-width:240px;
+    height:140px; /* fixed — no vh creep into CTA band */
+    max-height:140px;
     border-radius:16px 16px 6px 6px;position:relative;overflow:hidden;
     transition:transform .9s var(--ease), box-shadow .9s var(--ease);
     box-shadow:0 14px 36px rgba(0,0,0,.28);
     border:1px solid rgba(255,255,255,.12);
     background:rgba(18,16,14,.35);
+    align-self:end;
   }
-  .lift:hover{transform:translateY(-6px)}
+  .lift:hover{transform:translateY(-4px)}
   .lift:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
   .door{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;padding:16px 18px;text-align:left}
   .door small{font-family:-apple-system,sans-serif;letter-spacing:.28em;text-transform:uppercase;font-size:10px;color:var(--gold);margin-bottom:6px}
@@ -285,22 +295,21 @@
   .sub{color:var(--mute);font-size:14px}
 
   @media(min-width:701px){
-    .hall{max-width:640px}
-    .enter-row{margin-bottom:12px}
-    .lifts{padding-top:36px;gap:16px}
-    .lift{height:clamp(130px,15vh,190px)}
+    .enter-row{padding-bottom:32px}
+    .lifts{gap:16px}
+    .lift{height:140px;max-height:140px}
   }
   @media(max-width:700px){
     .nav-links{display:none}
     .nav-search{display:none}
-    .stage-inner{padding:max(72px,9vh) 16px max(14px,2vh);gap:14px}
+    .stage-inner{padding:max(72px,9vh) 16px max(12px,1.8vh)}
     .brand-mark{margin-bottom:10px;letter-spacing:.42em;font-size:11px}
     .brand-mark span{width:28px;margin:0 8px}
     .hall h1{font-size:clamp(32px,10.5vw,48px);line-height:.96}
     .lede{margin-top:10px;font-size:14px;max-width:30ch}
-    .enter-row{margin-top:14px}
+    .enter-row{margin-top:12px;padding-bottom:18px}
     .lifts{gap:8px}
-    .lift{height:clamp(118px,20vh,180px);border-radius:12px 12px 5px 5px}
+    .lift{height:110px;max-height:110px;border-radius:12px 12px 5px 5px}
     .door{padding:12px 12px}
     .door strong{font-size:clamp(15px,4vw,18px)}
     .hint{letter-spacing:.22em;font-size:10px}
@@ -308,8 +317,9 @@
     .story-panel p{font-size:15px}
   }
   @media(max-width:700px) and (max-height:700px){
-    .stage-inner{padding-top:max(64px,8vh);gap:10px}
-    .lift{height:clamp(100px,17vh,140px)}
+    .stage-inner{padding-top:max(64px,8vh)}
+    .lift{height:96px;max-height:96px}
+    .enter-row{padding-bottom:14px}
     .enter-row .btn{padding:8px 12px}
   }
 </style>
@@ -344,10 +354,10 @@
         <div class="kicker">A house for sound</div>
         <h1>Walk in.<br><em>Don’t press play.</em></h1>
         <p class="lede" id="liftsLine">Three lifts ahead — About, Origin, Explore.</p>
-        <div class="enter-row ui">
-          <button class="btn btn-ghost" type="button" onclick="goExplore()">Discover</button>
-          <button class="btn btn-gold" type="button" onclick="document.getElementById('scrollStory').scrollIntoView({behavior:'smooth'})">Walk in</button>
-        </div>
+      </div>
+      <div class="enter-row ui" id="enterRow">
+        <button class="btn btn-ghost" type="button" onclick="goExplore()">Discover</button>
+        <button class="btn btn-gold" type="button" onclick="document.getElementById('scrollStory').scrollIntoView({behavior:'smooth'})">Walk in</button>
       </div>
       <div class="lifts" id="lifts">
         <button class="lift" type="button" onclick="openSheet('about')" aria-label="About us">
@@ -520,7 +530,9 @@ function onScroll(){
   // Soften only after leaving the first screen — never cover the lifts line
   const fade=Math.min(1, Math.max(0,(t-0.35)/0.5));
   hall.style.opacity=String(1-fade*0.85);
-  hall.style.transform="translateY("+(-t*24)+"px)";
+  hall.style.transform=""; // never translate — kept overlapping CTAs/lifts
+  const enterRow=document.getElementById("enterRow");
+  if(enterRow) enterRow.style.opacity=String(1-fade*0.85);
   lifts.classList.add("on");
   hint.style.opacity=String(t>0.45?0:1);
 }
