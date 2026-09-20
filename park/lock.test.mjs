@@ -6,6 +6,7 @@ import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
   spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine,
+  measureItinerary, walkPathMeters, metersToMin, distMeters,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -20,6 +21,7 @@ assert.equal(LOCK.hubInner, 18);
 assert.equal(LOCK.hubOuter, 32);
 assert.equal(LOCK.spineWidth, 14);
 assert.equal(LOCK.walk, 1.34);
+assert.equal(metersToMin(LOCK.walk * 60), 1);
 assert.deepEqual(LOCK.origin, { x: 0, z: 0 });
 assert.deepEqual(LOCK.gate, { x: 0, z: 230 });
 assert.deepEqual(LOCK.rings.A, { x: 95, z: 95, inner: 14, outer: 20 });
@@ -123,12 +125,29 @@ assert.ok(WALKS.length >= 4);
 assert.ok(WALKS.find((w) => w.id === 'after-hours-quiet'));
 assert.ok(WALKS.find((w) => w.id === 'pocket-rim'));
 assert.equal(ITINERARY.id, 'park-circuit');
-assert.equal(ITINERARY.totalMin, 52);
+{
+  const m = measureItinerary();
+  assert.equal(ITINERARY.totalMin, m.totalMin);
+  assert.ok(ITINERARY.totalMin > 0);
+  assert.equal(ITINERARY.stops.length, m.stops.length);
+  for (let i = 0; i < m.stops.length; i++) {
+    assert.equal(ITINERARY.stops[i].legMin, m.stops[i].legMin, m.stops[i].walk);
+    assert.equal(ITINERARY.stops[i].meters, m.stops[i].meters);
+  }
+  const first = walkById(ITINERARY.sequence[0]);
+  const approach = distMeters(ITINERARY.sign.x, ITINERARY.sign.z, first.sign.x, first.sign.z);
+  const onWalk = walkPathMeters(first);
+  assert.equal(ITINERARY.stops[0].meters, Math.round(approach + onWalk));
+  assert.ok(Math.abs(ITINERARY.stops[0].legMin - metersToMin(approach + onWalk)) < 1);
+  assert.equal(ITINERARY.returnToGate.atMin, m.totalMin);
+}
 assert.ok(ITINERARY.returnToGate);
 assert.match(indexHtml, /returnToGatePath/);
 assert.match(indexHtml, /Pass 36/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
+assert.match(indexHtml, /measured itinerary durations/);
+assert.match(indexHtml, /measureItinerary|totalMin/);
 assert.ok(ITINERARY.stops.length === ITINERARY.sequence.length);
 assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
 assert.match(indexHtml, /tourMarker/);

@@ -174,8 +174,25 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - Lamps / benches / trash along named walk connectors, spurs, lake rims, and signs
 - Placement skips 14 m spine strip, water ellipses, and BUILDINGS footprints
 
+## Pass 39 — measured itinerary durations
+- `measureItinerary()` derives atMin / legMin / totalMin from sign-to-sign + walk-path meters / LOCK.walk (1.34 m/s)
+- Gate sign and tour markers read the measured `ITINERARY.totalMin`; no authored 52
+- Layout locks / WALKS / rings / waters unmoved
+
+
+## Buildings pass 20 — SKU kit facades (meters)
+Callable `park/sku-kit.js` `skuKit()` always emits roof, overhang, window, queue, marquee, service door. 3D addKiosk/addPavilion/addHall/gateHouse/rideStation mount that kit. GATE/STATIONS footprints drive mesh size.
+
+| role | source | x,z | w × d × h (m) |
+|---|---|---|---|
+| gate-west | GATE | -13.5, 233 | 9 × 7.2 × 8.6 |
+| gate-east | GATE | 13.5, 233 | 9 × 7.2 × 8.6 |
+| station-a | STATIONS | ring A + outer+9 | 14 × 7.5 × 4.05 |
+| station-b | STATIONS | ring B + outer+9 | 8 × 6 × 3.6 |
+
 ## Still fake (worst next)
-1. Tour times are authored estimates, not GPS-measured walk durations
+1. Durations are straight-line sign/lake meters, not the full ribbon polyline length
+2. Night facade lighting is emissive panes only (no lamp contribution on walls)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered

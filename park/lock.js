@@ -51,11 +51,14 @@ export const LAND_PALETTE = {
 };
 
 export function skuSpec(p) {
+  const eaves = p.sku === 'kiosk' ? 0.55 : p.sku === 'pavilion' ? 0.95 : 1.3;
+  const roofH = p.sku === 'kiosk' ? 1.15 : p.sku === 'pavilion' ? 1.75 : 2.5;
+  const queueL = p.queueL != null ? p.queueL : (p.sku === 'kiosk' ? 2.6 : p.sku === 'pavilion' ? 4.4 : 5.6);
   return {
     w: p.w, d: p.d, h: p.h,
-    eaves: p.sku === 'kiosk' ? 0.55 : p.sku === 'pavilion' ? 0.95 : 1.3,
-    roofH: p.sku === 'kiosk' ? 1.15 : p.sku === 'pavilion' ? 1.75 : 2.5,
-    queueL: p.queueL ?? 0,
+    eaves,
+    roofH,
+    queueL,
     queueW: p.queueW ?? Math.min(p.w * 0.85, 4.2),
   };
 }
@@ -226,6 +229,68 @@ export function walkSegmentCrossesSpine(ax, az, bx, bz) {
 
 export function walkById(id) {
   return WALKS.find((w) => w.id === id);
+}
+
+export function distMeters(ax, az, bx, bz) {
+  return Math.hypot(bx - ax, bz - az);
+}
+
+/** Length of a named walk: lake-to-lake (+ loop close) + optional spur. */
+export function walkPathMeters(walk) {
+  const lakes = walk.lakes.map((i) => walkLake(i));
+  let m = 0;
+  for (let i = 0; i < lakes.length - 1; i++) m += distMeters(lakes[i].x, lakes[i].z, lakes[i + 1].x, lakes[i + 1].z);
+  if (walk.loop && lakes.length > 1) {
+    const a = lakes[lakes.length - 1], b = lakes[0];
+    m += distMeters(a.x, a.z, b.x, b.z);
+  }
+  if (walk.spur && lakes[0]) m += distMeters(lakes[0].x, lakes[0].z, walk.spur[0], walk.spur[1]);
+  return m;
+}
+
+export function metersToMin(m) {
+  return m / LOCK.walk / 60;
+}
+
+/**
+ * Pass 39 — tour times from locked meters / walk 1.34 m/s (not authored guesses).
+ * Gate sign → each walk sign + on-walk length → returnToGate.
+ */
+export function measureItinerary(it = ITINERARY) {
+  const seq = it.sequence.map((id) => walkById(id)).filter(Boolean);
+  const stops = [];
+  let tMin = 0;
+  let prev = { x: it.sign.x, z: it.sign.z };
+  for (const w of seq) {
+    const p = w.sign;
+    const approach = distMeters(prev.x, prev.z, p.x, p.z);
+    const onWalk = walkPathMeters(w);
+    const legM = approach + onWalk;
+    const legMin = metersToMin(legM);
+    tMin += legMin;
+    stops.push({
+      walk: w.id,
+      atMin: Math.round(tMin),
+      legMin: Math.round(legMin),
+      meters: Math.round(legM),
+    });
+    prev = { x: p.x, z: p.z };
+  }
+  const ret = it.returnToGate;
+  const retM = distMeters(prev.x, prev.z, ret.x, ret.z);
+  tMin += metersToMin(retM);
+  return {
+    stops,
+    totalMin: Math.round(tMin),
+    returnToGate: { x: ret.x, z: ret.z, atMin: Math.round(tMin), meters: Math.round(retM) },
+  };
+}
+
+{
+  const measured = measureItinerary();
+  ITINERARY.stops = measured.stops;
+  ITINERARY.totalMin = measured.totalMin;
+  ITINERARY.returnToGate = measured.returnToGate;
 }
 
 export function inWater(x, z, margin = 0) {
