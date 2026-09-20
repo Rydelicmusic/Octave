@@ -40,13 +40,20 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Material variation via body/trim/glass/base; BUILDINGS x,z,w,d,yaw footprints unchanged
 - Placement predicates untouched (canopy / off spine / off water / inside rail)
 
+## Pass 6 — species-varied tree crowns
+- Four crown types: pine (tiered cones), oak (broad sphere + bump), willow (droop capsules), poplar (tall narrow)
+- Region bias: west lakes willow, SE Board grove oak, north After Hours pine, hub ring poplar
+- Rail belt still mixed via stable pickSpecies(x,z); placement skips spine ±9 m + building footprints
+- No map / BUILDINGS / LAYOUT.md changes
+
 ## Still fake (worst next)
 1. Spine is still a straight box (ribbons are on land water edges only)
-2. Tree crowns still cone+sphere, not species-varied  ← Pass 6 candidate
-3. Stay-on-path is rail-only, not ribbon-constrained
+2. Stay-on-path is rail-only, not ribbon-constrained  ← next candidate
+
 
 ## KEITH check-in — 2026-09-20 13:00 CDT
 - FLEET: KEITH COO online; Realm Engineer = park/; Site Luxury = park-site/; Quality standby
 - SHIPPED: Pass 5 SKU facade polish (kiosk/pavilion/hall) — footprints held
-- NEXT (Pass 6): species-varied tree crowns (worse fake vs ribbon stay-on-path)
+- SHIPPED Pass 6: species-varied tree crowns
+- NEXT candidate: ribbon-constrained stay-on-path
 - CONSTRAINTS: no rebuild; LAYOUT.md meters held; no hotel-tower
