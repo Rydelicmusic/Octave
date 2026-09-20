@@ -34,7 +34,7 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import { LOCK, BUILDINGS, inStadium, occupiesSpine, canPlaceSoft, beltTreePositions, TREE_BELTS, MATERIALS, lakesideRibbonMesh, hubBedCenters } from './lock.js';
+import { LOCK, BUILDINGS, inStadium, occupiesSpine, canPlaceSoft, beltTreePositions, TREE_BELTS, MATERIALS, lakesideRibbonMesh, hubBedCenters, GROUNDS_SCALE, treeMetrics } from './lock.js';
 window.addEventListener('error',e=>{const el=document.getElementById('dist');if(el)el.textContent=String(e.message||e.error||e);});
 window.addEventListener('unhandledrejection',e=>{const el=document.getElementById('dist');if(el)el.textContent=String(e.reason);});
 try {
@@ -92,19 +92,15 @@ function water(x,z,rx,rz){
   lip.rotation.x=-Math.PI/2;lip.position.set(x,rimH+0.01,z);lip.scale.set(rx,rz,1);scene.add(lip);
 }
 function lakesideRibbon(cx,cz,rx,rz){
+  // Constant-width walk in meters (never scale a ring by rx,rz — that stretches path width)
   const mesh=lakesideRibbonMesh(cx,cz,rx,rz);
-  const mean=(rx+rz)/2;
-  if(mesh.closedRing){
-    const inner=1+0.7/mean,outer=1+4.1/mean;
-    const ring=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),pathMat);
-    ring.rotation.x=-Math.PI/2;ring.position.set(cx,0.07,cz);ring.scale.set(rx,rz,1);scene.add(ring);
-    const curb=new THREE.Mesh(new THREE.RingGeometry(outer,outer+0.55/mean,64),stoneDark);
-    curb.rotation.x=-Math.PI/2;curb.position.set(cx,0.11,cz);curb.scale.set(rx,rz,1);scene.add(curb);
-    return;
-  }
   mesh.segs.forEach(s=>{
-    const bed=new THREE.Mesh(new THREE.BoxGeometry(s.w,0.1,s.len*1.08),pathMat);
+    const bed=new THREE.Mesh(new THREE.BoxGeometry(s.w,0.12,s.len*1.12),pathMat);
     bed.position.set(s.x,0.08,s.z);bed.rotation.y=s.rotY;scene.add(bed);
+    const curb=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.16,s.len*1.12),stoneDark);
+    const off=s.w/2+0.11;
+    curb.position.set(s.x+Math.cos(s.rotY)*off,0.14,s.z-Math.sin(s.rotY)*off);
+    curb.rotation.y=s.rotY;scene.add(curb);
   });
 }
 LOCK.waters.forEach(w=>water(...w));

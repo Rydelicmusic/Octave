@@ -6,7 +6,7 @@ import {
   LOCK, BUILDINGS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, occupiesSpine, canPlaceSoft,
   onRingWalk, beltTreePositions, TREE_BELTS, MATERIALS, GROUNDS_DRESSING, hubBedCenters,
-  allLakesideRibbons, lakesideRibbonMesh,
+  allLakesideRibbons, lakesideRibbonMesh, GROUNDS_SCALE, treeMetrics,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -170,8 +170,14 @@ assert.equal(hubBedCenters().length, 8);
 assert.match(indexHtml, /radial planting bed/i);
 assert.match(indexHtml, /lakesideRibbon/);
 assert.match(indexHtml, /lakesideRibbonMesh/);
-assert.match(indexHtml, /closedRing/);
+assert.match(indexHtml, /Constant-width walk in meters/);
 assert.doesNotMatch(indexHtml, /segs\.length\s*>=\s*38/);
+{
+  const lakeFn = indexHtml.match(/function lakesideRibbon[\s\S]*?\n\}/);
+  assert.ok(lakeFn, 'lakesideRibbon missing');
+  assert.doesNotMatch(lakeFn[0], /RingGeometry/);
+  assert.match(lakeFn[0], /s\.w/);
+}
 assert.match(indexHtml, /recessed/i);
 const ribbons = allLakesideRibbons();
 assert.equal(ribbons.length, LOCK.waters.length);
@@ -179,16 +185,17 @@ let clipped = 0;
 for (const r of ribbons) {
   const mesh = lakesideRibbonMesh(r.x, r.z, r.rx, r.rz);
   assert.equal(mesh.closedRing, mesh.skipped === 0);
-  assert.equal(mesh.closedRing, r.closedRing);
   assert.ok(r.segs.length > 8, 'ribbon ' + r.x + ',' + r.z);
-  for (const s of r.segs) assert.equal(occupiesSpine(s.x, s.z, s.w / 2), false);
+  for (const s of r.segs) {
+    assert.equal(s.w, GROUNDS_SCALE.lakesideW);
+    assert.equal(occupiesSpine(s.x, s.z, s.w / 2), false);
+  }
   if (mesh.skipped > 0) {
     clipped += 1;
     assert.equal(mesh.closedRing, false);
   }
 }
 assert.ok(clipped >= 1, 'expected at least one spine-clipped lakeside ribbon');
-assert.match(indexHtml, /if\s*\(\s*mesh\.closedRing\s*\)/);
 for (const name of GROUNDS_DRESSING.materials) {
   assert.ok(name in MATERIALS);
   assert.match(indexHtml, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));

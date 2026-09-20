@@ -188,6 +188,22 @@ export const TREE_BELTS = {
   }
 };
 
+export const GROUNDS_SCALE = {
+  lampH: 3.6,
+  benchSeat: 0.45,
+  lakesideW: 3.2,
+  lakesideOffset: 2.6,
+  treeTrunkH: [5.2, 11.2],
+  treeTrunkR: [0.12, 0.28]
+};
+
+export function treeMetrics(s = 1, seed = 0) {
+  const trunkH = GROUNDS_SCALE.treeTrunkH[0] + (seed % 5) * 1.15 + Math.max(0, s - 1) * 2.0;
+  const trunkR = 0.13 + (seed % 3) * 0.035 + Math.max(0, s - 1) * 0.04;
+  const canopyR = 2.6 + (seed % 4) * 0.28 + s * 0.55;
+  return { trunkH, trunkR, canopyR };
+}
+
 export const GROUNDS_DRESSING = {
   treeBelts: ['west lakes', 'SE grove', 'north split'],
   hubRadialBeds: 8,
@@ -226,9 +242,9 @@ export function hubBedCenters() {
   return beds;
 }
 
-export function lakesideRibbonSegments(cx, cz, rx, rz, n = 40) {
-  const pathW = 3.6;
-  const dist = 2.3;
+export function lakesideRibbonSegments(cx, cz, rx, rz, n = 64) {
+  const pathW = GROUNDS_SCALE.lakesideW;
+  const dist = GROUNDS_SCALE.lakesideOffset;
   const segs = [];
   function edge(a, extra) {
     const mx = Math.cos(a), mz = Math.sin(a);
@@ -250,7 +266,7 @@ export function lakesideRibbonSegments(cx, cz, rx, rz, n = 40) {
   return segs;
 }
 
-export function lakesideRibbonMesh(cx, cz, rx, rz, n = 40) {
+export function lakesideRibbonMesh(cx, cz, rx, rz, n = 64) {
   const segs = lakesideRibbonSegments(cx, cz, rx, rz, n);
   const skipped = n - segs.length;
   return { x: cx, z: cz, rx, rz, segs, skipped, closedRing: skipped === 0 };
