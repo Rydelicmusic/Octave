@@ -1126,3 +1126,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 136–141
+
+- **TIME:** 2026-09-20 14:00 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 161038b; stadium/hub live 404 — NO rebuild; moved essays to live anchors
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; no collisions; no rebuild spam
+- **SOLUTIONS:** geometry.html#stadium + notes/the-pocket.html#hub-rings; retarget sitewide; credits/gate/map deepen
+- **COMMIT / LAST COMMIT:** 6b169b8 — Pass 140
+- **COLLISIONS:** NONE
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
