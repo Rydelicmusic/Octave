@@ -14,6 +14,8 @@
   #cams{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px}
   #cams button{appearance:none;border:1px solid rgba(61,52,40,.35);background:rgba(244,239,230,.8);color:#3d3428;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:7px 10px;border-radius:999px}
   #cams button.on{background:#3d3428;color:#f4efe6}
+  #lift{position:fixed;right:16px;bottom:150px;z-index:3;display:none;flex-direction:column;gap:8px}
+  #lift button{width:44px;height:44px;border-radius:12px;border:1px solid rgba(201,180,138,.4);background:rgba(40,32,24,.45);color:#e8d5a3;font-size:18px}
   #pad{position:fixed;right:16px;bottom:20px;z-index:3;width:118px;height:118px;border-radius:59px;background:rgba(40,32,24,.35);border:1px solid rgba(201,180,138,.4);touch-action:none}
   #knob{position:absolute;left:39px;top:39px;width:40px;height:40px;border-radius:20px;background:rgba(201,180,138,.7)}
 </style>
@@ -23,227 +25,118 @@
 <div id="cams">
   <button id="b1" class="on">Walk</button>
   <button id="b3">3rd</button>
-  <button id="bM">Above</button>
+  <button id="bM">Drone</button>
 </div>
 <canvas id="c"></canvas>
+<div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> land + paths + cameras</div>
-  <div>Walk / 3rd / Above · V to cycle</div>
+  <div><b>This pass:</b> drone fly</div>
+  <div>Walk / 3rd / Drone · V</div>
+  <div>Drone: drag look · stick fly · +/− height</div>
   <div id="dist">Hub — m</div>
   <div style="margin-top:6px"><a href="../">Octave</a></div>
 </div>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-const A = 380, B = 230, WALK = 1.34, EYE = 1.72;
-const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87a0b0);
-scene.fog = new THREE.Fog(0x87a0b0, 70, 520);
-const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.2, 2500);
-let yaw = Math.PI;
-let pitch = -0.04;
-const pos = new THREE.Vector3(0, EYE, B + 26);
-let mode = 'walk';
-let mapH = 420;
-scene.add(new THREE.HemisphereLight(0xf0f4f8, 0x5a4a32, 1.15));
-const sun = new THREE.DirectionalLight(0xfff3d6, 1.1);
-sun.position.set(-90, 180, 70);
-scene.add(sun);
-const grass = new THREE.Mesh(new THREE.PlaneGeometry(A * 3.2, B * 3.2), new THREE.MeshLambertMaterial({ color: 0x4f7a3c }));
-grass.rotation.x = -Math.PI / 2;
-scene.add(grass);
-function plate(w, d, x, z, color) {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshLambertMaterial({ color }));
-  m.rotation.x = -Math.PI / 2;
-  m.position.set(x, 0.02, z);
-  scene.add(m);
-}
-plate(220, 280, -150, -10, 0x3d6a48);
-plate(260, 140, 10, -130, 0x456848);
-plate(220, 220, 150, 10, 0x5a7c42);
-plate(70, B + 60, 0, B * 0.35, 0x6b8a4a);
-function water(x, z, rx, rz) {
-  const m = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshPhongMaterial({ color: 0x2a7a8a, shininess: 40 }));
-  m.rotation.x = -Math.PI / 2;
-  m.position.set(x, 0.05, z);
-  m.scale.set(rx, 1, rz);
-  scene.add(m);
-}
-water(-165, 10, 55, 42);
-water(-120, 70, 32, 26);
-water(-95, -85, 28, 22);
-water(-150, -40, 24, 18);
-water(155, -85, 22, 16);
-const PATH = 0xe6d3a4, CURB = 0x5a4630;
-function pathBox(w, len, x, z, rotY = 0) {
-  const curb = new THREE.Mesh(new THREE.BoxGeometry(w + 1.6, 0.12, len), new THREE.MeshLambertMaterial({ color: CURB }));
-  const top = new THREE.Mesh(new THREE.BoxGeometry(w, 0.16, len), new THREE.MeshLambertMaterial({ color: PATH }));
-  curb.position.set(x, 0.06, z); curb.rotation.y = rotY;
-  top.position.set(x, 0.14, z); top.rotation.y = rotY;
-  scene.add(curb, top);
-}
-function pathRing(inner, outer, x, z) {
-  const m = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 64), new THREE.MeshLambertMaterial({ color: PATH, side: THREE.DoubleSide }));
-  m.rotation.x = -Math.PI / 2; m.position.set(x, 0.14, z); scene.add(m);
-  const c = new THREE.Mesh(new THREE.RingGeometry(inner - 0.8, outer + 0.8, 64), new THREE.MeshLambertMaterial({ color: CURB, side: THREE.DoubleSide }));
-  c.rotation.x = -Math.PI / 2; c.position.set(x, 0.1, z); scene.add(c);
-}
-pathBox(28, 24, 0, B + 20);
-pathBox(14, B + 8, 0, B * 0.5 + 4);
-pathRing(16, 30, 0, 0);
-pathBox(22, 22, 0, 0);
-pathBox(10, 70, -48, -8, 0.15);
-pathBox(10, 80, 52, 6, -0.12);
-pathBox(10, 90, 8, -70, 0.05);
-pathBox(8, 55, -90, -40, 0.6);
-pathBox(8, 50, -130, 20, 1.1);
-pathBox(8, 40, 120, -40, -0.4);
-pathBox(8, 45, 110, 50, 0.35);
-pathRing(14, 20, 95, 95);
-pathRing(6, 11, 108, 108);
-const railPts = [];
-for (let i = 0; i <= 180; i++) {
-  const t = (i / 180) * Math.PI * 2;
-  railPts.push(new THREE.Vector3(Math.cos(t) * A, 0.35, Math.sin(t) * B));
-}
-scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts), new THREE.LineBasicMaterial({ color: 0x2b241c })));
-const gm = new THREE.MeshLambertMaterial({ color: 0x4a3a28 });
-const pL = new THREE.Mesh(new THREE.BoxGeometry(2.2, 6.5, 2.2), gm);
-const pR = pL.clone();
-pL.position.set(-10, 3.25, B + 22);
-pR.position.set(10, 3.25, B + 22);
-const lintel = new THREE.Mesh(new THREE.BoxGeometry(24, 1.2, 2.4), gm);
-lintel.position.set(0, 6.8, B + 22);
-scene.add(pL, pR, lintel);
-const leaf = new THREE.MeshLambertMaterial({ color: 0x2c5a2c });
-const bark = new THREE.MeshLambertMaterial({ color: 0x5a3e28 });
-function tree(x, z, s = 1) {
-  const g = new THREE.Group();
-  const t = new THREE.Mesh(new THREE.CylinderGeometry(0.25 * s, 0.38 * s, 2.2 * s, 5), bark);
-  t.position.y = 1.1 * s;
-  const c = new THREE.Mesh(new THREE.ConeGeometry(2.0 * s, 5.0 * s, 6), leaf);
-  c.position.y = 4.0 * s;
-  g.add(t, c); g.position.set(x, 0, z); scene.add(g);
-}
-for (let i = 0; i < 70; i++) {
-  const t = (i / 70) * Math.PI * 2;
-  const r = 0.82 + (i % 6) * 0.02;
-  const x = Math.cos(t) * A * r, z = Math.sin(t) * B * r;
-  if (Math.abs(x) < 20 && z > 40) continue;
-  tree(x, z, 0.75 + (i % 4) * 0.12);
-}
-for (let i = 0; i < 18; i++) tree(-70 - (i % 6) * 14, -30 - Math.floor(i / 6) * 16, 0.9);
-const avatar = new THREE.Group();
-const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 1.05, 4, 8), new THREE.MeshLambertMaterial({ color: 0xc9b48a }));
-body.position.y = 0.9;
-const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12), new THREE.MeshLambertMaterial({ color: 0xe8d7b0 }));
-head.position.y = 1.72;
-avatar.add(body, head);
-scene.add(avatar);
-const keys = {};
-addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'KeyV') cycle(); });
-addEventListener('keyup', e => keys[e.code] = false);
-const modes = ['walk', 'third', 'above'];
-const btns = { walk: document.getElementById('b1'), third: document.getElementById('b3'), above: document.getElementById('bM') };
-function setMode(m) {
-  mode = m;
-  Object.keys(btns).forEach(k => btns[k].classList.toggle('on', k === m));
-  scene.fog.far = m === 'above' ? 1600 : 520;
-  camera.fov = m === 'above' ? 55 : 70;
-  camera.updateProjectionMatrix();
-}
-function cycle() { setMode(modes[(modes.indexOf(mode) + 1) % 3]); }
-btns.walk.onclick = () => setMode('walk');
-btns.third.onclick = () => setMode('third');
-btns.above.onclick = () => setMode('above');
-let look = false, lx = 0, ly = 0;
-canvas.addEventListener('pointerdown', e => { look = true; lx = e.clientX; ly = e.clientY; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener('pointerup', () => look = false);
-canvas.addEventListener('pointermove', e => {
-  if (!look) return;
-  const dx = e.clientX - lx, dy = e.clientY - ly;
-  lx = e.clientX; ly = e.clientY;
-  if (mode === 'above') { mapH = Math.max(160, Math.min(720, mapH + dy * 0.9)); }
-  else { yaw -= dx * 0.005; pitch -= dy * 0.005; pitch = Math.max(-1.15, Math.min(1.15, pitch)); }
-});
-canvas.addEventListener('wheel', e => { if (mode !== 'above') return; mapH = Math.max(160, Math.min(720, mapH + e.deltaY * 0.25)); }, { passive: true });
-const pad = document.getElementById('pad');
-const knob = document.getElementById('knob');
-const stick = { x: 0, z: 0 };
-function setStick(cx, cy) {
-  const r = pad.getBoundingClientRect();
-  let dx = (cx - (r.left + r.width / 2)) / 42;
-  let dy = (cy - (r.top + r.height / 2)) / 42;
-  const mlen = Math.hypot(dx, dy) || 1;
-  if (mlen > 1) { dx /= mlen; dy /= mlen; }
-  stick.x = dx; stick.z = dy;
-  knob.style.left = 39 + dx * 28 + 'px';
-  knob.style.top = 39 + dy * 28 + 'px';
-}
-function clearStick() { stick.x = 0; stick.z = 0; knob.style.left = '39px'; knob.style.top = '39px'; }
-pad.addEventListener('pointerdown', e => { e.stopPropagation(); setStick(e.clientX, e.clientY); pad.setPointerCapture(e.pointerId); });
-pad.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') setStick(e.clientX, e.clientY); });
-pad.addEventListener('pointerup', clearStick);
-pad.addEventListener('pointercancel', clearStick);
-const landEl = document.getElementById('land');
-const distEl = document.getElementById('dist');
-function whichLand(x, z) {
-  if (Math.hypot(x, z) < 36) return 'The Pocket · Hub';
-  if (z > 80 && Math.abs(x) < 40) return 'The Pocket · Corridor';
-  if (x < -60) return 'The Block';
-  if (x > 70) return 'The Board';
-  if (z < -50) return 'After Hours';
-  return 'The Pocket';
-}
-const clock = new THREE.Clock();
-function tick() {
-  const dt = Math.min(clock.getDelta(), 0.05);
-  let mx = stick.x, mz = stick.z;
-  if (keys.KeyW) mz -= 1;
-  if (keys.KeyS) mz += 1;
-  if (keys.KeyA) mx -= 1;
-  if (keys.KeyD) mx += 1;
-  const len = Math.hypot(mx, mz);
-  if (len > 0) {
-    mx /= len; mz /= len;
-    const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
-    const rx = Math.cos(yaw), rz = -Math.sin(yaw);
-    pos.x += (fx * -mz + rx * mx) * WALK * dt;
-    pos.z += (fz * -mz + rz * mx) * WALK * dt;
+const A=380,B=230,WALK=1.34,EYE=1.72,DRONE=55,DRONE_FAST=110;
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x87a0b0);
+scene.fog=new THREE.Fog(0x87a0b0,70,520);
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.2,2500);
+let yaw=Math.PI,pitch=-0.04,mode='walk',droneYaw=Math.PI,dronePitch=-0.72,lift=0;
+const pos=new THREE.Vector3(0,EYE,B+26);
+const drone=new THREE.Vector3(0,90,B+40);
+const droneVel=new THREE.Vector3();
+scene.add(new THREE.HemisphereLight(0xf0f4f8,0x5a4a32,1.15));
+const sun=new THREE.DirectionalLight(0xfff3d6,1.1);sun.position.set(-90,180,70);scene.add(sun);
+const grass=new THREE.Mesh(new THREE.PlaneGeometry(A*3.2,B*3.2),new THREE.MeshLambertMaterial({color:0x4f7a3c}));
+grass.rotation.x=-Math.PI/2;scene.add(grass);
+function plate(w,d,x,z,color){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshLambertMaterial({color}));m.rotation.x=-Math.PI/2;m.position.set(x,0.02,z);scene.add(m);}
+plate(220,280,-150,-10,0x3d6a48);plate(260,140,10,-130,0x456848);plate(220,220,150,10,0x5a7c42);plate(70,B+60,0,B*0.35,0x6b8a4a);
+function water(x,z,rx,rz){const m=new THREE.Mesh(new THREE.CircleGeometry(1,32),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:40}));m.rotation.x=-Math.PI/2;m.position.set(x,0.05,z);m.scale.set(rx,1,rz);scene.add(m);}
+water(-165,10,55,42);water(-120,70,32,26);water(-95,-85,28,22);water(-150,-40,24,18);water(155,-85,22,16);
+const PATH=0xe6d3a4,CURB=0x5a4630;
+function pathBox(w,len,x,z,rotY=0){const curb=new THREE.Mesh(new THREE.BoxGeometry(w+1.6,0.12,len),new THREE.MeshLambertMaterial({color:CURB}));const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.16,len),new THREE.MeshLambertMaterial({color:PATH}));curb.position.set(x,0.06,z);curb.rotation.y=rotY;top.position.set(x,0.14,z);top.rotation.y=rotY;scene.add(curb,top);}
+function pathRing(inner,outer,x,z){const m=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),new THREE.MeshLambertMaterial({color:PATH,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.set(x,0.14,z);scene.add(m);const c=new THREE.Mesh(new THREE.RingGeometry(inner-0.8,outer+0.8,64),new THREE.MeshLambertMaterial({color:CURB,side:THREE.DoubleSide}));c.rotation.x=-Math.PI/2;c.position.set(x,0.1,z);scene.add(c);}
+pathBox(28,24,0,B+20);pathBox(14,B+8,0,B*0.5+4);pathRing(16,30,0,0);pathBox(22,22,0,0);
+pathBox(10,70,-48,-8,0.15);pathBox(10,80,52,6,-0.12);pathBox(10,90,8,-70,0.05);
+pathBox(8,55,-90,-40,0.6);pathBox(8,50,-130,20,1.1);pathBox(8,40,120,-40,-0.4);pathBox(8,45,110,50,0.35);
+pathRing(14,20,95,95);pathRing(6,11,108,108);
+const railPts=[];for(let i=0;i<=180;i++){const t=(i/180)*Math.PI*2;railPts.push(new THREE.Vector3(Math.cos(t)*A,0.35,Math.sin(t)*B));}
+scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts),new THREE.LineBasicMaterial({color:0x2b241c})));
+const gm=new THREE.MeshLambertMaterial({color:0x4a3a28});
+const pL=new THREE.Mesh(new THREE.BoxGeometry(2.2,6.5,2.2),gm);const pR=pL.clone();
+pL.position.set(-10,3.25,B+22);pR.position.set(10,3.25,B+22);
+const lintel=new THREE.Mesh(new THREE.BoxGeometry(24,1.2,2.4),gm);lintel.position.set(0,6.8,B+22);scene.add(pL,pR,lintel);
+const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});
+function tree(x,z,s=1){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(0.25*s,0.38*s,2.2*s,5),bark);t.position.y=1.1*s;const c=new THREE.Mesh(new THREE.ConeGeometry(2*s,5*s,6),leaf);c.position.y=4*s;g.add(t,c);g.position.set(x,0,z);scene.add(g);}
+for(let i=0;i<70;i++){const t=(i/70)*Math.PI*2;const r=0.82+(i%6)*0.02;const x=Math.cos(t)*A*r,z=Math.sin(t)*B*r;if(Math.abs(x)<20&&z>40)continue;tree(x,z,0.75+(i%4)*0.12);}
+for(let i=0;i<18;i++)tree(-70-(i%6)*14,-30-Math.floor(i/6)*16,0.9);
+const avatar=new THREE.Group();
+const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
+const head=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12),new THREE.MeshLambertMaterial({color:0xe8d7b0}));head.position.y=1.72;
+avatar.add(body,head);scene.add(avatar);
+const keys={};
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyV')cycle();});
+addEventListener('keyup',e=>keys[e.code]=false);
+const modes=['walk','third','above'];
+const btns={walk:document.getElementById('b1'),third:document.getElementById('b3'),above:document.getElementById('bM')};
+function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:520;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}}
+function cycle(){setMode(modes[(modes.indexOf(mode)+1)%3]);}
+btns.walk.onclick=()=>setMode('walk');btns.third.onclick=()=>setMode('third');btns.above.onclick=()=>setMode('above');
+let look=false,lx=0,ly=0;
+canvas.addEventListener('pointerdown',e=>{look=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointerup',()=>look=false);
+canvas.addEventListener('pointermove',e=>{if(!look)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;if(mode==='above'){droneYaw-=dx*0.0045;dronePitch-=dy*0.0035;dronePitch=Math.max(-1.45,Math.min(0.35,dronePitch));}else{yaw-=dx*0.005;pitch-=dy*0.005;pitch=Math.max(-1.15,Math.min(1.15,pitch));}});
+canvas.addEventListener('wheel',e=>{if(mode!=='above')return;drone.y=Math.max(8,Math.min(420,drone.y+e.deltaY*0.12));},{passive:true});
+const pad=document.getElementById('pad'),knob=document.getElementById('knob');const stick={x:0,z:0};
+function setStick(cx,cy){const r=pad.getBoundingClientRect();let dx=(cx-(r.left+r.width/2))/42,dy=(cy-(r.top+r.height/2))/42;const m=Math.hypot(dx,dy)||1;if(m>1){dx/=m;dy/=m;}stick.x=dx;stick.z=dy;knob.style.left=39+dx*28+'px';knob.style.top=39+dy*28+'px';}
+function clearStick(){stick.x=0;stick.z=0;knob.style.left='39px';knob.style.top='39px';}
+pad.addEventListener('pointerdown',e=>{e.stopPropagation();setStick(e.clientX,e.clientY);pad.setPointerCapture(e.pointerId);});
+pad.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType==='touch')setStick(e.clientX,e.clientY);});
+pad.addEventListener('pointerup',clearStick);pad.addEventListener('pointercancel',clearStick);
+function hold(el,dir){const on=e=>{e.preventDefault();lift=dir;};const off=()=>{if(lift===dir)lift=0;};el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointerleave',off);el.addEventListener('pointercancel',off);}
+hold(document.getElementById('up'),1);hold(document.getElementById('dn'),-1);
+const landEl=document.getElementById('land'),distEl=document.getElementById('dist');
+function whichLand(x,z){if(Math.hypot(x,z)<36)return 'The Pocket · Hub';if(z>80&&Math.abs(x)<40)return 'The Pocket · Corridor';if(x<-60)return 'The Block';if(x>70)return 'The Board';if(z<-50)return 'After Hours';return 'The Pocket';}
+const clock=new THREE.Clock();
+function tick(){
+  const dt=Math.min(clock.getDelta(),0.05);
+  let mx=stick.x,mz=stick.z;
+  if(keys.KeyW)mz-=1;if(keys.KeyS)mz+=1;if(keys.KeyA)mx-=1;if(keys.KeyD)mx+=1;
+  const len=Math.hypot(mx,mz);
+  if(mode==='above'){
+    const fx=-Math.sin(droneYaw),fz=-Math.cos(droneYaw),rx=Math.cos(droneYaw),rz=-Math.sin(droneYaw);
+    const spd=(keys.ShiftLeft||keys.ShiftRight)?DRONE_FAST:DRONE;
+    let tx=0,tz=0,ty=0;
+    if(len>0){mx/=len;mz/=len;tx=(fx*-mz+rx*mx)*spd;tz=(fz*-mz+rz*mx)*spd;}
+    if(keys.KeyQ||keys.Space||lift>0)ty+=spd*0.55;
+    if(keys.KeyE||keys.ControlLeft||lift<0)ty-=spd*0.55;
+    droneVel.x+=(tx-droneVel.x)*Math.min(1,dt*6);
+    droneVel.z+=(tz-droneVel.z)*Math.min(1,dt*6);
+    droneVel.y+=(ty-droneVel.y)*Math.min(1,dt*6);
+    drone.x+=droneVel.x*dt;drone.z+=droneVel.z*dt;drone.y=Math.max(8,Math.min(420,drone.y+droneVel.y*dt));
+  }else if(len>0){
+    mx/=len;mz/=len;const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
+    pos.x+=(fx*-mz+rx*mx)*WALK*dt;pos.z+=(fz*-mz+rz*mx)*WALK*dt;
   }
-  pos.y = EYE;
-  avatar.position.set(pos.x, 0, pos.z);
-  avatar.rotation.y = yaw;
-  avatar.visible = mode !== 'walk';
-  if (mode === 'walk') {
-    camera.position.copy(pos);
-    camera.rotation.order = 'YXZ';
-    camera.rotation.y = yaw;
-    camera.rotation.x = pitch;
-  } else if (mode === 'third') {
-    const back = 5.2, up = 2.1;
-    camera.position.set(pos.x + Math.sin(yaw) * back, pos.y + up + pitch * -1.2, pos.z + Math.cos(yaw) * back);
-    camera.lookAt(pos.x, pos.y - 0.1, pos.z);
-  } else {
-    camera.position.set(pos.x, mapH, pos.z + 8);
-    camera.lookAt(pos.x, 0, pos.z);
-  }
-  landEl.textContent = whichLand(pos.x, pos.z) + ' · ' + (mode === 'walk' ? 'WALK' : mode === 'third' ? '3RD' : 'ABOVE');
-  distEl.textContent = 'Hub ' + Math.hypot(pos.x, pos.z).toFixed(0) + ' m';
-  renderer.render(scene, camera);
-  requestAnimationFrame(tick);
+  pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
+  if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}
+  else if(mode==='third'){camera.position.set(pos.x+Math.sin(yaw)*5.2,pos.y+2.1+pitch*-1.2,pos.z+Math.cos(yaw)*5.2);camera.lookAt(pos.x,pos.y-0.1,pos.z);}
+  else{camera.position.copy(drone);camera.rotation.order='YXZ';camera.rotation.y=droneYaw;camera.rotation.x=dronePitch;}
+  const hx=mode==='above'?drone.x:pos.x,hz=mode==='above'?drone.z:pos.z;
+  landEl.textContent=whichLand(hx,hz)+' · '+(mode==='walk'?'WALK':mode==='third'?'3RD':'DRONE');
+  distEl.textContent=mode==='above'?('Alt '+drone.y.toFixed(0)+' m · hub '+Math.hypot(drone.x,drone.z).toFixed(0)+' m'):('Hub '+Math.hypot(pos.x,pos.z).toFixed(0)+' m');
+  renderer.render(scene,camera);requestAnimationFrame(tick);
 }
 tick();
-addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 </script>
 </body>
 </html>
