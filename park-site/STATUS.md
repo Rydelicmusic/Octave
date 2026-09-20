@@ -828,3 +828,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 751464d0ae28dcc1f79ad76fb906e9f4f1468c89
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 70 artist hospitality densify
+
+- **TIME:** 2026-09-20 13:27 CDT (America/Chicago)
+- **LANE:** Site Luxury / artists
+- **STARTED:** Tip after Pass 69 (7197d8d / STATUS b216efc); aborted lower Pass 34/35 slice; ship Pass 70 from live tip
+- **GOING:** Denser artists index + four MOCK worlds — short-slug venues primary, SKU aliases secondary, hospitality lamp-rails, timed night/day desks into Venue→Work
+- **NEXT:** Pass 71 — link audit 0 broken goal; STATUS tip sync; light polish if thin
+- **CONSTRAINTS:** park-site/ only; MOCK locked (Vale/Juniper/Solenne/Ori); relative links; no hotel-tower; no rebuild; Home→Land→Venue→Work + 12 short-slugs (FIX c95c7e2) clean
+- **SOLUTIONS:** Canonical short slug in menus; SKU keep 200; densify chrome only
+- **COMMIT / LAST COMMIT:** pending Pass 70 push
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
