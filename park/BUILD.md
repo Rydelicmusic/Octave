@@ -362,10 +362,14 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Now `lakesideRibbonRuns` + `pathRibbon` at PATH_SCALE.lakesideW = 3.2 m, offset 2.6 m outside rim
 - Spine strip skipped; water ellipses unmoved
 
+## Pass 71 — 3.6 m path lanterns (layout)
+- Corridor + hub lantern posts were 2.4 / 2.2 m (toy vs person-scale)
+- Now PATH_SCALE.lampH = 3.6 m on CAD corridor edges and hub ring (spine gaps held)
+
 ## Still fake (worst next)
-- Corridor lanterns ~2.4 m (should read ~3.6 m along the 14 m spine)
 - CAD spine curb ribbons are 0.9 m on top of 14 m asphalt
 - Water coping still scales with ellipse rx
+- Stadium rail posts 1.15 m with 0.18 m section (paper-thin vs 14 m spine)
 
 
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)

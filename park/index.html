@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> 3.2 m lakeside walks</div>
+  <div><b>This pass:</b> 3.6 m path lanterns</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass70-lakeside';
+import * as LockMod from './lock.js?v=pass71-lamph';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -308,9 +308,11 @@ addWalkSeg(-11,B,11,B,10);
     const postMat=new THREE.MeshLambertMaterial({color:0x2b241c});
     const lampMat=new THREE.MeshLambertMaterial({color:0xe8d4a0, emissive:0x6a5830, emissiveIntensity:0.35});
     function lantern(x,z){
+      // Pass 71 — PATH_SCALE.lampH 3.6 m (was 2.4 m toy posts)
+      const H=PATH_SCALE.lampH, postH=H-0.4;
       const g=new THREE.Group();
-      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,2.4,6),postMat);post.position.y=1.2;g.add(post);
-      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.28,8,6),lampMat);lamp.position.y=2.55;g.add(lamp);
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,postH,6),postMat);post.position.y=postH/2;g.add(post);
+      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,6),lampMat);lamp.position.y=H-0.22;g.add(lamp);
       g.position.set(x,0,z);scene.add(g);
     }
     const half=LOCK.spineWidth/2+0.85;
@@ -326,9 +328,10 @@ addWalkSeg(-11,B,11,B,10);
       const a=(i/16)*Math.PI*2;
       if(Math.abs(Math.sin(a))>0.92) continue; // spine gaps
       const x=Math.cos(a)*r, z=Math.sin(a)*r;
+      const H=PATH_SCALE.lampH, postH=H-0.4;
       const g=new THREE.Group();
-      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,2.2,6),postMat);post.position.y=1.1;g.add(post);
-      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.26,8,6),lampMat);lamp.position.y=2.35;g.add(lamp);
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,postH,6),postMat);post.position.y=postH/2;g.add(post);
+      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,6),lampMat);lamp.position.y=H-0.22;g.add(lamp);
       g.position.set(x,0,z);scene.add(g);
     }
   })();

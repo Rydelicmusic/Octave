@@ -122,10 +122,12 @@ assert.match(indexHtml, /function pathRibbon/);
 assert.match(indexHtml, /function lakeWalk/);
 assert.match(indexHtml, /lakesideRibbonRuns/);
 assert.match(indexHtml, /PATH_SCALE\.lakesideW/);
+assert.match(indexHtml, /PATH_SCALE\.lampH/);
 assert.doesNotMatch(indexHtml, /g\.scale\.set\(rx,1,rz\)/);
 {
   assert.equal(PATH_SCALE.lakesideW, 3.2);
   assert.equal(PATH_SCALE.lakesideOffset, 2.6);
+  assert.equal(PATH_SCALE.lampH, 3.6);
   const west = lakesideRibbonRuns(-210, -20, 48, 70);
   assert.ok(west.length >= 1);
   assert.ok(west[0].length >= 12);
@@ -144,7 +146,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.match(lockSrc, /export const ITINERARY/);
 assert.match(lockSrc, /FIX-ITINERARY/);
 assert.ok(ITINERARY);
-assert.match(indexHtml, /pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
 assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
@@ -181,10 +183,10 @@ assert.match(indexHtml, /Pass 46 — zig queues live in sku-kit/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
-assert.match(indexHtml, /3\.2 m lakeside walks|spine lamps actually light|denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades|ride-station kit densify|Pass 46|Catmull ribbon tour meters|denser lamp PointLights|gate ticket booth polish|water material densify|facade mid-block detail|night fill polish|earth densify|stadium rail densify|hub plaza densify|path curb polish|wayfinding densify|guest seating densify|canopy understory densify|tour mid-leg pause seating|Gate secondary queue furniture|SKU service aprons|night water mist|PathRibbon curb companions|Gate approach densify|station queue shade|hub plaza densify|After Hours walk furniture|Board shore seating/);
+assert.match(indexHtml, /3\.6 m path lanterns|3\.2 m lakeside walks|spine lamps actually light|denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades|ride-station kit densify|Pass 46|Catmull ribbon tour meters|gate ticket booth polish|water material densify|facade mid-block detail|night fill polish|earth densify|stadium rail densify|hub plaza densify|path curb polish|wayfinding densify|guest seating densify|canopy understory densify|tour mid-leg pause seating|Gate secondary queue furniture|SKU service aprons|night water mist|PathRibbon curb companions|Gate approach densify|station queue shade|After Hours walk furniture|Board shore seating/);
 assert.match(indexHtml, /walkLinkPolyline/);
 assert.match(indexHtml, /walkSpurPolyline/);
-assert.match(indexHtml, /pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
 assert.match(indexHtml, /function lamp\(x,z,lit=false\)/);
 assert.match(indexHtml, /addLampPointLight/);
 assert.match(indexHtml, /spineLampLitWest\(z\)/);
@@ -346,9 +348,9 @@ assert.match(indexHtml, /hubApronPath/);
 assert.match(indexHtml, /LAMP_LIGHT_CAP/);
 assert.match(indexHtml, /LAMP_LIGHT_CAP=80/);
 assert.match(indexHtml, /Pass 48/);
-assert.match(indexHtml, /denser lamp PointLights|gate ticket booth polish|water material densify|facade mid-block detail|night fill polish|earth densify|stadium rail densify|hub plaza densify|path curb polish|wayfinding densify|guest seating densify|canopy understory densify|tour mid-leg pause seating|Gate secondary queue furniture|SKU service aprons|Pass 49|Pass 50|Pass 51|Pass 52|Pass 53|Pass 54|Pass 55|Pass 56|Pass 57|Pass 58|Pass 59|Pass 60|Pass 61|Pass 62|Pass 63|Pass 64|Pass 65|Pass 66|Pass 67|Pass 68|Pass 69|Pass 70/);
+assert.match(indexHtml, /denser lamp PointLights|gate ticket booth polish|water material densify|facade mid-block detail|night fill polish|earth densify|stadium rail densify|hub plaza densify|path curb polish|wayfinding densify|guest seating densify|canopy understory densify|tour mid-leg pause seating|Gate secondary queue furniture|SKU service aprons|Pass 49|Pass 50|Pass 51|Pass 52|Pass 53|Pass 54|Pass 55|Pass 56|Pass 57|Pass 58|Pass 59|Pass 60|Pass 61|Pass 62|Pass 63|Pass 64|Pass 65|Pass 66|Pass 67|Pass 68|Pass 69|Pass 70|Pass 71/);
 assert.match(indexHtml, /pass44LampLights/);
-assert.match(indexHtml, /pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
 
 assert.match(indexHtml, /Pass 63|pass63WaterMist|water mist/);
 assert.match(indexHtml, /Pass 64|pass64RibbonCurbs|curb companions/);
@@ -362,3 +364,4 @@ assert.match(indexHtml, /Pass 68|pass68AfterHours|After Hours walk furniture|Boa
 
 assert.match(indexHtml, /Pass 69|pass69BoardSeats|Board shore seating/);
 assert.match(indexHtml, /Pass 70|3\.2 m lakeside walks|lakesideRibbonRuns/);
+assert.match(indexHtml, /Pass 71|3\.6 m path lanterns|PATH_SCALE\.lampH/);

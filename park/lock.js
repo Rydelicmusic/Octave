@@ -131,6 +131,7 @@ export const PATH_SCALE = {
   lakesideOffset: 2.6,
   copingW: 0.5,
   copingH: 0.32,
+  lampH: 3.6,
 };
 
 /** Closed polyline around a locked water ellipse at a constant offset (meters). */
