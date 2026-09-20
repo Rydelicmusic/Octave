@@ -29,6 +29,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Asphalt spine, concrete hub, packed-sand land ribbons, earth patches
 - Stadium-rail walk clamp (speed still 1.34 m/s)
 
+## Pass 4 — walk arrival faces hub
+- Start yaw 0 so Gate Walk looks down the 14 m asphalt spine into the hub
+- Optional `#drone` hash opens Drone at 90 m (cameras unchanged)
+
 ## Still fake (worst next)
 1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple)
 2. Spine is still a straight box (ribbons are on land water edges only)

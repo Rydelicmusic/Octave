@@ -103,6 +103,8 @@ assert.match(indexHtml, /asphaltMat/);
 assert.match(indexHtml, /concreteMat/);
 assert.match(indexHtml, /earthMat|EARTH/);
 assert.match(indexHtml, /inStadium\(nx,nz\)/);
+assert.match(indexHtml, /let yaw=0/);
+assert.match(indexHtml, /location.hash==='#drone'/);
 assert.match(indexHtml, />Walk</);
 assert.match(indexHtml, />3rd</);
 assert.match(indexHtml, />Drone</);
