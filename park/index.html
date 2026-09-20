@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> night fill polish</div>
+  <div><b>This pass:</b> earth densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,10 +35,10 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass52-night';
+import * as LockMod from './lock.js?v=pass53-earth';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
-  LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
+  LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
   WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
   walkLinkPolyline, walkSpurPolyline, hubApronPath,
   LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast,
@@ -1069,9 +1069,9 @@ STATIONS.forEach(rideStation);
 plate(90,70,-200,-50,EARTH);
 plate(60,50,130,-70,EARTH);
 plate(70,40,0,-175,EARTH);
-// Pass 34 — denser earth / grass tone patches (layout locks held)
+// Pass 34/53 — denser earth / grass tone patches (layout locks held)
 (function earthGrassPatches(){
-  const tones=[0x5a7a40,0x4a6a38,0x6b5340,0x5a4838,0x557848];
+  const tones=[0x5a7a40,0x4a6a38,0x6b5340,0x5a4838,0x557848,0x6a7a48,0x4e5a34,0x7a6048,0x3d5a38];
   const spots=[
     [-180,40,55,40],[-140,-90,45,35],[-90,120,40,30],
     [160,60,50,40],[180,-20,40,35],[120,-120,45,30],
@@ -1081,8 +1081,63 @@ plate(70,40,0,-175,EARTH);
   spots.forEach(([x,z,w,d],i)=>{
     const mat=new THREE.MeshLambertMaterial({color:tones[i%tones.length]});
     const m=new THREE.Mesh(new THREE.CircleGeometry(1,24),mat);
-    m.rotation.x=-Math.PI/2;m.position.set(x,0.02,z);m.scale.set(w/2,d/2,1);scene.add(m);
+    m.rotation.x=-Math.PI/2;m.position.set(x,0.025,z);m.scale.set(w/2,d/2,1);scene.add(m);
   });
+  // Pass 53 — canopy scatter: tone-varied ground; skip spine / water / buildings / rings
+  const half=LOCK.spineWidth/2+2.2;
+  function blocked(x,z,r){
+    if(Math.abs(x)<half) return true;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+r), dz=(z-cz)/(rz+r); return dx*dx+dz*dz<=1;
+    })) return true;
+    if(nearRing(x,z,10+r)) return true;
+    if(BUILDINGS.some(b=>{
+      const dx=Math.abs(x-b.x)-(b.w/2+r), dz=Math.abs(z-b.z)-(b.d/2+r);
+      return dx<0&&dz<0;
+    })) return true;
+    if(STATIONS.some(s=>{
+      const dx=Math.abs(x-s.x)-(s.w/2+r), dz=Math.abs(z-s.z)-(s.d/2+r);
+      return dx<0&&dz<0;
+    })) return true;
+    return false;
+  }
+  let n=0;
+  const cans=Object.values(LOCK.canopies||{});
+  cans.forEach((c,ci)=>{
+    // denser grid inside each land canopy ellipse
+    const steps=10;
+    for(let i=0;i<steps;i++){
+      for(let j=0;j<steps;j++){
+        const u=(i+0.5)/steps, v=(j+0.5)/steps;
+        const ang=u*Math.PI*2+(ci*0.35), rad=0.25+v*0.72;
+        const x=c.cx+Math.cos(ang)*c.rx*rad;
+        const z=c.cz+Math.sin(ang)*c.rz*rad;
+        const rw=8+((i*3+j*5+ci*7)%7);
+        const rd=6+((i*5+j*2+ci*3)%6);
+        if(blocked(x,z,Math.max(rw,rd)*0.35)) continue;
+        const tone=tones[(i*11+j*3+ci*5)%tones.length];
+        const mat=new THREE.MeshLambertMaterial({color:tone});
+        const m=new THREE.Mesh(new THREE.CircleGeometry(1,20),mat);
+        m.rotation.x=-Math.PI/2;
+        m.position.set(x,0.028+((i+j)%3)*0.002,z);
+        m.scale.set(rw/2,rd/2,1);
+        scene.add(m);
+        n++;
+      }
+    }
+  });
+  // extra dirt freckles between path curbs (off-spine)
+  for(let k=0;k<48;k++){
+    const a=(k/48)*Math.PI*2;
+    const r=55+(k%5)*28;
+    const x=Math.cos(a)*r*((k%2)?1.15:0.85);
+    const z=Math.sin(a)*r*((k%3)?1.05:0.9);
+    if(blocked(x,z,6)) continue;
+    const mat=new THREE.MeshLambertMaterial({color:tones[k%tones.length]});
+    const m=new THREE.Mesh(new THREE.CircleGeometry(1,16),mat);
+    m.rotation.x=-Math.PI/2;m.position.set(x,0.03,z);m.scale.set(5+(k%4),4+(k%3),1);scene.add(m);
+    n++;
+  }
 })();
 const gateLight=new THREE.PointLight(0xffe1b0,40,55);gateLight.position.set(0,8,LOCK.gate.z);scene.add(gateLight);
 const hubLight=new THREE.PointLight(0xfff0d0,28,40);hubLight.position.set(0,7,0);scene.add(hubLight);
