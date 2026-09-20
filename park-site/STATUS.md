@@ -394,3 +394,36 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** 157c9d1 — Pass 28
 - **LINK AUDIT:** ok=2640 broken=0
 
+## Check-in — Pass 29 night timed board
+
+- **TIME:** 2026-09-20 13:16 CDT (America/Chicago)
+- **LANE:** programs
+- **STARTED:** Pass 29 — night-programs.html concrete MOCK timed board (18:30–23:45) linking nests/artists; land mega-menus with clocked entries
+- **GOING:** Push; Pass 30 journal land notes; Pass 31 map legend + tickets desk
+- **NEXT:** Pass 30
+- **CONSTRAINTS:** park-site/ only; MOCK times not live inventory
+- **SOLUTIONS:** Every time → real nest URL; day counterpart linked
+- **COMMIT / LAST COMMIT:** 3083834 — Pass 28
+
+## Check-in — Pass 30 journal land notes
+
+- **TIME:** 2026-09-20 13:17 CDT (America/Chicago)
+- **LANE:** journal
+- **STARTED:** Pass 30 — four land journal notes (Block/Hours/Board/Pocket) with nest+work+land links, park voice
+- **GOING:** Push with Pass 31
+- **NEXT:** Pass 31 map meters legend + tickets MOCK desk
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Editorial density into wayfinding
+- **COMMIT / LAST COMMIT:** (pending)
+
+## Check-in — Pass 31 map legend + tickets desk
+
+- **TIME:** 2026-09-20 13:18 CDT (America/Chicago)
+- **LANE:** map / tickets
+- **STARTED:** Pass 31 — map legend in meters (760×460, A/B, Cap R, hub, spine, axes, grid); tickets desk opens timed nests
+- **GOING:** Push Passes 29–31; continue Pass 32+
+- **NEXT:** Pass 32 guest-services depth or work-page dead-end sweep
+- **CONSTRAINTS:** LAYOUT.md numbers only
+- **SOLUTIONS:** Legend cites lock; tickets → nests not placeholders
+- **COMMIT / LAST COMMIT:** 3083834 — Pass 28 (batch pending)
+
