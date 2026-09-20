@@ -526,7 +526,7 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **NEXT:** Continue densify unless director STOP
 - **CONSTRAINTS:** park-site/ only; MOCK roster stable; LAYOUT axes; FF races retried
 - **SOLUTIONS:** Venue short-slug densify; timed night/day boards; journal lands; map meters; guest/tickets/atelier/works no-dead-end; directory/programs/venues hubs
-- **COMMIT / LAST COMMIT:** 74c21b3 — Pass 39 venues tonight/today desk
-- **TIP:** 74c21b3f55a58f102f14555b1792f7913736acaf
+- **COMMIT / LAST COMMIT:** a2c94f1 — Pass 40 STATUS rollup
+- **TIP:** a2c94f128ab8e2178c29b5d0b6520c33c90c6a87
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
