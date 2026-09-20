@@ -981,5 +981,6 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **NEXT:** Push Pass 112; confirm Pages rebuild
 - **CONSTRAINTS:** park-site/ only; no force-push
 - **SOLUTIONS:** Non-colliding nested IA paths for Jekyll/Pages
-- **COMMIT / LAST COMMIT:** pending Pass 112
+- **COMMIT / LAST COMMIT:** eb99a5d — Pass 112
+- **TIP:** eb99a5d65c6a65baeecdae74bb9e4e8902656fd7
 
