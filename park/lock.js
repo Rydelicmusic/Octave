@@ -113,6 +113,127 @@ export function canPlaceBuilding(b) {
   return true;
 }
 
+/** Radius-aware 14 m N–S walk (Gate at +Z). Plantings/props must not occupy this strip. */
+export function occupiesSpine(x, z, radius = 0) {
+  const half = LOCK.spineWidth / 2;
+  return Math.abs(x) < half + radius && Math.abs(z) < LOCK.B + 8;
+}
+
+export function canPlaceSoft(x, z, radius = 1) {
+  if (occupiesSpine(x, z, radius)) return false;
+  for (const b of BUILDINGS) {
+    if (Math.abs(x - b.x) < b.w / 2 + radius + 1.5 && Math.abs(z - b.z) < b.d / 2 + radius + 1.5) return false;
+  }
+  return true;
+}
+
+export const MATERIALS = {
+  'sand-path': 0xe6d3a4,
+  'concrete-plaza': 0xb9b3a8,
+  grass: 0x4f7a3c,
+  'packed-earth': 0x6b5340,
+  curb: 0x5a4630
+};
+
+export const TREE_BELTS = {
+  'west lakes': {
+    anchors: [
+      [-95, -20], [-125, 25], [-160, -55], [-70, -70], [-110, 70], [-185, 10],
+      [-210, -20], [-165, 10], [-120, 70], [-150, -40], [-185, -40], [-80, 20],
+      [-230, 20], [-140, -100], [-200, -70]
+    ],
+    spread: 16,
+    count: 14
+  },
+  'SE grove': {
+    anchors: [
+      [75, 70], [100, 50], [55, 100], [130, 85], [85, 125],
+      [95, 95], [118, 108], [145, 70], [70, 130], [110, 130],
+      [150, 40], [110, 120], [70, 145]
+    ],
+    spread: 13,
+    count: 12
+  },
+  'north split': {
+    anchors: [
+      [-45, -110], [20, -120], [-20, -160], [50, -95], [-80, -130],
+      [-10, -140], [40, -155], [-60, -90], [10, -175], [-90, -150],
+      [90, -170], [-100, -165], [0, -190]
+    ],
+    spread: 14,
+    count: 12
+  }
+};
+
+export const GROUNDS_DRESSING = {
+  treeBelts: ['west lakes', 'SE grove', 'north split'],
+  hubRadialBeds: 8,
+  lakesideRibbons: true,
+  materials: ['sand-path', 'concrete-plaza', 'grass', 'packed-earth', 'curb'],
+  lamps: ['spine', 'gate'],
+  landWash: true,
+  waterReflection: true,
+  softProps: ['benches', 'lamps', 'trash', 'planters', 'ropes']
+};
+
+export function beltTreePositions(name) {
+  const spec = TREE_BELTS[name];
+  if (!spec) return [];
+  const pts = [];
+  spec.anchors.forEach(([cx, cz], ai) => {
+    for (let i = 0; i < spec.count; i++) {
+      const a = (i / spec.count) * Math.PI * 2 + ai * 0.41;
+      const d = spec.spread * (0.18 + ((i * 19 + ai * 7) % 11) / 14);
+      const x = cx + Math.cos(a) * d;
+      const z = cz + Math.sin(a) * d;
+      const s = 0.68 + (i % 5) * 0.17 + (ai % 3) * 0.05;
+      if (canPlaceSoft(x, z, 2.2 * s)) pts.push({ x, z, s, seed: i + ai * 13, belt: name });
+    }
+  });
+  return pts;
+}
+
+export function hubBedCenters() {
+  const r = (LOCK.hubInner + LOCK.hubOuter) / 2;
+  const beds = [];
+  for (let i = 0; i < GROUNDS_DRESSING.hubRadialBeds; i++) {
+    const a = (i / GROUNDS_DRESSING.hubRadialBeds) * Math.PI * 2 + Math.PI / 8;
+    beds.push({ i, a, x: Math.cos(a) * r, z: Math.sin(a) * r, r });
+  }
+  return beds;
+}
+
+export function lakesideRibbonSegments(cx, cz, rx, rz, n = 40) {
+  const pathW = 3.6;
+  const dist = 2.3;
+  const segs = [];
+  function edge(a, extra) {
+    const mx = Math.cos(a), mz = Math.sin(a);
+    const ex = cx + mx * rx, ez = cz + mz * rz;
+    const nx = mx * rx, nz = mz * rz;
+    const nl = Math.hypot(nx, nz) || 1;
+    return [ex + (nx / nl) * extra, ez + (nz / nl) * extra];
+  }
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2;
+    const a1 = ((i + 1) / n) * Math.PI * 2;
+    const am = (a0 + a1) / 2;
+    const [x, z] = edge(am, dist);
+    if (occupiesSpine(x, z, pathW / 2)) continue;
+    const [x0, z0] = edge(a0, dist);
+    const [x1, z1] = edge(a1, dist);
+    segs.push({ x, z, w: pathW, len: Math.hypot(x1 - x0, z1 - z0), rotY: Math.atan2(x1 - x0, z1 - z0) });
+  }
+  return segs;
+}
+
+export function allLakesideRibbons() {
+  return LOCK.waters.map(([x, z, rx, rz]) => ({
+    x, z, rx, rz,
+    segs: lakesideRibbonSegments(x, z, rx, rz)
+  }));
+}
+
 /** 1 song = kiosk, EP = pavilion, album = full building. */
 export const BUILDINGS = [
   { id: 'block-album', land: 'The Block', sku: 'album', name: 'Block Hall', x: -250, z: 48, w: 22, d: 14, h: 9.2, yaw: 0.18, body: 0x6a4030, trim: 0x3a2418 },

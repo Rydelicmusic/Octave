@@ -33,8 +33,15 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Start yaw 0 so Gate Walk looks down the 14 m asphalt spine into the hub
 - Optional `#drone` hash opens Drone at 90 m (cameras unchanged)
 
+## Grounds agent (park-grounds worktree, on top of lock.js / SKU buildings)
+- pass 1: west-lakes / SE-grove / north-split belts — mixed height, trunks, overlapping canopies; skip 14 m spine + building footprints
+- pass 2: recessed water basin + coping + water reflection; lakeside ribbons on all 12 locked ellipses (spine-clipped)
+- pass 3: hub eight radial planting beds denser; sand-path / concrete-plaza / grass / packed-earth / curb materials from lock.js
+- pass 4: land wash lights, spine/gate lamps kept, planters, ropes; Walk / 3rd / Drone unchanged
+
 ## Still fake (worst next)
-1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple)
+1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple) — buildings agent
 2. Spine is still a straight box (ribbons are on land water edges only)
-3. Tree crowns still cone+sphere, not species-varied
-4. Stay-on-path is rail-only, not ribbon-constrained
+3. Stay-on-path is rail-only, not ribbon-constrained
+4. Lakeside ribbons that hit the spine are segmented, not one winding walk
+5. Mobile look + stick still coarse

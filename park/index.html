@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> gate, stations, signs, lamps, queues</div>
+  <div><b>This pass:</b> grounds — belts, water edges, beds, lamps</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -34,10 +34,12 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import { PLACEMENTS, RINGS, LAND_PALETTE, skuSpec } from './buildings.js';
-import { LOCK, BUILDINGS, inStadium } from './lock.js';
+import { LOCK, BUILDINGS, inStadium, occupiesSpine, canPlaceSoft, beltTreePositions, TREE_BELTS, MATERIALS, lakesideRibbonSegments, hubBedCenters } from './lock.js';
+window.addEventListener('error',e=>{const el=document.getElementById('dist');if(el)el.textContent=String(e.message||e.error||e);});
+window.addEventListener('unhandledrejection',e=>{const el=document.getElementById('dist');if(el)el.textContent=String(e.reason);});
+try {
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
-const PATH=0xe6d3a4,CURB=0x5a4630,ASPHALT=0x3e3e42,CONCRETE=0xb9b3a8,EARTH=0x6b5340;
+const PATH=MATERIALS['sand-path'],CURB=MATERIALS['curb'],ASPHALT=0x3e3e42,CONCRETE=MATERIALS['concrete-plaza'],EARTH=MATERIALS['packed-earth'];
 const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -52,7 +54,7 @@ const drone=new THREE.Vector3(0,90,B+20);
 const droneVel=new THREE.Vector3();
 scene.add(new THREE.HemisphereLight(0xf0f4f8,0x5a4a32,1.15));
 const sun=new THREE.DirectionalLight(0xfff3d6,1.1);sun.position.set(-90,180,70);scene.add(sun);
-const grass=new THREE.Mesh(new THREE.PlaneGeometry(A*3.2,B*3.2),new THREE.MeshLambertMaterial({color:0x4f7a3c}));
+const grass=new THREE.Mesh(new THREE.PlaneGeometry(A*3.2,B*3.2),new THREE.MeshLambertMaterial({color:MATERIALS['grass']}));
 grass.rotation.x=-Math.PI/2;scene.add(grass);
 function plate(w,d,x,z,color){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshLambertMaterial({color}));m.rotation.x=-Math.PI/2;m.position.set(x,0.02,z);scene.add(m);}
 plate(260,320,-165,-10,0x3d6a48);
@@ -66,9 +68,17 @@ const asphaltMat=new THREE.MeshLambertMaterial({color:ASPHALT});
 const concreteMat=new THREE.MeshLambertMaterial({color:CONCRETE});
 const earthMat=new THREE.MeshLambertMaterial({color:EARTH});
 function water(x,z,rx,rz){
-  // Recessed pool + raised coping (not flush with ground)
-  const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:48}));
-  pool.rotation.x=-Math.PI/2;pool.position.set(x,0.06,z);pool.scale.set(rx*0.96,rz*0.96,1);scene.add(pool);
+  // Recessed pool + raised coping (not flush with ground) + water reflection sheen
+  const basin=new THREE.Mesh(new THREE.CylinderGeometry(1,1.02,0.5,48),new THREE.MeshLambertMaterial({color:0x17343a}));
+  basin.position.set(x,-0.18,z);basin.scale.set(rx*0.98,1,rz*0.98);scene.add(basin);
+  const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({
+    color:0x2a7a8a,shininess:110,specular:0xb7e4ee,emissive:0x0a3038,emissiveIntensity:0.12
+  }));
+  pool.rotation.x=-Math.PI/2;pool.position.set(x,0.01,z);pool.scale.set(rx*0.94,rz*0.94,1);scene.add(pool);
+  const sheen=new THREE.Mesh(new THREE.CircleGeometry(1,32),new THREE.MeshPhongMaterial({
+    color:0x8ec8d4,transparent:true,opacity:0.2,shininess:140,specular:0xffffff
+  }));
+  sheen.rotation.x=-Math.PI/2;sheen.position.set(x,0.03,z);sheen.scale.set(rx*0.7,rz*0.55,1);scene.add(sheen);
   const rimH=0.38,rimT=0.7;
   const shape=new THREE.Shape();
   shape.absarc(0,0,1+rimT*0.55,0,Math.PI*2,false);
@@ -81,8 +91,24 @@ function water(x,z,rx,rz){
   const lip=new THREE.Mesh(new THREE.RingGeometry(0.97,1+rimT*0.55,48),stone);
   lip.rotation.x=-Math.PI/2;lip.position.set(x,rimH+0.01,z);lip.scale.set(rx,rz,1);scene.add(lip);
 }
+function lakesideRibbon(cx,cz,rx,rz){
+  const segs=lakesideRibbonSegments(cx,cz,rx,rz);
+  const mean=(rx+rz)/2;
+  if(segs.length>=38){
+    const inner=1+0.7/mean,outer=1+4.1/mean;
+    const ring=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),pathMat);
+    ring.rotation.x=-Math.PI/2;ring.position.set(cx,0.07,cz);ring.scale.set(rx,rz,1);scene.add(ring);
+    const curb=new THREE.Mesh(new THREE.RingGeometry(outer,outer+0.55/mean,64),stoneDark);
+    curb.rotation.x=-Math.PI/2;curb.position.set(cx,0.11,cz);curb.scale.set(rx,rz,1);scene.add(curb);
+    return;
+  }
+  segs.forEach(s=>{
+    const bed=new THREE.Mesh(new THREE.BoxGeometry(s.w,0.1,s.len*1.08),pathMat);
+    bed.position.set(s.x,0.08,s.z);bed.rotation.y=s.rotY;scene.add(bed);
+  });
+}
 LOCK.waters.forEach(w=>water(...w));
-LOCK.waters.forEach(([x,z,rx,rz])=>{if(rx>=16)lakeWalk(x,z,rx,rz);});
+LOCK.waters.forEach(([x,z,rx,rz])=>lakeWalk(x,z,rx,rz));
 // Paths: raised sand surface + tall side curbs (hub-curb spirit, walk stays clear)
 function pathBox(w,len,x,z,rotY=0,topMat=pathMat){
   const g=new THREE.Group();
@@ -152,14 +178,7 @@ function pathRibbon(pts,width=6){
   });
 }
 function lakeWalk(x,z,rx,rz){
-  const g=new THREE.Group();
-  const ring=new THREE.Mesh(new THREE.RingGeometry(1.04,1.2,64),pathMat);
-  ring.rotation.x=-Math.PI/2;ring.position.y=0.15;g.add(ring);
-  const innerC=new THREE.Mesh(new THREE.TorusGeometry(1.04,0.025,6,48),stoneDark);
-  innerC.rotation.x=Math.PI/2;innerC.position.y=0.28;
-  const outerC=new THREE.Mesh(new THREE.TorusGeometry(1.2,0.025,6,48),stoneDark);
-  outerC.rotation.x=Math.PI/2;outerC.position.y=0.28;
-  g.add(innerC,outerC);g.position.set(x,0,z);g.scale.set(rx,1,rz);scene.add(g);
+  lakesideRibbon(x,z,rx,rz);
 }
 pathBox(LOCK.spineWidth,B,0,B/2,0,asphaltMat);
 pathBox(22,18,0,B,0,asphaltMat);
@@ -227,6 +246,7 @@ function hubPlaza(){
   const pad=new THREE.Mesh(new THREE.CylinderGeometry(IN-0.6,IN-0.6,0.18,48),concreteMat);
   pad.position.y=0.09;scene.add(pad);
   // 8 radial walk spokes + planted beds between them (skip covering the 14 m spine)
+  // eight radial planting beds (plants only)
   const dirt=new THREE.MeshLambertMaterial({color:0x5a4030});
   const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
   const bloom=new THREE.MeshLambertMaterial({color:0xa45a6a});
@@ -244,10 +264,10 @@ function hubPlaza(){
     sh.closePath();
     const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:0.2,bevelEnabled:false}),dirt);
     bed.rotation.x=-Math.PI/2;bed.position.y=SLAB+0.02;scene.add(bed);
-    for(let k=1;k<=3;k++){
-      const t=a0+(a1-a0)*k/4,rr=(r0+r1)/2;
-      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.48+k%2*0.1,6,5),k===2?bloom:hedge);
-      bush.position.set(Math.cos(t)*rr,SLAB+0.55,Math.sin(t)*rr);bush.scale.set(1,0.65,1);scene.add(bush);
+    for(let k=1;k<=5;k++){
+      const t=a0+(a1-a0)*k/6,rr=(r0+r1)/2+(k%2?0.35:-0.25);
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.42+k%2*0.12,6,5),k===3?bloom:hedge);
+      bush.position.set(Math.cos(t)*rr,SLAB+0.55,Math.sin(t)*rr);bush.scale.set(1,0.7,1);scene.add(bush);
     }
   }
   // Low benches on outer deck (seat ~0.45 m) — skip spine axes
@@ -302,27 +322,29 @@ function gateHouse(){
   banner.position.set(0,9.6,z+2.2);scene.add(banner);
 }
 gateHouse();
-const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});
-// Abstract kit tree: trunk + cone + soft crown mass
-function tree(x,z,s=1){
+const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});const leafHi=new THREE.MeshLambertMaterial({color:0x3a6e32});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});const barkDark=new THREE.MeshLambertMaterial({color:0x3f2a1c});
+// Abstract kit tree: trunk + overlapping canopies / canopy overlap (mixed crown masses, not one cone)
+function tree(x,z,s=1,seed=0){
+  if(!canPlaceSoft(x,z,1.8*s))return;
   const g=new THREE.Group();
-  const t=new THREE.Mesh(new THREE.CylinderGeometry(0.35*s,0.55*s,2.6*s,6),bark);
-  t.position.y=1.3*s;
-  const c=new THREE.Mesh(new THREE.ConeGeometry(2.55*s,4.6*s,7),leaf);
-  c.position.y=4.0*s;
-  const mass=new THREE.Mesh(new THREE.SphereGeometry(1.85*s,8,6),leafDeep);
-  mass.position.y=5.1*s;mass.scale.set(1,0.72,1);
-  g.add(t,c,mass);g.position.set(x,0,z);scene.add(g);
+  const trunkH=(2.15+(seed%5)*0.55)*s;
+  const trunkR=(0.18+(seed%3)*0.07)*s;
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(trunkR*0.68,trunkR*1.2,trunkH,6),seed%2?bark:barkDark);
+  trunk.position.y=trunkH/2;
+  const canopyY=trunkH*0.82;
+  const c1=new THREE.Mesh(new THREE.SphereGeometry((1.85+(seed%4)*0.28)*s,8,6),leaf);
+  c1.position.set(0.2*s,canopyY+1.15*s,-0.12*s);c1.scale.set(1.18,0.72,1.08);
+  const c2=new THREE.Mesh(new THREE.SphereGeometry((1.45+(seed%3)*0.25)*s,8,6),leafDeep);
+  c2.position.set(-0.5*s,canopyY+0.55*s,0.38*s);c2.scale.set(1.12,0.68,1.0);
+  const c3=new THREE.Mesh(new THREE.SphereGeometry((1.15+(seed%2)*0.2)*s,7,5),leafHi);
+  c3.position.set(0.42*s,canopyY+1.7*s,0.22*s);c3.scale.set(0.92,0.62,0.95);
+  g.add(trunk,c1,c2,c3);g.position.set(x,0,z);scene.add(g);
 }
 function clump(cx,cz,n,r,s0=1){
   for(let i=0;i<n;i++){
     const a=(i/n)*Math.PI*2+(i%3)*0.37;
     const d=r*(0.2+((i*19)%11)/14);
-    const tx=cx+Math.cos(a)*d,tz=cz+Math.sin(a)*d;
-    // Keep Pocket spine walk clear (±9 m)
-    if(Math.abs(tx)<9&&tz>-8&&tz<B)continue;
-    if(BUILDINGS.some(b=>Math.abs(tx-b.x)<b.w/2+2.5&&Math.abs(tz-b.z)<b.d/2+2.5))continue;
-    tree(tx,tz,s0*(0.72+(i%5)*0.13));
+    tree(cx+Math.cos(a)*d,cz+Math.sin(a)*d,s0*(0.72+(i%5)*0.13),i+11);
   }
 }
 // Rail belt — denser every other post
@@ -333,11 +355,11 @@ for(let z=34;z<B-10;z+=11){
   clump(18.5,z,8,6.2,1.05);
 }
 // West lakes / The Block — belt clumps
-[[-95,-20,16,14],[-125,25,14,12],[-160,-55,14,12],[-70,-70,12,11],[-110,70,13,11],[-185,10,14,12],[-230,20,12,10],[-140,-100,12,10],[-200,-70,11,9]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.08));
+beltTreePositions('west lakes').forEach(p=>tree(p.x,p.z,p.s,p.seed));
 // SE grove near Board figure-8
-[[75,70,14,12],[100,50,12,11],[55,100,12,10],[130,85,11,10],[85,125,11,10],[150,40,10,9],[110,120,10,9],[70,145,9,8]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.02));
+beltTreePositions('SE grove').forEach(p=>tree(p.x,p.z,p.s,p.seed));
 // North / After Hours split
-[[-45,-110,13,12],[20,-120,13,12],[-20,-160,12,11],[50,-95,11,10],[-80,-130,12,11],[90,-170,10,9],[-100,-165,10,9],[0,-190,9,8]].forEach(([x,z,n,r])=>clump(x,z,n,r,1.05));
+beltTreePositions('north split').forEach(p=>tree(p.x,p.z,p.s,p.seed));
 // Hub ring outer plantings (outside r32, skip spine axes)
 for(let i=0;i<10;i++){
   const a=(i/10)*Math.PI*2+0.3;
@@ -415,6 +437,48 @@ plate(70,40,0,-175,EARTH);
 const gateLight=new THREE.PointLight(0xffe1b0,40,55);gateLight.position.set(0,8,LOCK.gate.z);scene.add(gateLight);
 const hubLight=new THREE.PointLight(0xfff0d0,28,40);hubLight.position.set(0,7,0);scene.add(hubLight);
 sun.intensity=1.25;sun.color.set(0xffe6c4);
+(function landWash(){
+  // land wash — readable from Walk eye height and Drone ~90 m
+  const washes=[
+    {c:LOCK.canopies['The Block'],col:0x9bb56a,i:18,d:140},
+    {c:LOCK.canopies['After Hours'],col:0x88a0c0,i:16,d:120},
+    {c:LOCK.canopies['The Board'],col:0xc2b56a,i:17,d:130}
+  ];
+  washes.forEach(w=>{
+    const l=new THREE.PointLight(w.col,w.i,w.d);l.position.set(w.c.cx,26,w.c.cz);scene.add(l);
+  });
+})();
+hubBedCenters().forEach(b=>{
+  // planters at hub ring (plants only)
+  const px=Math.cos(b.a)*30,pz=Math.sin(b.a)*30;
+  if(!canPlaceSoft(px,pz,0.8))return;
+  const pot=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.45,0.5,10),stone);
+  pot.position.set(px,0.25,pz);scene.add(pot);
+  const dirt=new THREE.Mesh(new THREE.CircleGeometry(0.48,10),earthMat);
+  dirt.rotation.x=-Math.PI/2;dirt.position.set(px,0.51,pz);scene.add(dirt);
+  const plant=new THREE.Mesh(new THREE.SphereGeometry(0.42,8,6),leafHi);
+  plant.position.set(px,0.85,pz);plant.scale.set(1,0.75,1);scene.add(plant);
+});
+const ropeMat=new THREE.MeshLambertMaterial({color:0xc9b48a});
+const ropes=[];
+for(let z=36;z<B-8;z+=8){
+  for(const side of [-1,1]){
+    const x=side*7.35;
+    if(!canPlaceSoft(x,z,0.2))continue;
+    ropes.push({x,z,side});
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.06,0.95,6),stoneDark);
+    post.position.set(x,0.48,z);scene.add(post);
+  }
+}
+ropes.forEach((p,i)=>{
+  const q=ropes[i+1];
+  if(!q||q.side!==p.side)return;
+  const dx=q.x-p.x,dz=q.z-p.z,len=Math.hypot(dx,dz);
+  if(len>12)return;
+  const rope=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,len,4),ropeMat);
+  rope.position.set((p.x+q.x)/2,0.82,(p.z+q.z)/2);
+  rope.rotation.z=Math.atan2(dx,dz);rope.rotation.x=Math.PI/2;scene.add(rope);
+});
 function addKiosk(b){
   const g=new THREE.Group();
   const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.7,b.d),new THREE.MeshLambertMaterial({color:b.body}));
@@ -528,8 +592,15 @@ function tick(){
   distEl.textContent=mode==='above'?('Alt '+drone.y.toFixed(0)+' m · hub '+Math.hypot(drone.x,drone.z).toFixed(0)+' m'):('Hub '+Math.hypot(pos.x,pos.z).toFixed(0)+' m');
   renderer.render(scene,camera);requestAnimationFrame(tick);
 }
+pos.y=EYE;camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;
+renderer.render(scene,camera);
 tick();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+} catch (err) {
+  const el=document.getElementById('dist');
+  if(el) el.textContent=String(err && err.message || err);
+  console.error(err);
+}
 </script>
 </body>
 </html>

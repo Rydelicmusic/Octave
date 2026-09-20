@@ -4,7 +4,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   LOCK, BUILDINGS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
-  onSpine, nearRing, hoverLabel, svgToMeters,
+  onSpine, nearRing, hoverLabel, svgToMeters, occupiesSpine, canPlaceSoft,
+  beltTreePositions, TREE_BELTS, MATERIALS, GROUNDS_DRESSING, hubBedCenters,
+  allLakesideRibbons,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -123,4 +125,52 @@ assert.doesNotMatch(blueprintHtml, /\bhotel\b/i);
 assert.doesNotMatch(blueprintHtml, /\btower\b/i);
 assert.doesNotMatch(blueprintHtml, /\belevator\b/i);
 
-console.log('lock tests ok', BUILDINGS.length, 'buildings');
+const layout = readFileSync(join(dir, 'LAYOUT.md'), 'utf8');
+assert.equal(LOCK.A, Number(layout.match(/A = (\d+)/)[1]));
+assert.equal(LOCK.B, Number(layout.match(/B = (\d+)/)[1]));
+assert.equal(LOCK.capR, Number(layout.match(/Cap R = (\d+)/)[1]));
+assert.equal(LOCK.straight, Number(layout.match(/Straight = (\d+)/)[1]));
+assert.equal(LOCK.spineWidth, Number(layout.match(/Spine: (\d+) m/)[1]));
+assert.equal(LOCK.gate.z, Number(layout.match(/Gate = \(0, \+(\d+)\)/)[1]));
+const waterBlock = layout.split('Water ellipses')[1].split('```')[1];
+const parsedWater = [...waterBlock.matchAll(/\((-?\d+),\s*(-?\d+),\s*(\d+),\s*(\d+)\)/g)]
+  .map((m) => m.slice(1).map(Number));
+assert.deepEqual(LOCK.waters, parsedWater);
+
+assert.equal(occupiesSpine(0, 100, 1), true);
+assert.equal(occupiesSpine(20, 100, 1), false);
+assert.equal(canPlaceSoft(0, 120, 1), false);
+assert.equal(canPlaceSoft(20, 100, 1), true);
+for (const name of GROUNDS_DRESSING.treeBelts) {
+  const pts = beltTreePositions(name);
+  assert.ok(pts.length >= 40, name + ' sparse ' + pts.length);
+  for (const p of pts) assert.equal(occupiesSpine(p.x, p.z, 2.2 * p.s), false, name);
+  assert.match(indexHtml, new RegExp(name.replace('north split', 'North \\/ After Hours split').replace('west lakes', 'West lakes').replace('SE grove', 'SE grove')));
+}
+assert.match(indexHtml, /overlapping canop|canopy overlap/i);
+assert.match(indexHtml, /trunk/);
+assert.equal(hubBedCenters().length, 8);
+assert.match(indexHtml, /radial planting bed/i);
+assert.match(indexHtml, /lakesideRibbon/);
+assert.match(indexHtml, /recessed/i);
+const ribbons = allLakesideRibbons();
+assert.equal(ribbons.length, LOCK.waters.length);
+for (const r of ribbons) {
+  assert.ok(r.segs.length > 8, 'ribbon ' + r.x + ',' + r.z);
+  for (const s of r.segs) assert.equal(occupiesSpine(s.x, s.z, s.w / 2), false);
+}
+for (const name of GROUNDS_DRESSING.materials) {
+  assert.ok(name in MATERIALS);
+  assert.match(indexHtml, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+}
+assert.match(indexHtml, /land wash/i);
+assert.match(indexHtml, /water reflection/i);
+assert.match(indexHtml, /function lamp/);
+assert.match(indexHtml, /benchAt/);
+assert.match(indexHtml, /trashCan/);
+assert.match(indexHtml, /planters/);
+assert.match(indexHtml, /ropes/);
+assert.match(indexHtml, /occupiesSpine|canPlaceSoft/);
+assert.doesNotMatch(indexHtml, /from ['"]\.\/buildings\.js['"]/);
+
+console.log('lock tests ok', BUILDINGS.length, 'buildings', Object.keys(TREE_BELTS).join(','));
