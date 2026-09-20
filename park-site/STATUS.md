@@ -300,3 +300,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** 2b48703 — Pass 21
 - **LIVE:** geometry.html HTTP 200 (Pages still intermittently reports errored)
 
+## Check-in — Pass 23 CSS rhythm + audit
+
+- **TIME:** 2026-09-20 13:42 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 23 — CSS lamp-rail/nest rhythm; full link audit ok=2338 broken=0
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 24+
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Density chrome without new geometry
+- **COMMIT / LAST COMMIT:** cac3c8e — Pass 22
+- **TIP LIVE:** https://rydelicmusic.github.io/octave/park-site/
+

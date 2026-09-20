@@ -496,3 +496,9 @@ a:focus-visible { outline: 1px solid var(--lamp); outline-offset: 3px; }
   background: linear-gradient(90deg, transparent, var(--lamp-glow), transparent);
 }
 .venue-nest + .venue-nest { margin-top: 1rem; }
+
+/* Pass 23 — denser lamp rails & nest rhythm */
+.lamp-rail { gap: 0.65rem 1.15rem; }
+.venue-nest h2 { letter-spacing: -0.02em; }
+.service-menu li span { color: var(--cream); }
+.mega-menu { margin-bottom: 1.5rem; }
