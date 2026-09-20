@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { PLACEMENTS, RINGS, LAND_PALETTE, skuSpec } from './buildings.js';
-import { LOCK, BUILDINGS, inStadium } from './lock.js';
+import { LOCK, BUILDINGS, GATE, STATIONS, inStadium } from './lock.js';
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
 const PATH=0xe6d3a4,CURB=0x5a4630,ASPHALT=0x3e3e42,CONCRETE=0xb9b3a8,EARTH=0x6b5340;
 const canvas=document.getElementById('c');
@@ -606,8 +606,7 @@ function rideStation(cx,cz,outer,ang){
   kiosk.position.set(px+Math.cos(ang)*2,1.2,pz+Math.sin(ang)*2);scene.add(deck,roof,kiosk);
   queueZig(px-Math.cos(ang)*12,pz-Math.sin(ang)*12,ang+Math.PI,7);
 }
-rideStation(LOCK.rings.A.x,LOCK.rings.A.z,LOCK.rings.A.outer,-2.4);
-rideStation(LOCK.rings.B.x,LOCK.rings.B.z,LOCK.rings.B.outer,-0.6);
+STATIONS.forEach(s=>rideStation(LOCK.rings[s.ring].x,LOCK.rings[s.ring].z,LOCK.rings[s.ring].outer,s.ang));
 plate(90,70,-200,-50,EARTH);
 plate(60,50,130,-70,EARTH);
 plate(70,40,0,-175,EARTH);
@@ -625,7 +624,7 @@ function addKiosk(b){
   const fascia=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.4,0.22,b.d+0.55),trimMat);fascia.position.y=0.28+b.h*0.62;
   const roof=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.35,0.12,b.d+1.7),trimMat);
   roof.position.y=b.h*0.82;roof.rotation.x=-0.12;
-  const awning=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.95,0.06,0.85),trimMat);
+  const overhang=null;const awning=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.95,0.06,0.85),trimMat);
   awning.position.set(0,1.55,b.d/2+0.55);awning.rotation.x=-0.35;
   [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>{
     const post=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.09,b.h*0.7,6),trimMat);
