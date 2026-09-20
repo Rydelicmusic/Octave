@@ -2,308 +2,248 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Rydelic Park — Kit Walk</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Rydelic Park — Land + Path</title>
 <style>
-  html,body{margin:0;height:100%;background:#0b0b0c;color:#f4efe6;font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden}
+  html,body{margin:0;height:100%;background:#87a0b0;color:#f4efe6;font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden;touch-action:none}
   #c{display:block;width:100%;height:100%}
-  .hud{position:fixed;left:16px;bottom:16px;z-index:2;padding:12px 14px;border-radius:12px;
-    background:rgba(18,16,14,.55);border:1px solid rgba(201,180,138,.28);backdrop-filter:blur(10px);
-    font-size:12px;letter-spacing:.04em;line-height:1.45;max-width:280px}
-  .hud b{color:#c9b48a;font-weight:600}
-  .top{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:2;font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:#c9b48a}
+  .top{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#3d3428;background:rgba(244,239,230,.75);padding:6px 12px;border-radius:999px}
+  .hud{position:fixed;left:12px;bottom:12px;z-index:2;padding:10px 12px;border-radius:12px;background:rgba(18,16,14,.72);border:1px solid rgba(201,180,138,.35);font-size:12px;line-height:1.45;max-width:250px}
+  .hud b{color:#c9b48a}
   a{color:#c9b48a}
+  #cams{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px}
+  #cams button{appearance:none;border:1px solid rgba(61,52,40,.35);background:rgba(244,239,230,.8);color:#3d3428;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:7px 10px;border-radius:999px}
+  #cams button.on{background:#3d3428;color:#f4efe6}
+  #pad{position:fixed;right:16px;bottom:20px;z-index:3;width:118px;height:118px;border-radius:59px;background:rgba(40,32,24,.35);border:1px solid rgba(201,180,138,.4);touch-action:none}
+  #knob{position:absolute;left:39px;top:39px;width:40px;height:40px;border-radius:20px;background:rgba(201,180,138,.7)}
 </style>
 </head>
 <body>
-<div class="top">Rydelic Park · kit v1</div>
-<canvas id="c"></canvas>
-<div class="hud">
-  <div><b>WASD</b> walk · <b>mouse</b> look (click to lock)</div>
-  <div>1 unit = 1 m · walk 1.34 m/s · eye 1.72 m</div>
-  <div>Oval A=380 · B=230 · spawn Gate → Pocket</div>
-  <div style="margin-top:6px"><a href="../">← Octave landing</a> · see <b>KIT.md</b></div>
+<div class="top" id="land">The Pocket · Gate</div>
+<div id="cams">
+  <button id="b1" class="on">Walk</button>
+  <button id="b3">3rd</button>
+  <button id="bM">Above</button>
 </div>
-<script type="importmap">
-{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
-</script>
+<canvas id="c"></canvas>
+<div id="pad"><div id="knob"></div></div>
+<div class="hud">
+  <div><b>This pass:</b> land + paths + cameras</div>
+  <div>Walk / 3rd / Above · V to cycle</div>
+  <div id="dist">Hub — m</div>
+  <div style="margin-top:6px"><a href="../">Octave</a></div>
+</div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-
-// KIT constants — change only via park/KIT.md
-const A = 380, B = 230;
-const WALK = 1.34;
-const EYE = 1.72;
-const GATE = new THREE.Vector3(0, EYE, B + 40);
-
+const A = 380, B = 230, WALK = 1.34, EYE = 1.72;
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0b0b0c);
-scene.fog = new THREE.Fog(0x0b0b0c, 80, 900);
-
-const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 2000);
-camera.position.copy(GATE);
-
-const hemi = new THREE.HemisphereLight(0xb8c4d4, 0x2a241c, 0.85);
-scene.add(hemi);
-const sun = new THREE.DirectionalLight(0xf0e2c4, 0.65);
-sun.position.set(-120, 220, 80);
+scene.background = new THREE.Color(0x87a0b0);
+scene.fog = new THREE.Fog(0x87a0b0, 70, 520);
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.2, 2500);
+let yaw = Math.PI;
+let pitch = -0.04;
+const pos = new THREE.Vector3(0, EYE, B + 26);
+let mode = 'walk';
+let mapH = 420;
+scene.add(new THREE.HemisphereLight(0xf0f4f8, 0x5a4a32, 1.15));
+const sun = new THREE.DirectionalLight(0xfff3d6, 1.1);
+sun.position.set(-90, 180, 70);
 scene.add(sun);
-
-// Ground
-const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(Math.max(A, B) + 80, 64),
-  new THREE.MeshStandardMaterial({ color: 0x1a1714, roughness: 0.95 })
-);
-ground.rotation.x = -Math.PI / 2;
-scene.add(ground);
-
-// Oval rail (ellipse path)
-const railPts = [];
-for (let i = 0; i <= 128; i++) {
-  const t = (i / 128) * Math.PI * 2;
-  railPts.push(new THREE.Vector3(Math.cos(t) * A, 0.4, Math.sin(t) * B));
-}
-const rail = new THREE.LineLoop(
-  new THREE.BufferGeometry().setFromPoints(railPts),
-  new THREE.LineBasicMaterial({ color: 0xc9b48a })
-);
-scene.add(rail);
-
-// Soft rail bed
-const railTube = new THREE.Mesh(
-  new THREE.TorusGeometry(1, 0.35, 6, 64),
-  new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 0.9 })
-);
-// approximate oval with scaled torus
-railTube.scale.set(A, 1, B);
-railTube.rotation.x = Math.PI / 2;
-railTube.position.y = 0.15;
-scene.add(railTube);
-
-// Path Gate → Hub (The Pocket at origin)
-const pathShape = new THREE.Shape();
-pathShape.moveTo(-4, -B - 40);
-pathShape.lineTo(4, -B - 40);
-pathShape.lineTo(6, 0);
-pathShape.lineTo(-6, 0);
-pathShape.closePath();
-const pathGeo = new THREE.ShapeGeometry(pathShape);
-const path = new THREE.Mesh(
-  pathGeo,
-  new THREE.MeshStandardMaterial({ color: 0x2c281f, roughness: 0.85 })
-);
-path.rotation.x = -Math.PI / 2;
-path.position.y = 0.05;
-scene.add(path);
-
-// Hub plaza ring
-const hub = new THREE.Mesh(
-  new THREE.RingGeometry(18, 32, 48),
-  new THREE.MeshStandardMaterial({ color: 0x2a261e, roughness: 0.88, side: THREE.DoubleSide })
-);
-hub.rotation.x = -Math.PI / 2;
-hub.position.y = 0.06;
-scene.add(hub);
-
-// Water (simple ellipse pool near hub — kit layer, not IP)
-const water = new THREE.Mesh(
-  new THREE.CircleGeometry(14, 32),
-  new THREE.MeshStandardMaterial({ color: 0x1a3038, metalness: 0.2, roughness: 0.35 })
-);
-water.rotation.x = -Math.PI / 2;
-water.position.set(48, 0.07, -20);
-scene.add(water);
-
-// Tree massing — abstract dark clumps only
-function treeClump(x, z, r = 8) {
-  const m = new THREE.Mesh(
-    new THREE.SphereGeometry(r, 10, 10),
-    new THREE.MeshStandardMaterial({ color: 0x142016, roughness: 1 })
-  );
-  m.position.set(x, r * 0.55, z);
-  m.scale.y = 0.7;
+const grass = new THREE.Mesh(new THREE.PlaneGeometry(A * 3.2, B * 3.2), new THREE.MeshLambertMaterial({ color: 0x4f7a3c }));
+grass.rotation.x = -Math.PI / 2;
+scene.add(grass);
+function plate(w, d, x, z, color) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshLambertMaterial({ color }));
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(x, 0.02, z);
   scene.add(m);
 }
-for (let i = 0; i < 28; i++) {
-  const t = (i / 28) * Math.PI * 2;
-  const jitter = 12 + (i % 5) * 3;
-  treeClump(Math.cos(t) * (A - jitter), Math.sin(t) * (B - jitter), 6 + (i % 4));
+plate(220, 280, -150, -10, 0x3d6a48);
+plate(260, 140, 10, -130, 0x456848);
+plate(220, 220, 150, 10, 0x5a7c42);
+plate(70, B + 60, 0, B * 0.35, 0x6b8a4a);
+function water(x, z, rx, rz) {
+  const m = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshPhongMaterial({ color: 0x2a7a8a, shininess: 40 }));
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(x, 0.05, z);
+  m.scale.set(rx, 1, rz);
+  scene.add(m);
 }
-
-// Path curbs — human-scale edges along Gate → Hub (raised ~0.15 m, ~0.35 m wide)
-const curbMat = new THREE.MeshStandardMaterial({ color: 0x4a4034, roughness: 0.82 });
-const CURB_W = 0.35;
-const CURB_H = 0.15;
-function makePathCurb(xInnerGate, xInnerHub, outward) {
-  // Shape XY → Extrude Z → rot -X → world XZ path with height in Y
-  const o = outward; // -1 left, +1 right
-  const shape = new THREE.Shape();
-  const x0a = xInnerGate;
-  const x0b = xInnerGate + o * CURB_W;
-  const x1a = xInnerHub;
-  const x1b = xInnerHub + o * CURB_W;
-  // y of shape maps to -world Z after rot
-  shape.moveTo(x0a, -(B + 40));
-  shape.lineTo(x0b, -(B + 40));
-  shape.lineTo(x1b, 0);
-  shape.lineTo(x1a, 0);
-  shape.closePath();
-  const geo = new THREE.ExtrudeGeometry(shape, { depth: CURB_H, bevelEnabled: false });
-  const mesh = new THREE.Mesh(geo, curbMat);
-  mesh.rotation.x = -Math.PI / 2;
-  mesh.position.y = 0.05;
-  scene.add(mesh);
+water(-165, 10, 55, 42);
+water(-120, 70, 32, 26);
+water(-95, -85, 28, 22);
+water(-150, -40, 24, 18);
+water(155, -85, 22, 16);
+const PATH = 0xe6d3a4, CURB = 0x5a4630;
+function pathBox(w, len, x, z, rotY = 0) {
+  const curb = new THREE.Mesh(new THREE.BoxGeometry(w + 1.6, 0.12, len), new THREE.MeshLambertMaterial({ color: CURB }));
+  const top = new THREE.Mesh(new THREE.BoxGeometry(w, 0.16, len), new THREE.MeshLambertMaterial({ color: PATH }));
+  curb.position.set(x, 0.06, z); curb.rotation.y = rotY;
+  top.position.set(x, 0.14, z); top.rotation.y = rotY;
+  scene.add(curb, top);
 }
-makePathCurb(-4, -6, -1);
-makePathCurb(4, 6, 1);
-
-// Hub ring thin curb (outer + inner lip)
-function hubCurbRing(radius) {
-  const t = new THREE.Mesh(
-    new THREE.TorusGeometry(radius, 0.08, 6, 48),
-    curbMat
-  );
-  t.rotation.x = Math.PI / 2;
-  t.position.y = 0.14;
-  scene.add(t);
+function pathRing(inner, outer, x, z) {
+  const m = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 64), new THREE.MeshLambertMaterial({ color: PATH, side: THREE.DoubleSide }));
+  m.rotation.x = -Math.PI / 2; m.position.set(x, 0.14, z); scene.add(m);
+  const c = new THREE.Mesh(new THREE.RingGeometry(inner - 0.8, outer + 0.8, 64), new THREE.MeshLambertMaterial({ color: CURB, side: THREE.DoubleSide }));
+  c.rotation.x = -Math.PI / 2; c.position.set(x, 0.1, z); scene.add(c);
 }
-hubCurbRing(18);
-hubCurbRing(32);
-
-// Gate volume — thick stone tunnel you walk through (not posts)
-const gateStone = new THREE.MeshStandardMaterial({ color: 0x3a3228, roughness: 0.78 });
-const gateStoneDark = new THREE.MeshStandardMaterial({ color: 0x2c261e, roughness: 0.85 });
-const gateAccent = new THREE.MeshStandardMaterial({ color: 0x4a4032, roughness: 0.7 });
-const GATE_Z = B + 34;       // tunnel center (spawn at B+40 looks through toward Pocket)
-const GATE_DEPTH = 10;       // ~8–12 m deep
-const GATE_OPEN_W = 7;       // clear opening width
-const GATE_OPEN_H = 5.5;     // clear opening height
-const WALL_T = 4.5;          // thick side walls
-const GATE_H = 8.5;          // outer height
-const OUTER_W = GATE_OPEN_W + WALL_T * 2; // ~16 m massing width
-
-const gateGroup = new THREE.Group();
-gateGroup.position.set(0, 0, GATE_Z);
-
-// Left / right wall volumes (full depth)
-const wallGeo = new THREE.BoxGeometry(WALL_T, GATE_H, GATE_DEPTH);
-const wallL = new THREE.Mesh(wallGeo, gateStone);
-wallL.position.set(-(GATE_OPEN_W / 2 + WALL_T / 2), GATE_H / 2, 0);
-const wallR = new THREE.Mesh(wallGeo, gateStone);
-wallR.position.set(GATE_OPEN_W / 2 + WALL_T / 2, GATE_H / 2, 0);
-gateGroup.add(wallL, wallR);
-
-// Roof / lintel slab over opening (full depth)
-const roof = new THREE.Mesh(
-  new THREE.BoxGeometry(GATE_OPEN_W + 0.4, GATE_H - GATE_OPEN_H, GATE_DEPTH),
-  gateStone
-);
-roof.position.set(0, GATE_OPEN_H + (GATE_H - GATE_OPEN_H) / 2, 0);
-gateGroup.add(roof);
-
-// Floor threshold inside tunnel
-const threshold = new THREE.Mesh(
-  new THREE.BoxGeometry(GATE_OPEN_W, 0.2, GATE_DEPTH),
-  gateStoneDark
-);
-threshold.position.set(0, 0.1, 0);
-gateGroup.add(threshold);
-
-// Outer / inner face frames (read as depth + arch mass)
-function faceFrame(zLocal) {
+pathBox(28, 24, 0, B + 20);
+pathBox(14, B + 8, 0, B * 0.5 + 4);
+pathRing(16, 30, 0, 0);
+pathBox(22, 22, 0, 0);
+pathBox(10, 70, -48, -8, 0.15);
+pathBox(10, 80, 52, 6, -0.12);
+pathBox(10, 90, 8, -70, 0.05);
+pathBox(8, 55, -90, -40, 0.6);
+pathBox(8, 50, -130, 20, 1.1);
+pathBox(8, 40, 120, -40, -0.4);
+pathBox(8, 45, 110, 50, 0.35);
+pathRing(14, 20, 95, 95);
+pathRing(6, 11, 108, 108);
+const railPts = [];
+for (let i = 0; i <= 180; i++) {
+  const t = (i / 180) * Math.PI * 2;
+  railPts.push(new THREE.Vector3(Math.cos(t) * A, 0.35, Math.sin(t) * B));
+}
+scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts), new THREE.LineBasicMaterial({ color: 0x2b241c })));
+const gm = new THREE.MeshLambertMaterial({ color: 0x4a3a28 });
+const pL = new THREE.Mesh(new THREE.BoxGeometry(2.2, 6.5, 2.2), gm);
+const pR = pL.clone();
+pL.position.set(-10, 3.25, B + 22);
+pR.position.set(10, 3.25, B + 22);
+const lintel = new THREE.Mesh(new THREE.BoxGeometry(24, 1.2, 2.4), gm);
+lintel.position.set(0, 6.8, B + 22);
+scene.add(pL, pR, lintel);
+const leaf = new THREE.MeshLambertMaterial({ color: 0x2c5a2c });
+const bark = new THREE.MeshLambertMaterial({ color: 0x5a3e28 });
+function tree(x, z, s = 1) {
   const g = new THREE.Group();
-  // side returns
-  const retGeo = new THREE.BoxGeometry(1.2, GATE_H + 0.4, 1.4);
-  const retL = new THREE.Mesh(retGeo, gateAccent);
-  retL.position.set(-(OUTER_W / 2 + 0.2), (GATE_H + 0.4) / 2, zLocal);
-  const retR = retL.clone();
-  retR.position.x = OUTER_W / 2 + 0.2;
-  // crowning band
-  const crown = new THREE.Mesh(
-    new THREE.BoxGeometry(OUTER_W + 2.8, 1.1, 1.6),
-    gateAccent
-  );
-  crown.position.set(0, GATE_H + 0.15, zLocal);
-  // arched reveal as stepped soffit over opening
-  const soffit = new THREE.Mesh(
-    new THREE.BoxGeometry(GATE_OPEN_W + 1.2, 0.7, 1.2),
-    gateStoneDark
-  );
-  soffit.position.set(0, GATE_OPEN_H + 0.15, zLocal);
-  g.add(retL, retR, crown, soffit);
-  return g;
+  const t = new THREE.Mesh(new THREE.CylinderGeometry(0.25 * s, 0.38 * s, 2.2 * s, 5), bark);
+  t.position.y = 1.1 * s;
+  const c = new THREE.Mesh(new THREE.ConeGeometry(2.0 * s, 5.0 * s, 6), leaf);
+  c.position.y = 4.0 * s;
+  g.add(t, c); g.position.set(x, 0, z); scene.add(g);
 }
-gateGroup.add(faceFrame(-GATE_DEPTH / 2 + 0.3));
-gateGroup.add(faceFrame(GATE_DEPTH / 2 - 0.3));
-
-// Interior side liners (darker, read the tunnel)
-const linerGeo = new THREE.BoxGeometry(0.35, GATE_OPEN_H, GATE_DEPTH - 0.8);
-const linerL = new THREE.Mesh(linerGeo, gateStoneDark);
-linerL.position.set(-(GATE_OPEN_W / 2 - 0.15), GATE_OPEN_H / 2, 0);
-const linerR = linerL.clone();
-linerR.position.x = GATE_OPEN_W / 2 - 0.15;
-gateGroup.add(linerL, linerR);
-
-scene.add(gateGroup);
-
-// Hub marker (The Pocket) — abstract ring, no IP
-const pocket = new THREE.Mesh(
-  new THREE.TorusGeometry(6, 0.25, 8, 48),
-  new THREE.MeshStandardMaterial({ color: 0xc9b48a, metalness: 0.4, roughness: 0.4 })
-);
-pocket.rotation.x = Math.PI / 2;
-pocket.position.y = 1.2;
-scene.add(pocket);
-
-const controls = new PointerLockControls(camera, document.body);
-scene.add(controls.getObject());
-canvas.addEventListener('click', () => controls.lock());
-
+for (let i = 0; i < 70; i++) {
+  const t = (i / 70) * Math.PI * 2;
+  const r = 0.82 + (i % 6) * 0.02;
+  const x = Math.cos(t) * A * r, z = Math.sin(t) * B * r;
+  if (Math.abs(x) < 20 && z > 40) continue;
+  tree(x, z, 0.75 + (i % 4) * 0.12);
+}
+for (let i = 0; i < 18; i++) tree(-70 - (i % 6) * 14, -30 - Math.floor(i / 6) * 16, 0.9);
+const avatar = new THREE.Group();
+const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 1.05, 4, 8), new THREE.MeshLambertMaterial({ color: 0xc9b48a }));
+body.position.y = 0.9;
+const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12), new THREE.MeshLambertMaterial({ color: 0xe8d7b0 }));
+head.position.y = 1.72;
+avatar.add(body, head);
+scene.add(avatar);
 const keys = {};
-addEventListener('keydown', e => keys[e.code] = true);
+addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'KeyV') cycle(); });
 addEventListener('keyup', e => keys[e.code] = false);
-
-const vel = new THREE.Vector3();
-const dir = new THREE.Vector3();
-let prev = performance.now();
-
-function tick(now) {
-  requestAnimationFrame(tick);
-  const dt = Math.min(0.05, (now - prev) / 1000);
-  prev = now;
-  if (controls.isLocked) {
-    dir.set(0, 0, 0);
-    if (keys['KeyW']) dir.z -= 1;
-    if (keys['KeyS']) dir.z += 1;
-    if (keys['KeyA']) dir.x -= 1;
-    if (keys['KeyD']) dir.x += 1;
-    if (dir.lengthSq() > 0) dir.normalize();
-    vel.x = dir.x * WALK;
-    vel.z = dir.z * WALK;
-    controls.moveRight(vel.x * dt);
-    controls.moveForward(-vel.z * dt);
-    controls.getObject().position.y = EYE;
-  }
-  pocket.rotation.z += dt * 0.25;
-  renderer.render(scene, camera);
+const modes = ['walk', 'third', 'above'];
+const btns = { walk: document.getElementById('b1'), third: document.getElementById('b3'), above: document.getElementById('bM') };
+function setMode(m) {
+  mode = m;
+  Object.keys(btns).forEach(k => btns[k].classList.toggle('on', k === m));
+  scene.fog.far = m === 'above' ? 1600 : 520;
+  camera.fov = m === 'above' ? 55 : 70;
+  camera.updateProjectionMatrix();
 }
-requestAnimationFrame(tick);
-
+function cycle() { setMode(modes[(modes.indexOf(mode) + 1) % 3]); }
+btns.walk.onclick = () => setMode('walk');
+btns.third.onclick = () => setMode('third');
+btns.above.onclick = () => setMode('above');
+let look = false, lx = 0, ly = 0;
+canvas.addEventListener('pointerdown', e => { look = true; lx = e.clientX; ly = e.clientY; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointerup', () => look = false);
+canvas.addEventListener('pointermove', e => {
+  if (!look) return;
+  const dx = e.clientX - lx, dy = e.clientY - ly;
+  lx = e.clientX; ly = e.clientY;
+  if (mode === 'above') { mapH = Math.max(160, Math.min(720, mapH + dy * 0.9)); }
+  else { yaw -= dx * 0.005; pitch -= dy * 0.005; pitch = Math.max(-1.15, Math.min(1.15, pitch)); }
+});
+canvas.addEventListener('wheel', e => { if (mode !== 'above') return; mapH = Math.max(160, Math.min(720, mapH + e.deltaY * 0.25)); }, { passive: true });
+const pad = document.getElementById('pad');
+const knob = document.getElementById('knob');
+const stick = { x: 0, z: 0 };
+function setStick(cx, cy) {
+  const r = pad.getBoundingClientRect();
+  let dx = (cx - (r.left + r.width / 2)) / 42;
+  let dy = (cy - (r.top + r.height / 2)) / 42;
+  const mlen = Math.hypot(dx, dy) || 1;
+  if (mlen > 1) { dx /= mlen; dy /= mlen; }
+  stick.x = dx; stick.z = dy;
+  knob.style.left = 39 + dx * 28 + 'px';
+  knob.style.top = 39 + dy * 28 + 'px';
+}
+function clearStick() { stick.x = 0; stick.z = 0; knob.style.left = '39px'; knob.style.top = '39px'; }
+pad.addEventListener('pointerdown', e => { e.stopPropagation(); setStick(e.clientX, e.clientY); pad.setPointerCapture(e.pointerId); });
+pad.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') setStick(e.clientX, e.clientY); });
+pad.addEventListener('pointerup', clearStick);
+pad.addEventListener('pointercancel', clearStick);
+const landEl = document.getElementById('land');
+const distEl = document.getElementById('dist');
+function whichLand(x, z) {
+  if (Math.hypot(x, z) < 36) return 'The Pocket · Hub';
+  if (z > 80 && Math.abs(x) < 40) return 'The Pocket · Corridor';
+  if (x < -60) return 'The Block';
+  if (x > 70) return 'The Board';
+  if (z < -50) return 'After Hours';
+  return 'The Pocket';
+}
+const clock = new THREE.Clock();
+function tick() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  let mx = stick.x, mz = stick.z;
+  if (keys.KeyW) mz -= 1;
+  if (keys.KeyS) mz += 1;
+  if (keys.KeyA) mx -= 1;
+  if (keys.KeyD) mx += 1;
+  const len = Math.hypot(mx, mz);
+  if (len > 0) {
+    mx /= len; mz /= len;
+    const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+    const rx = Math.cos(yaw), rz = -Math.sin(yaw);
+    pos.x += (fx * -mz + rx * mx) * WALK * dt;
+    pos.z += (fz * -mz + rz * mx) * WALK * dt;
+  }
+  pos.y = EYE;
+  avatar.position.set(pos.x, 0, pos.z);
+  avatar.rotation.y = yaw;
+  avatar.visible = mode !== 'walk';
+  if (mode === 'walk') {
+    camera.position.copy(pos);
+    camera.rotation.order = 'YXZ';
+    camera.rotation.y = yaw;
+    camera.rotation.x = pitch;
+  } else if (mode === 'third') {
+    const back = 5.2, up = 2.1;
+    camera.position.set(pos.x + Math.sin(yaw) * back, pos.y + up + pitch * -1.2, pos.z + Math.cos(yaw) * back);
+    camera.lookAt(pos.x, pos.y - 0.1, pos.z);
+  } else {
+    camera.position.set(pos.x, mapH, pos.z + 8);
+    camera.lookAt(pos.x, 0, pos.z);
+  }
+  landEl.textContent = whichLand(pos.x, pos.z) + ' · ' + (mode === 'walk' ? 'WALK' : mode === 'third' ? '3RD' : 'ABOVE');
+  distEl.textContent = 'Hub ' + Math.hypot(pos.x, pos.z).toFixed(0) + ' m';
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+tick();
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
-
-// Face The Pocket from Gate
-controls.getObject().rotation.y = Math.PI;
 </script>
 </body>
 </html>
