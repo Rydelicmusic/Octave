@@ -1161,27 +1161,27 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:02 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 4b5e7aa / main raced; deepen essays/daylight/materials/artists/notes
-- **GOING:** Tip pending
+- **GOING:** Tip a18b454; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no collisions; no rebuild spam
 - **SOLUTIONS:** Essay desks; daylight materials; SKU hospitality; artist room megas; AH/Board notes measure
-- **COMMIT / LAST COMMIT:** a353764 — Pass 146
+- **COMMIT / LAST COMMIT:** a18b454 — Pass 147
+- **TIP:** a18b454a3e2e46056bd79222c653e2fe307176b6
 - **COLLISIONS:** NONE
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+- **PAGES:** errored
+- **REBUILD:** none
+- **LIVE PROBES:**
 
-## Check-in — Pass 148 link audit + tip sync (Site Luxury)
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `notes/spine-fourteen.html` | 200 |
+| `lands/the-block/daylight.html` | 200 |
+| `materials/building.html` | 200 |
+| `artists/vale-mercer/index.html` | 200 |
+| `notes/after-hours.html` | 200 |
+| `geometry.html` | 200 |
+| `notes/the-pocket.html` | 200 |
 
-- **TIME:** 2026-09-20 14:02 CDT (America/Chicago)
-- **LANE:** shell / guest+booking hubs
-- **STARTED:** Steering aborted Pass 130/131 (tip past); Pass 136–147 already on main; densified collision-safe guest/+booking/ hubs from tip 3b47320
-- **GOING:** Pass 142 densify @ d2b8920 (guest/index + booking/index → ask/gate-desk/day/night + lands/venues/works/nests/related/notes/materials); full link audit 0 broken @ tip 81d9e2a
-- **NEXT:** Stop for parent (Pass 148 audit+STATUS)
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild; no html/dir basename collisions; keep guest/index + booking/index + FIX c95c7e2/ba665e5 + Home→Land→Venue→Work + 12 short-slugs
-- **SOLUTIONS:** One densify/commit; FIX markers retained; audit 6993 hrefs / 0 broken; critical paths + 12 short-slugs present
-- **COMMIT / LAST COMMIT:** d2b8920 — Pass 142 densify guest/+booking/ hubs; audit tip 81d9e2a
-- **TIP:** 81d9e2a592188f409567d4a5a3aa4eea97ba6931
-- **PASS142_SHA:** d2b89202b3ab3c2607ed452fbb9b1862b30b11bf
-- **AUDIT:** hrefs≈6993; broken=0; FIX markers=yes; pass142 densify markers=yes; guest≈8957B; booking≈9038B
-- **COLLISIONS:** NONE
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
