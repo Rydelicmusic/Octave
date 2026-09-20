@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> finer lake-edge ribbons</div>
+  <div><b>This pass:</b> stay-on-path corner fix</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -126,16 +126,25 @@ function pathRing(inner,outer,x,z){
 }
 const walkSegs=[]; // Pass 7 ribbon stay-on-path
 function addWalkSeg(ax,az,bx,bz,half){walkSegs.push({ax,az,bx,bz,half});}
+let walkVelX=0,walkVelZ=0;
 function nearestWalk(x,z){
   if(Math.hypot(x,z)<=LOCK.hubOuter+2.5) return {x,z,on:true,d:0};
   let best=1e9,bx=x,bz=z,on=false;
+  const spd=Math.hypot(walkVelX,walkVelZ)||0;
   for(let i=0;i<walkSegs.length;i++){
     const s=walkSegs[i],dx=s.bx-s.ax,dz=s.bz-s.az,len2=dx*dx+dz*dz||1;
     let u=((x-s.ax)*dx+(z-s.az)*dz)/len2;u=u<0?0:u>1?1:u;
     const px=s.ax+dx*u,pz=s.az+dz*u,d=Math.hypot(x-px,z-pz);
-    if(d<best){best=d;bx=px;bz=pz;on=d<=s.half;}
+    // Prefer segments aligned with travel — reduces corner chord shortcuts
+    let score=d;
+    if(spd>0.01){
+      const len=Math.sqrt(len2),sx=dx/len,sz=dz/len;
+      const align=Math.abs(walkVelX*sx+walkVelZ*sz); // 0..1
+      score=d*(1.15-0.35*align);
+    }
+    if(score<best){best=score;bx=px;bz=pz;on=d<=s.half;}
   }
-  return {x:bx,z:bz,on,d:best};
+  return {x:bx,z:bz,on,d:Math.hypot(x-bx,z-bz)};
 }
 function pathRibbon(pts,width=6,mat=pathMat){
   if(pts.length<2)return;
@@ -156,7 +165,7 @@ function pathRibbon(pts,width=6,mat=pathMat){
   scene.add(new THREE.Mesh(geo,mat));
   for(let i=0;i<segs;i++){
     const p0=curve.getPoint(i/segs),p1=curve.getPoint((i+1)/segs);
-    addWalkSeg(p0.x,p0.z,p1.x,p1.z,hw+1.25);
+    addWalkSeg(p0.x,p0.z,p1.x,p1.z,hw+0.85);
   }
   [-1,1].forEach(side=>{
     const cpts=[];
@@ -732,11 +741,14 @@ function tick(){
     drone.x+=droneVel.x*dt;drone.z+=droneVel.z*dt;drone.y=Math.max(8,Math.min(420,drone.y+droneVel.y*dt));
   }else if(len>0){
     mx/=len;mz/=len;const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-    const nx=pos.x+(fx*-mz+rx*mx)*WALK*dt,nz=pos.z+(fz*-mz+rz*mx)*WALK*dt;
+    const stepX=(fx*-mz+rx*mx)*WALK*dt,stepZ=(fz*-mz+rz*mx)*WALK*dt;
+    walkVelX=stepX;walkVelZ=stepZ;
+    const nx=pos.x+stepX,nz=pos.z+stepZ;
     if(inStadium(nx,nz)){
+      // Pass 10: hard snap when off ribbon — soft 0.6 blend was cutting corners
       const w=nearestWalk(nx,nz);
       if(w.on){pos.x=nx;pos.z=nz;}
-      else if(w.d<7){pos.x=nx+(w.x-nx)*0.6;pos.z=nz+(w.z-nz)*0.6;}
+      else if(w.d<5){pos.x=w.x;pos.z=w.z;}
     }
   }
   pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';

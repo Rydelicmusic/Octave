@@ -61,12 +61,19 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Denser rings (48–72 pts) + short connectors between nearby large lakes
 - Water ellipses / spine width / hub / rings / BUILDINGS / LAYOUT.md unchanged
 
+## Pass 10 — stay-on-path corner cuts
+- Hard snap onto nearest ribbon when off-path (removed 0.6 blend that chorded corners)
+- Travel-aligned segment preference in nearestWalk; tighter ribbon half-widths
+- LAYOUT / waters / spine width / BUILDINGS unchanged
+
 ## Still fake (worst next)
-1. Stay-on-path soft-pull can still cut corners at sharp ribbon bends  ← Pass 10 candidate
+1. Spine weave still procedural S-curve vs blueprint centerline (optional later)
+2. Lake connectors are short mid-links, not full shoreline networks
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
 - SHIPPED Pass 5–8: ef8c8f8 / e987bd3 / 82da95d / 1f9a911
 - SHIPPED Pass 9: finer lake-edge ribbon tracing
-- NEXT candidate: stay-on-path corner cuts (Pass 10)
+- SHIPPED Pass 10: stay-on-path corner cuts
+- NEXT candidate: blueprint spine centerline / fuller lake shoreline network
 - CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower
