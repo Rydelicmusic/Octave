@@ -745,3 +745,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 887301e1f05abbf60dc385066229b31d085f2da4
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 32 denser Gate home
+
+- **TIME:** 2026-09-20 13:23 CDT (America/Chicago)
+- **LANE:** Site Luxury / Gate
+- **STARTED:** Tip 85a8e11 (after Pass 57); densify Gate index hospitality — lamp-rail/stat strips, menus into lands + short venues + programs/journal
+- **GOING:** Dual lamp-rails (desk + lands/short venues); denser axis venue links; short-slug mega with work returns; programs/journal rails; fixed broken Directory/Venues CTA markup; expanded stat-strip (SKU aliases + visit paths)
+- **NEXT:** Pass 33 link audit (0 broken) + STATUS tip sync + thin directory/map polish if needed
+- **CONSTRAINTS:** park-site/ only; MOCK locked (Vale/Juniper/Solenne/Ori); relative links; no hotel-tower; no rebuild; proportion over novelty
+- **SOLUTIONS:** Reuse lamp-rail/stat-strip/mega-menu/card-links chrome; Home→Land→Venue→Work + 12 short-slug venues preserved
+- **COMMIT / LAST COMMIT:** 806af69 — Pass 32 denser Gate home
+
