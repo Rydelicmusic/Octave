@@ -102,3 +102,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Relative nests; race-safe tip refresh on push
 - **COMMIT / LAST COMMIT:** 639b803 — park-site STATUS: Pass 4 complete; continue Pass 5
 
+## Check-in — Pass 6 night/day programs + artist worlds
+
+- **TIME:** 2026-09-20 13:08 CDT (America/Chicago)
+- **LANE:** artists / shell
+- **STARTED:** Pass 6 — night-programs.html, day-measure.html, deeper artist mega-menus
+- **GOING:** Push Pass 6; continue until STOP
+- **NEXT:** Pass 7 polish / more journal density
+- **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT axes
+- **SOLUTIONS:** Content modes not theme toggles; relative nests
+- **COMMIT / LAST COMMIT:** 8b34e5e — Pass 5 STATUS (pending Pass 6 push)
+
