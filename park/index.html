@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> stadium rail densify</div>
+  <div><b>This pass:</b> hub plaza densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass54-rail';
+import * as LockMod from './lock.js?v=pass55-hub';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -278,12 +278,13 @@ addWalkSeg(-11,B,11,B,10);
   })();
   // Pass 29 — hub plaza benches (outside spine gaps; hub meters held)
   (function hubBenches(){
+    // Pass 55 — denser furniture rhythm (hub r18/32 held; spine gaps held)
     const wood=new THREE.MeshLambertMaterial({color:0x6a4a30});
     const iron=new THREE.MeshLambertMaterial({color:0x2b241c});
     const r=(LOCK.hubInner+LOCK.hubOuter)/2;
-    for(let i=0;i<8;i++){
-      const a=(i/8)*Math.PI*2+0.2;
-      if(Math.abs(Math.sin(a))>0.85) continue;
+    for(let i=0;i<12;i++){
+      const a=(i/12)*Math.PI*2+0.15;
+      if(Math.abs(Math.sin(a))>0.82) continue; // spine openings
       const x=Math.cos(a)*r, z=Math.sin(a)*r;
       const g=new THREE.Group();
       const seat=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.12,0.55),wood);seat.position.y=0.42;g.add(seat);
@@ -364,34 +365,62 @@ function hubPlaza(){
   pad.position.y=0.09;scene.add(pad);
   // 8 radial walk spokes + planted beds between them (skip covering the 14 m spine)
   const dirt=new THREE.MeshLambertMaterial({color:0x5a4030});
+  const dirt2=new THREE.MeshLambertMaterial({color:0x6a5040});
   const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
   const bloom=new THREE.MeshLambertMaterial({color:0xa45a6a});
+  const stoneLite=new THREE.MeshLambertMaterial({color:0x8a7a68});
+  // Pass 55 — concentric plaza material bands (IN/OUT held)
+  [[IN+1.2,IN+3.2,0xb0aaa0],[IN+5.5,IN+7.8,0xa8a098],[OUT-4.2,OUT-1.8,0xb8b2a6]].forEach(([r0,r1,col],bi)=>{
+    const band=new THREE.Mesh(new THREE.RingGeometry(r0,r1,72),new THREE.MeshLambertMaterial({color:col}));
+    band.rotation.x=-Math.PI/2;band.position.set(0,SLAB+0.02+bi*0.001,0);scene.add(band);
+  });
   for(let i=0;i<8;i++){
     const a=(i/8)*Math.PI*2;
     const spoke=new THREE.Mesh(new THREE.BoxGeometry(1.15,0.14,OUT-IN-0.4),Math.abs(Math.sin(a))>0.9?asphaltMat:pathMat);
     spoke.position.set(Math.cos(a)*(IN+OUT)/2,SLAB+0.1,Math.sin(a)*(IN+OUT)/2);
     spoke.rotation.y=-a;scene.add(spoke);
     const mid=a+Math.PI/8;
-    const a0=mid-0.26,a1=mid+0.26,r0=IN+1.15,r1=OUT-1.15;
+    if(Math.abs(Math.sin(mid))>0.88) continue; // do not plant into spine openings
+    const a0=mid-0.28,a1=mid+0.28,r0=IN+1.15,r1=OUT-1.15;
     const sh=new THREE.Shape();
-    const n=8;
+    const n=10;
     for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;k?sh.lineTo(Math.cos(t)*r1,Math.sin(t)*r1):sh.moveTo(Math.cos(t)*r1,Math.sin(t)*r1);}
     for(let k=n;k>=0;k--){const t=a0+(a1-a0)*k/n;sh.lineTo(Math.cos(t)*r0,Math.sin(t)*r0);}
     sh.closePath();
-    const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:0.2,bevelEnabled:false}),dirt);
+    const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:0.22,bevelEnabled:false}),i%2?dirt2:dirt);
     bed.rotation.x=-Math.PI/2;bed.position.y=SLAB+0.02;scene.add(bed);
-    for(let k=1;k<=3;k++){
-      const t=a0+(a1-a0)*k/4,rr=(r0+r1)/2;
-      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.48+k%2*0.1,6,5),k===2?bloom:hedge);
+    // Pass 55 — denser bed planting
+    for(let k=1;k<=5;k++){
+      const t=a0+(a1-a0)*k/6,rr=r0+(r1-r0)*(0.25+(k%3)*0.2);
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.42+k%2*0.12,6,5),k%3===1?bloom:hedge);
       bush.position.set(Math.cos(t)*rr,SLAB+0.55,Math.sin(t)*rr);bush.scale.set(1,0.65,1);scene.add(bush);
     }
   }
-  // Low benches on outer deck (seat ~0.45 m) — skip spine axes
-  for(let i=0;i<8;i++){
-    const a=(i/8)*Math.PI*2+Math.PI/8;
+  // Low benches on outer deck (seat ~0.45 m) — denser; skip spine axes
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2+Math.PI/12;
+    if(Math.abs(Math.sin(a))>0.85) continue;
     const bench=new THREE.Mesh(new THREE.BoxGeometry(2.4,0.45,0.55),stone);
     bench.position.set(Math.cos(a)*26,SLAB+0.225,Math.sin(a)*26);
     bench.rotation.y=-a;scene.add(bench);
+    // trash / planter rhythm beside benches
+    const tx=Math.cos(a)*(26+1.6), tz=Math.sin(a)*(26+1.6);
+    const can=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.7,8),stoneDark);
+    can.position.set(tx,SLAB+0.35,tz);scene.add(can);
+    const plan=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.62,0.4,10),stoneLite);
+    plan.position.set(Math.cos(a)*(26-1.7),SLAB+0.2,Math.sin(a)*(26-1.7));scene.add(plan);
+    const top=new THREE.Mesh(new THREE.SphereGeometry(0.45,8,6),hedge);
+    top.position.set(Math.cos(a)*(26-1.7),SLAB+0.55,Math.sin(a)*(26-1.7));scene.add(top);
+  }
+  // Pass 55 — inner plaza paver chips (surface break-up; IN held)
+  for(let i=0;i<16;i++){
+    const a=(i/16)*Math.PI*2+0.1;
+    if(Math.abs(Math.sin(a))>0.9) continue;
+    const rr=IN*0.55+(i%3)*1.8;
+    const chip=new THREE.Mesh(new THREE.CircleGeometry(0.9+(i%3)*0.25,16),stoneLite);
+    chip.rotation.x=-Math.PI/2;
+    chip.position.set(Math.cos(a)*rr,0.12,Math.sin(a)*rr);
+    scene.add(chip);
   }
   // Pocket marker — abstract torus center
   const pocket=new THREE.Mesh(new THREE.TorusGeometry(5.5,0.28,10,48),new THREE.MeshLambertMaterial({color:0xc9b48a}));
