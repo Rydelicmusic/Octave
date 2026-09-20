@@ -1520,3 +1520,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 202–209
+
+- **TIME:** 2026-09-20 14:35 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 7d0fcbb; NEW nested IA (folio/tempo/signal/doors)
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
+- **SOLUTIONS:** NEW folio/ (5); tempo/ (5); signal/ (7); gallery+interview ×4; nest doors ×12; bronze/cloth; tempo-night note; companion guest/booking; folio-walk; thin wires
+- **COMMIT / LAST COMMIT:** 2b51d2b — Pass 208
+- **COLLISIONS:** NONE
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
