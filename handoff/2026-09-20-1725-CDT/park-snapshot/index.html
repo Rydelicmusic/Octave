@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Rydelic Park — Blueprint Walk</title>
+<style>
+  html,body{margin:0;height:100%;background:#87a0b0;color:#f4efe6;font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden;touch-action:none}
+  #c{display:block;width:100%;height:100%}
+  .top{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#3d3428;background:rgba(244,239,230,.75);padding:6px 12px;border-radius:999px}
+  .hud{position:fixed;left:12px;bottom:12px;z-index:2;padding:10px 12px;border-radius:12px;background:rgba(18,16,14,.72);border:1px solid rgba(201,180,138,.35);font-size:12px;line-height:1.45;max-width:250px}
+  .hud b{color:#c9b48a}a{color:#c9b48a}
+  #cams{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px}
+  #cams button{appearance:none;border:1px solid rgba(61,52,40,.35);background:rgba(244,239,230,.8);color:#3d3428;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:7px 10px;border-radius:999px}
+  #cams button.on{background:#3d3428;color:#f4efe6}
+  #lift{position:fixed;right:16px;bottom:150px;z-index:3;display:none;flex-direction:column;gap:8px}
+  #lift button{width:44px;height:44px;border-radius:12px;border:1px solid rgba(201,180,138,.4);background:rgba(40,32,24,.45);color:#e8d5a3;font-size:18px}
+  #pad{position:fixed;right:16px;bottom:20px;z-index:3;width:118px;height:118px;border-radius:59px;background:rgba(40,32,24,.35);border:1px solid rgba(201,180,138,.4);touch-action:none}
+  #knob{position:absolute;left:39px;top:39px;width:40px;height:40px;border-radius:20px;background:rgba(201,180,138,.7)}
+</style>
+</head>
+<body>
+<div class="top" id="land">The Pocket · Gate</div>
+<div id="cams"><button id="b1" class="on">Walk</button><button id="b3">3rd</button><button id="bM">Drone</button></div>
+<canvas id="c"></canvas>
+<div id="lift"><button id="up">+</button><button id="dn">−</button></div>
+<div id="pad"><div id="knob"></div></div>
+<div class="hud">
+  <div><b>This pass:</b> grounds merge — belts, coping 0.5×0.32, beds, lamps</div>
+  <div>14 m spine · hub r18/32 · stadium 760×460</div>
+  <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
+  <div id="dist">Hub — m</div>
+</div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { addSkuKit } from './sku-kit.js';
+import * as LockMod from './lock.js?v=pass74-merge';
+// FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
+const {
+  LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
+  WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
+  walkLinkPolyline, walkSpurPolyline, hubApronPath,
+  LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast,
+  PATH_SCALE, lakesideRibbonRuns,
+  occupiesSpine, canPlaceSoft, beltTreePositions, TREE_BELTS, MATERIALS,
+  lakesideRibbonMesh, hubBedCenters, GROUNDS_SCALE, treeMetrics, waterCopingSegments,
+} = LockMod;
+const ITINERARY = LockMod.ITINERARY || {
+  id: 'park-circuit', name: 'Park Circuit', sequence: [], stops: [], totalMin: 45,
+  sign: { x: 0, z: 205, yaw: Math.PI },
+};
+const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
+
+const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
+const PATH=MATERIALS['sand-path'],CURB=MATERIALS['curb'],ASPHALT=0x3e3e42,CONCRETE=MATERIALS['concrete-plaza'],EARTH=MATERIALS['packed-earth'];
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+// Pass 32 — evening atmosphere (dusk sky + warmer fog)
+scene.background=new THREE.Color(0x6a7a90);
+scene.fog=new THREE.Fog(0x7a8494,70,820);
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.2,2500);
+let yaw=0,pitch=-0.04,mode='walk',droneYaw=Math.PI,dronePitch=-0.72,lift=0;
+const pos=new THREE.Vector3(0,EYE,B-6);
+const drone=new THREE.Vector3(0,90,B+20);
+const droneVel=new THREE.Vector3();
+scene.add(new THREE.HemisphereLight(0xf0f4f8,0x5a4a32,1.15));
+// Pass 52 — soft night fill ambient (no PointLight cost; dark pockets between capped lamps)
+scene.add(new THREE.AmbientLight(0x2a3040,0.38));
+const sun=new THREE.DirectionalLight(0xfff3d6,1.1);sun.position.set(-90,180,70);scene.add(sun);
+const grass=new THREE.Mesh(new THREE.PlaneGeometry(A*3.2,B*3.2),new THREE.MeshLambertMaterial({color:MATERIALS['grass']}));
+grass.rotation.x=-Math.PI/2;scene.add(grass);
+function plate(w,d,x,z,color){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshLambertMaterial({color}));m.rotation.x=-Math.PI/2;m.position.set(x,0.02,z);scene.add(m);}
+plate(260,320,-165,-10,0x3d6a48);
+plate(300,140,10,-140,0x456848);
+plate(260,260,160,10,0x5a7c42);
+plate(36,B+20,0,B/2,0x6b8a4a);
+const stone=new THREE.MeshLambertMaterial({color:0x6a5844});
+const stoneDark=new THREE.MeshLambertMaterial({color:CURB});
+const pathMat=new THREE.MeshLambertMaterial({color:PATH});
+const asphaltMat=new THREE.MeshLambertMaterial({color:ASPHALT});
+const concreteMat=new THREE.MeshLambertMaterial({color:CONCRETE});
+const earthMat=new THREE.MeshLambertMaterial({color:EARTH});
+function water(x,z,rx,rz){
+  // Recessed pool + raised coping (ellipse meters unmoved)
+  // Pass 50 — deeper tint core + mid band + foam lip (waters x/z/rx/rz held)
+  const deep=new THREE.Mesh(
+    new THREE.CircleGeometry(1,64),
+    new THREE.MeshPhongMaterial({color:0x1a4a5c,shininess:90,specular:0x66aacc})
+  );
+  deep.rotation.x=-Math.PI/2;deep.position.set(x,0.05,z);deep.scale.set(rx*0.62,rz*0.62,1);scene.add(deep);
+  const pool=new THREE.Mesh(
+    new THREE.RingGeometry(0.58,0.96,64),
+    new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:72,specular:0x88ccee,transparent:true,opacity:0.92})
+  );
+  pool.rotation.x=-Math.PI/2;pool.position.set(x,0.06,z);pool.scale.set(rx,rz,1);scene.add(pool);
+  // Pass 33/50 — multi-band rim shimmer
+  const shimmer=new THREE.Mesh(
+    new THREE.RingGeometry(0.82,0.94,64),
+    new THREE.MeshLambertMaterial({color:0x7ec8d8, emissive:0x2a6070, emissiveIntensity:0.45, transparent:true, opacity:0.55})
+  );
+  shimmer.rotation.x=-Math.PI/2;shimmer.position.set(x,0.09,z);shimmer.scale.set(rx,rz,1);scene.add(shimmer);
+  const shimmer2=new THREE.Mesh(
+    new THREE.RingGeometry(0.70,0.80,64),
+    new THREE.MeshLambertMaterial({color:0x9ad4e4, emissive:0x3a7080, emissiveIntensity:0.28, transparent:true, opacity:0.35})
+  );
+  shimmer2.rotation.x=-Math.PI/2;shimmer2.position.set(x,0.095,z);shimmer2.scale.set(rx,rz,1);scene.add(shimmer2);
+  // foam lip just inside coping
+  const foam=new THREE.Mesh(
+    new THREE.RingGeometry(0.945,0.985,64),
+    new THREE.MeshLambertMaterial({color:0xd8eef4, emissive:0x88aab8, emissiveIntensity:0.35, transparent:true, opacity:0.7})
+  );
+  foam.rotation.x=-Math.PI/2;foam.position.set(x,0.11,z);foam.scale.set(rx,rz,1);scene.add(foam);
+  // water reflection sheen (recessed pool; coping in world meters, not rx-scaled)
+  const sheen=new THREE.Mesh(new THREE.CircleGeometry(1,32),new THREE.MeshPhongMaterial({
+    color:0x8ec8d4,transparent:true,opacity:0.2,shininess:140,specular:0xffffff
+  }));
+  sheen.rotation.x=-Math.PI/2;sheen.position.set(x,0.12,z);sheen.scale.set(rx*0.7,rz*0.55,1);scene.add(sheen);
+  const rimH=GROUNDS_SCALE.copingH;
+  waterCopingSegments(x,z,rx,rz).forEach(s=>{
+    const rim=new THREE.Mesh(new THREE.BoxGeometry(s.w,rimH,s.len*1.12),stoneDark);
+    rim.position.set(s.x,rimH/2,s.z);rim.rotation.y=s.rotY;scene.add(rim);
+    const lip=new THREE.Mesh(new THREE.BoxGeometry(s.w,0.04,s.len*1.12),stone);
+    lip.position.set(s.x,rimH+0.02,s.z);lip.rotation.y=s.rotY;scene.add(lip);
+  });
+}
+LOCK.waters.forEach(w=>water(...w));
+LOCK.waters.forEach(([x,z,rx,rz])=>lakeWalk(x,z,rx,rz));
+// Paths: raised sand surface + tall side curbs (hub-curb spirit, walk stays clear)
+function pathBox(w,len,x,z,rotY=0,topMat=pathMat){
+  const g=new THREE.Group();
+  const curbH=0.48,curbT=0.7;
+  const bed=new THREE.Mesh(new THREE.BoxGeometry(w+curbT*2+0.3,0.1,len),stone);
+  bed.position.y=0.05;
+  const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.22,len),topMat);
+  top.position.y=0.15;
+  // Dark edge strips on path for surface readability
+  const edgeW=0.45;
+  const eL=new THREE.Mesh(new THREE.BoxGeometry(edgeW,0.04,len),stoneDark);
+  eL.position.set(-(w/2-edgeW/2),0.27,0);
+  const eR=eL.clone();eR.position.x=(w/2-edgeW/2);
+  const L=new THREE.Mesh(new THREE.BoxGeometry(curbT,curbH,len),stoneDark);
+  L.position.set(-(w/2+curbT/2),curbH/2,0);
+  const R=L.clone();R.position.x=(w/2+curbT/2);
+  const capL=new THREE.Mesh(new THREE.BoxGeometry(curbT+0.08,0.07,len),stone);
+  capL.position.set(-(w/2+curbT/2),curbH+0.035,0);
+  const capR=capL.clone();capR.position.x=(w/2+curbT/2);
+  g.add(bed,top,eL,eR,L,R,capL,capR);
+  // Pass 56 — curb top articulation: wear chips + joint grooves (spine width held)
+  const wear=new THREE.MeshLambertMaterial({color:0x7a6a58});
+  const nChip=Math.max(4, Math.floor(len/3.2));
+  for(let i=0;i<nChip;i++){
+    const along=(i+0.5)/nChip*len - len/2;
+    const chipL=new THREE.Mesh(new THREE.BoxGeometry(curbT*0.55,0.04,0.55+(i%3)*0.15),wear);
+    chipL.position.set(-(w/2+curbT/2),curbH+0.08,along);g.add(chipL);
+    const chipR=chipL.clone();chipR.position.x=(w/2+curbT/2);g.add(chipR);
+    if(i%2===0){
+      const groove=new THREE.Mesh(new THREE.BoxGeometry(0.06,curbH*0.7,0.08),stone);
+      groove.position.set(-(w/2+curbT/2),curbH*0.4,along);g.add(groove);
+      const grooveR=groove.clone();grooveR.position.x=(w/2+curbT/2);g.add(grooveR);
+    }
+  }
+  g.position.set(x,0,z);g.rotation.y=rotY;scene.add(g);
+}
+function pathRing(inner,outer,x,z){
+  const m=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),pathMat);
+  m.rotation.x=-Math.PI/2;m.position.set(x,0.16,z);scene.add(m);
+  // Extruded inner/outer curb walls (~0.4 m) — readable at eye
+  function curbRing(r0,r1,h,y0){
+    const shape=new THREE.Shape();
+    shape.absarc(0,0,r1,0,Math.PI*2,false);
+    const hole=new THREE.Path();
+    hole.absarc(0,0,r0,0,Math.PI*2,true);
+    shape.holes.push(hole);
+    const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false,curveSegments:64});
+    const mesh=new THREE.Mesh(geo,stoneDark);
+    mesh.rotation.x=-Math.PI/2;mesh.position.set(x,y0,z);scene.add(mesh);
+    const cap=new THREE.Mesh(new THREE.RingGeometry(r0,r1,64),stone);
+    cap.rotation.x=-Math.PI/2;cap.position.set(x,y0+h+0.01,z);scene.add(cap);
+  }
+  curbRing(outer,outer+0.7,0.4,0);
+  curbRing(Math.max(0.5,inner-0.7),inner,0.4,0);
+}
+const walkSegs=[]; // Pass 7 ribbon stay-on-path
+function addWalkSeg(ax,az,bx,bz,half){walkSegs.push({ax,az,bx,bz,half});}
+LOCK.waters.forEach(([x,z,rx,rz])=>{
+  for(const pts of lakesideRibbonRuns(x,z,rx,rz)){
+    if(pts.length<2) continue;
+    for(let i=0;i<pts.length-1;i++) addWalkSeg(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1], PATH_SCALE.lakesideW/2);
+  }
+});
+let walkVelX=0,walkVelZ=0;
+function nearestWalk(x,z){
+  if(Math.hypot(x,z)<=LOCK.hubOuter+2.5) return {x,z,on:true,d:0};
+  let best=1e9,bx=x,bz=z,on=false;
+  const spd=Math.hypot(walkVelX,walkVelZ)||0;
+  for(let i=0;i<walkSegs.length;i++){
+    const s=walkSegs[i],dx=s.bx-s.ax,dz=s.bz-s.az,len2=dx*dx+dz*dz||1;
+    let u=((x-s.ax)*dx+(z-s.az)*dz)/len2;u=u<0?0:u>1?1:u;
+    const px=s.ax+dx*u,pz=s.az+dz*u,d=Math.hypot(x-px,z-pz);
+    // Prefer segments aligned with travel — reduces corner chord shortcuts
+    let score=d;
+    if(spd>0.01){
+      const len=Math.sqrt(len2),sx=dx/len,sz=dz/len;
+      const align=Math.abs(walkVelX*sx+walkVelZ*sz); // 0..1
+      score=d*(1.15-0.35*align);
+    }
+    if(score<best){best=score;bx=px;bz=pz;on=d<=s.half;}
+  }
+  return {x:bx,z:bz,on,d:Math.hypot(x-bx,z-bz)};
+}
+function pathRibbon(pts,width=6,mat=pathMat){
+  if(pts.length<2)return;
+  const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,0.15,z)),false,'catmullrom',0.18);
+  const segs=Math.max(20,pts.length*10);
+  const hw=width/2;
+  const pos=[],idx=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs,p=curve.getPoint(t),tg=curve.getTangent(t);
+    const sx=-tg.z,sz=tg.x,len=Math.hypot(sx,sz)||1;
+    const nx=sx/len*hw,nz=sz/len*hw;
+    pos.push(p.x-nx,0.16,p.z-nz,p.x+nx,0.16,p.z+nz);
+  }
+  for(let i=0;i<segs;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  geo.setIndex(idx);geo.computeVertexNormals();
+  scene.add(new THREE.Mesh(geo,mat));
+  for(let i=0;i<segs;i++){
+    const p0=curve.getPoint(i/segs),p1=curve.getPoint((i+1)/segs);
+    addWalkSeg(p0.x,p0.z,p1.x,p1.z,hw+0.85);
+  }
+  [-1,1].forEach(side=>{
+    const cpts=[];
+    for(let i=0;i<=segs;i++){
+      const t=i/segs,p=curve.getPoint(t),tg=curve.getTangent(t);
+      const sx=-tg.z,sz=tg.x,len=Math.hypot(sx,sz)||1;
+      cpts.push(new THREE.Vector3(p.x+side*sx/len*(hw+0.32),0.3,p.z+side*sz/len*(hw+0.32)));
+    }
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(cpts),segs,0.2,5,false),stoneDark));
+  });
+  // Pass 64 — curb companions on land sand ribbons (pathMat only; spine asphalt unchanged)
+  // pass64RibbonCurbs
+  if(mat===pathMat){
+    const wear=new THREE.MeshLambertMaterial({color:0x7a6a58});
+    const step=Math.max(3,Math.floor(segs/14));
+    for(let i=0;i<=segs;i+=step){
+      const t=i/segs,p=curve.getPoint(t),tg=curve.getTangent(t);
+      const sx=-tg.z,sz=tg.x,len=Math.hypot(sx,sz)||1;
+      const nx=sx/len,nz=sz/len;
+      if(Math.abs(p.x)<LOCK.spineWidth/2+0.5) continue; // hold clear spine strip
+      [-1,1].forEach(side=>{
+        const cx=p.x+side*nx*(hw+0.55);
+        const cz=p.z+side*nz*(hw+0.55);
+        if(nearRing(cx,cz,5)) return;
+        if(LOCK.waters.some(([wx,wz,rx,rz])=>{const dx=(cx-wx)/(rx+1),dz=(cz-wz)/(rz+1);return dx*dx+dz*dz<=1;})) return;
+        const chip=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.05,0.62),wear);
+        chip.position.set(cx,0.38,cz);
+        chip.rotation.y=Math.atan2(tg.x,tg.z);
+        scene.add(chip);
+        if(i%(step*2)===0){
+          const joint=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.28,0.08),stone);
+          joint.position.set(cx,0.2,cz);
+          joint.rotation.y=Math.atan2(tg.x,tg.z);
+          scene.add(joint);
+        }
+      });
+    }
+  }
+}
+function lakesideRibbon(cx,cz,rx,rz){
+  // Constant-width walk in meters (never scale a ring by rx,rz — that stretches path width)
+  const mesh=lakesideRibbonMesh(cx,cz,rx,rz);
+  mesh.segs.forEach(s=>{
+    const bed=new THREE.Mesh(new THREE.BoxGeometry(s.w,0.12,s.len*1.12),pathMat);
+    bed.position.set(s.x,0.08,s.z);bed.rotation.y=s.rotY;scene.add(bed);
+    const curb=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.16,s.len*1.12),stoneDark);
+    const off=s.w/2+0.11;
+    curb.position.set(s.x+Math.cos(s.rotY)*off,0.14,s.z-Math.sin(s.rotY)*off);
+    curb.rotation.y=s.rotY;scene.add(curb);
+  });
+}
+function lakeWalk(x,z,rx,rz){
+  // Pass 70 — 3.2 m lakeside walks (PATH_SCALE / GROUNDS_SCALE); ellipse unmoved; not scaled by rx,rz
+  lakesideRibbon(x,z,rx,rz);
+}
+// Pass 12/16 — blueprint centerline (x=0) + CAD-traced edges at hover x=±7 m
+pathBox(22,18,0,B,0,asphaltMat);
+addWalkSeg(-11,B-9,11,B-9,10);
+addWalkSeg(-11,B,11,B,10);
+(function spineBlueprint(){
+  const w=LOCK.spineWidth; // 14 m locked
+  const south=[], north=[];
+  for(let z=0;z<=B;z+=6) south.push([0,z]);
+  for(let z=0;z>=-B;z-=6) north.push([0,z]);
+  pathRibbon(south,w,asphaltMat);
+  pathRibbon(north,w,asphaltMat);
+  // Pass 72 — 0.45 m curbs sit outside the 14 m walk (center = ±7 + 0.225)
+  const curbOff=PATH_SCALE.spineCurbW/2;
+  pathRibbon(spineCadPolyline(-1,8,curbOff),PATH_SCALE.spineCurbW,stoneDark);
+  pathRibbon(spineCadPolyline(1,8,curbOff),PATH_SCALE.spineCurbW,stoneDark);
+  pathRibbon(northSpineCadPolyline(-1,8,curbOff),PATH_SCALE.spineCurbW,stoneDark);
+  pathRibbon(northSpineCadPolyline(1,8,curbOff),PATH_SCALE.spineCurbW,stoneDark);
+  // Pass 56 — curb chips along CAD spine edges (14 m spine held)
+  (function pass56CurbPolish(){
+    const wear=new THREE.MeshLambertMaterial({color:0x7a6a58});
+    const half=LOCK.spineWidth/2;
+    function chipsAlong(side){
+      for(let z=-LOCK.B+8;z<=LOCK.gate.z-8;z+=4.5){
+        if(Math.abs(z)<LOCK.hubOuter+1) continue;
+        const x=side*(half+0.55);
+        const chip=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.06,0.7),wear);
+        chip.position.set(x,0.42,z);scene.add(chip);
+        if(Math.abs(Math.round(z))%9===0){
+          const joint=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.35,0.1),stone);
+          joint.position.set(x,0.22,z);scene.add(joint);
+        }
+      }
+    }
+    chipsAlong(-1);chipsAlong(1);
+  })();
+  // Pass 25 — path lanterns along CAD corridor edges (spine width held)
+  (function corridorLanterns(){
+    const postMat=new THREE.MeshLambertMaterial({color:0x2b241c});
+    const lampMat=new THREE.MeshLambertMaterial({color:0xe8d4a0, emissive:0x6a5830, emissiveIntensity:0.35});
+    function lantern(x,z){
+      // Pass 71 — PATH_SCALE.lampH 3.6 m (was 2.4 m toy posts)
+      const H=PATH_SCALE.lampH, postH=H-0.4;
+      const g=new THREE.Group();
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,postH,6),postMat);post.position.y=postH/2;g.add(post);
+      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,6),lampMat);lamp.position.y=H-0.22;g.add(lamp);
+      g.position.set(x,0,z);scene.add(g);
+    }
+    const half=LOCK.spineWidth/2+0.85;
+    for(let z=12;z<=LOCK.gate.z-8;z+=28){lantern(-half,z);lantern(half,z);}
+    for(let z=-12;z>=-LOCK.B+8;z-=28){lantern(-half,z);lantern(half,z);}
+  })();
+  // Pass 26 — hub plaza lantern ring (outside hubOuter; gaps at ±Z spine)
+  (function hubLanternRing(){
+    const postMat=new THREE.MeshLambertMaterial({color:0x2b241c});
+    const lampMat=new THREE.MeshLambertMaterial({color:0xe8d4a0, emissive:0x6a5830, emissiveIntensity:0.4});
+    const r=LOCK.hubOuter+2.2;
+    for(let i=0;i<16;i++){
+      const a=(i/16)*Math.PI*2;
+      if(Math.abs(Math.sin(a))>0.92) continue; // spine gaps
+      const x=Math.cos(a)*r, z=Math.sin(a)*r;
+      const H=PATH_SCALE.lampH, postH=H-0.4;
+      const g=new THREE.Group();
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,postH,6),postMat);post.position.y=postH/2;g.add(post);
+      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,6),lampMat);lamp.position.y=H-0.22;g.add(lamp);
+      g.position.set(x,0,z);scene.add(g);
+    }
+  })();
+  // Pass 29 — hub plaza benches (outside spine gaps; hub meters held)
+  (function hubBenches(){
+    // Pass 55 — denser furniture rhythm (hub r18/32 held; spine gaps held)
+    const wood=new THREE.MeshLambertMaterial({color:0x6a4a30});
+    const iron=new THREE.MeshLambertMaterial({color:0x2b241c});
+    const r=(LOCK.hubInner+LOCK.hubOuter)/2;
+    for(let i=0;i<12;i++){
+      const a=(i/12)*Math.PI*2+0.15;
+      if(Math.abs(Math.sin(a))>0.82) continue; // spine openings
+      const x=Math.cos(a)*r, z=Math.sin(a)*r;
+      const g=new THREE.Group();
+      const seat=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.12,0.55),wood);seat.position.y=0.42;g.add(seat);
+      const back=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.45,0.1),wood);back.position.set(0,0.7,-0.22);g.add(back);
+      [-0.9,0.9].forEach(lx=>{
+        const leg=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.4,0.5),iron);leg.position.set(lx,0.2,0);g.add(leg);
+      });
+      g.position.set(x,0,z);g.rotation.y=a+Math.PI/2;scene.add(g);
+    }
+  })();
+  const half=w/2;
+  addWalkSeg(0,0,0,B,half+1.2);
+  addWalkSeg(0,0,0,-B,half+1.2);
+})();
+addWalkSeg(-7,34,7,34,5);
+addWalkSeg(-7,-34,7,-34,5);
+// Short aprons at hub gaps — path continuity onto raised plaza (SLAB 0.28)
+[[0,34],[0,-34]].forEach(([ax,az])=>{
+  const apr=new THREE.Mesh(new THREE.BoxGeometry(14,0.2,8),asphaltMat);
+  apr.position.set(ax,0.22,az);scene.add(apr);
+  const cH=0.38,cT=0.55;
+  [-1,1].forEach(side=>{
+    const c=new THREE.Mesh(new THREE.BoxGeometry(cT,cH,8),stoneDark);
+    c.position.set(side*(7+cT/2),cH/2,az);scene.add(c);
+  });
+});
+// Hub plaza volume — stepped pad + thick ring walls (readable at eye), not flat ring only
+function ringWall(innerR,outerR,h,y0,mat){
+  const shape=new THREE.Shape();
+  shape.absarc(0,0,outerR,0,Math.PI*2,false);
+  const hole=new THREE.Path();
+  hole.absarc(0,0,innerR,0,Math.PI*2,true);
+  shape.holes.push(hole);
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false,curveSegments:72});
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.rotation.x=-Math.PI/2;mesh.position.y=y0;scene.add(mesh);
+  return mesh;
+}
+function arcWall(innerR,outerR,h,y0,a0,a1,mat){
+  // Solid wall segment between angles a0..a1 (XZ plane)
+  const shape=new THREE.Shape();
+  const n=Math.max(8,Math.ceil((a1-a0)/ (Math.PI*2) * 72));
+  for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;const r=outerR;const x=Math.cos(a)*r,y=Math.sin(a)*r;i?shape.lineTo(x,y):shape.moveTo(x,y);}
+  for(let i=n;i>=0;i--){const a=a0+(a1-a0)*i/n;const r=innerR;shape.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
+  shape.closePath();
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.rotation.x=-Math.PI/2;mesh.position.y=y0;scene.add(mesh);
+}
+function hubPlaza(){
+  const IN=LOCK.hubInner,OUT=LOCK.hubOuter,SLAB=0.28,WALL=0.55,WALL_T=0.75;
+  const GAP=0.28; // half-angle (~18 m chord) openings at ±Z for 14 m Gate spine
+  // Raised outer plaza slab mass (solid ring under deck)
+  ringWall(IN,OUT,SLAB,0,stone);
+  const deck=new THREE.Mesh(new THREE.RingGeometry(IN,OUT,72),concreteMat);
+  deck.rotation.x=-Math.PI/2;deck.position.set(0,SLAB+0.01,0);scene.add(deck);
+  // Outer curb/parapet ~0.55 m; gaps at +Z (Gate) and -Z (north) so spine walk clears
+  // angle 0=+X, π/2=+Z south/Gate, π=-X, 3π/2=-Z north
+  const segs=[[Math.PI/2+GAP,Math.PI*3/2-GAP],[Math.PI*3/2+GAP,Math.PI*2+Math.PI/2-GAP]];
+  segs.forEach(([a0,a1])=>{
+    arcWall(OUT,OUT+WALL_T,WALL,SLAB,a0,a1,stoneDark);
+  });
+  // Cap only on wall arcs (skip path gaps)
+  segs.forEach(([a0,a1])=>{
+    const n=24;const pts=[];
+    for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;pts.push(new THREE.Vector2(Math.cos(a)*OUT,Math.sin(a)*OUT));}
+    for(let i=n;i>=0;i--){const a=a0+(a1-a0)*i/n;pts.push(new THREE.Vector2(Math.cos(a)*(OUT+WALL_T),Math.sin(a)*(OUT+WALL_T)));}
+    const sh=new THREE.Shape(pts);
+    const cap=new THREE.Mesh(new THREE.ShapeGeometry(sh),stone);
+    cap.rotation.x=-Math.PI/2;cap.position.y=SLAB+WALL+0.01;scene.add(cap);
+  });
+  // Inner low curb (continuous, step-over ~0.22 m) — volume without blocking pocket entry
+  ringWall(IN-0.55,IN,0.22,SLAB,stoneDark);
+  const innerCap=new THREE.Mesh(new THREE.RingGeometry(IN-0.55,IN,64),stone);
+  innerCap.rotation.x=-Math.PI/2;innerCap.position.y=SLAB+0.23;scene.add(innerCap);
+  // Center pocket pad
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(IN-0.6,IN-0.6,0.18,48),concreteMat);
+  pad.position.y=0.09;scene.add(pad);
+  // 8 radial walk spokes + planted beds between them — radial planting beds (plants only)
+  const dirt=new THREE.MeshLambertMaterial({color:0x5a4030});
+  const dirt2=new THREE.MeshLambertMaterial({color:0x6a5040});
+  const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
+  const bloom=new THREE.MeshLambertMaterial({color:0xa45a6a});
+  const stoneLite=new THREE.MeshLambertMaterial({color:0x8a7a68});
+  // Pass 55 — concentric plaza material bands (IN/OUT held)
+  [[IN+1.2,IN+3.2,0xb0aaa0],[IN+5.5,IN+7.8,0xa8a098],[OUT-4.2,OUT-1.8,0xb8b2a6]].forEach(([r0,r1,col],bi)=>{
+    const band=new THREE.Mesh(new THREE.RingGeometry(r0,r1,72),new THREE.MeshLambertMaterial({color:col}));
+    band.rotation.x=-Math.PI/2;band.position.set(0,SLAB+0.02+bi*0.001,0);scene.add(band);
+  });
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2;
+    const spoke=new THREE.Mesh(new THREE.BoxGeometry(1.15,0.14,OUT-IN-0.4),Math.abs(Math.sin(a))>0.9?asphaltMat:pathMat);
+    spoke.position.set(Math.cos(a)*(IN+OUT)/2,SLAB+0.1,Math.sin(a)*(IN+OUT)/2);
+    spoke.rotation.y=-a;scene.add(spoke);
+    const mid=a+Math.PI/8;
+    if(Math.abs(Math.sin(mid))>0.88) continue; // do not plant into spine openings
+    const a0=mid-0.28,a1=mid+0.28,r0=IN+1.15,r1=OUT-1.15;
+    const sh=new THREE.Shape();
+    const n=10;
+    for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;k?sh.lineTo(Math.cos(t)*r1,Math.sin(t)*r1):sh.moveTo(Math.cos(t)*r1,Math.sin(t)*r1);}
+    for(let k=n;k>=0;k--){const t=a0+(a1-a0)*k/n;sh.lineTo(Math.cos(t)*r0,Math.sin(t)*r0);}
+    sh.closePath();
+    const bedH=GROUNDS_SCALE.hubBedH;
+    const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:bedH,bevelEnabled:false}),i%2?dirt2:dirt);
+    bed.rotation.x=-Math.PI/2;bed.position.y=SLAB+0.02;scene.add(bed);
+    const rim=new THREE.Mesh(new THREE.ExtrudeGeometry(sh.clone(),{depth:0.12,bevelEnabled:false}),stoneDark);
+    rim.rotation.x=-Math.PI/2;rim.position.y=SLAB+bedH;scene.add(rim);
+    // Pass 55 — denser bed planting
+    for(let k=1;k<=5;k++){
+      const t=a0+(a1-a0)*k/6,rr=r0+(r1-r0)*(0.25+(k%3)*0.2);
+      const bh=0.7+(k%3)*0.18;
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.42+k%2*0.12,6,5),k%3===1?bloom:hedge);
+      bush.position.set(Math.cos(t)*rr,SLAB+bedH+bh*0.45,Math.sin(t)*rr);bush.scale.set(1,0.65,1);scene.add(bush);
+    }
+  }
+  // Low benches on outer deck (seat ~0.45 m) — denser; skip spine axes
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2+Math.PI/12;
+    if(Math.abs(Math.sin(a))>0.85) continue;
+    const seatH=GROUNDS_SCALE.benchSeat;
+    const bench=new THREE.Mesh(new THREE.BoxGeometry(2.4,seatH,0.55),stone);
+    bench.position.set(Math.cos(a)*26,SLAB+seatH/2,Math.sin(a)*26);
+    bench.rotation.y=-a;scene.add(bench);
+    // trash / planter rhythm beside benches
+    const tx=Math.cos(a)*(26+1.6), tz=Math.sin(a)*(26+1.6);
+    const can=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.7,8),stoneDark);
+    can.position.set(tx,SLAB+0.35,tz);scene.add(can);
+    const plan=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.62,0.4,10),stoneLite);
+    plan.position.set(Math.cos(a)*(26-1.7),SLAB+0.2,Math.sin(a)*(26-1.7));scene.add(plan);
+    const top=new THREE.Mesh(new THREE.SphereGeometry(0.45,8,6),hedge);
+    top.position.set(Math.cos(a)*(26-1.7),SLAB+0.55,Math.sin(a)*(26-1.7));scene.add(top);
+  }
+  // Pass 55 — inner plaza paver chips (surface break-up; IN held)
+  for(let i=0;i<16;i++){
+    const a=(i/16)*Math.PI*2+0.1;
+    if(Math.abs(Math.sin(a))>0.9) continue;
+    const rr=IN*0.55+(i%3)*1.8;
+    const chip=new THREE.Mesh(new THREE.CircleGeometry(0.9+(i%3)*0.25,16),stoneLite);
+    chip.rotation.x=-Math.PI/2;
+    chip.position.set(Math.cos(a)*rr,0.12,Math.sin(a)*rr);
+    scene.add(chip);
+  }
+  // Pass 67 — mid-plaza litter + planter densify (hub IN/OUT held; spine gaps held)
+  // pass67HubPlaza
+  (function pass67HubPlaza(){
+    const litter=new THREE.MeshLambertMaterial({color:0x3a342c});
+    const pot=new THREE.MeshLambertMaterial({color:0x8a7a68});
+    const midR=(IN+OUT)*0.42;
+    for(let i=0;i<18;i++){
+      const a=(i/18)*Math.PI*2+0.08;
+      if(Math.abs(Math.sin(a))>0.86) continue;
+      const x=Math.cos(a)*midR, z=Math.sin(a)*midR;
+      const can=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.65,8),litter);
+      can.position.set(x,SLAB+0.32,z);scene.add(can);
+      if(i%2===0){
+        const planter=new THREE.Mesh(new THREE.CylinderGeometry(0.48,0.55,0.38,10),pot);
+        planter.position.set(Math.cos(a+0.12)*(midR+1.4),SLAB+0.19,Math.sin(a+0.12)*(midR+1.4));scene.add(planter);
+        const bush=new THREE.Mesh(new THREE.SphereGeometry(0.4,7,5),hedge);
+        bush.position.set(Math.cos(a+0.12)*(midR+1.4),SLAB+0.52,Math.sin(a+0.12)*(midR+1.4));scene.add(bush);
+      }
+    }
+    // inner pocket ring of low planters
+    for(let i=0;i<10;i++){
+      const a=(i/10)*Math.PI*2;
+      if(Math.abs(Math.sin(a))>0.9) continue;
+      const rr=IN*0.72;
+      const p=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.48,0.32,9),pot);
+      p.position.set(Math.cos(a)*rr,0.16,Math.sin(a)*rr);scene.add(p);
+      const b=new THREE.Mesh(new THREE.SphereGeometry(0.35,6,5),bloom);
+      b.position.set(Math.cos(a)*rr,0.42,Math.sin(a)*rr);scene.add(b);
+    }
+  })();
+  // Pocket marker — abstract torus center
+  const pocket=new THREE.Mesh(new THREE.TorusGeometry(5.5,0.28,10,48),new THREE.MeshLambertMaterial({color:0xc9b48a}));
+  pocket.rotation.x=Math.PI/2;pocket.position.y=1.15;scene.add(pocket);
+  const glow=new THREE.Mesh(new THREE.TorusGeometry(5.5,0.06,6,48),new THREE.MeshLambertMaterial({color:0xe8d5a3}));
+  glow.rotation.x=Math.PI/2;glow.position.y=0.22;scene.add(glow);
+}
+hubPlaza();
+pathRing(LOCK.rings.A.inner,LOCK.rings.A.outer,LOCK.rings.A.x,LOCK.rings.A.z);
+pathRing(LOCK.rings.B.inner,LOCK.rings.B.outer,LOCK.rings.B.x,LOCK.rings.B.z);
+// Pass 27 — ring approach aprons (rings / footprints unmoved)
+(function ringApproachAprons(){
+  function apron(ring, from){
+    const ang=Math.atan2(ring.z-from[1], ring.x-from[0]);
+    const start=[from[0], from[1]];
+    const end=[ring.x+Math.cos(ang)*(ring.outer+1.2), ring.z+Math.sin(ang)*(ring.outer+1.2)];
+    const mid=[(start[0]+end[0])/2, (start[1]+end[1])/2];
+    if(walkSegmentCrossesSpine(start[0],start[1],mid[0],mid[1])) return;
+    pathRibbon([start, mid, end], 4.2);
+    // outer curb ring just outside outer (visual only)
+    const pts=[];
+    for(let i=0;i<=48;i++){
+      const a=(i/48)*Math.PI*2;
+      pts.push([ring.x+Math.cos(a)*(ring.outer+2.4), ring.z+Math.sin(a)*(ring.outer+2.4)]);
+    }
+    pathRibbon(pts, 2.8);
+  }
+  const A=LOCK.rings.A, B=LOCK.rings.B;
+  apron(A, [22, 22]); // hub SE shoulder
+  apron(A, [12, 70]); // spine shoulder toward Pocket
+  apron(B, [22, 40]);
+  apron(B, [55, 88]); // Pocket Rim sign approach
+})();
+(function ringWalk(cx,cz,inner,outer){
+  const mid=(inner+outer)/2,half=(outer-inner)/2+1.1,n=48;
+  for(let i=0;i<n;i++){
+    const a0=i/n*Math.PI*2,a1=(i+1)/n*Math.PI*2;
+    addWalkSeg(cx+Math.cos(a0)*mid,cz+Math.sin(a0)*mid,cx+Math.cos(a1)*mid,cz+Math.sin(a1)*mid,half);
+  }
+})(LOCK.rings.A.x,LOCK.rings.A.z,LOCK.rings.A.inner,LOCK.rings.A.outer);
+(function ringWalk(cx,cz,inner,outer){
+  const mid=(inner+outer)/2,half=(outer-inner)/2+1.1,n=48;
+  for(let i=0;i<n;i++){
+    const a0=i/n*Math.PI*2,a1=(i+1)/n*Math.PI*2;
+    addWalkSeg(cx+Math.cos(a0)*mid,cz+Math.sin(a0)*mid,cx+Math.cos(a1)*mid,cz+Math.sin(a1)*mid,half);
+  }
+})(LOCK.rings.B.x,LOCK.rings.B.z,LOCK.rings.B.inner,LOCK.rings.B.outer);
+// Hub spokes walkable (Pass 7)
+for(let i=0;i<8;i++){
+  const a=i/8*Math.PI*2;
+  addWalkSeg(Math.cos(a)*LOCK.hubInner,Math.sin(a)*LOCK.hubInner,Math.cos(a)*LOCK.hubOuter,Math.sin(a)*LOCK.hubOuter,2.2);
+}
+
+// Pass 9 — denser lake-edge ribbons sampled from LOCK.waters (waters unmoved)
+function lakeEdgeRibbon(cx,cz,rx,rz,width,n=64,margin=2.75){
+  const pts=[];
+  for(let i=0;i<=n;i++){
+    const a=(i/n)*Math.PI*2;
+    // offset outside ellipse so walk clears water rim
+    pts.push([cx+Math.cos(a)*(rx+margin), cz+Math.sin(a)*(rz+margin)]);
+  }
+  pathRibbon(pts,width);
+}
+LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+  if(rx<12) return; // skip tiny ponds
+  const n=rx>=40?72:rx>=24?56:48;
+  const w=rx>=40?5.6:rx>=24?5.2:4.8;
+  lakeEdgeRibbon(cx,cz,rx,rz,w,n,2.6+Math.min(1.2,rx*0.02));
+});
+// Pass 21 — denser After Hours shore bands (waters unmoved; north canopy)
+(function afterHoursShore(){
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    if(cz>-5) return; // north / After Hours side of hub
+    if(rx<10) return;
+    const pts=[], n=rx>=20?56:40;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push([cx+Math.cos(a)*(rx+4.8), cz+Math.sin(a)*(rz+4.8)]);
+    }
+    pathRibbon(pts, 3.8);
+  });
+})();
+// Pass 22 — denser Board (east) shore bands (waters unmoved)
+(function boardShore(){
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    if(cx<80) return; // The Board side
+    if(rx<10) return;
+    const pts=[], n=rx>=20?56:40;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push([cx+Math.cos(a)*(rx+4.8), cz+Math.sin(a)*(rz+4.8)]);
+    }
+    pathRibbon(pts, 3.8);
+  });
+})();
+// Pass 23 — denser Block (west) shore bands (waters unmoved)
+(function blockShore(){
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    if(cx>-60) return; // The Block side
+    if(rx<10) return;
+    const pts=[], n=rx>=20?56:40;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push([cx+Math.cos(a)*(rx+4.8), cz+Math.sin(a)*(rz+4.8)]);
+    }
+    pathRibbon(pts, 3.8);
+  });
+})();
+// Pass 24 — denser Pocket (hub-south / rings) shore bands (waters unmoved; rings held)
+(function pocketShore(){
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    if(cz<40||cx<10) return; // Pocket neighborhood south-east of hub
+    if(rx<9) return;
+    // keep band outside ring keep-outs visually (path only; rings unmoved)
+    const pts=[], n=rx>=18?48:36;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      const x=cx+Math.cos(a)*(rx+4.2), z=cz+Math.sin(a)*(rz+4.2);
+      if(Math.hypot(x-LOCK.rings.A.x,z-LOCK.rings.A.z)<LOCK.rings.A.outer+4) continue;
+      if(Math.hypot(x-LOCK.rings.B.x,z-LOCK.rings.B.z)<LOCK.rings.B.outer+3) continue;
+      pts.push([x,z]);
+    }
+    if(pts.length>3) pathRibbon(pts, 3.6);
+  });
+})();
+// Pass 11 — fuller shoreline network: promenade bands + shore-hugging links (waters unmoved)
+(function lakeShoreNetwork(){
+  const lakes=LOCK.waters.filter(([, ,rx])=>rx>=16).map(([x,z,rx,rz])=>({x,z,rx,rz}));
+  function angTo(L,x,z){return Math.atan2(z-L.z,x-L.x);}
+  function shorePt(L,a,m=2.85){return [L.x+Math.cos(a)*(L.rx+m), L.z+Math.sin(a)*(L.rz+m)];}
+  function shoreArc(L,a0,a1,n=12,m=2.85){
+    let d=a1-a0;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
+    const pts=[];for(let i=0;i<=n;i++)pts.push(shorePt(L,a0+d*(i/n),m));return pts;
+  }
+  // Outer promenade ring on large lakes (second shoreline band)
+  lakes.forEach(L=>{
+    if(L.rx<28) return;
+    const pts=[],n=L.rx>=40?64:48;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push(shorePt(L,a,5.4));
+    }
+    pathRibbon(pts,4.2);
+  });
+  function linkLakes(A,B){
+    const pts=walkLinkPolyline(A,B);
+    for(let i=0;i<pts.length-1;i++){
+      if(walkSegmentCrossesSpine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1])) return false;
+    }
+    pathRibbon(pts, 4.4);
+    return true;
+  }
+  // Pass 17 — designed named circuits (WALKS in lock.js), not k-NN
+  WALKS.forEach(walk=>{
+    walkPairs(walk).forEach(([ia,ib])=>{
+      const A=walkLake(ia), B=walkLake(ib);
+      linkLakes(A,B);
+    });
+    if(walk.spur && walk.lakes[0]!=null){
+      const pts=walkSpurPolyline(walk);
+      if(!pts.length) return;
+      if(walkSegmentCrossesSpine(pts[0][0],pts[0][1],pts[pts.length-1][0],pts[pts.length-1][1])) return;
+      pathRibbon(pts, 4.0);
+    }
+  });
+  // Pass 19 — park-wide itinerary: stitch walk signs via hub apron (not through spine strip)
+  (function parkItinerary(){
+    const pts=[];
+    // Pass 43 — Gate → stops → return via shared hubApronPath (matches measureItinerary)
+    if(ITINERARY.sign) pts.push([ITINERARY.sign.x, ITINERARY.sign.z]);
+    ITINERARY.sequence.forEach(id=>{
+      const w=walkById(id); if(!w||!w.sign) return;
+      pts.push([w.sign.x, w.sign.z]);
+    });
+    if(ITINERARY.returnToGate) pts.push([ITINERARY.returnToGate.x, ITINERARY.returnToGate.z]);
+    if(pts.length<2) return;
+    for(let i=0;i<pts.length-1;i++){
+      pathRibbon(hubApronPath(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1]), 3.6);
+    }
+  })();
+})();
+const railPts=[];
+const segs=36; // Pass 54 — denser rail sample (stadium meters held)
+for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(-S+t*2*S,0.4,-B));}
+for(let i=0;i<=segs;i++){const a=-Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
+for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(S-t*2*S,0.4,B));}
+for(let i=0;i<=segs;i++){const a=Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(-S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
+scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts),new THREE.LineBasicMaterial({color:0x2b241c})));
+{
+  const curbPts=railPts.map(p=>new THREE.Vector3(p.x,0.2,p.z));
+  const railCurb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curbPts,true),160,0.2,6,true),stoneDark);
+  scene.add(railCurb);
+}
+function gateHouse(){
+  GATE.forEach((wing)=>addSkuKit(THREE,scene,wing));
+  const pal=LAND_PALETTE.Gate;
+  const z=(GATE[0].z+GATE[1].z)/2;
+  const gap=Math.abs(GATE[1].x-GATE[0].x)-GATE[0].w/2-GATE[1].w/2;
+  const span=Math.abs(GATE[1].x-GATE[0].x)+GATE[0].w;
+  const deckH=1.1;
+  const deckY=GATE[0].h+0.2+deckH/2;
+  const bridge=new THREE.Mesh(new THREE.BoxGeometry(span,deckH,Math.min(GATE[0].d,4.0)),new THREE.MeshLambertMaterial({color:pal.body}));
+  bridge.position.set(0,deckY,z);
+  const cornice=new THREE.Mesh(new THREE.BoxGeometry(span+1,0.28,4.4),new THREE.MeshLambertMaterial({color:pal.trim}));
+  cornice.position.set(0,deckY+deckH/2+0.16,z);
+  scene.add(bridge,cornice);
+  // Pass 49 — ticket window / counter / queue rail polish (GATE x/z/w/d/h held)
+  const glassMat=new THREE.MeshLambertMaterial({color:0xa8c8e8,emissive:0x446688,emissiveIntensity:0.22,transparent:true,opacity:0.85});
+  const brass=new THREE.MeshLambertMaterial({color:0xb08a4a});
+  const counterMat=new THREE.MeshLambertMaterial({color:0x3a2e24});
+  const railMat=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+  GATE.forEach((wing)=>{
+    const faceZ=wing.z+wing.d/2;
+    const side=Math.sign(wing.x)||1;
+    // framed ticket windows (two panes)
+    [-0.85,0.85].forEach((ox)=>{
+      const frame=new THREE.Mesh(new THREE.BoxGeometry(1.35,1.15,0.12),new THREE.MeshLambertMaterial({color:pal.trim}));
+      frame.position.set(wing.x+ox,1.35,faceZ+0.08);scene.add(frame);
+      const glass=new THREE.Mesh(new THREE.BoxGeometry(1.1,0.85,0.06),glassMat);
+      glass.position.set(wing.x+ox,1.38,faceZ+0.14);scene.add(glass);
+      const sill=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.1,0.22),brass);
+      sill.position.set(wing.x+ox,0.78,faceZ+0.18);scene.add(sill);
+    });
+    // counter shelf under windows
+    const counter=new THREE.Mesh(new THREE.BoxGeometry(3.4,0.14,0.55),counterMat);
+    counter.position.set(wing.x,0.95,faceZ+0.42);scene.add(counter);
+    const kick=new THREE.Mesh(new THREE.BoxGeometry(3.4,0.7,0.12),new THREE.MeshLambertMaterial({color:pal.body}));
+    kick.position.set(wing.x,0.4,faceZ+0.28);scene.add(kick);
+    // canopy over ticket face
+    const canopy=new THREE.Mesh(new THREE.BoxGeometry(4.2,0.12,1.1),new THREE.MeshLambertMaterial({color:pal.trim}));
+    canopy.position.set(wing.x,2.15,faceZ+0.55);scene.add(canopy);
+    [-1.8,1.8].forEach((ox)=>{
+      const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.85,6),brass);
+      rod.position.set(wing.x+ox,1.7,faceZ+0.9);scene.add(rod);
+    });
+    // TICKETS band
+    const band=new THREE.Mesh(new THREE.BoxGeometry(2.8,0.38,0.08),brass);
+    band.position.set(wing.x,2.45,faceZ+0.12);scene.add(band);
+    // queue stanchions + rails in front of each wing (guest side +Z toward approach is −Z from gate? gate at z=233, approach from south is lower z)
+    const qZ0=faceZ+1.4;
+    for(let i=0;i<5;i++){
+      const qz=qZ0+i*1.15;
+      const qx=wing.x+side*0.15;
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post.position.set(qx,0.5,qz);scene.add(post);
+      const cap=new THREE.Mesh(new THREE.SphereGeometry(0.11,6,5),brass);
+      cap.position.set(qx,1.05,qz);scene.add(cap);
+      if(i<4){
+        const rail=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,1.05),railMat);
+        rail.position.set(qx,0.92,qz+0.55);scene.add(rail);
+        const rail2=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,1.05),railMat);
+        rail2.position.set(qx+side*0.85,0.92,qz+0.55);scene.add(rail2);
+      }
+      const post2=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post2.position.set(qx+side*0.85,0.5,qz);scene.add(post2);
+    }
+  });
+  [-11,11].forEach(x=>{
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.7,1.05,10),new THREE.MeshLambertMaterial({color:pal.trim}));
+    t.position.set(x,0.52,LOCK.gate.z-3);scene.add(t);
+  });
+}
+gateHouse();
+// Pass 28 — Gate arrival plaza polish (spine 14 m / gate house held)
+(function gateArrivalPlaza(){
+  const z=LOCK.gate.z;
+  // arrival pad south of gate house (outside stadium? keep just inside rail)
+  const pad=new THREE.Mesh(new THREE.BoxGeometry(28,0.16,16),concreteMat);
+  pad.position.set(0,0.08,z-10);scene.add(pad);
+  addWalkSeg(-14,z-10,14,z-10,8);
+  // welcome curb rings flanking spine (not on strip)
+  [-1,1].forEach(side=>{
+    const curb=new THREE.Mesh(new THREE.BoxGeometry(1.1,0.35,14),stoneDark);
+    curb.position.set(side*(LOCK.spineWidth/2+1.4),0.18,z-12);scene.add(curb);
+    const planter=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.6,0.55,10),stone);
+    planter.position.set(side*18,0.28,z-8);scene.add(planter);
+    const bush=new THREE.Mesh(new THREE.SphereGeometry(1.1,8,6),new THREE.MeshLambertMaterial({color:0x2f5a32}));
+    bush.position.set(side*18,1.0,z-8);scene.add(bush);
+  });
+  // bollard line at gate threshold
+  for(let x=-10;x<=10;x+=5){
+    if(Math.abs(x)<4) continue;
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.25,0.9,8),stoneDark);
+    b.position.set(x,0.45,z-4);scene.add(b);
+  }
+  // Pass 61 — secondary queue furniture beyond ticket rails (GATE / spine held)
+  const railMat=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+  const brass=new THREE.MeshLambertMaterial({color:0xb08a4a});
+  function outerLane(side){
+    // parallel queue lane further out on arrival pad
+    const qx=side*9.5;
+    for(let i=0;i<6;i++){
+      const qz=z-6-i*1.35;
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post.position.set(qx,0.5,qz);scene.add(post);
+      const cap=new THREE.Mesh(new THREE.SphereGeometry(0.1,6,5),brass);
+      cap.position.set(qx,1.05,qz);scene.add(cap);
+      const post2=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post2.position.set(qx+side*1.1,0.5,qz);scene.add(post2);
+      if(i<5){
+        const rail=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,1.25),railMat);
+        rail.position.set(qx,0.92,qz-0.65);scene.add(rail);
+        const rail2=rail.clone();rail2.position.x=qx+side*1.1;scene.add(rail2);
+      }
+    }
+    // waiting bench beside outer lane
+    const seat=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.12,0.5),stone);
+    seat.position.set(side*14,0.44,z-12);seat.rotation.y=side>0?-0.2:0.2;scene.add(seat);
+    const back=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.4,0.08),stone);
+    back.position.set(side*14,0.7,z-12.25);back.rotation.y=side>0?-0.2:0.2;scene.add(back);
+  }
+  outerLane(-1);outerLane(1);
+  // denser bollards on approach (skip spine center)
+  for(let x=-12;x<=12;x+=3){
+    if(Math.abs(x)<3.5) continue;
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.85,8),stoneDark);
+    b.position.set(x,0.42,z-16);scene.add(b);
+  }
+  // info / map pedestals off spine
+  [-1,1].forEach(side=>{
+    const ped=new THREE.Mesh(new THREE.BoxGeometry(1.1,1.2,0.35),stoneDark);
+    ped.position.set(side*11,0.7,z-20);scene.add(ped);
+    const top=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.08,0.5),stone);
+    top.position.set(side*11,1.35,z-20);scene.add(top);
+  });
+  // Pass 65 — denser Gate approach beyond Pass 61 (GATE footprints + spine held)
+  // pass65GateApproach
+  (function pass65GateApproach(){
+    for(let i=0;i<5;i++){
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(22,0.04,0.55),new THREE.MeshLambertMaterial({color:0xd8d0c0}));
+      bar.position.set(0,0.17,z-7-i*1.1);scene.add(bar);
+    }
+    [-1,1].forEach(side=>{
+      for(let k=0;k<3;k++){
+        const pz=z-24-k*5;
+        const planter=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.25,0.5,10),stone);
+        planter.position.set(side*16,0.25,pz);scene.add(planter);
+        const bush=new THREE.Mesh(new THREE.SphereGeometry(0.95,8,6),new THREE.MeshLambertMaterial({color:0x2f5a32}));
+        bush.position.set(side*16,0.95,pz);scene.add(bush);
+      }
+      for(let i=0;i<4;i++){
+        const qz=z-7-i*1.6;
+        const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,2.4,6),postMat);
+        pole.position.set(side*9.5+side*0.55,1.2,qz);scene.add(pole);
+      }
+      const shade=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.06,6.2),new THREE.MeshLambertMaterial({color:0xc4a574}));
+      shade.position.set(side*10.05,2.35,z-10);scene.add(shade);
+    });
+    [-1,1].forEach(side=>{
+      const can=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.32,0.85,8),stoneDark);
+      can.position.set(side*7.5,0.42,z-22);scene.add(can);
+    });
+  })();
+
+})();
+const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});
+const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});
+const leafOlive=new THREE.MeshLambertMaterial({color:0x3d6b38});
+const leafSage=new THREE.MeshLambertMaterial({color:0x4a7048});
+const leafBright=new THREE.MeshLambertMaterial({color:0x3f7a3a});
+const leafHi=new THREE.MeshLambertMaterial({color:0x3a6e32});
+const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});
+const barkDark=new THREE.MeshLambertMaterial({color:0x3e2a1c});
+const SPECIES=['pine','oak','willow','poplar'];
+function pickSpecies(x,z,i=0){
+  const h=Math.abs((Math.floor(x*3)+Math.floor(z*5)*17+i*31)%4);
+  return SPECIES[h];
+}
+// Species-varied crowns (Pass 6) — meter-true trunk via treeMetrics; overlapping canopies / canopy overlap
+function tree(x,z,s=1,seed=0,species){
+  if(typeof seed==='string'){species=seed;seed=0;}
+  const m=treeMetrics(s,seed);
+  if(!canPlaceSoft(x,z,m.canopyR*0.5))return;
+  const kind=species||pickSpecies(x,z);
+  const g=new THREE.Group();
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(m.trunkR*0.72,m.trunkR*1.15,m.trunkH,8),kind==='pine'||kind==='poplar'?barkDark:bark);
+  trunk.position.y=m.trunkH/2;
+  const canopyY=m.trunkH*0.72;
+  const leafA=kind==='pine'?leafDeep:kind==='willow'?leafSage:kind==='oak'?leafOlive:leafBright;
+  const leafB=kind==='poplar'?leafBright:leafDeep;
+  const leafC=kind==='willow'?leafSage:leafHi;
+  const c1=new THREE.Mesh(new THREE.SphereGeometry(m.canopyR,8,6),leafA);
+  c1.position.set(0.25,canopyY+m.canopyR*0.35,-0.15);c1.scale.set(1.12,0.7,1.05);
+  const c2=new THREE.Mesh(new THREE.SphereGeometry(m.canopyR*0.78,8,6),leafB);
+  c2.position.set(-0.55,canopyY+m.canopyR*0.08,0.4);c2.scale.set(1.08,0.68,1.0);
+  const c3=new THREE.Mesh(new THREE.SphereGeometry(m.canopyR*0.55,7,5),leafC);
+  c3.position.set(0.5,canopyY+m.canopyR*0.55,0.22);c3.scale.set(0.95,0.62,0.92);
+  g.add(trunk,c1,c2,c3);
+  if(kind==='pine'){
+    for(let k=0;k<2;k++){
+      const cone=new THREE.Mesh(new THREE.ConeGeometry(m.canopyR*(0.7-k*0.18),m.canopyR*0.85,7),k?leafDeep:leaf);
+      cone.position.y=canopyY+m.canopyR*(0.55+k*0.4);g.add(cone);
+    }
+  }else if(kind==='willow'){
+    for(let k=0;k<4;k++){
+      const a=(k/4)*Math.PI*2;
+      const drop=new THREE.Mesh(new THREE.CapsuleGeometry(m.trunkR*1.4,m.canopyR*0.7,4,6),leafSage);
+      drop.position.set(Math.cos(a)*m.canopyR*0.45,canopyY,Math.sin(a)*m.canopyR*0.45);g.add(drop);
+    }
+  }
+  g.position.set(x,0,z);scene.add(g);
+}
+function clump(cx,cz,n,r,s0=1,prefer){
+  for(let i=0;i<n;i++){
+    const a=(i/n)*Math.PI*2+(i%3)*0.37;
+    const d=r*(0.2+((i*19)%11)/14);
+    const tx=cx+Math.cos(a)*d,tz=cz+Math.sin(a)*d;
+    // Keep Pocket spine walk clear (±9 m)
+    if(Math.abs(tx)<9&&tz>-8&&tz<B)continue;
+    if(BUILDINGS.some(b=>Math.abs(tx-b.x)<b.w/2+2.5&&Math.abs(tz-b.z)<b.d/2+2.5))continue;
+    const sp=prefer||pickSpecies(tx,tz,i);
+    tree(tx,tz,s0*(0.72+(i%5)*0.13),i+11,sp);
+  }
+}
+// Rail belt — denser every other post
+railPts.forEach((p,i)=>{if(i%2)return;if(Math.abs(p.x)<22&&p.z>40)return;tree(p.x*0.92,p.z*0.92,0.85+(i%4)*0.14);});
+// Gate→Hub corridor flanks — denser clumps outside 14 m path + curb
+for(let z=34;z<B-10;z+=11){
+  clump(-18.5,z,8,6.2,1.05);
+  clump(18.5,z,8,6.2,1.05);
+}
+// West lakes / The Block — willow-biased belts
+beltTreePositions('west lakes').forEach(p=>tree(p.x,p.z,p.s,p.seed,'willow'));
+// SE grove near Board figure-8 — oak-biased
+beltTreePositions('SE grove').forEach(p=>tree(p.x,p.z,p.s,p.seed,'oak'));
+// North / After Hours split — pine-biased
+beltTreePositions('north split').forEach(p=>tree(p.x,p.z,p.s,p.seed,'pine'));
+// Hub ring outer plantings (outside r32, skip spine axes)
+for(let i=0;i<10;i++){
+  const a=(i/10)*Math.PI*2+0.3;
+  if(Math.abs(Math.sin(a))>0.88)continue; // skip ±Z gate/north openings
+  clump(Math.cos(a)*40,Math.sin(a)*40,5,4.5,0.9,'poplar');
+}
+// Pass 14 — denser Pocket understory / planted beds (rings & footprints held)
+(function pocketUnderstory(){
+  const dirt=new THREE.MeshLambertMaterial({color:0x4a3a28});
+  const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
+  const bloom=new THREE.MeshLambertMaterial({color:0x6a4a68});
+  function bed(x,z,w,d,yaw=0){
+    if(Math.abs(x)<9&&z>0) return;
+    if(Math.hypot(x,z)<LOCK.hubOuter+2) return;
+    if(Math.hypot(x-LOCK.rings.A.x,z-LOCK.rings.A.z)<LOCK.rings.A.outer+6) return;
+    if(Math.hypot(x-LOCK.rings.B.x,z-LOCK.rings.B.z)<LOCK.rings.B.outer+5) return;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.2&&Math.abs(z-b.z)<b.d/2+1.2)) return;
+    const g=new THREE.Group();
+    const soil=new THREE.Mesh(new THREE.BoxGeometry(w,0.18,d),dirt);soil.position.y=0.1;g.add(soil);
+    const n=Math.max(3,Math.floor(w*d*0.35));
+    for(let i=0;i<n;i++){
+      const bx=(i*0.37%1-0.5)*w*0.7, bz=((i*0.61)%1-0.5)*d*0.7;
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.35+(i%3)*0.08,6,5),i%4===0?bloom:hedge);
+      bush.position.set(bx,0.38,bz);g.add(bush);
+    }
+    g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+  }
+  [[48,95],[62,88],[150,118],[140,100],[95,48],[105,62],[118,148],[70,138],[80,120],[45,120],[160,95],[55,110]].forEach(([x,z],i)=>bed(x,z,4.2+i%3,2.8+i%2,i*0.2));
+  [[50,70,7,5],[130,70,7,5],[70,150,6,4.5],[140,140,6,4.5],[40,100,6,4],[165,120,6,4],[100,160,5,4],[55,140,5,4]].forEach(([x,z,n,r])=>clump(x,z,n,r,0.72,'oak'));
+  for(let z=50;z<=200;z+=14){bed(-12.5,z,2.2,8,0);bed(12.5,z,2.2,8,0);}
+})();
+// Pass 30 — soft land canopy edge ribbons (canopy ellipses unmoved)
+(function canopyEdgeRibbons(){
+  Object.entries(LOCK.canopies).forEach(([name,c])=>{
+    const pts=[], n=72;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push([c.cx+Math.cos(a)*c.rx, c.cz+Math.sin(a)*c.rz]);
+    }
+    // filter samples that sit on the 14 m spine
+    const filtered=pts.filter(([x,z])=>!(Math.abs(x)<LOCK.spineWidth/2+1 && Math.abs(z)<=LOCK.B));
+    if(filtered.length>8) pathRibbon(filtered, 2.4);
+  });
+})();
+// Pass 59 — denser canopy understory beds/planting (canopy ellipses held)
+(function pass59CanopyUnderstory(){
+  const dirt=new THREE.MeshLambertMaterial({color:0x4a3a28});
+  const dirt2=new THREE.MeshLambertMaterial({color:0x5a4830});
+  const hedge=new THREE.MeshLambertMaterial({color:0x2f5a32});
+  const hedge2=new THREE.MeshLambertMaterial({color:0x3a6a38});
+  const bloom=new THREE.MeshLambertMaterial({color:0x6a4a68});
+  const half=LOCK.spineWidth/2+2.2;
+  function blocked(x,z,pad=1.5){
+    if(Math.abs(x)<half) return true;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+pad), dz=(z-cz)/(rz+pad); return dx*dx+dz*dz<=1;
+    })) return true;
+    if(nearRing(x,z,8+pad)) return true;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+pad+1&&Math.abs(z-b.z)<b.d/2+pad+1)) return true;
+    if(Math.hypot(x,z)<LOCK.hubOuter+3) return true;
+    return false;
+  }
+  function bed(x,z,w,d,yaw,ci){
+    if(blocked(x,z,Math.max(w,d)*0.35)) return;
+    const g=new THREE.Group();
+    const soil=new THREE.Mesh(new THREE.BoxGeometry(w,0.16,d),ci%2?dirt2:dirt);
+    soil.position.y=0.09;g.add(soil);
+    const n=Math.max(4, Math.floor(w*d*0.55));
+    for(let i=0;i<n;i++){
+      const bx=((i*0.37)%1-0.5)*w*0.72, bz=((i*0.61)%1-0.5)*d*0.72;
+      const mat=i%5===0?bloom:(i%2?hedge2:hedge);
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.28+(i%3)*0.1,6,5),mat);
+      bush.position.set(bx,0.32+(i%2)*0.08,bz);g.add(bush);
+    }
+    g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+  }
+  Object.entries(LOCK.canopies).forEach(([name,c],ci)=>{
+    // radial bed rings under canopy (ellipses unmoved)
+    for(let ring=0;ring<3;ring++){
+      const rad=0.35+ring*0.22;
+      const n=8+ring*4;
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+ci*0.3+ring*0.15;
+        const x=c.cx+Math.cos(a)*c.rx*rad;
+        const z=c.cz+Math.sin(a)*c.rz*rad;
+        bed(x,z, 3.2+ring*0.4+(i%2), 2.2+ring*0.3, a+Math.PI/2, ci+i);
+      }
+    }
+    // small understory tree clumps mid-canopy
+    for(let i=0;i<5;i++){
+      const a=(i/5)*Math.PI*2+0.5;
+      const x=c.cx+Math.cos(a)*c.rx*0.5;
+      const z=c.cz+Math.sin(a)*c.rz*0.5;
+      if(blocked(x,z,4)) continue;
+      const prefer=name.includes('Block')?'willow':name.includes('Hours')?'pine':name.includes('Board')?'oak':'poplar';
+      clump(x,z, 6, 5.5, 0.7, prefer);
+    }
+  });
+})();
+function landSign(text,x,z,yaw){
+  const c=document.createElement('canvas');c.width=1024;c.height=256;
+  const g=c.getContext('2d');
+  g.fillStyle='#2c2418';g.fillRect(0,0,1024,256);
+  g.fillStyle='#c9b48a';g.fillRect(16,16,992,224);
+  g.fillStyle='#2c2418';g.fillRect(28,28,968,200);
+  g.fillStyle='#f4efe6';g.font='bold 96px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(text,512,128);
+  const board=new THREE.Mesh(new THREE.PlaneGeometry(9.4,2.35),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(c),side:THREE.DoubleSide}));
+  board.position.set(x,2.4,z);board.rotation.y=yaw;
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.16,2.45,8),stoneDark);post.position.set(x,1.22,z);
+  scene.add(board,post);
+}
+landSign('The Block',-42,6,Math.PI/2);
+landSign('The Board',42,6,-Math.PI/2);
+landSign('After Hours',0,-42,0);
+landSign('The Pocket',0,46,Math.PI);
+function tourMarker(n,label,x,z,yaw=0){
+  const g=new THREE.Group();
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.14,1.55,8),new THREE.MeshLambertMaterial({color:0x3d3428}));
+  post.position.y=0.78;g.add(post);
+  const disc=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.08,16),new THREE.MeshLambertMaterial({color:0x8a4030}));
+  disc.position.y=1.55;g.add(disc);
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#f2e6d0';ctx.fillRect(0,0,256,128);
+  ctx.fillStyle='#8a4030';ctx.font='bold 42px sans-serif';ctx.textAlign='center';ctx.fillText(String(n),128,48);
+  ctx.fillStyle='#3d3428';ctx.font='28px sans-serif';ctx.fillText(label,128,95);
+  const tex=new THREE.CanvasTexture(canvas);
+  const board=new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.7),new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+  board.position.set(0,2.05,0.2);g.add(board);
+  g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+}
+WALKS.forEach(w=>{if(w.sign)landSign(w.name,w.sign.x,w.sign.z,w.sign.yaw);});
+if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINERARY.sign.x,ITINERARY.sign.z,ITINERARY.sign.yaw);
+// Pass 20 — timed tour markers at each itinerary stop
+(ITINERARY.stops||[]).forEach((s,i)=>{
+  const w=walkById(s.walk); if(!w||!w.sign) return;
+  tourMarker(i+1, s.atMin+' min', w.sign.x, w.sign.z, w.sign.yaw);
+});
+// Pass 35 — itinerary return-to-Gate leg (spine shoulder; 14 m strip clear)
+(function returnToGatePath(){
+  const last=walkById(ITINERARY.sequence[ITINERARY.sequence.length-1]);
+  const ret=ITINERARY.returnToGate;
+  if(!last||!last.sign||!ret) return;
+  // Pass 43 — return ribbon = measureItinerary hub-apron meters
+  pathRibbon(hubApronPath(last.sign.x, last.sign.z, ret.x, ret.z), 3.8);
+  tourMarker(ITINERARY.stops.length+1, ret.atMin+' min', ret.x, ret.z, Math.PI);
+  landSign('Return · Gate', ret.x, ret.z-6, Math.PI);
+})();
+// Pass 21 — itinerary wayfinding chevrons (hub-apron legs)
+(function wayChevrons(){
+  const mat=new THREE.MeshLambertMaterial({color:0x8a4030});
+  const stops=(ITINERARY.stops||[]).map(s=>walkById(s.walk)).filter(w=>w&&w.sign);
+  function chevron(x,z,yaw){
+    const g=new THREE.Group();
+    const a=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.06,0.28),mat);
+    const b=a.clone(); a.position.set(0.25,0.04,0); a.rotation.y=0.45;
+    b.position.set(-0.25,0.04,0); b.rotation.y=-0.45;
+    g.add(a,b); g.position.set(x,0.02,z); g.rotation.y=yaw; scene.add(g);
+  }
+  for(let i=0;i<stops.length-1;i++){
+    const a=stops[i].sign, b=stops[i+1].sign;
+    const hubA=[Math.sign(a.x||1)*22, Math.sign(a.z||1)*22];
+    const hubB=[Math.sign(b.x||1)*22, Math.sign(b.z||1)*22];
+    const path=[[a.x,a.z], hubA];
+    if(hubA[0]!==hubB[0]||hubA[1]!==hubB[1]) path.push(hubB);
+    path.push([b.x,b.z]);
+    for(let k=0;k<path.length-1;k++){
+      const x0=path[k][0],z0=path[k][1],x1=path[k+1][0],z1=path[k+1][1];
+      const dist=Math.hypot(x1-x0,z1-z0);
+      const n=Math.max(2,Math.floor(dist/10)); // Pass 57 denser chevrons
+      for(let j=1;j<=n;j++){
+        const t=j/(n+1);
+        const x=x0+(x1-x0)*t, z=z0+(z1-z0)*t;
+        if(Math.abs(x)<LOCK.spineWidth/2+1.2) continue; // keep off spine strip
+        chevron(x,z,Math.atan2(x1-x0,z1-z0));
+      }
+    }
+  }
+})();
+
+// Pass 57 — denser wayfinding: blade signs + directional posts along WALKS / hub approaches
+(function pass57Wayfinding(){
+  const half=LOCK.spineWidth/2+2.0;
+  const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+  const bladeMat=new THREE.MeshLambertMaterial({color:0xc9b48a});
+  const tipMat=new THREE.MeshLambertMaterial({color:0x8a4030});
+  function offSpine(x){return Math.abs(x)>=half;}
+  function chevronLite(x,z,yaw){
+    if(!offSpine(x)) return;
+    const mat=new THREE.MeshLambertMaterial({color:0x8a4030});
+    const g=new THREE.Group();
+    const a=new THREE.Mesh(new THREE.BoxGeometry(0.75,0.05,0.22),mat);
+    const b=a.clone(); a.position.set(0.2,0.04,0); a.rotation.y=0.45;
+    b.position.set(-0.2,0.04,0); b.rotation.y=-0.45;
+    g.add(a,b); g.position.set(x,0.02,z); g.rotation.y=yaw; scene.add(g);
+  }
+  function dirPost(x,z,yaw){
+    if(!offSpine(x)) return;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;
+    })) return;
+    const g=new THREE.Group();
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,1.85,8),postMat);
+    post.position.y=0.92;g.add(post);
+    const blade=new THREE.Mesh(new THREE.BoxGeometry(1.35,0.28,0.08),bladeMat);
+    blade.position.set(0.45,1.65,0);g.add(blade);
+    const tip=new THREE.Mesh(new THREE.BoxGeometry(0.35,0.28,0.08),tipMat);
+    tip.position.set(1.2,1.65,0);g.add(tip);
+    g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+  }
+  function miniSign(text,x,z,yaw){
+    if(!offSpine(x)) return;
+    const c=document.createElement('canvas');c.width=512;c.height=128;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#2c2418';ctx.fillRect(0,0,512,128);
+    ctx.fillStyle='#c9b48a';ctx.fillRect(8,8,496,112);
+    ctx.fillStyle='#2c2418';ctx.fillRect(14,14,484,100);
+    ctx.fillStyle='#f4efe6';ctx.font='bold 42px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(text,256,64);
+    const board=new THREE.Mesh(new THREE.PlaneGeometry(3.2,0.8),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(c),side:THREE.DoubleSide}));
+    board.position.set(x,1.85,z);board.rotation.y=yaw;
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.11,1.7,8),postMat);post.position.set(x,0.85,z);
+    scene.add(board,post);
+  }
+  WALKS.forEach(walk=>{
+    if(walk.sign){
+      const sx=walk.sign.x, sz=walk.sign.z, yaw=walk.sign.yaw||0;
+      const side=Math.sign(sx||1)||1;
+      dirPost(sx+side*5.5, sz+3.5, yaw+0.2);
+      dirPost(sx+side*5.5, sz-3.5, yaw-0.2);
+      miniSign(walk.name.split(' ')[0], sx+side*8, sz, yaw);
+    }
+    walkPairs(walk).forEach(([ia,ib])=>{
+      const A=walkLake(ia), B=walkLake(ib);
+      const poly=walkLinkPolyline(A,B);
+      for(let i=2;i<poly.length-2;i+=3){
+        const p0=poly[i-1], p1=poly[i];
+        const x=(p0[0]+p1[0])/2, z=(p0[1]+p1[1])/2;
+        const yaw=Math.atan2(p1[0]-p0[0], p1[1]-p0[1]);
+        const side=Math.sign(x||1)||1;
+        dirPost(x+side*3.2, z, yaw);
+        if(i%6===2) chevronLite(x+side*2.2, z, yaw);
+      }
+    });
+  });
+  [[22,22],[-22,22],[22,-22],[-22,-22],[28,0],[-28,0]].forEach(([x,z],i)=>{
+    if(!offSpine(x)) return;
+    const yaw=Math.atan2(-x,-z);
+    dirPost(x,z,yaw);
+    miniSign(i<4?'Hub':'Corridor', x*1.15, z*(Math.abs(z)<1?1:1.15), yaw);
+  });
+  dirPost(18, LOCK.gate.z-18, Math.PI);
+  dirPost(-18, LOCK.gate.z-18, Math.PI);
+  miniSign('Gate', 22, LOCK.gate.z-28, -Math.PI/2);
+  miniSign('Gate', -22, LOCK.gate.z-28, Math.PI/2);
+})();
+
+// Pass 44 — denser PointLights with fill-rate budget
+
+let lampLightCount=0;
+const LAMP_LIGHT_CAP=80; // Pass 48 — denser lit set, lower intensity/dist
+function addLampPointLight(x,z,intensity=LAMP_LIGHT.intensity,dist=LAMP_LIGHT.dist){
+  if(lampLightCount>=LAMP_LIGHT_CAP) return false;
+  const pl=new THREE.PointLight(LAMP_LIGHT.color,intensity,dist);
+  pl.position.set(x,LAMP_LIGHT.y,z);scene.add(pl);
+  lampLightCount++;
+  return true;
+}
+function lamp(x,z,lit=false){
+  const H=GROUNDS_SCALE.lampH;
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.055,H,8),stoneDark);pole.position.set(x,H/2,z);
+  const fixture=new THREE.Mesh(new THREE.BoxGeometry(0.44,0.14,0.44),new THREE.MeshLambertMaterial({color:0xe8d5a3,emissive:0xc9a056,emissiveIntensity:0.5}));
+  fixture.position.set(x,H-0.06,z);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.04,0.5),stoneDark);cap.position.set(x,H+0.03,z);
+  scene.add(pole,fixture,cap);
+  // Pass 42/44 — PointLight for Lambert facades (capped)
+  if(lit) addLampPointLight(x,z);
+}
+function benchAt(x,z,yaw){
+  const seatY=GROUNDS_SCALE.benchSeat;
+  const g=new THREE.Group();
+  const seat=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.08,0.5),stone);seat.position.y=seatY;
+  const back=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.42,0.07),stone);back.position.set(0,seatY+0.28,-0.22);
+  const leg=new THREE.Mesh(new THREE.BoxGeometry(0.07,seatY,0.07),stoneDark);
+  [[-0.72,0.16],[0.72,0.16],[-0.72,-0.16],[0.72,-0.16]].forEach(([lx,lz])=>{
+    const p=leg.clone();p.position.set(lx,seatY/2,lz);g.add(p);
+  });
+  g.add(seat,back);g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+}
+function trashCan(x,z){
+  const c=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.72,8),new THREE.MeshLambertMaterial({color:0x2a2a28}));
+  c.position.set(x,0.36,z);scene.add(c);
+}
+
+// Pass 60 — tour mid-leg pause seating along hub-apron itinerary legs (spine clear)
+(function pass60TourPause(){
+  const half=LOCK.spineWidth/2+2.2;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;
+    })) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+2&&Math.abs(z-b.z)<b.d/2+2)) return false;
+    return true;
+  }
+  function seatPair(x,z,yaw){
+    if(!ok(x,z)) return;
+    const side=Math.sign(x||1)||1;
+    const ox=Math.cos(yaw+Math.PI/2)*2.4*side;
+    const oz=Math.sin(yaw+Math.PI/2)*2.4*side;
+    benchAt(x+ox, z+oz, yaw);
+    trashCan(x+ox*1.35, z+oz*1.35);
+  }
+  const pts=[];
+  if(ITINERARY.sign) pts.push([ITINERARY.sign.x, ITINERARY.sign.z]);
+  (ITINERARY.sequence||[]).forEach(id=>{
+    const w=walkById(id); if(w&&w.sign) pts.push([w.sign.x, w.sign.z]);
+  });
+  if(ITINERARY.returnToGate) pts.push([ITINERARY.returnToGate.x, ITINERARY.returnToGate.z]);
+  for(let i=0;i<pts.length-1;i++){
+    const path=hubApronPath(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1]);
+    for(let k=0;k<path.length-1;k++){
+      const x0=path[k][0], z0=path[k][1], x1=path[k+1][0], z1=path[k+1][1];
+      const dist=Math.hypot(x1-x0,z1-z0);
+      const n=Math.max(1, Math.floor(dist/22));
+      for(let j=1;j<=n;j++){
+        const t=j/(n+1);
+        const x=x0+(x1-x0)*t, z=z0+(z1-z0)*t;
+        const yaw=Math.atan2(x1-x0, z1-z0);
+        seatPair(x,z,yaw);
+      }
+    }
+  }
+})();
+
+for(const z of spineLampZs()){lamp(SPINE_LAMP.xWest,z,spineLampLitWest(z));lamp(SPINE_LAMP.xEast,z,spineLampLitEast(z));if(spineLampLitWest(z)){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
+for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z,true);lamp(8.3,z,z%36===0||z%36===-18);} // Pass 48 denser −Z lit
+lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
+// Pass 44/48 — PointLights on corridor + hub lanterns (shared LAMP_LIGHT_CAP)
+(function pass44LampLights(){
+  const half=LOCK.spineWidth/2+0.85;
+  // Pass 48 — every corridor lantern (was every other)
+  for(let z=12;z<=LOCK.gate.z-8;z+=28){
+    addLampPointLight(-half,z,6,15);addLampPointLight(half,z,6,15);
+  }
+  for(let z=-12;z>=-LOCK.B+8;z-=28){
+    addLampPointLight(-half,z,6,15);addLampPointLight(half,z,6,15);
+  }
+  const r=LOCK.hubOuter+2.2;
+  for(let k=0;k<16;k++){
+    const a=(k/16)*Math.PI*2;
+    if(Math.abs(Math.sin(a))>0.92) continue;
+    // Pass 48 — full hub ring (was every other)
+    addLampPointLight(Math.cos(a)*r, Math.sin(a)*r, 5.5, 14);
+  }
+})();
+// Pass 38 — denser path furniture along named WALKS (outside 14 m spine strip)
+(function walkPathFurniture(){
+  const half=LOCK.spineWidth/2+2.5;
+  function offSpine(x,z){return Math.abs(x)>=half;}
+  function place(x,z,yaw,kind){
+    if(!offSpine(x,z)) return;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+1.5), dz=(z-cz)/(rz+1.5); return dx*dx+dz*dz<=1;
+    })) return;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.5&&Math.abs(z-b.z)<b.d/2+1.5)) return;
+    if(kind==='lamp') lamp(x,z,Math.abs(Math.round(x)+Math.round(z))%2===0); // Pass 48 denser WALKS lit
+    else if(kind==='bench') benchAt(x,z,yaw);
+    else trashCan(x,z);
+  }
+  function alongSeg(ax,az,bx,bz,step,offset){
+    const dx=bx-ax, dz=bz-az, len=Math.hypot(dx,dz)||1;
+    const ux=dx/len, uz=dz/len, px=-uz, pz=ux;
+    const yaw=Math.atan2(dx,dz);
+    const pts=[];
+    for(let d=step;d<len-step*0.4;d+=step){
+      const x=ax+ux*d+px*offset, z=az+uz*d+pz*offset;
+      pts.push({x,z,yaw});
+    }
+    return pts;
+  }
+  function shorePt(L,a,m=3.6){return [L.x+Math.cos(a)*(L.rx+m), L.z+Math.sin(a)*(L.rz+m)];}
+  function angTo(L,x,z){return Math.atan2(z-L.z,x-L.x);}
+  WALKS.forEach(walk=>{
+    // furniture near walk sign (offset off spine)
+    if(walk.sign){
+      const sx=walk.sign.x, sz=walk.sign.z;
+      const side=Math.sign(sx||1);
+      place(sx+side*3.2, sz+2.5, walk.sign.yaw||0, 'lamp');
+      place(sx+side*4.0, sz-2.0, walk.sign.yaw||Math.PI/2, 'bench');
+      place(sx+side*2.4, sz+5.0, 0, 'trash');
+    }
+    walkPairs(walk).forEach(([ia,ib],pi)=>{
+      const A=walkLake(ia), B=walkLake(ib);
+      const aAb=angTo(A,B.x,B.z), aBa=angTo(B,A.x,A.z);
+      const a0=shorePt(A,aAb,4.2), b0=shorePt(B,aBa,4.2);
+      // lamps denser along connector
+      alongSeg(a0[0],a0[1],b0[0],b0[1],12,3.4).forEach((p,i)=>{ // Pass 58 denser seating
+        if(i%2===0) place(p.x,p.z,p.yaw,'lamp');
+        if(i%2===1) place(p.x,p.z,p.yaw+Math.PI/2,'bench');
+        if(i%4===2) place(p.x,p.z,0,'trash');
+      });
+      // opposite bank offset
+      alongSeg(a0[0],a0[1],b0[0],b0[1],16,-3.6).forEach((p,i)=>{
+        if(i%2===0) place(p.x,p.z,p.yaw,'lamp');
+        if(i%2===0) place(p.x,p.z,p.yaw,'bench');
+      });
+    });
+    if(walk.spur && walk.lakes[0]!=null){
+      const L=walkLake(walk.lakes[0]);
+      const start=shorePt(L, angTo(L, walk.spur[0], walk.spur[1]), 4.0);
+      const end=walk.spur;
+      alongSeg(start[0],start[1],end[0],end[1],10,3.2).forEach((p,i)=>{ // Pass 58
+        if(i%2===0) place(p.x,p.z,p.yaw,'lamp');
+        if(i%2===1) place(p.x,p.z,p.yaw+Math.PI/2,'bench');
+        if(i%3===2) place(p.x,p.z,0,'trash');
+      });
+    }
+    // lakeshore rim lamps on each lake in the walk
+    walk.lakes.forEach((li,li2)=>{
+      const L=walkLake(li);
+      const n=Math.max(4, Math.floor((L.rx+L.rz)/18));
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+li2*0.2;
+        const [x,z]=shorePt(L,a,4.5);
+        place(x,z,a+Math.PI/2, i%2===0?'bench':(i%3===1?'lamp':'trash')); // Pass 58 denser shore benches
+      }
+    });
+  });
+})();
+// Pass 68 — denser After Hours mid-loop furniture (walk meters held; spine clear)
+// pass68AfterHours
+(function pass68AfterHours(){
+  const walk=walkById('after-hours-quiet');
+  if(!walk) return;
+  const half=LOCK.spineWidth/2+2.8;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(nearRing(x,z,8)) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+1.2),dz=(z-cz)/(rz+1.2);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.2&&Math.abs(z-b.z)<b.d/2+1.2)) return false;
+    return true;
+  }
+  // spur → sign belt
+  if(walk.spur&&walk.sign){
+    const [sx,sz]=walk.spur;
+    const tx=walk.sign.x, tz=walk.sign.z;
+    const dx=tx-sx, dz=tz-sz, len=Math.hypot(dx,dz)||1;
+    const ux=dx/len, uz=dz/len, px=-uz, pz=ux;
+    for(let d=4;d<len-3;d+=5.5){
+      const x=sx+ux*d+px*3.2, z=sz+uz*d+pz*3.2;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,Math.atan2(dx,dz)+Math.PI/2);
+      if(Math.round(d)%11===0) trashCan(x+px*1.2,z+pz*1.2);
+      if(Math.round(d)%11===5) lamp(x-px*1.4,z-pz*1.4,true);
+    }
+  }
+  // north canopy belt seating clusters (z<-60, |x| off spine)
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2;
+    const x=10+Math.cos(a)*28, z=-110+Math.sin(a)*22;
+    if(!ok(x,z)) continue;
+    benchAt(x,z,a+Math.PI/2);
+    trashCan(x+1.5,z);
+  }
+})();
+
+// Pass 69 — Boardwalk shore seating clusters (Board land; waters held)
+// pass69BoardSeats
+(function pass69BoardSeats(){
+  const half=LOCK.spineWidth/2+2.5;
+  function ok(x,z){
+    if(x<70) return false; // Board only
+    if(Math.abs(x)<half) return false;
+    if(nearRing(x,z,8)) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+1.5),dz=(z-cz)/(rz+1.5);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.5&&Math.abs(z-b.z)<b.d/2+1.5)) return false;
+    return true;
+  }
+  // clusters along Board promenade / east shore
+  const hubs=[
+    [95,20],[110,-30],[125,40],[140,-10],[105,70],[130,90],[155,15],[118,-70]
+  ];
+  hubs.forEach(([cx,cz],hi)=>{
+    for(let k=0;k<3;k++){
+      const a=k*2.1+hi*0.3;
+      const x=cx+Math.cos(a)*2.4, z=cz+Math.sin(a)*2.4;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,a+Math.PI/2);
+    }
+    if(ok(cx+3.2,cz)) trashCan(cx+3.2,cz);
+    if(ok(cx-2.8,cz+1.5)) lamp(cx-2.8,cz+1.5,hi%2===0);
+  });
+  // board-promenade walk spur densify
+  const walk=walkById('board-promenade');
+  if(walk&&walk.spur&&walk.sign){
+    const [sx,sz]=walk.spur;
+    const tx=walk.sign.x, tz=walk.sign.z;
+    const dx=tx-sx, dz=tz-sz, len=Math.hypot(dx,dz)||1;
+    const ux=dx/len, uz=dz/len, px=-uz, pz=ux;
+    for(let d=5;d<len-4;d+=6){
+      const x=sx+ux*d+px*3.5, z=sz+uz*d+pz*3.5;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,Math.atan2(dx,dz)+Math.PI/2);
+    }
+  }
+})();
+
+// Pass 58 — guest seating densify away from hub / denser WALKS belts (spine clear)
+(function pass58Seating(){
+  const half=LOCK.spineWidth/2+2.5;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+2&&Math.abs(z-b.z)<b.d/2+2)) return false;
+    if(nearRing(x,z,8)) return false;
+    return true;
+  }
+  // land canopy seating pods
+  Object.values(LOCK.canopies||{}).forEach((c,ci)=>{
+    for(let i=0;i<6;i++){
+      const a=(i/6)*Math.PI*2+ci*0.4;
+      const x=c.cx+Math.cos(a)*c.rx*0.55;
+      const z=c.cz+Math.sin(a)*c.rz*0.55;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,a+Math.PI/2);
+      if(i%2===0) trashCan(x+Math.cos(a)*1.8, z+Math.sin(a)*1.8);
+    }
+  });
+  // Gate arrival seating flanks
+  const gz=LOCK.gate.z;
+  [[-16,gz-14],[16,gz-14],[-20,gz-22],[20,gz-22],[-12,gz-30],[12,gz-30]].forEach(([x,z],i)=>{
+    if(!ok(x,z)) return;
+    benchAt(x,z, i%2?Math.PI/2:-Math.PI/2);
+  });
+  // corridor flanks off spine (extra benches between lamp rows)
+  for(let z=40;z<LOCK.gate.z-20;z+=22){
+    if(ok(-12.5,z)) benchAt(-12.5,z,Math.PI/2);
+    if(ok(12.5,z)) benchAt(12.5,z,-Math.PI/2);
+  }
+  for(let z=-40;z>-LOCK.B+20;z-=22){
+    if(ok(-12.5,z)) benchAt(-12.5,z,Math.PI/2);
+    if(ok(12.5,z)) benchAt(12.5,z,-Math.PI/2);
+  }
+})();
+// Pass 39 — denser planting along named WALKS (outside spine; waters/BUILDINGS held)
+(function walkPathPlanting(){
+  const half=LOCK.spineWidth/2+3;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+2&&Math.abs(z-b.z)<b.d/2+2)) return false;
+    if(Math.hypot(x-LOCK.rings.A.x,z-LOCK.rings.A.z)<LOCK.rings.A.outer+5) return false;
+    if(Math.hypot(x-LOCK.rings.B.x,z-LOCK.rings.B.z)<LOCK.rings.B.outer+4) return false;
+    return true;
+  }
+  function speciesFor(land){
+    if(land==='The Block') return 'willow';
+    if(land==='The Board') return 'oak';
+    if(land==='After Hours') return 'pine';
+    return 'poplar';
+  }
+  WALKS.forEach(walk=>{
+    const sp=speciesFor(walk.land);
+    walk.lakes.forEach((li,k)=>{
+      const L=walkLake(li);
+      const n=Math.max(3,Math.floor((L.rx+L.rz)/22));
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+k*0.15;
+        const x=L.x+Math.cos(a)*(L.rx+7.5), z=L.z+Math.sin(a)*(L.rz+7.5);
+        if(ok(x,z)) clump(x,z,5,4.2,0.85,sp);
+      }
+    });
+    if(walk.sign && ok(walk.sign.x+Math.sign(walk.sign.x||1)*6, walk.sign.z)){
+      clump(walk.sign.x+Math.sign(walk.sign.x||1)*6, walk.sign.z, 6, 5, 0.9, sp);
+    }
+    if(walk.spur){
+      const x=walk.spur[0]+Math.sign(walk.spur[0]||1)*5, z=walk.spur[1];
+      if(ok(x,z)) clump(x,z,5,4,0.88,sp);
+    }
+  });
+})();
+function fencePost(x,z){
+  // Pass 73 — PATH_SCALE.railPost 0.28 m, railH 1.2 m (was 0.18×1.15 paper posts)
+  const H=PATH_SCALE.railH, S=PATH_SCALE.railPost;
+  const p=new THREE.Mesh(new THREE.BoxGeometry(S,H,S),stoneDark);p.position.set(x,H/2,z);scene.add(p);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(S+0.1,0.1,S+0.1),stoneDark);cap.position.set(x,H+0.05,z);scene.add(cap);
+}
+// Pass 31/54 — denser stadium rail fence (stadium S/B/R meters held; rail path same shape)
+(function railFenceDensify(){
+  const posts=[];
+  railPts.forEach((p,i)=>{
+    // Pass 54 — every sample post (was every other)
+    if(Math.abs(p.x)<16&&p.z>B-12) return; // gate opening held
+    const x=p.x*0.985, z=p.z*0.985;
+    fencePost(x,z);
+    posts.push([x,z]);
+  });
+  // mid-posts between consecutive samples for denser belt
+  for(let i=0;i<posts.length-1;i++){
+    const a=posts[i], b=posts[i+1];
+    const dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz);
+    if(len<2||len>22) continue;
+    const mx=(a[0]+b[0])/2, mz=(a[1]+b[1])/2;
+    if(Math.abs(mx)<16&&mz>B-12) continue;
+    fencePost(mx,mz);
+    posts.splice(i+1,0,[mx,mz]);
+    i++; // skip the inserted mid
+  }
+  const rail=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  for(let i=0;i<posts.length-1;i++){
+    const a=posts[i], b=posts[i+1];
+    const dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz);
+    if(len<0.4||len>14) continue;
+    const midX=(a[0]+b[0])/2, midZ=(a[1]+b[1])/2;
+    const yaw=Math.atan2(dx,dz);
+    const H=PATH_SCALE.railH, T=PATH_SCALE.railBarT;
+    [H-0.12, H*0.62, H*0.36].forEach((y)=>{
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(len,T,T),rail);
+      bar.position.set(midX,y,midZ);
+      bar.rotation.y=yaw;
+      scene.add(bar);
+    });
+  }
+})();
+// Pass 46 — zig queues live in sku-kit rails; rideStation densifies shed body only
+// Pass 47 — tour meters use catmullRibbonMeters in lock.js (matches pathRibbon)
+function rideStation(s){
+  const g=addSkuKit(THREE,scene,s);
+  // platform lip under kit (STATIONS x/z/w/d held)
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(s.w+0.9,0.26,s.d+0.9),concreteMat);
+  deck.position.set(0,0.13,0);g.add(deck);
+  const curb=new THREE.Mesh(new THREE.BoxGeometry(s.w+1.05,0.12,s.d+1.05),stoneDark);
+  curb.position.set(0,0.04,0);g.add(curb);
+  // Pass 66 — queue shade canopy over zig rails (STATIONS x/z/w/d held)
+  // pass66QueueShade
+  (function pass66QueueShade(){
+    const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+    const fabric=new THREE.MeshLambertMaterial({color:0xc4a574});
+    const qDepth=12.5;
+    const halfW=Math.min(s.w*0.55, 4.2);
+    [-1,1].forEach(side=>{
+      for(let i=0;i<4;i++){
+        const pz=s.d/2+2.2+i*2.8;
+        const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.11,2.8,6),postMat);
+        pole.position.set(side*halfW,1.4,pz);g.add(pole);
+      }
+    });
+    // fabric strips over zig lane
+    for(let i=0;i<3;i++){
+      const sheet=new THREE.Mesh(new THREE.BoxGeometry(halfW*2.1,0.06,3.4),fabric);
+      sheet.position.set(0,2.75,s.d/2+3.5+i*3.2);g.add(sheet);
+    }
+  })();
+}
+STATIONS.forEach(rideStation);
+plate(90,70,-200,-50,EARTH);
+plate(60,50,130,-70,EARTH);
+plate(70,40,0,-175,EARTH);
+// Pass 34/53 — denser earth / grass tone patches (layout locks held)
+(function earthGrassPatches(){
+  const tones=[0x5a7a40,0x4a6a38,0x6b5340,0x5a4838,0x557848,0x6a7a48,0x4e5a34,0x7a6048,0x3d5a38];
+  const spots=[
+    [-180,40,55,40],[-140,-90,45,35],[-90,120,40,30],
+    [160,60,50,40],[180,-20,40,35],[120,-120,45,30],
+    [40,-160,50,35],[-40,-140,40,30],[70,150,35,28],
+    [-160,80,40,30],[200,20,35,25],[-60,160,30,25],
+  ];
+  spots.forEach(([x,z,w,d],i)=>{
+    const mat=new THREE.MeshLambertMaterial({color:tones[i%tones.length]});
+    const m=new THREE.Mesh(new THREE.CircleGeometry(1,24),mat);
+    m.rotation.x=-Math.PI/2;m.position.set(x,0.025,z);m.scale.set(w/2,d/2,1);scene.add(m);
+  });
+  // Pass 53 — canopy scatter: tone-varied ground; skip spine / water / buildings / rings
+  const half=LOCK.spineWidth/2+2.2;
+  function blocked(x,z,r){
+    if(Math.abs(x)<half) return true;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+r), dz=(z-cz)/(rz+r); return dx*dx+dz*dz<=1;
+    })) return true;
+    if(nearRing(x,z,10+r)) return true;
+    if(BUILDINGS.some(b=>{
+      const dx=Math.abs(x-b.x)-(b.w/2+r), dz=Math.abs(z-b.z)-(b.d/2+r);
+      return dx<0&&dz<0;
+    })) return true;
+    if(STATIONS.some(s=>{
+      const dx=Math.abs(x-s.x)-(s.w/2+r), dz=Math.abs(z-s.z)-(s.d/2+r);
+      return dx<0&&dz<0;
+    })) return true;
+    return false;
+  }
+  let n=0;
+  const cans=Object.values(LOCK.canopies||{});
+  cans.forEach((c,ci)=>{
+    // denser grid inside each land canopy ellipse
+    const steps=10;
+    for(let i=0;i<steps;i++){
+      for(let j=0;j<steps;j++){
+        const u=(i+0.5)/steps, v=(j+0.5)/steps;
+        const ang=u*Math.PI*2+(ci*0.35), rad=0.25+v*0.72;
+        const x=c.cx+Math.cos(ang)*c.rx*rad;
+        const z=c.cz+Math.sin(ang)*c.rz*rad;
+        const rw=8+((i*3+j*5+ci*7)%7);
+        const rd=6+((i*5+j*2+ci*3)%6);
+        if(blocked(x,z,Math.max(rw,rd)*0.35)) continue;
+        const tone=tones[(i*11+j*3+ci*5)%tones.length];
+        const mat=new THREE.MeshLambertMaterial({color:tone});
+        const m=new THREE.Mesh(new THREE.CircleGeometry(1,20),mat);
+        m.rotation.x=-Math.PI/2;
+        m.position.set(x,0.028+((i+j)%3)*0.002,z);
+        m.scale.set(rw/2,rd/2,1);
+        scene.add(m);
+        n++;
+      }
+    }
+  });
+  // extra dirt freckles between path curbs (off-spine)
+  for(let k=0;k<48;k++){
+    const a=(k/48)*Math.PI*2;
+    const r=55+(k%5)*28;
+    const x=Math.cos(a)*r*((k%2)?1.15:0.85);
+    const z=Math.sin(a)*r*((k%3)?1.05:0.9);
+    if(blocked(x,z,6)) continue;
+    const mat=new THREE.MeshLambertMaterial({color:tones[k%tones.length]});
+    const m=new THREE.Mesh(new THREE.CircleGeometry(1,16),mat);
+    m.rotation.x=-Math.PI/2;m.position.set(x,0.03,z);m.scale.set(5+(k%4),4+(k%3),1);scene.add(m);
+    n++;
+  }
+})();
+const gateLight=new THREE.PointLight(0xffe1b0,40,55);gateLight.position.set(0,8,LOCK.gate.z);scene.add(gateLight);
+const hubLight=new THREE.PointLight(0xfff0d0,28,40);hubLight.position.set(0,7,0);scene.add(hubLight);
+sun.intensity=1.25;sun.color.set(0xffe6c4);
+function addKiosk(b){ addSkuKit(THREE,scene,b); }
+function addPavilion(b){ addSkuKit(THREE,scene,b); }
+function addPilaster(g,x,y,z,h,trim,faceZ=true){
+  const p=new THREE.Mesh(new THREE.BoxGeometry(faceZ?0.38:0.22,h,faceZ?0.22:0.38),trim);
+  p.position.set(x,y,z);g.add(p);
+}
+function addWindowBay(g,x,y,z,face='z+',mat,trim,glass){
+  const inset=0.28,bw=2.05,bh=1.55;
+  const dz=face==='z+'?1:face==='z-'?-1:0;
+  const dx=face==='x+'?1:face==='x-'?-1:0;
+  const recW=dx?inset:bw+0.22, recD=dz?inset:bw+0.22;
+  const rec=new THREE.Mesh(new THREE.BoxGeometry(recW,bh+0.28,recD),trim);
+  rec.position.set(x+dx*0.02,y,z+dz*0.02);g.add(rec);
+  const pane=new THREE.Mesh(new THREE.BoxGeometry(dx?0.08:bw*0.82,bh*0.82,dz?0.08:bw*0.82),glass);
+  pane.position.set(x-dx*(inset*0.45),y,z-dz*(inset*0.45));g.add(pane);
+  // Pass 51 — muntins
+  const mV=new THREE.Mesh(new THREE.BoxGeometry(dx?0.1:0.06,bh*0.78,dz?0.1:0.06),trim);
+  mV.position.set(x-dx*(inset*0.35),y,z-dz*(inset*0.35));g.add(mV);
+  const mH=new THREE.Mesh(new THREE.BoxGeometry(dx?0.1:bw*0.7,0.06,dz?0.1:bw*0.7),trim);
+  mH.position.set(x-dx*(inset*0.35),y,z-dz*(inset*0.35));g.add(mH);
+  const sill=new THREE.Mesh(new THREE.BoxGeometry(dx?0.34:bw+0.15,0.1,dz?0.34:bw+0.15),trim);
+  sill.position.set(x+dx*0.22,y-bh*0.52,z+dz*0.22);g.add(sill);
+  const lintel=new THREE.Mesh(new THREE.BoxGeometry(dx?0.3:bw+0.18,0.14,dz?0.3:bw+0.18),trim);
+  lintel.position.set(x+dx*0.16,y+bh*0.52,z+dz*0.16);g.add(lintel);
+}
+function addPortico(g,b,trim,mat){
+  const z=b.d/2;
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(5.2,0.18,2.4),new THREE.MeshLambertMaterial({color:0xb9b3a8}));
+  slab.position.set(0,0.18,z+1.15);g.add(slab);
+  [-1.7,1.7].forEach(sx=>{
+    const col=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,3.2,10),trim);
+    col.position.set(sx,1.78,z+1.55);g.add(col);
+    const cap=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.14,0.55),trim);
+    cap.position.set(sx,3.45,z+1.55);g.add(cap);
+  });
+  const ent=new THREE.Mesh(new THREE.BoxGeometry(5.4,0.28,2.5),trim);
+  ent.position.set(0,3.62,z+1.15);g.add(ent);
+  const ped=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.45,0.35),trim);
+  ped.position.set(0,4.05,z+2.2);g.add(ped);
+  const recess=new THREE.Mesh(new THREE.BoxGeometry(2.4,2.4,0.45),new THREE.MeshLambertMaterial({color:0x1a1410}));
+  recess.position.set(0,1.35,z-0.12);g.add(recess);
+  const door=new THREE.Mesh(new THREE.BoxGeometry(1.1,2.1,0.12),trim);
+  door.position.set(0,1.1,z-0.32);g.add(door);
+}
+function addHall(b){
+  const g=addSkuKit(THREE,scene,b);
+  const mat=new THREE.MeshLambertMaterial({color:b.body});
+  const trim=new THREE.MeshLambertMaterial({color:b.trim});
+  const glass=new THREE.MeshLambertMaterial({color:0x1c2830,emissive:0x0a1520});
+  addPortico(g,b,trim,mat);
+  const zFront=b.d/2+0.02,zBack=-b.d/2-0.02,xR=b.w/2+0.02,xL=-b.w/2-0.02;
+  // Pass 51 — denser bay rhythm (3 across + mid belt on hall)
+  const frontXs=[-b.w*0.34,0,b.w*0.34];
+  for(const wx of frontXs){
+    addWindowBay(g,wx,2.15,zFront,'z+',mat,trim,glass);
+    addWindowBay(g,wx*0.92,5.35,zFront*0.92,'z+',mat,trim,glass);
+    addWindowBay(g,wx,2.15,zBack,'z-',mat,trim,glass);
+  }
+  for(const wz of [-b.d*0.28,0,b.d*0.28]){
+    addWindowBay(g,xR,2.15,wz,'x+',mat,trim,glass);
+    addWindowBay(g,xL,2.15,wz,'x-',mat,trim,glass);
+    if(Math.abs(wz)>0.01) addWindowBay(g,xR*0.9,5.35,wz*0.85,'x+',mat,trim,glass);
+  }
+  // mid belt course around hall (footprint held)
+  const belt=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.2,0.18,b.d+0.2),trim);
+  belt.position.set(0,3.55,0);g.add(belt);
+  const base=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.16,0.35,b.d+0.16),trim);
+  base.position.set(0,0.22,0);g.add(base);
+  const pilH=b.h*0.56, pilY=0.42+b.h*0.28;
+  const pilFront=[-b.w/2,-b.w*0.25,0,b.w*0.25,b.w/2];
+  for(const sx of pilFront) addPilaster(g,sx,pilY,zFront+0.12,pilH,trim,true);
+  for(const sx of [-b.w/2,-b.w*0.25,b.w*0.25,b.w/2]) addPilaster(g,sx,pilY,zBack-0.12,pilH,trim,true);
+  for(const sz of [-b.d/2,-b.d*0.25,b.d*0.25,b.d/2]) addPilaster(g,xR+0.12,pilY,sz,pilH,trim,false);
+  for(const sz of [-b.d/2,b.d/2]) addPilaster(g,xL-0.12,pilY,sz,pilH,trim,false);
+  const steps=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.28,1.35),new THREE.MeshLambertMaterial({color:0xb9b3a8}));
+  steps.position.set(0,0.14,b.d/2+2.05);
+  const step2=steps.clone();step2.scale.set(0.82,1,0.7);step2.position.z=b.d/2+1.45;step2.position.y=0.28;
+  g.add(steps,step2);
+}
+BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
+// Pass 62 — SKU service/loading aprons at rear doors (BUILDINGS footprints held)
+(function pass62ServiceAprons(){
+  const apronMat=new THREE.MeshLambertMaterial({color:0x9a958c});
+  const curbMat=stoneDark;
+  BUILDINGS.forEach(b=>{
+    const yaw=b.yaw||0;
+    const back=b.d/2+1.4;
+    const ax=b.x-Math.sin(yaw)*back;
+    const az=b.z-Math.cos(yaw)*back;
+    if(Math.abs(ax)<LOCK.spineWidth/2+1) return;
+    if(nearRing(ax,az,6)) return;
+    const g=new THREE.Group();
+    const pad=new THREE.Mesh(new THREE.BoxGeometry(Math.min(b.w*0.85,6.5),0.12,2.4),apronMat);
+    pad.position.y=0.06;g.add(pad);
+    [-1,1].forEach(side=>{
+      const c=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.28,2.4),curbMat);
+      c.position.set(side*(Math.min(b.w*0.85,6.5)/2+0.15),0.14,0);g.add(c);
+    });
+    const bump=new THREE.Mesh(new THREE.BoxGeometry(Math.min(b.w*0.5,3.2),0.35,0.35),new THREE.MeshLambertMaterial({color:0x3d3428}));
+    bump.position.set(0,0.2,-1.0);g.add(bump);
+    g.position.set(ax,0,az);g.rotation.y=yaw;scene.add(g);
+  });
+  GATE.forEach(wing=>{
+    const yaw=wing.yaw||0;
+    const back=wing.d/2+1.2;
+    const ax=wing.x-Math.sin(yaw)*back;
+    const az=wing.z-Math.cos(yaw)*back;
+    const pad=new THREE.Mesh(new THREE.BoxGeometry(4.5,0.12,2.0),apronMat);
+    pad.position.set(ax,0.06,az);pad.rotation.y=yaw;scene.add(pad);
+  });
+})();
+
+// Pass 37 — evening window glow on SKUs (footprints unmoved)
+(function windowGlowPass(){
+  // Pass 52 — denser evening window glow (footprints unmoved; free fill vs PointLights)
+  const glow=new THREE.MeshLambertMaterial({color:0xf0d090, emissive:0xc9a050, emissiveIntensity:0.78});
+  BUILDINGS.forEach(b=>{
+    const n=b.sku==='album'||b.sku==='hall'?10:b.sku==='pavilion'?6:4;
+    for(let i=0;i<n;i++){
+      const face=i%4;
+      const u=(Math.floor(i/4)+0.5)/(Math.ceil(n/4)+0.01);
+      let x=0,z=0,sx=0.7,sz=0.08;
+      if(face===0){x=(u-0.5)*b.w*0.7;z=b.d/2+0.04;sx=Math.min(1.4,b.w*0.22);sz=0.08;}
+      else if(face===1){x=(u-0.5)*b.w*0.7;z=-b.d/2-0.04;sx=Math.min(1.4,b.w*0.22);sz=0.08;}
+      else if(face===2){z=(u-0.5)*b.d*0.7;x=b.w/2+0.04;sx=0.08;sz=Math.min(1.2,b.d*0.22);}
+      else{z=(u-0.5)*b.d*0.7;x=-b.w/2-0.04;sx=0.08;sz=Math.min(1.2,b.d*0.22);}
+      const pane=new THREE.Mesh(new THREE.BoxGeometry(sx,0.9,sz),glow);
+      pane.position.set(b.x+x*Math.cos(b.yaw||0)-z*Math.sin(b.yaw||0), 1.35+((i%3)*0.15), b.z+x*Math.sin(b.yaw||0)+z*Math.cos(b.yaw||0));
+      scene.add(pane);
+    }
+  });
+})();
+// Pass 52 — soft fill PointLights at walk signs + land pockets (shared LAMP_LIGHT_CAP)
+(function pass52NightFill(){
+  WALKS.forEach((w)=>{
+    if(!w.sign) return;
+    addLampPointLight(w.sign.x, w.sign.z, 4.5, 20);
+  });
+  // land canopy centers as dim fill (LAYOUT canopies held)
+  const cans=LOCK.canopies||{};
+  Object.values(cans).forEach((c)=>{
+    if(!c||c.cx==null) return;
+    addLampPointLight(c.cx, c.cz, 3.5, 28);
+  });
+  // mid-spine soft fill between denser poles (cap may drop late ones)
+  for(let z=40;z<LOCK.gate.z-20;z+=42){
+    addLampPointLight(0, z, 3.2, 24);
+  }
+})();
+// Pass 63 — local night mist near waters (waters x/z/rx/rz held; soft volume only)
+(function pass63WaterMist(){
+  const mistMat=new THREE.MeshLambertMaterial({
+    color:0xb8c8d8, emissive:0x4a6078, emissiveIntensity:0.22,
+    transparent:true, opacity:0.18, depthWrite:false
+  });
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    // low dome-ish stack of translucent discs just above water
+    for(let i=0;i<3;i++){
+      const t=0.55+i*0.18;
+      const disc=new THREE.Mesh(new THREE.CircleGeometry(1,48), mistMat.clone());
+      disc.material.opacity=0.14-i*0.03;
+      disc.rotation.x=-Math.PI/2;
+      disc.position.set(cx, 0.55+i*0.85, cz);
+      disc.scale.set(rx*t, rz*t, 1);
+      scene.add(disc);
+    }
+    // shore wisps — thin vertical cards around rim (skip spine)
+    for(let a=0;a<Math.PI*2;a+=Math.PI/5){
+      const x=cx+Math.cos(a)*rx*1.05;
+      const z=cz+Math.sin(a)*rz*1.05;
+      if(Math.abs(x)<LOCK.spineWidth/2+2) continue;
+      const card=new THREE.Mesh(new THREE.PlaneGeometry(rx*0.35, 2.2), mistMat.clone());
+      card.material.opacity=0.12;
+      card.position.set(x, 1.1, z);
+      card.lookAt(cx, 1.1, cz);
+      scene.add(card);
+    }
+  });
+})();
+(function landWash(){
+  // land wash — readable from Walk eye height and Drone ~90 m
+  const washes=[
+    {c:LOCK.canopies['The Block'],col:0x9bb56a,i:18,d:140},
+    {c:LOCK.canopies['After Hours'],col:0x88a0c0,i:16,d:120},
+    {c:LOCK.canopies['The Board'],col:0xc2b56a,i:17,d:130},
+    {c:LOCK.canopies['The Pocket'],col:0xa8c090,i:15,d:110}
+  ];
+  washes.forEach(w=>{
+    if(!w.c) return;
+    const l=new THREE.PointLight(w.col,w.i,w.d);l.position.set(w.c.cx,26,w.c.cz);scene.add(l);
+  });
+})();
+hubBedCenters().forEach(b=>{
+  // planters at hub ring (plants only)
+  const px=Math.cos(b.a)*30,pz=Math.sin(b.a)*30;
+  if(!canPlaceSoft(px,pz,0.8))return;
+  const pot=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.45,0.5,10),stone);
+  pot.position.set(px,0.25,pz);scene.add(pot);
+  const dirt=new THREE.Mesh(new THREE.CircleGeometry(0.48,10),earthMat);
+  dirt.rotation.x=-Math.PI/2;dirt.position.set(px,0.51,pz);scene.add(dirt);
+  const plant=new THREE.Mesh(new THREE.SphereGeometry(0.42,8,6),leafHi);
+  plant.position.set(px,0.85,pz);plant.scale.set(1,0.75,1);scene.add(plant);
+});
+const ropeMat=new THREE.MeshLambertMaterial({color:0xc9b48a});
+const ropes=[];
+for(let z=36;z<B-8;z+=8){
+  for(const side of [-1,1]){
+    const x=side*(LOCK.spineWidth/2+1.55);
+    if(!canPlaceSoft(x,z,0.2))continue;
+    ropes.push({x,z,side});
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.06,0.95,6),stoneDark);
+    post.position.set(x,0.48,z);scene.add(post);
+  }
+}
+ropes.forEach((p,i)=>{
+  const q=ropes[i+1];
+  if(!q||q.side!==p.side)return;
+  const dx=q.x-p.x,dz=q.z-p.z,len=Math.hypot(dx,dz);
+  if(len>12)return;
+  const rope=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,len,4),ropeMat);
+  rope.position.set((p.x+q.x)/2,0.82,(p.z+q.z)/2);
+  rope.rotation.z=Math.atan2(dx,dz);rope.rotation.x=Math.PI/2;scene.add(rope);
+});
+
+const avatar=new THREE.Group();
+const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
+const head=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12),new THREE.MeshLambertMaterial({color:0xe8d7b0}));head.position.y=1.72;
+avatar.add(body,head);scene.add(avatar);
+const keys={};
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyV')cycle();});
+addEventListener('keyup',e=>keys[e.code]=false);
+const modes=['walk','third','above'];
+const btns={walk:document.getElementById('b1'),third:document.getElementById('b3'),above:document.getElementById('bM')};
+function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:900;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}}
+function cycle(){setMode(modes[(modes.indexOf(mode)+1)%3]);}
+btns.walk.onclick=()=>setMode('walk');btns.third.onclick=()=>setMode('third');btns.above.onclick=()=>setMode('above');
+if(location.hash==='#drone')setMode('above');
+let look=false,lx=0,ly=0;
+canvas.addEventListener('pointerdown',e=>{look=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointerup',()=>look=false);
+canvas.addEventListener('pointermove',e=>{if(!look)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;if(mode==='above'){droneYaw-=dx*0.0045;dronePitch-=dy*0.0035;dronePitch=Math.max(-1.45,Math.min(0.35,dronePitch));}else{yaw-=dx*0.005;pitch-=dy*0.005;pitch=Math.max(-1.15,Math.min(1.15,pitch));}});
+canvas.addEventListener('wheel',e=>{if(mode!=='above')return;drone.y=Math.max(8,Math.min(420,drone.y+e.deltaY*0.12));},{passive:true});
+const pad=document.getElementById('pad'),knob=document.getElementById('knob');const stick={x:0,z:0};
+function setStick(cx,cy){const r=pad.getBoundingClientRect();let dx=(cx-(r.left+r.width/2))/42,dy=(cy-(r.top+r.height/2))/42;const m=Math.hypot(dx,dy)||1;if(m>1){dx/=m;dy/=m;}stick.x=dx;stick.z=dy;knob.style.left=39+dx*28+'px';knob.style.top=39+dy*28+'px';}
+function clearStick(){stick.x=0;stick.z=0;knob.style.left='39px';knob.style.top='39px';}
+pad.addEventListener('pointerdown',e=>{e.stopPropagation();setStick(e.clientX,e.clientY);pad.setPointerCapture(e.pointerId);});
+pad.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType==='touch')setStick(e.clientX,e.clientY);});
+pad.addEventListener('pointerup',clearStick);pad.addEventListener('pointercancel',clearStick);
+function hold(el,dir){const on=e=>{e.preventDefault();lift=dir;};const off=()=>{if(lift===dir)lift=0;};el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointerleave',off);el.addEventListener('pointercancel',off);}
+hold(document.getElementById('up'),1);hold(document.getElementById('dn'),-1);
+const landEl=document.getElementById('land'),distEl=document.getElementById('dist');
+function whichLand(x,z){if(Math.hypot(x,z)<36)return 'The Pocket · Hub';if(z>40&&Math.abs(x)<20)return 'The Pocket · Corridor';if(x<-60)return 'The Block';if(x>70)return 'The Board';if(z<-50)return 'After Hours';return 'The Pocket';}
+const clock=new THREE.Clock();
+function tick(){
+  const dt=Math.min(clock.getDelta(),0.05);
+  let mx=stick.x,mz=stick.z;
+  if(keys.KeyW)mz-=1;if(keys.KeyS)mz+=1;if(keys.KeyA)mx-=1;if(keys.KeyD)mx+=1;
+  const len=Math.hypot(mx,mz);
+  if(mode==='above'){
+    const fx=-Math.sin(droneYaw),fz=-Math.cos(droneYaw),rx=Math.cos(droneYaw),rz=-Math.sin(droneYaw);
+    const spd=(keys.ShiftLeft||keys.ShiftRight)?DRONE_FAST:DRONE;
+    let tx=0,tz=0,ty=0;
+    if(len>0){mx/=len;mz/=len;tx=(fx*-mz+rx*mx)*spd;tz=(fz*-mz+rz*mx)*spd;}
+    if(keys.KeyQ||keys.Space||lift>0)ty+=spd*0.55;
+    if(keys.KeyE||keys.ControlLeft||lift<0)ty-=spd*0.55;
+    droneVel.x+=(tx-droneVel.x)*Math.min(1,dt*6);
+    droneVel.z+=(tz-droneVel.z)*Math.min(1,dt*6);
+    droneVel.y+=(ty-droneVel.y)*Math.min(1,dt*6);
+    drone.x+=droneVel.x*dt;drone.z+=droneVel.z*dt;drone.y=Math.max(8,Math.min(420,drone.y+droneVel.y*dt));
+  }else if(len>0){
+    mx/=len;mz/=len;const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
+    const stepX=(fx*-mz+rx*mx)*WALK*dt,stepZ=(fz*-mz+rz*mx)*WALK*dt;
+    walkVelX=stepX;walkVelZ=stepZ;
+    const nx=pos.x+stepX,nz=pos.z+stepZ;
+    if(inStadium(nx,nz)){
+      // Pass 10: hard snap when off ribbon — soft 0.6 blend was cutting corners
+      const w=nearestWalk(nx,nz);
+      if(w.on){pos.x=nx;pos.z=nz;}
+      else if(w.d<5){pos.x=w.x;pos.z=w.z;}
+    }
+  }
+  pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
+  if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}
+  else if(mode==='third'){camera.position.set(pos.x+Math.sin(yaw)*5.2,pos.y+2.1+pitch*-1.2,pos.z+Math.cos(yaw)*5.2);camera.lookAt(pos.x,pos.y-0.1,pos.z);}
+  else{camera.position.copy(drone);camera.rotation.order='YXZ';camera.rotation.y=droneYaw;camera.rotation.x=dronePitch;}
+  const hx=mode==='above'?drone.x:pos.x,hz=mode==='above'?drone.z:pos.z;
+  landEl.textContent=whichLand(hx,hz)+' · '+(mode==='walk'?'WALK':mode==='third'?'3RD':'DRONE');
+  distEl.textContent=mode==='above'?('Alt '+drone.y.toFixed(0)+' m · hub '+Math.hypot(drone.x,drone.z).toFixed(0)+' m'):('Hub '+Math.hypot(pos.x,pos.z).toFixed(0)+' m');
+  renderer.render(scene,camera);requestAnimationFrame(tick);
+}
+tick();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

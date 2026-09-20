@@ -1,0 +1,6 @@
+74cc53f3c3b453b53d01afb8fdfeeac2d7c248a5
+Merge park-grounds planting/lighting into main park page
+2026-09-20 17:25:00 -0500
+origin/main matches local HEAD
+https://github.com/Rydelicmusic/octave/commit/74cc53f3c3b453b53d01afb8fdfeeac2d7c248a5
+https://rydelicmusic.github.io/octave/park/

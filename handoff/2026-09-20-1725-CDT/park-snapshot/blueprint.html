@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rydelic Park — Blueprint</title>
+<style>
+  html,body{margin:0;background:#1a1c18;color:#d8d2c4;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;min-height:100%}
+  header{padding:14px 18px;border-bottom:1px solid #333;display:flex;flex-wrap:wrap;gap:12px;align-items:baseline}
+  h1{font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:0;font-weight:600;color:#c9b48a}
+  .meta{font-size:11px;opacity:.75}
+  #wrap{padding:12px;overflow:auto}
+  svg{display:block;max-width:100%;height:auto;background:#ece6d6}
+  .hud{position:fixed;right:12px;bottom:12px;background:#111c;border:1px solid #c9b48a55;padding:8px 10px;font-size:11px;border-radius:8px}
+  a{color:#c9b48a}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rydelic Park · 2D blueprint</h1>
+  <div class="meta">1 square = 25 m · bold = 100 m · origin (0,0) = hub · +X east / The Board · +Z south / Gate · stadium A=380 B=230</div>
+  <div class="meta"><a href="./">3D walk</a> · <a href="../">Octave</a></div>
+</header>
+<div id="wrap"></div>
+<div class="hud" id="hud">hover grid — m</div>
+<script type="module">
+import * as LockMod from './lock.js?v=pass45-lamps';
+const { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, walkLake, hoverLabel, spineCadPolyline, northSpineCadPolyline } = LockMod;
+const ITINERARY = LockMod.ITINERARY || { id:'park-circuit', name:'Park Circuit', sequence:[], stops:[], totalMin:45, sign:{x:0,z:205,yaw:Math.PI} };
+const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
+
+const A = LOCK.A, B = LOCK.B;
+const CX = BLUEPRINT.CX, CY = BLUEPRINT.CY, W = BLUEPRINT.W, H = BLUEPRINT.H;
+const toX = x => CX + x;
+const toY = z => CY + z;
+function stadiumPath(a, b) {
+  const r = b, s = a - r;
+  return [`M ${toX(-s)} ${toY(-b)}`,`L ${toX(s)} ${toY(-b)}`,`A ${r} ${r} 0 0 1 ${toX(s)} ${toY(b)}`,`L ${toX(-s)} ${toY(b)}`,`A ${r} ${r} 0 0 1 ${toX(-s)} ${toY(-b)}`,'Z'].join(' ');
+}
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.createElementNS(NS, 'svg');
+svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+svg.setAttribute('width', '1400');
+const defs = document.createElementNS(NS, 'defs');
+defs.innerHTML = `<pattern id="g25" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M 25 0 L 0 0 0 25" fill="none" stroke="#c4b89a" stroke-width="0.4"/></pattern><pattern id="g100" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#8a7a55" stroke-width="1.1"/></pattern>`;
+svg.appendChild(defs);
+const bg = document.createElementNS(NS, 'rect');
+bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#ece6d6');
+svg.appendChild(bg);
+const gridOffX = CX % 25, gridOffY = CY % 25;
+const grid = document.createElementNS(NS, 'g');
+grid.setAttribute('transform', `translate(${gridOffX} ${gridOffY})`);
+const p1 = document.createElementNS(NS, 'rect');
+p1.setAttribute('x', -25); p1.setAttribute('y', -25);
+p1.setAttribute('width', W + 50); p1.setAttribute('height', H + 50);
+p1.setAttribute('fill', 'url(#g25)');
+const p2 = p1.cloneNode(); p2.setAttribute('fill', 'url(#g100)');
+grid.appendChild(p1); grid.appendChild(p2); svg.appendChild(grid);
+function el(name, attrs) { const n = document.createElementNS(NS, name); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); return n; }
+const can = LOCK.canopies;
+svg.appendChild(el('ellipse', {cx:toX(can['The Block'].cx), cy:toY(can['The Block'].cz), rx:can['The Block'].rx, ry:can['The Block'].rz, fill:'#c5d4b0', opacity:'0.55'}));
+svg.appendChild(el('ellipse', {cx:toX(can['After Hours'].cx), cy:toY(can['After Hours'].cz), rx:can['After Hours'].rx, ry:can['After Hours'].rz, fill:'#c5d4b0', opacity:'0.45'}));
+svg.appendChild(el('ellipse', {cx:toX(can['The Board'].cx), cy:toY(can['The Board'].cz), rx:can['The Board'].rx, ry:can['The Board'].rz, fill:'#d7d2b8', opacity:'0.5'}));
+svg.appendChild(el('rect', {x:toX(-18), y:toY(0), width:36, height:B+20, fill:'#ddd4bb'}));
+LOCK.waters.forEach(([x,z,rx,rz]) => svg.appendChild(el('ellipse', {cx:toX(x), cy:toY(z), rx, ry:rz, fill:'#8bb8c4', stroke:'#5a8a96', 'stroke-width':'1'})));
+svg.appendChild(el('ellipse', {cx:toX(LOCK.rings.A.x), cy:toY(LOCK.rings.A.z), rx:LOCK.rings.A.outer, ry:LOCK.rings.A.inner, fill:'none', stroke:'#7a6a55', 'stroke-width':'3'}));
+svg.appendChild(el('ellipse', {cx:toX(LOCK.rings.B.x), cy:toY(LOCK.rings.B.z), rx:LOCK.rings.B.outer+1, ry:LOCK.rings.B.inner+4, fill:'none', stroke:'#7a6a55', 'stroke-width':'3'}));
+[...BUILDINGS, ...GATE, ...STATIONS].forEach(b => {
+  const fill = b.role === 'gate' ? '#4a3a28' : b.role === 'station' ? '#6a5844' : b.sku === 'album' ? '#8a5a3a' : b.sku === 'pavilion' ? '#b08960' : '#c9b48a';
+  svg.appendChild(el('rect', {x:toX(b.x - b.w/2), y:toY(b.z - b.d/2), width:b.w, height:b.d, fill, opacity:'0.9', stroke:'#3d3428', 'stroke-width':'0.8'}));
+});
+svg.appendChild(el('path', {d:stadiumPath(A, B), fill:'none', stroke:'#2b241c', 'stroke-width':'6'}));
+svg.appendChild(el('path', {d:stadiumPath(A, B), fill:'none', stroke:'#9a8a70', 'stroke-width':'1.2', 'stroke-dasharray':'8 6'}));
+WALKS.forEach(walk => {
+  const pts = [];
+  walk.lakes.forEach((i) => { const L = walkLake(i); pts.push([L.x, L.z]); });
+  if (walk.loop && pts.length > 1) pts.push(pts[0]);
+  if (walk.spur) pts.push(walk.spur);
+  if (pts.length < 2) return;
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'} ${toX(p[0])} ${toY(p[1])}`).join(' ');
+  svg.appendChild(el('path', { d, fill: 'none', stroke: '#6b5a3a', 'stroke-width': '2.2', 'stroke-dasharray': '7 5' }));
+  const mid = pts[Math.floor(pts.length / 2)];
+  const t = el('text', { x: toX(mid[0]), y: toY(mid[1]) - 8, fill: '#6b5a3a', 'font-size': 11, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
+  t.textContent = walk.name;
+  svg.appendChild(t);
+});
+
+// Pass 19 — park-wide itinerary polyline (sign waypoints)
+{
+  const pts = ITINERARY.sequence.map(id => walkById(id)).filter(Boolean).map(w => w.sign).filter(Boolean);
+  if (pts.length >= 2) {
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'} ${toX(p.x)} ${toY(p.z)}`).join(' ');
+    svg.appendChild(el('path', { d, fill: 'none', stroke: '#8a4030', 'stroke-width': '2.8', 'stroke-dasharray': '10 6' }));
+    const t = el('text', { x: toX(ITINERARY.sign.x), y: toY(ITINERARY.sign.z) - 10, fill: '#8a4030', 'font-size': 12, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
+    t.textContent = ITINERARY.name + ' · ' + ITINERARY.totalMin + ' min';
+    svg.appendChild(t);
+  }
+  (ITINERARY.stops || []).forEach((s, i) => {
+    const w = walkById(s.walk); if (!w || !w.sign) return;
+    const m = el('text', { x: toX(w.sign.x), y: toY(w.sign.z) + 14, fill: '#8a4030', 'font-size': 10, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
+    m.textContent = (i + 1) + ' · ' + s.atMin + 'm';
+    svg.appendChild(m);
+  });
+}
+svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(0), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
+// Pass 18 — north −Z corridor fill (hub → stadium north rail)
+svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(-B), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
+// CAD edge strokes ±7 m (south Gate + north −Z)
+function cadEdges(poly) {
+  const d = poly.map((p, i) => `${i ? 'L' : 'M'} ${toX(p[0])} ${toY(p[1])}`).join(' ');
+  svg.appendChild(el('path', { d, fill: 'none', stroke: '#3d3428', 'stroke-width': '1.6' }));
+}
+[-1, 1].forEach(side => { cadEdges(spineCadPolyline(side)); cadEdges(northSpineCadPolyline(side)); });
+label(0, -B / 2, 'N CAD ±7', 10);
+
+svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:LOCK.hubOuter, fill:'none', stroke:'#6b5a3a', 'stroke-width':'2'}));
+svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:LOCK.hubInner, fill:'none', stroke:'#6b5a3a', 'stroke-width':'2'}));
+svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:8, fill:'#6b5a3a'}));
+for (let i = 0; i < 8; i++) { const t = (i / 8) * Math.PI * 2; svg.appendChild(el('line', {x1:toX(Math.cos(t)*LOCK.hubInner), y1:toY(Math.sin(t)*LOCK.hubInner), x2:toX(Math.cos(t)*LOCK.hubOuter), y2:toY(Math.sin(t)*LOCK.hubOuter), stroke:'#6b5a3a', 'stroke-width':'1.4'})); }
+svg.appendChild(el('line', {x1:toX(-A-40), y1:toY(0), x2:toX(A+40), y2:toY(0), stroke:'#b33', 'stroke-width':'1.2'}));
+svg.appendChild(el('line', {x1:toX(0), y1:toY(-B-40), x2:toX(0), y2:toY(B+40), stroke:'#b33', 'stroke-width':'1.2'}));
+function label(x, z, text, size = 13) { const t = el('text', {x:toX(x), y:toY(z), fill:'#3d3428', 'font-size':size, 'font-family':'ui-monospace,monospace', 'text-anchor':'middle'}); t.textContent = text; svg.appendChild(t); }
+label(0, -8, 'HUB  0,0', 12);
+label(0, B + 16, 'GATE  0, +230', 12);
+label(-210, 0, 'THE BLOCK', 14);
+label(200, 20, 'THE BOARD', 14);
+label(0, -175, 'AFTER HOURS', 14);
+label(0, 120, 'THE POCKET', 14);
+label(0, -B - 18, 'N  −Z', 11);
+label(0, B + 36, 'S  +Z', 11);
+label(A + 28, 8, 'E  +X', 11);
+label(-A - 28, 8, 'W  −X', 11);
+label(0, B + 52, 'stadium  760 × 460 m  ·  cap R = 230  ·  straight = 300', 11);
+for (let x = -300; x <= 300; x += 100) { if (x === 0) continue; svg.appendChild(el('line', {x1:toX(x), y1:toY(-6), x2:toX(x), y2:toY(6), stroke:'#b33', 'stroke-width':'1'})); label(x, -14, String(x), 10); }
+for (let z = -200; z <= 200; z += 100) { if (z === 0) continue; svg.appendChild(el('line', {x1:toX(-6), y1:toY(z), x2:toX(6), y2:toY(z), stroke:'#b33', 'stroke-width':'1'})); label(12, z + 4, String(z), 10); }
+document.getElementById('wrap').appendChild(svg);
+svg.addEventListener('mousemove', e => { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse()); document.getElementById('hud').textContent = hoverLabel(p.x, p.y); });
+</script>
+</body>
+</html>
