@@ -44,4 +44,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **NEXT:** Pass 3 — journal entries, denser Gate home, cross-land related, guest desk menus
 - **CONSTRAINTS:** park-site/ only; MOCK roster stable; locked geometry; no dead ends
 - **SOLUTIONS:** Home→Land→Venue nest→Work; menus open menus; night/day as content
-- **COMMIT / LAST COMMIT:** (pending Pass 2 pushes)
+- **COMMIT / LAST COMMIT:** 7c02834 — park-site Pass 2h: deepen Solenne Park + Ori Hale works
+
+
+## Check-in — Pass 2 complete → Pass 3
+
+- **TIME:** 2026-09-20 13:02 CDT (America/Chicago)
+- **LANE:** lands / artists → shell
+- **STARTED:** Pass 2a–2h on main (tip 7c02834); 12 venue nests; land mega-menus; 12 works deepened with venue links
+- **GOING:** STATUS sync; Pass 3 — denser Gate home, journal entries, guest-desk menus, cross-land related
+- **NEXT:** Pass 3 density on index/journal/guest-services/directory; cross-land related on works
+- **CONSTRAINTS:** park-site/ only; MOCK roster; locked axes; race with other agents on main (retry FF)
+- **SOLUTIONS:** Fresh-tip push retries; relative nests Home→Land→Venue→Work
+- **COMMIT / LAST COMMIT:** 7c02834 — park-site Pass 2h: deepen Solenne Park + Ori Hale works
