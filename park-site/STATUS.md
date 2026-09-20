@@ -1190,11 +1190,27 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:04 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip a5e909e; deepen song rooms/tonight/booking/venues/night-programs
-- **GOING:** Tip pending
+- **GOING:** Tip 8b23bdb; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no collisions; no rebuild spam
 - **SOLUTIONS:** Song room park desks; tonight→programs; booking→venues; venues room mega; night board→rooms
-- **COMMIT / LAST COMMIT:** b42ad52 — Pass 152
+- **COMMIT / LAST COMMIT:** 8b23bdb — Pass 153
+- **TIP:** 8b23bdb4a78b9ad74af605cbc574e7d06d4f4aa5
 - **COLLISIONS:** NONE
+- **PAGES:** errored
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `lands/the-pocket/nests/plaza-rings-room.html` | 200 |
+| `lands/the-block/tonight.html` | 200 |
+| `booking/night.html` | 200 |
+| `venues.html` | 200 |
+| `night-programs.html` | 200 |
+| `geometry.html` | 200 |
+| `notes/the-pocket.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
