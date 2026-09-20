@@ -618,3 +618,30 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Venues hub as SKU ladder map
 - **COMMIT / LAST COMMIT:** pending
 
+
+## Check-in — Pass 30 cross-links (this dispatch)
+
+- **TIME:** 2026-09-20 13:20 CDT (America/Chicago)
+- **LANE:** lands / venues
+- **STARTED:** From tip ~8e821ef Pass 29; densify journal/guest/programs into 4 lands + 12 short-slug venues
+- **GOING:** Hospitality desk mega-menus on lands + venue nests; Park mega columns gain journal+programs
+- **NEXT:** Pass 31 link sanity
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower
+- **SOLUTIONS:** Menus open menus; land notes anchors #note-block/#note-hours/#note-board/#note-pocket
+- **COMMIT / LAST COMMIT:** d2cae64 — Pass 30 journal/guest/programs cross-links
+- **TIP:** d2cae644ac31945c5341fc8f182b3f0287764557
+- **NOTE:** Parallel lane also labeled Pass 30/31 earlier (311958f journal notes / 093620a map+tickets); this Pass 30 is the dispatch brief (cross-links into lands+venues)
+
+## Check-in — Pass 31 link sanity + geometry polish
+
+- **TIME:** 2026-09-20 13:20 CDT (America/Chicago)
+- **LANE:** shell / geometry
+- **STARTED:** Grep local hrefs under park-site; fix dead; polish thin utility; STATUS tip sync
+- **GOING:** Link audit ok=3172 broken=0 at tip 7106974; polish geometry journal/programs/guest + EP mid-rung desk
+- **NEXT:** Parent re-dispatch (STOP this run after Pass 31)
+- **CONSTRAINTS:** park-site/ only; no clone; MOCK roster stable
+- **SOLUTIONS:** Audit-clean → polish geometry hospitality chrome; tip sync in STATUS
+- **COMMIT / LAST COMMIT:** (this push)
+- **LINK AUDIT:** ok=3172 broken=0
+- **PASS 30 TIP:** d2cae644ac31945c5341fc8f182b3f0287764557
+
