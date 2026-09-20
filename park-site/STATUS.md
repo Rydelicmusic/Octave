@@ -938,3 +938,17 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 7d97085 (pending STATUS sync)
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 101 atelier land+artist desks
+
+- **TIME:** 2026-09-20 13:36 CDT (America/Chicago)
+- **LANE:** Site Luxury / atelier
+- **STARTED:** After Pass 100 (7d97085); tip raced with parallel Pass 101 nested briefs (88ceb95); densify atelier land+artist material desks
+- **GOING:** Pass 101 9b3210a — four land+artist material desks; 12 short venues + MOCK works; programs/tickets/paths; STOP for parent
+- **NEXT:** STOP for parent re-dispatch
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild; FIX c95c7e2 clean
+- **SOLUTIONS:** Material by land & artist mega-menu; programs beside skins
+- **COMMITS:** 7d97085 Pass 100 · 4cf81d7 STATUS · 88ceb95 parallel nested · 9b3210a Pass 101 land+artist
+- **COMMIT / LAST COMMIT:** 9b3210a
+- **TIP:** 9b3210ac01b6ca830d186186ed86e2d42131576c
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
