@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-<title>Rydelic Park — Land + Path</title>
+<title>Rydelic Park — Blueprint Walk</title>
 <style>
   html,body{margin:0;height:100%;background:#87a0b0;color:#f4efe6;font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden;touch-action:none}
   #c{display:block;width:100%;height:100%}
   .top{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#3d3428;background:rgba(244,239,230,.75);padding:6px 12px;border-radius:999px}
   .hud{position:fixed;left:12px;bottom:12px;z-index:2;padding:10px 12px;border-radius:12px;background:rgba(18,16,14,.72);border:1px solid rgba(201,180,138,.35);font-size:12px;line-height:1.45;max-width:250px}
-  .hud b{color:#c9b48a}
-  a{color:#c9b48a}
+  .hud b{color:#c9b48a}a{color:#c9b48a}
   #cams{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px}
   #cams button{appearance:none;border:1px solid rgba(61,52,40,.35);background:rgba(244,239,230,.8);color:#3d3428;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:7px 10px;border-radius:999px}
   #cams button.on{background:#3d3428;color:#f4efe6}
@@ -22,61 +21,67 @@
 </head>
 <body>
 <div class="top" id="land">The Pocket · Gate</div>
-<div id="cams">
-  <button id="b1" class="on">Walk</button>
-  <button id="b3">3rd</button>
-  <button id="bM">Drone</button>
-</div>
+<div id="cams"><button id="b1" class="on">Walk</button><button id="b3">3rd</button><button id="bM">Drone</button></div>
 <canvas id="c"></canvas>
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> drone fly</div>
-  <div>Walk / 3rd / Drone · V</div>
-  <div>Drone: drag look · stick fly · +/− height</div>
+  <div><b>This pass:</b> walk = blueprint</div>
+  <div>14 m spine · hub r18/32 · stadium 760×460</div>
+  <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
-  <div style="margin-top:6px"><a href="../">Octave</a></div>
 </div>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-const A=380,B=230,WALK=1.34,EYE=1.72,DRONE=55,DRONE_FAST=110;
+const A=380,B=230,R=B,S=A-R,WALK=1.34,EYE=1.72,DRONE=55,DRONE_FAST=110;
+const PATH=0xe6d3a4,CURB=0x5a4630;
 const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x87a0b0);
-scene.fog=new THREE.Fog(0x87a0b0,70,520);
+scene.fog=new THREE.Fog(0x87a0b0,80,900);
 const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.2,2500);
 let yaw=Math.PI,pitch=-0.04,mode='walk',droneYaw=Math.PI,dronePitch=-0.72,lift=0;
-const pos=new THREE.Vector3(0,EYE,B+26);
-const drone=new THREE.Vector3(0,90,B+40);
+const pos=new THREE.Vector3(0,EYE,B-6);
+const drone=new THREE.Vector3(0,90,B+20);
 const droneVel=new THREE.Vector3();
 scene.add(new THREE.HemisphereLight(0xf0f4f8,0x5a4a32,1.15));
 const sun=new THREE.DirectionalLight(0xfff3d6,1.1);sun.position.set(-90,180,70);scene.add(sun);
 const grass=new THREE.Mesh(new THREE.PlaneGeometry(A*3.2,B*3.2),new THREE.MeshLambertMaterial({color:0x4f7a3c}));
 grass.rotation.x=-Math.PI/2;scene.add(grass);
 function plate(w,d,x,z,color){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshLambertMaterial({color}));m.rotation.x=-Math.PI/2;m.position.set(x,0.02,z);scene.add(m);}
-plate(220,280,-150,-10,0x3d6a48);plate(260,140,10,-130,0x456848);plate(220,220,150,10,0x5a7c42);plate(70,B+60,0,B*0.35,0x6b8a4a);
+plate(260,320,-165,-10,0x3d6a48);
+plate(300,140,10,-140,0x456848);
+plate(260,260,160,10,0x5a7c42);
+plate(36,B+20,0,B/2,0x6b8a4a);
 function water(x,z,rx,rz){const m=new THREE.Mesh(new THREE.CircleGeometry(1,32),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:40}));m.rotation.x=-Math.PI/2;m.position.set(x,0.05,z);m.scale.set(rx,1,rz);scene.add(m);}
-water(-165,10,55,42);water(-120,70,32,26);water(-95,-85,28,22);water(-150,-40,24,18);water(155,-85,22,16);
-const PATH=0xe6d3a4,CURB=0x5a4630;
+[[-210,-20,48,70],[-165,10,55,42],[-120,70,32,26],[-95,-85,28,22],[-150,-40,24,18],[-20,-18,16,10],[22,-22,18,12],[-18,22,16,9],[28,20,17,10],[8,-8,10,7],[155,-85,22,16],[200,-40,18,12]].forEach(w=>water(...w));
 function pathBox(w,len,x,z,rotY=0){const curb=new THREE.Mesh(new THREE.BoxGeometry(w+1.6,0.12,len),new THREE.MeshLambertMaterial({color:CURB}));const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.16,len),new THREE.MeshLambertMaterial({color:PATH}));curb.position.set(x,0.06,z);curb.rotation.y=rotY;top.position.set(x,0.14,z);top.rotation.y=rotY;scene.add(curb,top);}
 function pathRing(inner,outer,x,z){const m=new THREE.Mesh(new THREE.RingGeometry(inner,outer,64),new THREE.MeshLambertMaterial({color:PATH,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.set(x,0.14,z);scene.add(m);const c=new THREE.Mesh(new THREE.RingGeometry(inner-0.8,outer+0.8,64),new THREE.MeshLambertMaterial({color:CURB,side:THREE.DoubleSide}));c.rotation.x=-Math.PI/2;c.position.set(x,0.1,z);scene.add(c);}
-pathBox(28,24,0,B+20);pathBox(14,B+8,0,B*0.5+4);pathRing(16,30,0,0);pathBox(22,22,0,0);
-pathBox(10,70,-48,-8,0.15);pathBox(10,80,52,6,-0.12);pathBox(10,90,8,-70,0.05);
-pathBox(8,55,-90,-40,0.6);pathBox(8,50,-130,20,1.1);pathBox(8,40,120,-40,-0.4);pathBox(8,45,110,50,0.35);
-pathRing(14,20,95,95);pathRing(6,11,108,108);
-const railPts=[];for(let i=0;i<=180;i++){const t=(i/180)*Math.PI*2;railPts.push(new THREE.Vector3(Math.cos(t)*A,0.35,Math.sin(t)*B));}
+pathBox(14,B,0,B/2);
+pathBox(22,18,0,B);
+pathBox(14,B,0,-B/2);
+pathRing(18,32,0,0);
+pathBox(20,20,0,0);
+pathRing(14,20,95,95);
+pathRing(6,11,118,108);
+const railPts=[];
+const segs=24;
+for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(-S+t*2*S,0.4,-B));}
+for(let i=0;i<=segs;i++){const a=-Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
+for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(S-t*2*S,0.4,B));}
+for(let i=0;i<=segs;i++){const a=Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(-S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
 scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts),new THREE.LineBasicMaterial({color:0x2b241c})));
 const gm=new THREE.MeshLambertMaterial({color:0x4a3a28});
 const pL=new THREE.Mesh(new THREE.BoxGeometry(2.2,6.5,2.2),gm);const pR=pL.clone();
-pL.position.set(-10,3.25,B+22);pR.position.set(10,3.25,B+22);
-const lintel=new THREE.Mesh(new THREE.BoxGeometry(24,1.2,2.4),gm);lintel.position.set(0,6.8,B+22);scene.add(pL,pR,lintel);
+pL.position.set(-9,3.25,B+4);pR.position.set(9,3.25,B+4);
+const lintel=new THREE.Mesh(new THREE.BoxGeometry(22,1.2,2.4),gm);lintel.position.set(0,6.8,B+4);scene.add(pL,pR,lintel);
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});
 function tree(x,z,s=1){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(0.25*s,0.38*s,2.2*s,5),bark);t.position.y=1.1*s;const c=new THREE.Mesh(new THREE.ConeGeometry(2*s,5*s,6),leaf);c.position.y=4*s;g.add(t,c);g.position.set(x,0,z);scene.add(g);}
-for(let i=0;i<70;i++){const t=(i/70)*Math.PI*2;const r=0.82+(i%6)*0.02;const x=Math.cos(t)*A*r,z=Math.sin(t)*B*r;if(Math.abs(x)<20&&z>40)continue;tree(x,z,0.75+(i%4)*0.12);}
+railPts.forEach((p,i)=>{if(i%3)return;if(Math.abs(p.x)<22&&p.z>40)return;tree(p.x*0.92,p.z*0.92,0.8+(i%4)*0.12);});
 for(let i=0;i<18;i++)tree(-70-(i%6)*14,-30-Math.floor(i/6)*16,0.9);
 const avatar=new THREE.Group();
 const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
@@ -87,7 +92,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyV')cycle();});
 addEventListener('keyup',e=>keys[e.code]=false);
 const modes=['walk','third','above'];
 const btns={walk:document.getElementById('b1'),third:document.getElementById('b3'),above:document.getElementById('bM')};
-function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:520;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}}
+function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:900;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}}
 function cycle(){setMode(modes[(modes.indexOf(mode)+1)%3]);}
 btns.walk.onclick=()=>setMode('walk');btns.third.onclick=()=>setMode('third');btns.above.onclick=()=>setMode('above');
 let look=false,lx=0,ly=0;
@@ -104,7 +109,7 @@ pad.addEventListener('pointerup',clearStick);pad.addEventListener('pointercancel
 function hold(el,dir){const on=e=>{e.preventDefault();lift=dir;};const off=()=>{if(lift===dir)lift=0;};el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointerleave',off);el.addEventListener('pointercancel',off);}
 hold(document.getElementById('up'),1);hold(document.getElementById('dn'),-1);
 const landEl=document.getElementById('land'),distEl=document.getElementById('dist');
-function whichLand(x,z){if(Math.hypot(x,z)<36)return 'The Pocket · Hub';if(z>80&&Math.abs(x)<40)return 'The Pocket · Corridor';if(x<-60)return 'The Block';if(x>70)return 'The Board';if(z<-50)return 'After Hours';return 'The Pocket';}
+function whichLand(x,z){if(Math.hypot(x,z)<36)return 'The Pocket · Hub';if(z>40&&Math.abs(x)<20)return 'The Pocket · Corridor';if(x<-60)return 'The Block';if(x>70)return 'The Board';if(z<-50)return 'After Hours';return 'The Pocket';}
 const clock=new THREE.Clock();
 function tick(){
   const dt=Math.min(clock.getDelta(),0.05);
