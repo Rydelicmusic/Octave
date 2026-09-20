@@ -231,3 +231,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Luxury companion cites locked meters
 - **COMMIT / LAST COMMIT:** ff60b20 — Pass 15
 
+## Check-in — Pass 17 CSS/index + audit
+
+- **TIME:** 2026-09-20 13:30 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 17 — stat-strip CSS; Gate→geometry/visit-paths; audit ok=2278 broken=0
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 18+
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Shared density chrome
+- **COMMIT / LAST COMMIT:** 1071470 — Pass 16 STATUS
+- **TIP TARGET:** pending
+
