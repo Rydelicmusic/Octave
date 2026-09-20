@@ -248,13 +248,69 @@ export function walkPathMeters(walk) {
   return m;
 }
 
+export function shorePt(L, a, m = 2.85) {
+  return [L.x + Math.cos(a) * (L.rx + m), L.z + Math.sin(a) * (L.rz + m)];
+}
+
+export function shoreArc(L, a0, a1, n = 10, m = 2.85) {
+  let d = a1 - a0;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  const pts = [];
+  for (let i = 0; i <= n; i++) pts.push(shorePt(L, a0 + d * (i / n), m));
+  return pts;
+}
+
+/** Same shore-arc + bridge polyline the 3D WALKS ribbons use. */
+export function walkLinkPolyline(A, B) {
+  const aAb = Math.atan2(B.z - A.z, B.x - A.x);
+  const aBa = Math.atan2(A.z - B.z, A.x - B.x);
+  const arcA = shoreArc(A, aAb - 0.55, aAb + 0.15, 10);
+  const arcB = shoreArc(B, aBa - 0.15, aBa + 0.55, 10);
+  const aTip = arcA[arcA.length - 1];
+  const bTip = arcB[0];
+  const mid = [(aTip[0] + bTip[0]) / 2, (aTip[1] + bTip[1]) / 2];
+  const px = -(bTip[1] - aTip[1]);
+  const pz = bTip[0] - aTip[0];
+  const plen = Math.hypot(px, pz) || 1;
+  mid[0] += (px / plen) * 2.2;
+  mid[1] += (pz / plen) * 2.2;
+  return [...arcA, mid, ...arcB];
+}
+
+export function walkSpurPolyline(walk) {
+  if (!walk.spur || !walk.lakes[0]) return [];
+  const L = walkLake(walk.lakes[0]);
+  const a = Math.atan2(walk.spur[1] - L.z, walk.spur[0] - L.x);
+  const start = shorePt(L, a, 5.2);
+  const end = walk.spur;
+  return [start, [(start[0] + end[0]) / 2, start[1]], end];
+}
+
+export function polylineMeters(pts) {
+  let m = 0;
+  for (let i = 0; i < pts.length - 1; i++) m += distMeters(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]);
+  return m;
+}
+
+/** Pass 41 — ribbon length of a named walk (shore arcs, not lake-center chords). */
+export function walkRibbonMeters(walk) {
+  let m = 0;
+  for (const [ia, ib] of walkPairs(walk)) {
+    m += polylineMeters(walkLinkPolyline(walkLake(ia), walkLake(ib)));
+  }
+  const spur = walkSpurPolyline(walk);
+  if (spur.length) m += polylineMeters(spur);
+  return m;
+}
+
 export function metersToMin(m) {
   return m / LOCK.walk / 60;
 }
 
 /**
- * Pass 39 — tour times from locked meters / walk 1.34 m/s (not authored guesses).
- * Gate sign → each walk sign + on-walk length → returnToGate.
+ * Pass 39/41 — tour times from ribbon polyline meters / walk 1.34 m/s.
+ * Gate sign → each walk sign + shore-arc walk length → returnToGate.
  */
 export function measureItinerary(it = ITINERARY) {
   const seq = it.sequence.map((id) => walkById(id)).filter(Boolean);
@@ -264,7 +320,7 @@ export function measureItinerary(it = ITINERARY) {
   for (const w of seq) {
     const p = w.sign;
     const approach = distMeters(prev.x, prev.z, p.x, p.z);
-    const onWalk = walkPathMeters(w);
+    const onWalk = walkRibbonMeters(w);
     const legM = approach + onWalk;
     const legMin = metersToMin(legM);
     tMin += legMin;

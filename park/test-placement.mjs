@@ -4,10 +4,11 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
-  LOCK, BUILDINGS, GATE, STATIONS, PLACEMENTS,
+  LOCK, BUILDINGS, GATE, STATIONS, PLACEMENTS, LAND_PALETTE,
   occupancyAABB, hitsHub, hitsSpine, hitsWater, hitsRail,
   placementIssues, stationBesideRing, inCanopy, canPlaceBuilding,
 } from './lock.js';
+import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from './sku-kit.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -113,21 +114,53 @@ test('ride stations sit beside locked rings and do not overlap them', () => {
   assert.equal(LOCK.rings.B.z, 108);
 });
 
-test('index.html imports shipped placements and builds facade parts', () => {
+test('skuKit always emits roof overhang window queue marquee service with palette colors', () => {
+  assert.ok(PLACEMENTS.length >= 16);
+  for (const p of PLACEMENTS) {
+    const report = skuKitReport(p);
+    assert.equal(report.ok, true, `${p.id} missing ${report.missing}`);
+    const pal = paletteFor(p);
+    const marquee = report.parts.find((x) => x.name === 'marquee');
+    assert.equal(marquee.color, pal.marquee, `${p.id} marquee color`);
+    assert.equal(marquee.color, LAND_PALETTE[p.land].marquee, `${p.id} LAND_PALETTE.marquee`);
+    const overhang = report.parts.find((x) => x.name === 'overhang');
+    assert.ok(overhang.w > p.w, `${p.id} overhang must outspan body`);
+    const service = report.parts.find((x) => x.name === 'service');
+    assert.ok(service.z < 0, `${p.id} service door on rear`);
+    assert.ok(report.parts.filter((x) => x.name === 'queue').length >= 2, `${p.id} queue rails`);
+    for (const name of FACADE_PARTS) {
+      const hit = report.parts.find((x) => x.name === name);
+      assert.ok(hit && hit.w > 0 && hit.h > 0 && hit.d > 0, `${p.id} ${name}`);
+    }
+  }
+});
+
+test('skuKit is a callable emit unit (not regex bait)', () => {
+  const fake = { sku: 'kiosk', land: 'The Block', w: 3.8, d: 3.8, h: 3.15, x: 0, z: 0, yaw: 0 };
+  const names = [];
+  skuKit(fake, {
+    box(desc) {
+      names.push(desc.name);
+      assert.ok(desc.w > 0 && desc.h > 0 && desc.d > 0);
+    },
+  });
+  for (const name of FACADE_PARTS) assert.ok(names.includes(name), name);
+  collectSkuKit(fake);
+});
+
+test('index.html mounts sku-kit and drives GATE/STATIONS footprints', () => {
   const src = readFileSync(join(here, 'index.html'), 'utf8');
-  assert.match(src, /from ['"]\.\/lock\.js['"]/);
-  assert.match(src, /BUILDINGS/);
-  assert.match(src, /GATE/);
-  assert.match(src, /STATIONS/);
+  assert.match(src, /from ['"]\.\/sku-kit\.js['"]/);
+  assert.match(src, /addSkuKit/);
+  assert.match(src, /GATE\.forEach/);
+  assert.match(src, /STATIONS\.forEach\(rideStation\)/);
+  assert.match(src, /function rideStation\(s\)/);
+  assert.match(src, /s\.w/);
   assert.match(src, />Walk</);
   assert.match(src, />3rd</);
   assert.match(src, />Drone</);
-  assert.match(src, /roof/i);
-  assert.match(src, /overhang|awning/i);
-  assert.match(src, /window|pane|glass/i);
-  assert.match(src, /queue/i);
-  assert.match(src, /marquee|banner|fascia/i);
-  assert.match(src, /service|door/i);
+  assert.doesNotMatch(src, /overhang\s*=\s*null/);
+  assert.doesNotMatch(src, /BoxGeometry\(14,0\.32,7\.5\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
   assert.doesNotMatch(src, /\belevator\b/i);
 });

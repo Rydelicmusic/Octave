@@ -197,8 +197,13 @@ Callable `park/sku-kit.js` `skuKit()` always emits roof, overhang, window, queue
 | station-a | STATIONS | ring A + outer+9 | 14 × 7.5 × 4.05 |
 | station-b | STATIONS | ring B + outer+9 | 8 × 6 × 3.6 |
 
+## Pass 41 — ribbon-length tour meters
+- `walkLinkPolyline` / `walkRibbonMeters` measure the same shore-arc + spur ribbons the 3D WALKS draw
+- `measureItinerary()` uses ribbon meters / LOCK.walk (1.34 m/s); 3D `linkLakes` consumes `walkLinkPolyline`
+- Layout locks / WALKS / rings / waters unmoved
+
 ## Still fake (worst next)
-1. Durations are straight-line sign/lake meters, not the full ribbon polyline length
+1. Approach/return legs are still sign-to-sign chords, not hub-apron ribbons
 2. Night facade lighting is emissive panes only (no lamp contribution on walls)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT

@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> FIX-ITINERARY</div>
+  <div><b>This pass:</b> ribbon-length tour meters</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -34,12 +34,14 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
+import { addSkuKit } from './sku-kit.js';
 import { PLACEMENTS, RINGS, LAND_PALETTE, skuSpec } from './buildings.js';
 import * as LockMod from './lock.js?v=fix-itinerary';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
-  LOCK, BUILDINGS, GATE, STATIONS, inStadium, spineCadPolyline, northSpineCadPolyline,
+  LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
   WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
+  walkLinkPolyline, walkSpurPolyline,
 } = LockMod;
 const ITINERARY = LockMod.ITINERARY || {
   id: 'park-circuit', name: 'Park Circuit', sequence: [], stops: [], totalMin: 45,
@@ -513,15 +515,11 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     pathRibbon(pts,4.2);
   });
   function linkLakes(A,B){
-    const aAb=angTo(A,B.x,B.z), aBa=angTo(B,A.x,A.z);
-    const arcA=shoreArc(A, aAb-0.55, aAb+0.15, 10);
-    const arcB=shoreArc(B, aBa-0.15, aBa+0.55, 10);
-    const aTip=arcA[arcA.length-1], bTip=arcB[0];
-    const mid=[(aTip[0]+bTip[0])/2,(aTip[1]+bTip[1])/2];
-    const px=-(bTip[1]-aTip[1]), pz=(bTip[0]-aTip[0]), plen=Math.hypot(px,pz)||1;
-    mid[0]+=px/plen*2.2; mid[1]+=pz/plen*2.2;
-    if(walkSegmentCrossesSpine(aTip[0],aTip[1],mid[0],mid[1])||walkSegmentCrossesSpine(mid[0],mid[1],bTip[0],bTip[1])) return false;
-    pathRibbon([...arcA, mid, ...arcB], 4.4);
+    const pts=walkLinkPolyline(A,B);
+    for(let i=0;i<pts.length-1;i++){
+      if(walkSegmentCrossesSpine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1])) return false;
+    }
+    pathRibbon(pts, 4.4);
     return true;
   }
   // Pass 17 — designed named circuits (WALKS in lock.js), not k-NN
@@ -531,11 +529,10 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
       linkLakes(A,B);
     });
     if(walk.spur && walk.lakes[0]!=null){
-      const L=walkLake(walk.lakes[0]);
-      const start=shorePt(L, angTo(L, walk.spur[0], walk.spur[1]), 5.2);
-      const end=walk.spur;
-      if(!walkSegmentCrossesSpine(start[0],start[1],end[0],end[1]))
-        pathRibbon([start, [(start[0]+end[0])/2, start[1]], end], 4.0);
+      const pts=walkSpurPolyline(walk);
+      if(!pts.length) return;
+      if(walkSegmentCrossesSpine(pts[0][0],pts[0][1],pts[pts.length-1][0],pts[pts.length-1][1])) return;
+      pathRibbon(pts, 4.0);
     }
   });
   // Pass 19 — park-wide itinerary: stitch walk signs via hub apron (not through spine strip)
@@ -577,26 +574,19 @@ for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(S-t*2*S,0
 for(let i=0;i<=segs;i++){const a=Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(-S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
 scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts),new THREE.LineBasicMaterial({color:0x2b241c})));
 function gateHouse(){
-  const mat=new THREE.MeshLambertMaterial({color:0x5a4634});
-  const trim=new THREE.MeshLambertMaterial({color:0x3d2e22});
-  const glass=new THREE.MeshLambertMaterial({color:0x1a2430});
-  const z=LOCK.gate.z+3;
-  const left=new THREE.Mesh(new THREE.BoxGeometry(9,8.6,7.2),mat);left.position.set(-13.5,4.3,z);
-  const right=left.clone();right.position.x=13.5;
-  const roofL=new THREE.Mesh(new THREE.BoxGeometry(10.2,0.55,8.2),trim);roofL.position.set(-13.5,8.85,z);
-  const roofR=roofL.clone();roofR.position.x=13.5;
-  const bridge=new THREE.Mesh(new THREE.BoxGeometry(20,3.4,4.2),mat);bridge.position.set(0,8.4,z);
-  const cornice=new THREE.Mesh(new THREE.BoxGeometry(21,0.35,4.6),trim);cornice.position.set(0,10.2,z);
-  scene.add(left,right,roofL,roofR,bridge,cornice);
-  [-13.5,13.5].forEach(x=>{
-    const w=new THREE.Mesh(new THREE.BoxGeometry(3.4,1.7,0.2),glass);w.position.set(x,2.15,z+3.7);scene.add(w);
-    const door=new THREE.Mesh(new THREE.BoxGeometry(1.6,2.4,0.18),trim);door.position.set(x,1.2,z+3.65);scene.add(door);
-  });
+  GATE.forEach((wing)=>addSkuKit(THREE,scene,wing));
+  const pal=LAND_PALETTE.Gate;
+  const z=(GATE[0].z+GATE[1].z)/2;
+  const gap=Math.abs(GATE[1].x-GATE[0].x)-GATE[0].w/2-GATE[1].w/2;
+  const bridge=new THREE.Mesh(new THREE.BoxGeometry(Math.max(16,gap+GATE[0].w),3.4,Math.min(GATE[0].d,4.2)),new THREE.MeshLambertMaterial({color:pal.body}));
+  bridge.position.set(0,GATE[0].h,z);
+  const cornice=new THREE.Mesh(new THREE.BoxGeometry(Math.max(17,gap+GATE[0].w+1),0.35,4.6),new THREE.MeshLambertMaterial({color:pal.trim}));
+  cornice.position.set(0,GATE[0].h+1.8,z);
+  scene.add(bridge,cornice);
   [-11,11].forEach(x=>{
-    const t=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.7,1.05,10),trim);t.position.set(x,0.52,LOCK.gate.z-3);scene.add(t);
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.7,1.05,10),new THREE.MeshLambertMaterial({color:pal.trim}));
+    t.position.set(x,0.52,LOCK.gate.z-3);scene.add(t);
   });
-  const banner=new THREE.Mesh(new THREE.BoxGeometry(16,1.1,0.2),new THREE.MeshLambertMaterial({color:0xc9b48a}));
-  banner.position.set(0,9.6,z+2.2);scene.add(banner);
 }
 gateHouse();
 // Pass 28 — Gate arrival plaza polish (spine 14 m / gate house held)
@@ -997,22 +987,12 @@ function queueZig(x,z,yaw,n=10){
     p.position.set(bx,0.52,bz);scene.add(p);
   }
 }
-function rideStation(cx,cz,outer,ang){
-  const px=cx+Math.cos(ang)*(outer+9),pz=cz+Math.sin(ang)*(outer+9);
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(14,0.32,7.5),concreteMat);
-  deck.position.set(px,0.16,pz);deck.rotation.y=-ang+Math.PI/2;
-  const roof=new THREE.Mesh(new THREE.BoxGeometry(15,0.18,8.2),stoneDark);
-  roof.position.set(px,4.05,pz);roof.rotation.y=-ang+Math.PI/2;
-  [-5.5,5.5].forEach(s=>{
-    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.18,4,8),stone);
-    const sx=px+Math.cos(ang+Math.PI/2)*s,sz=pz+Math.sin(ang+Math.PI/2)*s;
-    post.position.set(sx,2.0,sz);scene.add(post);
-  });
-  const kiosk=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,2.4),new THREE.MeshLambertMaterial({color:0x6a5844}));
-  kiosk.position.set(px+Math.cos(ang)*2,1.2,pz+Math.sin(ang)*2);scene.add(deck,roof,kiosk);
-  queueZig(px-Math.cos(ang)*12,pz-Math.sin(ang)*12,ang+Math.PI,7);
+function rideStation(s){
+  const g=addSkuKit(THREE,scene,s);
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(s.w+0.6,0.22,s.d+0.6),concreteMat);
+  deck.position.set(0,0.11,0);g.add(deck);
 }
-STATIONS.forEach(s=>rideStation(LOCK.rings[s.ring].x,LOCK.rings[s.ring].z,LOCK.rings[s.ring].outer,s.ang));
+STATIONS.forEach(rideStation);
 plate(90,70,-200,-50,EARTH);
 plate(60,50,130,-70,EARTH);
 plate(70,40,0,-175,EARTH);
@@ -1034,87 +1014,8 @@ plate(70,40,0,-175,EARTH);
 const gateLight=new THREE.PointLight(0xffe1b0,40,55);gateLight.position.set(0,8,LOCK.gate.z);scene.add(gateLight);
 const hubLight=new THREE.PointLight(0xfff0d0,28,40);hubLight.position.set(0,7,0);scene.add(hubLight);
 sun.intensity=1.25;sun.color.set(0xffe6c4);
-function addKiosk(b){
-  const g=new THREE.Group();
-  const bodyMat=new THREE.MeshLambertMaterial({color:b.body});
-  const trimMat=new THREE.MeshLambertMaterial({color:b.trim});
-  const glass=new THREE.MeshLambertMaterial({color:0x1a2430,emissive:0x081018});
-  const baseMat=new THREE.MeshLambertMaterial({color:0x4a4036});
-  const base=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.35,0.28,b.d+0.45),baseMat);base.position.y=0.14;
-  const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.62,b.d),bodyMat);body.position.y=0.28+b.h*0.31;
-  const fascia=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.4,0.22,b.d+0.55),trimMat);fascia.position.y=0.28+b.h*0.62;
-  const roof=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.35,0.12,b.d+1.7),trimMat);
-  roof.position.y=b.h*0.82;roof.rotation.x=-0.12;
-  const overhang=null;const awning=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.95,0.06,0.85),trimMat);
-  awning.position.set(0,1.55,b.d/2+0.55);awning.rotation.x=-0.35;
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>{
-    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.09,b.h*0.7,6),trimMat);
-    post.position.set(sx*(b.w/2+0.32),b.h*0.38,sz*(b.d/2+0.42));g.add(post);
-  });
-  // Service window recess (front)
-  const recess=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.72,1.15,0.22),new THREE.MeshLambertMaterial({color:0x1a1510}));
-  recess.position.set(0,1.25,b.d/2-0.05);
-  const pane=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.58,0.85,0.06),glass);
-  pane.position.set(0,1.28,b.d/2-0.14);
-  const sill=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.78,0.1,0.28),trimMat);
-  sill.position.set(0,0.72,b.d/2+0.08);
-  // Side window insets
-  [-1,1].forEach(side=>{
-    const rec=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.9,b.d*0.45),trimMat);
-    rec.position.set(side*(b.w/2-0.02),1.2,0);
-    const gp=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.7,b.d*0.35),glass);
-    gp.position.set(side*(b.w/2-0.12),1.2,0);g.add(rec,gp);
-  });
-  const counter=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.88,0.12,0.48),new THREE.MeshLambertMaterial({color:0x3d3428}));
-  counter.position.set(0,1.0,b.d/2+0.28);
-  g.add(base,body,fascia,roof,awning,recess,pane,sill,counter);
-  g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
-}
-function addPavilion(b){
-  const g=new THREE.Group();
-  const bodyMat=new THREE.MeshLambertMaterial({color:b.body});
-  const trimMat=new THREE.MeshLambertMaterial({color:b.trim});
-  const glass=new THREE.MeshLambertMaterial({color:0x1c2830,emissive:0x0a1520});
-  const deckMat=new THREE.MeshLambertMaterial({color:0xb9b3a8});
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.8,0.22,b.d+1.8),deckMat);deck.position.y=0.11;
-  const plinth=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.78,0.35,b.d*0.78),trimMat);plinth.position.y=0.28;
-  const hall=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.68,b.h*0.58,b.d*0.68),bodyMat);
-  hall.position.y=0.35+b.h*0.29;
-  const belt=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.74,0.16,b.d*0.74),trimMat);
-  belt.position.y=0.35+b.h*0.58;
-  for(let i=0;i<8;i++){
-    const a=(i/8)*Math.PI*2;
-    const col=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.22,b.h*0.78,8),trimMat);
-    col.position.set(Math.cos(a)*(b.w/2-0.3),b.h*0.4,Math.sin(a)*(b.d/2-0.3));g.add(col);
-  }
-  // Four window bays on hall faces
-  const hw=b.w*0.68, hd=b.d*0.68, hy=0.35+b.h*0.29;
-  [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx,dz])=>{
-    const rec=new THREE.Mesh(
-      new THREE.BoxGeometry(dx?0.2:hw*0.42, b.h*0.32, dz?0.2:hd*0.42),
-      new THREE.MeshLambertMaterial({color:0x1a1510})
-    );
-    rec.position.set(dx*(hw/2-0.05), hy, dz*(hd/2-0.05));
-    const pane=new THREE.Mesh(
-      new THREE.BoxGeometry(dx?0.06:hw*0.32, b.h*0.24, dz?0.06:hd*0.32),
-      glass
-    );
-    pane.position.set(dx*(hw/2-0.14), hy, dz*(hd/2-0.14));
-    const sill=new THREE.Mesh(
-      new THREE.BoxGeometry(dx?0.28:hw*0.38, 0.08, dz?0.28:hd*0.38),
-      trimMat
-    );
-    sill.position.set(dx*(hw/2+0.05), hy-b.h*0.18, dz*(hd/2+0.05));
-    g.add(rec,pane,sill);
-  });
-  const roofLow=new THREE.Mesh(new THREE.CylinderGeometry(Math.max(b.w,b.d)*0.55,Math.max(b.w,b.d)*0.62,0.35,4),trimMat);
-  roofLow.position.y=b.h*0.78;roofLow.rotation.y=Math.PI/4;
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(b.w,b.d)*0.72,2.35,4),trimMat);
-  roof.position.y=b.h+0.55;roof.rotation.y=Math.PI/4;
-  const finial=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,8),trimMat);finial.position.y=b.h+1.85;
-  g.add(deck,plinth,hall,belt,roofLow,roof,finial);
-  g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
-}
+function addKiosk(b){ addSkuKit(THREE,scene,b); }
+function addPavilion(b){ addSkuKit(THREE,scene,b); }
 function addPilaster(g,x,y,z,h,trim,faceZ=true){
   const p=new THREE.Mesh(new THREE.BoxGeometry(faceZ?0.38:0.22,h,faceZ?0.22:0.38),trim);
   p.position.set(x,y,z);g.add(p);
@@ -1153,7 +1054,7 @@ function addPortico(g,b,trim,mat){
   door.position.set(0,1.7,z-0.32);g.add(door);
 }
 function addHall(b){
-  const g=new THREE.Group();
+  const g=addSkuKit(THREE,scene,b);
   const mat=new THREE.MeshLambertMaterial({color:b.body});
   const trim=new THREE.MeshLambertMaterial({color:b.trim});
   const glass=new THREE.MeshLambertMaterial({color:0x1c2830,emissive:0x0a1520});
@@ -1185,7 +1086,6 @@ function addHall(b){
   steps.position.set(0,0.14,b.d/2+2.05);
   const step2=steps.clone();step2.scale.set(0.82,1,0.7);step2.position.z=b.d/2+1.45;step2.position.y=0.28;
   g.add(steps,step2);
-  g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
 }
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
 // Pass 37 — evening window glow on SKUs (footprints unmoved)
