@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> species-varied tree crowns</div>
+  <div><b>This pass:</b> ribbon stay-on-path</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -124,6 +124,19 @@ function pathRing(inner,outer,x,z){
   curbRing(outer,outer+0.7,0.4,0);
   curbRing(Math.max(0.5,inner-0.7),inner,0.4,0);
 }
+const walkSegs=[]; // Pass 7 ribbon stay-on-path
+function addWalkSeg(ax,az,bx,bz,half){walkSegs.push({ax,az,bx,bz,half});}
+function nearestWalk(x,z){
+  if(Math.hypot(x,z)<=LOCK.hubOuter+2.5) return {x,z,on:true,d:0};
+  let best=1e9,bx=x,bz=z,on=false;
+  for(let i=0;i<walkSegs.length;i++){
+    const s=walkSegs[i],dx=s.bx-s.ax,dz=s.bz-s.az,len2=dx*dx+dz*dz||1;
+    let u=((x-s.ax)*dx+(z-s.az)*dz)/len2;u=u<0?0:u>1?1:u;
+    const px=s.ax+dx*u,pz=s.az+dz*u,d=Math.hypot(x-px,z-pz);
+    if(d<best){best=d;bx=px;bz=pz;on=d<=s.half;}
+  }
+  return {x:bx,z:bz,on,d:best};
+}
 function pathRibbon(pts,width=6){
   if(pts.length<2)return;
   const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,0.15,z)),false,'catmullrom',0.18);
@@ -141,6 +154,10 @@ function pathRibbon(pts,width=6){
   geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
   geo.setIndex(idx);geo.computeVertexNormals();
   scene.add(new THREE.Mesh(geo,pathMat));
+  for(let i=0;i<segs;i++){
+    const p0=curve.getPoint(i/segs),p1=curve.getPoint((i+1)/segs);
+    addWalkSeg(p0.x,p0.z,p1.x,p1.z,hw+1.25);
+  }
   [-1,1].forEach(side=>{
     const cpts=[];
     for(let i=0;i<=segs;i++){
@@ -164,6 +181,12 @@ function lakeWalk(x,z,rx,rz){
 pathBox(LOCK.spineWidth,B,0,B/2,0,asphaltMat);
 pathBox(22,18,0,B,0,asphaltMat);
 pathBox(LOCK.spineWidth,B,0,-B/2,0,asphaltMat);
+addWalkSeg(0,0,0,B,LOCK.spineWidth/2+1.8);
+addWalkSeg(0,0,0,-B,LOCK.spineWidth/2+1.8);
+addWalkSeg(-11,B-9,11,B-9,10);
+addWalkSeg(-11,B,11,B,10);
+addWalkSeg(-7,34,7,34,5);
+addWalkSeg(-7,-34,7,-34,5);
 // Short aprons at hub gaps — path continuity onto raised plaza (SLAB 0.28)
 [[0,34],[0,-34]].forEach(([ax,az])=>{
   const apr=new THREE.Mesh(new THREE.BoxGeometry(14,0.2,8),asphaltMat);
@@ -266,6 +289,26 @@ function hubPlaza(){
 hubPlaza();
 pathRing(LOCK.rings.A.inner,LOCK.rings.A.outer,LOCK.rings.A.x,LOCK.rings.A.z);
 pathRing(LOCK.rings.B.inner,LOCK.rings.B.outer,LOCK.rings.B.x,LOCK.rings.B.z);
+(function ringWalk(cx,cz,inner,outer){
+  const mid=(inner+outer)/2,half=(outer-inner)/2+1.1,n=48;
+  for(let i=0;i<n;i++){
+    const a0=i/n*Math.PI*2,a1=(i+1)/n*Math.PI*2;
+    addWalkSeg(cx+Math.cos(a0)*mid,cz+Math.sin(a0)*mid,cx+Math.cos(a1)*mid,cz+Math.sin(a1)*mid,half);
+  }
+})(LOCK.rings.A.x,LOCK.rings.A.z,LOCK.rings.A.inner,LOCK.rings.A.outer);
+(function ringWalk(cx,cz,inner,outer){
+  const mid=(inner+outer)/2,half=(outer-inner)/2+1.1,n=48;
+  for(let i=0;i<n;i++){
+    const a0=i/n*Math.PI*2,a1=(i+1)/n*Math.PI*2;
+    addWalkSeg(cx+Math.cos(a0)*mid,cz+Math.sin(a0)*mid,cx+Math.cos(a1)*mid,cz+Math.sin(a1)*mid,half);
+  }
+})(LOCK.rings.B.x,LOCK.rings.B.z,LOCK.rings.B.inner,LOCK.rings.B.outer);
+// Hub spokes walkable (Pass 7)
+for(let i=0;i<8;i++){
+  const a=i/8*Math.PI*2;
+  addWalkSeg(Math.cos(a)*LOCK.hubInner,Math.sin(a)*LOCK.hubInner,Math.cos(a)*LOCK.hubOuter,Math.sin(a)*LOCK.hubOuter,2.2);
+}
+
 // Winding path ribbons that follow blueprint water edges (lands, not the 14 m spine)
 pathRibbon([[-62,28],[-95,8],[-132,-18],[-168,-48],[-198,-82],[-170,-112],[-128,-98],[-96,-62]],5.6);
 pathRibbon([[-70,-40],[-100,-18],[-148,8],[-188,28],[-210,55],[-178,78],[-140,88]],5.2);
@@ -652,7 +695,11 @@ function tick(){
   }else if(len>0){
     mx/=len;mz/=len;const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
     const nx=pos.x+(fx*-mz+rx*mx)*WALK*dt,nz=pos.z+(fz*-mz+rz*mx)*WALK*dt;
-    if(inStadium(nx,nz)){pos.x=nx;pos.z=nz;}
+    if(inStadium(nx,nz)){
+      const w=nearestWalk(nx,nz);
+      if(w.on){pos.x=nx;pos.z=nz;}
+      else if(w.d<7){pos.x=nx+(w.x-nx)*0.6;pos.z=nz+(w.z-nz)*0.6;}
+    }
   }
   pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
   if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}

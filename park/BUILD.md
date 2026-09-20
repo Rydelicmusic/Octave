@@ -46,14 +46,19 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Rail belt still mixed via stable pickSpecies(x,z); placement skips spine ±9 m + building footprints
 - No map / BUILDINGS / LAYOUT.md changes
 
+## Pass 7 — ribbon-constrained stay-on-path
+- Walk samples spine, gate apron, hub spokes, land path ribbons, and ride rings
+- Hub plaza (≤ hubOuter+2.5 m) stays free; elsewhere soft-pull to nearest walk segment
+- Rail/stadium clamp unchanged; LAYOUT.md / BUILDINGS footprints untouched
+
 ## Still fake (worst next)
 1. Spine is still a straight box (ribbons are on land water edges only)
-2. Stay-on-path is rail-only, not ribbon-constrained  ← next candidate
 
 
 ## KEITH check-in — 2026-09-20 13:00 CDT
 - FLEET: KEITH COO online; Realm Engineer = park/; Site Luxury = park-site/; Quality standby
 - SHIPPED: Pass 5 SKU facade polish (kiosk/pavilion/hall) — footprints held
 - SHIPPED Pass 6: species-varied tree crowns
-- NEXT candidate: ribbon-constrained stay-on-path
+- SHIPPED Pass 7: ribbon-constrained stay-on-path
+- NEXT candidate: winding spine (still a straight box)
 - CONSTRAINTS: no rebuild; LAYOUT.md meters held; no hotel-tower
