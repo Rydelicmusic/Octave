@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> building window glow</div>
+  <div><b>This pass:</b> denser WALKS path furniture</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -835,6 +835,80 @@ function trashCan(x,z){
 for(let z=18;z<B-12;z+=14){lamp(-8.3,z);lamp(8.3,z);if(z%28<1){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
 for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z);lamp(8.3,z);}
 lamp(0,-36);lamp(36,0);lamp(-36,0);
+// Pass 38 — denser path furniture along named WALKS (outside 14 m spine strip)
+(function walkPathFurniture(){
+  const half=LOCK.spineWidth/2+2.5;
+  function offSpine(x,z){return Math.abs(x)>=half;}
+  function place(x,z,yaw,kind){
+    if(!offSpine(x,z)) return;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+1.5), dz=(z-cz)/(rz+1.5); return dx*dx+dz*dz<=1;
+    })) return;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.5&&Math.abs(z-b.z)<b.d/2+1.5)) return;
+    if(kind==='lamp') lamp(x,z);
+    else if(kind==='bench') benchAt(x,z,yaw);
+    else trashCan(x,z);
+  }
+  function alongSeg(ax,az,bx,bz,step,offset){
+    const dx=bx-ax, dz=bz-az, len=Math.hypot(dx,dz)||1;
+    const ux=dx/len, uz=dz/len, px=-uz, pz=ux;
+    const yaw=Math.atan2(dx,dz);
+    const pts=[];
+    for(let d=step;d<len-step*0.4;d+=step){
+      const x=ax+ux*d+px*offset, z=az+uz*d+pz*offset;
+      pts.push({x,z,yaw});
+    }
+    return pts;
+  }
+  function shorePt(L,a,m=3.6){return [L.x+Math.cos(a)*(L.rx+m), L.z+Math.sin(a)*(L.rz+m)];}
+  function angTo(L,x,z){return Math.atan2(z-L.z,x-L.x);}
+  WALKS.forEach(walk=>{
+    // furniture near walk sign (offset off spine)
+    if(walk.sign){
+      const sx=walk.sign.x, sz=walk.sign.z;
+      const side=Math.sign(sx||1);
+      place(sx+side*3.2, sz+2.5, walk.sign.yaw||0, 'lamp');
+      place(sx+side*4.0, sz-2.0, walk.sign.yaw||Math.PI/2, 'bench');
+      place(sx+side*2.4, sz+5.0, 0, 'trash');
+    }
+    walkPairs(walk).forEach(([ia,ib],pi)=>{
+      const A=walkLake(ia), B=walkLake(ib);
+      const aAb=angTo(A,B.x,B.z), aBa=angTo(B,A.x,A.z);
+      const a0=shorePt(A,aAb,4.2), b0=shorePt(B,aBa,4.2);
+      // lamps denser along connector
+      alongSeg(a0[0],a0[1],b0[0],b0[1],16,3.4).forEach((p,i)=>{
+        if(i%2===0) place(p.x,p.z,p.yaw,'lamp');
+        if(i%3===1) place(p.x,p.z,p.yaw+Math.PI/2,'bench');
+        if(i%4===2) place(p.x,p.z,0,'trash');
+      });
+      // opposite bank offset
+      alongSeg(a0[0],a0[1],b0[0],b0[1],22,-3.6).forEach((p,i)=>{
+        if(i%2===0) place(p.x,p.z,p.yaw,'lamp');
+        if(i%3===0) place(p.x,p.z,p.yaw,'bench');
+      });
+    });
+    if(walk.spur && walk.lakes[0]!=null){
+      const L=walkLake(walk.lakes[0]);
+      const start=shorePt(L, angTo(L, walk.spur[0], walk.spur[1]), 4.0);
+      const end=walk.spur;
+      alongSeg(start[0],start[1],end[0],end[1],14,3.2).forEach((p,i)=>{
+        if(i%2===0) place(p.x,p.z,p.yaw,'lamp');
+        if(i%3===1) place(p.x,p.z,p.yaw+Math.PI/2,'bench');
+        if(i%3===2) place(p.x,p.z,0,'trash');
+      });
+    }
+    // lakeshore rim lamps on each lake in the walk
+    walk.lakes.forEach((li,li2)=>{
+      const L=walkLake(li);
+      const n=Math.max(4, Math.floor((L.rx+L.rz)/18));
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+li2*0.2;
+        const [x,z]=shorePt(L,a,4.5);
+        place(x,z,a+Math.PI/2, i%3===0?'bench':(i%3===1?'lamp':'trash'));
+      }
+    });
+  });
+})();
 function fencePost(x,z){
   const p=new THREE.Mesh(new THREE.BoxGeometry(0.18,1.15,0.18),stoneDark);p.position.set(x,0.57,z);scene.add(p);
 }

@@ -170,6 +170,10 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 37 — building window glow
 - Emissive evening panes on SKUs; BUILDINGS footprints unmoved
 
+## Pass 38 — denser path furniture along WALKS
+- Lamps / benches / trash along named walk connectors, spurs, lake rims, and signs
+- Placement skips 14 m spine strip, water ellipses, and BUILDINGS footprints
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -212,6 +216,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 35: itinerary return-to-Gate leg
 - SHIPPED Pass 36: ride station queue polish
 - SHIPPED Pass 37: building window glow
+- SHIPPED Pass 38: denser path furniture along WALKS
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
