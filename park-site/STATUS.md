@@ -1102,11 +1102,27 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 13:56 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 5c3a691 lineage; stadium/hub live still 404 — deepened elsewhere
-- **GOING:** Tip pending
+- **GOING:** Tip befd245; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html/dir collisions; ≤1 Pages rebuild if stadium/hub still 404
 - **SOLUTIONS:** Related EP/song deepen; materials deepen; tonight/daylight→rooms; guest/booking→related; directory mega
-- **COMMIT / LAST COMMIT:** 3afa587 — Pass 133
+- **COMMIT / LAST COMMIT:** befd245 — Pass 134
+- **TIP:** befd2453b1dd109cbd94fcb82a0a46b76d7969dc
 - **COLLISIONS:** NONE
+- **PAGES:** errored
+- **REBUILD:** one rebuild queued (stadium/hub still 404 >15m)
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `notes/stadium.html` | 404 |
+| `notes/hub-rings.html` | 404 |
+| `artists/vale-mercer/related-west-gate-echo.html` | 200 |
+| `materials/lamps.html` | 200 |
+| `lands/the-block/tonight.html` | 200 |
+| `lands/the-pocket/daylight.html` | 200 |
+| `booking/night.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
