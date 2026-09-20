@@ -241,11 +241,13 @@ Kit body was `h*0.7` so a 3.15 m kiosk was a 2.20 m box (shorter than its 2.05 m
 ## Buildings pass 23 — tear down duplicate album mass; 2.1 m door
 addHall no longer stacks a second lower (`h*0.56`) / upper (`h*0.36`) hall on the kit body. Album volume is the kit (body fills to `h-0.08`). Portico door 1.1 × 2.1 m (was 1.7 × 2.7 m) at y=1.1. Columns 3.2 m. Footprints unchanged.
 
+## Buildings pass 24 — marquee at 3.35 m walk-under
+Album marquees sat at `0.28+h*0.78` ≈ 7.5 m (second-story). Now `min(3.35, eaves-0.5)` so a guest walks under a 0.78 × 1.15 m projecting sign. Kiosk marquee stays ~2.85 m. Width capped 8.5 m. Footprints unchanged.
+
 ## Still fake (worst next)
-1. Marquee sits at ~0.78 h on albums (~7 m); should be walk-under ~3.2–3.6 m
-2. Queue rails 0.92 m, 0.09 m thick, no posts
-3. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
-4. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
+1. Queue rails 0.92 m, 0.09 m thick, no posts (typical rail 1.05 m)
+2. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
+3. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered

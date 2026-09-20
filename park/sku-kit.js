@@ -27,7 +27,8 @@ export function skuKit(p, emit) {
     emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: -w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
     emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
   }
-  emit.box({ name: 'marquee', w: w * 0.72, h: 0.78, d: 1.15, x: 0, y: 0.28 + h * 0.78, z: d / 2 + 0.72, color: pal.marquee });
+  const marqueeY = Math.min(3.35, plinth + bodyH - 0.5);
+  emit.box({ name: 'marquee', w: Math.min(w * 0.72, 8.5), h: 0.78, d: 1.15, x: 0, y: marqueeY, z: d / 2 + 0.72, color: pal.marquee });
   emit.box({ name: 'service', w: 1.1, h: 2.05, d: 0.12, x: w * 0.28, y: 1.05, z: -d / 2 - 0.07, color: pal.door });
   emit.box({ name: 'queue', w: 0.09, h: 0.92, d: qL, x: -qW / 2, y: 0.46, z: d / 2 + qL / 2, color: pal.queue });
   emit.box({ name: 'queue', w: 0.09, h: 0.92, d: qL, x: qW / 2, y: 0.46, z: d / 2 + qL / 2, color: pal.queue });
