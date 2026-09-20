@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> Block shore densify</div>
+  <div><b>This pass:</b> Pocket shore densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -386,6 +386,23 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
       pts.push([cx+Math.cos(a)*(rx+4.8), cz+Math.sin(a)*(rz+4.8)]);
     }
     pathRibbon(pts, 3.8);
+  });
+})();
+// Pass 24 — denser Pocket (hub-south / rings) shore bands (waters unmoved; rings held)
+(function pocketShore(){
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    if(cz<40||cx<10) return; // Pocket neighborhood south-east of hub
+    if(rx<9) return;
+    // keep band outside ring keep-outs visually (path only; rings unmoved)
+    const pts=[], n=rx>=18?48:36;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      const x=cx+Math.cos(a)*(rx+4.2), z=cz+Math.sin(a)*(rz+4.2);
+      if(Math.hypot(x-LOCK.rings.A.x,z-LOCK.rings.A.z)<LOCK.rings.A.outer+4) continue;
+      if(Math.hypot(x-LOCK.rings.B.x,z-LOCK.rings.B.z)<LOCK.rings.B.outer+3) continue;
+      pts.push([x,z]);
+    }
+    if(pts.length>3) pathRibbon(pts, 3.6);
   });
 })();
 // Pass 11 — fuller shoreline network: promenade bands + shore-hugging links (waters unmoved)
