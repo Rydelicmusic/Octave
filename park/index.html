@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> night water mist</div>
+  <div><b>This pass:</b> PathRibbon curb companions</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass63-mist';
+import * as LockMod from './lock.js?v=pass64-ribbon';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -232,6 +232,34 @@ function pathRibbon(pts,width=6,mat=pathMat){
     }
     scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(cpts),segs,0.2,5,false),stoneDark));
   });
+  // Pass 64 — curb companions on land sand ribbons (pathMat only; spine asphalt unchanged)
+  // pass64RibbonCurbs
+  if(mat===pathMat){
+    const wear=new THREE.MeshLambertMaterial({color:0x7a6a58});
+    const step=Math.max(3,Math.floor(segs/14));
+    for(let i=0;i<=segs;i+=step){
+      const t=i/segs,p=curve.getPoint(t),tg=curve.getTangent(t);
+      const sx=-tg.z,sz=tg.x,len=Math.hypot(sx,sz)||1;
+      const nx=sx/len,nz=sz/len;
+      if(Math.abs(p.x)<LOCK.spineWidth/2+0.5) continue; // hold clear spine strip
+      [-1,1].forEach(side=>{
+        const cx=p.x+side*nx*(hw+0.55);
+        const cz=p.z+side*nz*(hw+0.55);
+        if(nearRing(cx,cz,5)) return;
+        if(LOCK.waters.some(([wx,wz,rx,rz])=>{const dx=(cx-wx)/(rx+1),dz=(cz-wz)/(rz+1);return dx*dx+dz*dz<=1;})) return;
+        const chip=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.05,0.62),wear);
+        chip.position.set(cx,0.38,cz);
+        chip.rotation.y=Math.atan2(tg.x,tg.z);
+        scene.add(chip);
+        if(i%(step*2)===0){
+          const joint=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.28,0.08),stone);
+          joint.position.set(cx,0.2,cz);
+          joint.rotation.y=Math.atan2(tg.x,tg.z);
+          scene.add(joint);
+        }
+      });
+    }
+  }
 }
 function lakeWalk(x,z,rx,rz){
   // Pass 9: denser ring mesh (64→96) hugging water rim — ellipse unmoved
