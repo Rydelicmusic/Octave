@@ -9,6 +9,8 @@ import {
   measureItinerary, hubApronPath, polylineMeters, catmullRibbonMeters, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
   LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast, spineLampPointLights,
   PATH_SCALE, lakesideRibbonPolyline, lakesideRibbonRuns,
+  occupiesSpine, canPlaceSoft, onRingWalk, beltTreePositions, TREE_BELTS, MATERIALS, GROUNDS_DRESSING, hubBedCenters,
+  allLakesideRibbons, lakesideRibbonMesh, GROUNDS_SCALE, treeMetrics, waterCopingSegments,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +53,7 @@ assert.deepEqual(LOCK.waters, [
 assert.deepEqual(LOCK.canopies['The Block'], { cx: -165, cz: -10, rx: 130, rz: 160 });
 assert.deepEqual(LOCK.canopies['After Hours'], { cx: 10, cz: -140, rx: 150, rz: 70 });
 assert.deepEqual(LOCK.canopies['The Board'], { cx: 160, cz: 10, rx: 130, rz: 130 });
+assert.deepEqual(LOCK.canopies['The Pocket'], { cx: 80, cz: 105, rx: 95, rz: 80 });
 
 assert.equal(onSpine(0, 120), true);
 assert.equal(onSpine(8, 120), false);
@@ -119,6 +122,7 @@ assert.match(indexHtml, /from ['"]\.\/lock\.js/);
 assert.match(indexHtml, /BUILDINGS/);
 assert.match(indexHtml, /LOCK\.walk/);
 assert.match(indexHtml, /function pathRibbon/);
+assert.match(indexHtml, /pathRibbon\([^)]*,\s*3\.8\)/);
 assert.match(indexHtml, /function lakeWalk/);
 assert.match(indexHtml, /lakesideRibbonRuns/);
 assert.match(indexHtml, /PATH_SCALE\.lakesideW/);
@@ -155,7 +159,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.match(lockSrc, /export const ITINERARY/);
 assert.match(lockSrc, /FIX-ITINERARY/);
 assert.ok(ITINERARY);
-assert.match(indexHtml, /pass73-rail|pass72-curb|pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass74-merge|pass73-rail|pass72-curb|pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
 assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
@@ -195,7 +199,7 @@ assert.match(indexHtml, /measureItinerary|totalMin/);
 assert.match(indexHtml, /0\.45 m spine curbs|3\.6 m path lanterns|3\.2 m lakeside walks|This pass/);
 assert.match(indexHtml, /walkLinkPolyline/);
 assert.match(indexHtml, /walkSpurPolyline/);
-assert.match(indexHtml, /pass73-rail|pass72-curb|pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass74-merge|pass73-rail|pass72-curb|pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
 assert.match(indexHtml, /function lamp\(x,z,lit=false\)/);
 assert.match(indexHtml, /addLampPointLight/);
 assert.match(indexHtml, /spineLampLitWest\(z\)/);
@@ -307,6 +311,7 @@ assert.match(indexHtml, /asphaltMat/);
 assert.match(indexHtml, /concreteMat/);
 assert.match(indexHtml, /earthMat|EARTH/);
 assert.match(indexHtml, /inStadium\(nx,nz\)/);
+assert.match(indexHtml, /TubeGeometry\(new THREE\.CatmullRomCurve3\(curbPts/);
 assert.match(indexHtml, /let yaw=0/);
 assert.match(indexHtml, /location.hash==='#drone'/);
 assert.match(indexHtml, /function addPilaster/);
@@ -351,15 +356,13 @@ assert.doesNotMatch(blueprintHtml, /\bhotel\b/i);
 assert.doesNotMatch(blueprintHtml, /\btower\b/i);
 assert.doesNotMatch(blueprintHtml, /\belevator\b/i);
 
-console.log('lock tests ok', BUILDINGS.length, 'buildings');
-
 assert.match(indexHtml, /hubApronPath/);
 assert.match(indexHtml, /LAMP_LIGHT_CAP/);
 assert.match(indexHtml, /LAMP_LIGHT_CAP=80/);
 assert.match(indexHtml, /Pass 48/);
 assert.match(indexHtml, /denser lamp PointLights|gate ticket booth polish|water material densify|facade mid-block detail|night fill polish|earth densify|stadium rail densify|hub plaza densify|path curb polish|wayfinding densify|guest seating densify|canopy understory densify|tour mid-leg pause seating|Gate secondary queue furniture|SKU service aprons|Pass 49|Pass 50|Pass 51|Pass 52|Pass 53|Pass 54|Pass 55|Pass 56|Pass 57|Pass 58|Pass 59|Pass 60|Pass 61|Pass 62|Pass 63|Pass 64|Pass 65|Pass 66|Pass 67|Pass 68|Pass 69|Pass 70|Pass 71|Pass 72|Pass 73/);
 assert.match(indexHtml, /pass44LampLights/);
-assert.match(indexHtml, /pass73-rail|pass72-curb|pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass74-merge|pass73-rail|pass72-curb|pass71-lamph|pass70-lakeside|pass69-board|pass68-ah|pass67-hub|pass66-shade|pass65-gate|pass64-ribbon|pass63-mist|pass62-apron|pass61-gateq|pass60-pause|pass59-under|pass58-seats|pass57-way|pass56-curb|pass55-hub|pass54-rail|pass53-earth|pass52-night|pass51-facade|pass50-water|pass49-gate|pass48-lamps|pass47-catmull|pass46-stations|pass45-lamps/);
 
 assert.match(indexHtml, /Pass 63|pass63WaterMist|water mist/);
 assert.match(indexHtml, /Pass 64|pass64RibbonCurbs|curb companions/);
@@ -376,3 +379,138 @@ assert.match(indexHtml, /Pass 70|3\.2 m lakeside walks|lakesideRibbonRuns/);
 assert.match(indexHtml, /Pass 71|3\.6 m path lanterns|PATH_SCALE\.lampH/);
 assert.match(indexHtml, /Pass 72|0\.45 m spine curbs|PATH_SCALE\.spineCurbW/);
 assert.match(indexHtml, /Pass 73|0\.28 m rail posts|PATH_SCALE\.railPost/);
+
+assert.match(indexHtml, /import \{ addSkuKit \} from ['"]\.\/sku-kit\.js['"]/);
+assert.match(indexHtml, /GATE\.forEach/);
+assert.match(indexHtml, /STATIONS\.forEach\(rideStation\)/);
+assert.doesNotMatch(indexHtml, /from ['"]\.\/buildings\.js['"]/);
+
+const layout = readFileSync(join(dir, 'LAYOUT.md'), 'utf8');
+assert.equal(LOCK.A, Number(layout.match(/A = (\d+)/)[1]));
+assert.equal(LOCK.B, Number(layout.match(/B = (\d+)/)[1]));
+assert.equal(LOCK.capR, Number(layout.match(/Cap R = (\d+)/)[1]));
+assert.equal(LOCK.straight, Number(layout.match(/Straight = (\d+)/)[1]));
+assert.equal(LOCK.spineWidth, Number(layout.match(/Spine: (\d+) m/)[1]));
+assert.equal(LOCK.gate.z, Number(layout.match(/Gate = \(0, \+(\d+)\)/)[1]));
+assert.match(layout, /\(80,\s*105,\s*95,\s*80\)/);
+const waterBlock = layout.split('Water ellipses')[1].split('```')[1];
+const parsedWater = [...waterBlock.matchAll(/\((-?\d+),\s*(-?\d+),\s*(\d+),\s*(\d+)\)/g)]
+  .map((m) => m.slice(1).map(Number));
+assert.deepEqual(LOCK.waters, parsedWater);
+assert.equal(LOCK.waters.length, 12);
+
+assert.equal(GROUNDS_SCALE.lampH, 3.6);
+assert.equal(GROUNDS_SCALE.benchSeat, 0.45);
+assert.equal(GROUNDS_SCALE.lakesideW, 3.2);
+assert.equal(GROUNDS_SCALE.lakesideOffset, 2.6);
+assert.equal(GROUNDS_SCALE.copingW, 0.5);
+assert.equal(GROUNDS_SCALE.copingH, 0.32);
+assert.equal(GROUNDS_SCALE.hubBedH, 0.38);
+assert.deepEqual(GROUNDS_SCALE.treeTrunkH, [5.2, 11.2]);
+assert.deepEqual(GROUNDS_SCALE.treeTrunkR, [0.12, 0.28]);
+
+assert.equal(occupiesSpine(0, 100, 1), true);
+assert.equal(occupiesSpine(20, 100, 1), false);
+assert.equal(canPlaceSoft(0, 120, 1), false);
+assert.equal(canPlaceSoft(20, 100, 1), true);
+{
+  const [wx, wz] = LOCK.waters[0];
+  assert.equal(inWater(wx, wz), true);
+  assert.equal(canPlaceSoft(wx, wz, 1), false);
+}
+{
+  const rb = LOCK.rings.B;
+  const bandZ = rb.z + (rb.inner + rb.outer) / 2;
+  assert.equal(onRingWalk(rb.x, bandZ, 1), true);
+  assert.equal(canPlaceSoft(rb.x, bandZ, 1), false);
+}
+for (const name of GROUNDS_DRESSING.treeBelts) {
+  const pts = beltTreePositions(name);
+  assert.ok(pts.length >= 40, name + ' sparse ' + pts.length);
+  for (const p of pts) {
+    const rad = treeMetrics(p.s, p.seed).canopyR * 0.5;
+    assert.equal(occupiesSpine(p.x, p.z, rad), false, name + ' spine');
+    assert.equal(inWater(p.x, p.z), false, name + ' in-water ' + p.x + ',' + p.z);
+    assert.equal(onRingWalk(p.x, p.z, rad), false, name + ' ring-walk ' + p.x + ',' + p.z);
+    assert.equal(canPlaceSoft(p.x, p.z, rad), true, name + ' canPlaceSoft');
+  }
+  assert.match(indexHtml, new RegExp(name.replace('north split', 'North \\/ After Hours split').replace('west lakes', 'West lakes').replace('SE grove', 'SE grove')));
+}
+assert.match(indexHtml, /overlapping canop|canopy overlap/i);
+assert.match(indexHtml, /treeMetrics/);
+assert.match(indexHtml, /trunk/);
+{
+  const [h0, h1] = GROUNDS_SCALE.treeTrunkH;
+  const [r0, r1] = GROUNDS_SCALE.treeTrunkR;
+  for (const s of [0.9, 1, 1.25]) {
+    for (let seed = 0; seed < 5; seed++) {
+      const m = treeMetrics(s, seed);
+      assert.ok(m.trunkH >= h0 - 0.05, 'trunk short ' + m.trunkH);
+      assert.ok(m.trunkH <= h1 + 0.6, 'trunk tall ' + m.trunkH);
+      assert.ok(m.trunkR >= r0 - 0.02, 'trunk thin ' + m.trunkR);
+      assert.ok(m.trunkR <= r1, 'telephone-pole trunk ' + m.trunkR);
+      assert.ok(m.canopyR > 2 && m.canopyR < 6, 'canopy ' + m.canopyR);
+    }
+  }
+}
+assert.equal(hubBedCenters().length, 8);
+assert.match(indexHtml, /radial planting bed/i);
+assert.match(indexHtml, /GROUNDS_SCALE\.hubBedH/);
+assert.match(indexHtml, /lakesideRibbon/);
+assert.match(indexHtml, /lakesideRibbonMesh/);
+assert.match(indexHtml, /Constant-width walk in meters/);
+assert.doesNotMatch(indexHtml, /segs\.length\s*>=\s*38/);
+{
+  const lakeFn = indexHtml.match(/function lakesideRibbon[\s\S]*?\n\}/);
+  assert.ok(lakeFn, 'lakesideRibbon missing');
+  assert.doesNotMatch(lakeFn[0], /RingGeometry/);
+  assert.match(lakeFn[0], /s\.w/);
+}
+assert.match(indexHtml, /recessed/i);
+assert.match(indexHtml, /waterCopingSegments/);
+assert.match(indexHtml, /GROUNDS_SCALE\.copingH/);
+{
+  const [cx, cz, rx, rz] = LOCK.waters[0];
+  const cope = waterCopingSegments(cx, cz, rx, rz);
+  assert.ok(cope.length >= 24);
+  for (const s of cope) {
+    assert.equal(s.w, GROUNDS_SCALE.copingW);
+    assert.equal(s.w, 0.5);
+  }
+  assert.equal(GROUNDS_SCALE.copingH, 0.32);
+}
+const ribbons = allLakesideRibbons();
+assert.equal(ribbons.length, LOCK.waters.length);
+let clipped = 0;
+for (const r of ribbons) {
+  const mesh = lakesideRibbonMesh(r.x, r.z, r.rx, r.rz);
+  assert.equal(mesh.closedRing, mesh.skipped === 0);
+  assert.ok(r.segs.length > 8, 'ribbon ' + r.x + ',' + r.z);
+  for (const s of r.segs) {
+    assert.equal(s.w, GROUNDS_SCALE.lakesideW);
+    assert.equal(s.w, 3.2);
+    assert.equal(occupiesSpine(s.x, s.z, s.w / 2), false);
+  }
+  if (mesh.skipped > 0) {
+    clipped += 1;
+    assert.equal(mesh.closedRing, false);
+  }
+}
+assert.ok(clipped >= 1, 'expected at least one spine-clipped lakeside ribbon');
+for (const name of GROUNDS_DRESSING.materials) {
+  assert.ok(name in MATERIALS);
+  assert.match(indexHtml, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+}
+assert.match(indexHtml, /land wash/i);
+assert.match(indexHtml, /water reflection/i);
+assert.match(indexHtml, /function lamp/);
+assert.match(indexHtml, /GROUNDS_SCALE\.lampH/);
+assert.match(indexHtml, /GROUNDS_SCALE\.benchSeat/);
+assert.match(indexHtml, /LOCK\.spineWidth\/2\+1\.55/);
+assert.match(indexHtml, /benchAt/);
+assert.match(indexHtml, /trashCan/);
+assert.match(indexHtml, /planters/);
+assert.match(indexHtml, /ropes/);
+assert.match(indexHtml, /occupiesSpine|canPlaceSoft/);
+
+console.log('lock tests ok', BUILDINGS.length, 'buildings', Object.keys(TREE_BELTS).join(','));

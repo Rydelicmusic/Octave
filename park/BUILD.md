@@ -375,8 +375,14 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Posts were 0.18×1.15 m with 0.07 m bars (paper from Drone)
 - Now PATH_SCALE.railPost 0.28 m, railH 1.2 m, railBarT 0.12 m; stadium S/B/R and gate opening held
 
+## Pass 74 — merge park-grounds planting/lighting into main buildings page
+- Kept main `park/index.html` SKU-kit mounts (GATE / STATIONS / land SKUs); did not take grounds box facades
+- Ported GROUNDS_SCALE meters: lamp 3.6, bench 0.45, lakeside 3.2, coping 0.5×0.32, hub beds 0.38, trunks 5.2–11.2
+- Overlapping land tree belts via `beltTreePositions` + `treeMetrics`; hub radial beds; land wash; spine ropes 1.55 m off 14 m walk
+- Water coping from `waterCopingSegments` (not rx-scaled); LAYOUT.md Pocket canopy (80,105,95,80) held
+
 ## Still fake (worst next)
-- Water coping still scales with ellipse rx
+- Water coping boxes still facet the ellipse (width is meter-true 0.5 m)
 - Hub inner continuous curb is 0.22 m (step-over) while outer parapet is 0.55 m
 - Gate arrival pathBox is 22 m wide vs 14 m spine
 

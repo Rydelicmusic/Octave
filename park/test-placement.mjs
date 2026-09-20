@@ -7,6 +7,8 @@ import {
   LOCK, BUILDINGS, GATE, STATIONS, PLACEMENTS, LAND_PALETTE,
   occupancyAABB, hitsHub, hitsSpine, hitsWater, hitsRail,
   placementIssues, stationBesideRing, inCanopy, canPlaceBuilding,
+  GROUNDS_SCALE, treeMetrics, waterCopingSegments, lakesideRibbonMesh,
+  hubBedCenters, occupiesSpine, canPlaceSoft, beltTreePositions,
 } from './lock.js';
 import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from './sku-kit.js';
 
@@ -23,6 +25,13 @@ test('lock literals match LAYOUT.md', () => {
   assert.deepEqual(LOCK.rings.A, { x: 95, z: 95, inner: 14, outer: 20 });
   assert.deepEqual(LOCK.rings.B, { x: 118, z: 108, inner: 6, outer: 11 });
   assert.equal(LOCK.waters.length, 12);
+  assert.deepEqual(LOCK.canopies['The Pocket'], { cx: 80, cz: 105, rx: 95, rz: 80 });
+  const layout = readFileSync(join(here, 'LAYOUT.md'), 'utf8');
+  assert.match(layout, /760\s*[×x]\s*460/);
+  assert.match(layout, /\(80,\s*105,\s*95,\s*80\)/);
+  assert.equal(LOCK.A * 2, 760);
+  assert.equal(LOCK.B * 2, 460);
+  assert.equal(LOCK.capR, 230);
 });
 
 test('SKU ladder is kiosk / pavilion / album with distinct scales', () => {
@@ -198,4 +207,67 @@ test('index.html mounts sku-kit and drives GATE/STATIONS footprints', () => {
   assert.match(src, /BoxGeometry\(1\.1,2\.1,0\.12\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
   assert.doesNotMatch(src, /\belevator\b/i);
+});
+
+test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {
+  assert.equal(GROUNDS_SCALE.lakesideW, 3.2);
+  assert.equal(GROUNDS_SCALE.lampH, 3.6);
+  assert.equal(GROUNDS_SCALE.copingW, 0.5);
+  assert.equal(GROUNDS_SCALE.copingH, 0.32);
+  assert.equal(GROUNDS_SCALE.hubBedH, 0.38);
+  assert.equal(GROUNDS_SCALE.benchSeat, 0.45);
+  assert.deepEqual(GROUNDS_SCALE.treeTrunkH, [5.2, 11.2]);
+  const [cx, cz, rx, rz] = LOCK.waters[0];
+  const cope = waterCopingSegments(cx, cz, rx, rz);
+  assert.ok(cope.length >= 24);
+  for (const s of cope) {
+    assert.equal(s.w, GROUNDS_SCALE.copingW);
+    assert.equal(s.w, 0.5);
+  }
+  const mesh = lakesideRibbonMesh(cx, cz, rx, rz);
+  assert.ok(mesh.segs.length > 8);
+  for (const s of mesh.segs) {
+    assert.equal(s.w, GROUNDS_SCALE.lakesideW);
+    assert.equal(occupiesSpine(s.x, s.z, s.w / 2), false);
+  }
+  const m0 = treeMetrics(1, 0);
+  assert.ok(m0.trunkH >= 5.2 && m0.trunkH <= 11.2);
+  assert.ok(m0.trunkR >= 0.12 && m0.trunkR <= 0.28);
+  assert.equal(hubBedCenters().length, 8);
+  assert.equal(canPlaceSoft(0, 120, 1), false);
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /waterCopingSegments/);
+  assert.match(src, /GROUNDS_SCALE\.copingH/);
+  assert.match(src, /GROUNDS_SCALE\.lakesideW|lakesideRibbonMesh|PATH_SCALE\.lakesideW/);
+  assert.match(src, /GROUNDS_SCALE\.lampH/);
+  assert.match(src, /GROUNDS_SCALE\.benchSeat/);
+  assert.match(src, /GROUNDS_SCALE\.hubBedH/);
+  assert.match(src, /treeMetrics/);
+  assert.match(src, /beltTreePositions/);
+  assert.match(src, /function lamp/);
+  assert.match(src, /benchAt/);
+  for (const name of ['west lakes', 'SE grove', 'north split']) {
+    assert.ok(beltTreePositions(name).length >= 40, name);
+  }
+});
+
+test('3D page mounts SKU kit on GATE / STATIONS / land SKUs after grounds merge', () => {
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /addSkuKit\(THREE,scene,wing\)/);
+  assert.match(src, /addSkuKit\(THREE,scene,s\)/);
+  assert.match(src, /addSkuKit\(THREE,scene,b\)/);
+  assert.match(src, /sku===['"]kiosk['"]/);
+  for (const b of BUILDINGS) {
+    assert.ok(canPlaceBuilding(b), b.id);
+    assert.equal(hitsSpine(occupancyAABB(b)), false, b.id);
+    assert.equal(hitsWater(occupancyAABB(b)), false, b.id);
+  }
+  for (const g of GATE) {
+    const report = skuKitReport(g);
+    assert.equal(report.ok, true, g.id);
+  }
+  for (const s of STATIONS) {
+    const report = skuKitReport(s);
+    assert.equal(report.ok, true, s.id);
+  }
 });
