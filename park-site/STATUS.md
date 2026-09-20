@@ -382,3 +382,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Short slug = canonical venue; -kiosk/-pavilion/-building = alias redirect; link audit 0 broken
 - **COMMIT / LAST COMMIT:** 39d9eb7 — Pass 27 (pending Pass 28 push)
 
+## Check-in — Pass 29 land cross-strips dual short+SKU
+
+- **TIME:** 2026-09-20 13:55 CDT (America/Chicago)
+- **LANE:** lands
+- **STARTED:** After Pass 28 tip 157c9d1; dual short+SKU on land cross-strips + venue cards
+- **GOING:** Push Pass 29; continue until STOP
+- **NEXT:** Pass 30+ or director STOP
+- **CONSTRAINTS:** park-site/ only; MOCK locked
+- **SOLUTIONS:** Cross-axis menus expose canonical short slug + SKU alias
+- **COMMIT / LAST COMMIT:** 157c9d1 — Pass 28
+- **LINK AUDIT:** ok=2640 broken=0
+
