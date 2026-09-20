@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> canopy understory densify</div>
+  <div><b>This pass:</b> tour mid-leg pause seating</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass59-under';
+import * as LockMod from './lock.js?v=pass60-pause';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1064,6 +1064,7 @@ if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINE
 })();
 
 // Pass 44 — denser PointLights with fill-rate budget
+
 let lampLightCount=0;
 const LAMP_LIGHT_CAP=80; // Pass 48 — denser lit set, lower intensity/dist
 function addLampPointLight(x,z,intensity=LAMP_LIGHT.intensity,dist=LAMP_LIGHT.dist){
@@ -1091,6 +1092,48 @@ function trashCan(x,z){
   const c=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.72,8),new THREE.MeshLambertMaterial({color:0x2a2a28}));
   c.position.set(x,0.36,z);scene.add(c);
 }
+
+// Pass 60 — tour mid-leg pause seating along hub-apron itinerary legs (spine clear)
+(function pass60TourPause(){
+  const half=LOCK.spineWidth/2+2.2;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{
+      const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;
+    })) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+2&&Math.abs(z-b.z)<b.d/2+2)) return false;
+    return true;
+  }
+  function seatPair(x,z,yaw){
+    if(!ok(x,z)) return;
+    const side=Math.sign(x||1)||1;
+    const ox=Math.cos(yaw+Math.PI/2)*2.4*side;
+    const oz=Math.sin(yaw+Math.PI/2)*2.4*side;
+    benchAt(x+ox, z+oz, yaw);
+    trashCan(x+ox*1.35, z+oz*1.35);
+  }
+  const pts=[];
+  if(ITINERARY.sign) pts.push([ITINERARY.sign.x, ITINERARY.sign.z]);
+  (ITINERARY.sequence||[]).forEach(id=>{
+    const w=walkById(id); if(w&&w.sign) pts.push([w.sign.x, w.sign.z]);
+  });
+  if(ITINERARY.returnToGate) pts.push([ITINERARY.returnToGate.x, ITINERARY.returnToGate.z]);
+  for(let i=0;i<pts.length-1;i++){
+    const path=hubApronPath(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1]);
+    for(let k=0;k<path.length-1;k++){
+      const x0=path[k][0], z0=path[k][1], x1=path[k+1][0], z1=path[k+1][1];
+      const dist=Math.hypot(x1-x0,z1-z0);
+      const n=Math.max(1, Math.floor(dist/22));
+      for(let j=1;j<=n;j++){
+        const t=j/(n+1);
+        const x=x0+(x1-x0)*t, z=z0+(z1-z0)*t;
+        const yaw=Math.atan2(x1-x0, z1-z0);
+        seatPair(x,z,yaw);
+      }
+    }
+  }
+})();
+
 for(const z of spineLampZs()){lamp(SPINE_LAMP.xWest,z,spineLampLitWest(z));lamp(SPINE_LAMP.xEast,z,spineLampLitEast(z));if(spineLampLitWest(z)){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
 for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z,true);lamp(8.3,z,z%36===0||z%36===-18);} // Pass 48 denser −Z lit
 lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
