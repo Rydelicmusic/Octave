@@ -6,7 +6,7 @@ import {
   LOCK, BUILDINGS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, occupiesSpine, canPlaceSoft,
   onRingWalk, beltTreePositions, TREE_BELTS, MATERIALS, GROUNDS_DRESSING, hubBedCenters,
-  allLakesideRibbons, lakesideRibbonMesh, GROUNDS_SCALE, treeMetrics,
+  allLakesideRibbons, lakesideRibbonMesh, GROUNDS_SCALE, treeMetrics, waterCopingSegments,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -194,6 +194,14 @@ assert.doesNotMatch(indexHtml, /segs\.length\s*>=\s*38/);
   assert.match(lakeFn[0], /s\.w/);
 }
 assert.match(indexHtml, /recessed/i);
+assert.match(indexHtml, /waterCopingSegments/);
+assert.match(indexHtml, /GROUNDS_SCALE\.copingH/);
+{
+  const [cx, cz, rx, rz] = LOCK.waters[0];
+  const cope = waterCopingSegments(cx, cz, rx, rz);
+  assert.ok(cope.length >= 24);
+  for (const s of cope) assert.equal(s.w, GROUNDS_SCALE.copingW);
+}
 const ribbons = allLakesideRibbons();
 assert.equal(ribbons.length, LOCK.waters.length);
 let clipped = 0;

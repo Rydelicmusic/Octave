@@ -193,6 +193,8 @@ export const GROUNDS_SCALE = {
   benchSeat: 0.45,
   lakesideW: 3.2,
   lakesideOffset: 2.6,
+  copingW: 0.5,
+  copingH: 0.32,
   treeTrunkH: [5.2, 11.2],
   treeTrunkR: [0.12, 0.28]
 };
@@ -276,6 +278,30 @@ export function lakesideRibbonMesh(cx, cz, rx, rz, n = 64) {
 
 export function allLakesideRibbons() {
   return LOCK.waters.map(([x, z, rx, rz]) => lakesideRibbonMesh(x, z, rx, rz));
+}
+
+/** Constant-width coping around a locked water ellipse, in meters (not rx-scaled). */
+export function waterCopingSegments(cx, cz, rx, rz, n = 48) {
+  const w = GROUNDS_SCALE.copingW;
+  const extra = w * 0.15;
+  const segs = [];
+  function pt(a, off) {
+    const mx = Math.cos(a), mz = Math.sin(a);
+    const ex = cx + mx * rx, ez = cz + mz * rz;
+    const nx = mx * rx, nz = mz * rz;
+    const nl = Math.hypot(nx, nz) || 1;
+    return [ex + (nx / nl) * off, ez + (nz / nl) * off];
+  }
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2;
+    const a1 = ((i + 1) / n) * Math.PI * 2;
+    const am = (a0 + a1) / 2;
+    const [x, z] = pt(am, extra);
+    const [x0, z0] = pt(a0, extra);
+    const [x1, z1] = pt(a1, extra);
+    segs.push({ x, z, w, len: Math.hypot(x1 - x0, z1 - z0), rotY: Math.atan2(x1 - x0, z1 - z0) });
+  }
+  return segs;
 }
 
 /** 1 song = kiosk, EP = pavilion, album = full building. */

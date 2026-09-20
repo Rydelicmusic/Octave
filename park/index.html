@@ -34,7 +34,7 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import { LOCK, BUILDINGS, inStadium, occupiesSpine, canPlaceSoft, beltTreePositions, TREE_BELTS, MATERIALS, lakesideRibbonMesh, hubBedCenters, GROUNDS_SCALE, treeMetrics } from './lock.js';
+import { LOCK, BUILDINGS, inStadium, occupiesSpine, canPlaceSoft, beltTreePositions, TREE_BELTS, MATERIALS, lakesideRibbonMesh, hubBedCenters, GROUNDS_SCALE, treeMetrics, waterCopingSegments } from './lock.js';
 window.addEventListener('error',e=>{const el=document.getElementById('dist');if(el)el.textContent=String(e.message||e.error||e);});
 window.addEventListener('unhandledrejection',e=>{const el=document.getElementById('dist');if(el)el.textContent=String(e.reason);});
 try {
@@ -79,17 +79,13 @@ function water(x,z,rx,rz){
     color:0x8ec8d4,transparent:true,opacity:0.2,shininess:140,specular:0xffffff
   }));
   sheen.rotation.x=-Math.PI/2;sheen.position.set(x,0.03,z);sheen.scale.set(rx*0.7,rz*0.55,1);scene.add(sheen);
-  const rimH=0.38,rimT=0.7;
-  const shape=new THREE.Shape();
-  shape.absarc(0,0,1+rimT*0.55,0,Math.PI*2,false);
-  const hole=new THREE.Path();
-  hole.absarc(0,0,0.97,0,Math.PI*2,true);
-  shape.holes.push(hole);
-  const rimGeo=new THREE.ExtrudeGeometry(shape,{depth:rimH,bevelEnabled:false,curveSegments:48});
-  const rim=new THREE.Mesh(rimGeo,stoneDark);
-  rim.rotation.x=-Math.PI/2;rim.position.set(x,0,z);rim.scale.set(rx,rz,1);scene.add(rim);
-  const lip=new THREE.Mesh(new THREE.RingGeometry(0.97,1+rimT*0.55,48),stone);
-  lip.rotation.x=-Math.PI/2;lip.position.set(x,rimH+0.01,z);lip.scale.set(rx,rz,1);scene.add(lip);
+  const rimH=GROUNDS_SCALE.copingH;
+  waterCopingSegments(x,z,rx,rz).forEach(s=>{
+    const rim=new THREE.Mesh(new THREE.BoxGeometry(s.w,rimH,s.len*1.12),stoneDark);
+    rim.position.set(s.x,rimH/2,s.z);rim.rotation.y=s.rotY;scene.add(rim);
+    const lip=new THREE.Mesh(new THREE.BoxGeometry(s.w,0.04,s.len*1.12),stone);
+    lip.position.set(s.x,rimH+0.02,s.z);lip.rotation.y=s.rotY;scene.add(lip);
+  });
 }
 function lakesideRibbon(cx,cz,rx,rz){
   // Constant-width walk in meters (never scale a ring by rx,rz — that stretches path width)

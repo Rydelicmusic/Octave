@@ -42,10 +42,12 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - pass 6: lakeside walks are constant 3.2 m wide (no rx,rz-scaled rings)
 - pass 7: park trees 5.2–11 m trunks, 0.13–0.28 m radius (not toy, not poles)
 - pass 8: lamps 3.6 m + fixture; benches 0.45 m with legs; rope rail 1.55 m off 14 m spine
+- pass 9: water coping 0.5 m wide × 0.32 m high in world meters (not rx-scaled)
 
 ## Still fake (worst next)
 1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple) — buildings agent
 2. Spine is still a straight box (ribbons are on land water edges only)
 3. Stay-on-path is rail-only, not ribbon-constrained
-4. Lakeside ribbons that hit the spine are segmented, not one winding walk
+4. Lakeside ribbons that hit the spine are segmented boxes, not one spline
 5. Mobile look + stick still coarse
+6. Hub planting beds still a 0.2 m dirt sheet — next pass
