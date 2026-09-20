@@ -253,6 +253,9 @@ Was a 3.4 m-tall block centered at wing h=8.6 m (cut through the attic). Now a 1
 ## Buildings pass 27 — ground windows at 1.45–1.6 m
 Kiosk window center was `0.28+h*0.5` ≈ 1.85 m. Now kiosk 0.9 m pane at y=1.45 (sill ≈ 1.0 m); pavilion/album 1.05–1.4 m pane at y=1.6. Footprints unchanged.
 
+## Buildings pass 28 — gate queues 2.2 m (not 5.6 m past rail)
+Gate wings used album `queueL` 5.6 m, projecting to z≈242 (outside B=230). Gate `role` now uses 2.2 m rails. Land SKUs unchanged (kiosk 2.6 / pavilion 4.4 / album 5.6). GATE footprints ±13.5, 233 held.
+
 ## Pass 45 — spine lamps actually light
 Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a spine z. Shared `spineLampLitWest` (`z%28===18`) / `spineLampLitEast` (`z%28===4`) + `spineLampPointLights()` light z=18 west and z=32 east (then every 28 m). 3D `lamp()` consumes `spineLampZs()` + those predicates. Locks held.
 

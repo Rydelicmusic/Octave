@@ -14,7 +14,7 @@ export function skuKit(p, emit) {
   const w = spec.w, d = spec.d, h = spec.h;
   const eaves = spec.eaves;
   const roofH = spec.roofH;
-  const qL = Math.max(2.2, spec.queueL);
+  const qL = p.role === 'gate' ? 2.2 : Math.max(2.2, spec.queueL);
   const qW = Math.max(1.6, spec.queueW);
   const plinth = 0.28;
   const bodyH = Math.max(2.45, h - 0.08);
