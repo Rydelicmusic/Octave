@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> return-to-Gate itinerary leg</div>
+  <div><b>This pass:</b> ride station queue polish</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -860,13 +860,19 @@ function fencePost(x,z){
     const bar2=bar.clone(); bar2.position.y=0.65; scene.add(bar2);
   }
 })();
-function queueZig(x,z,yaw,n=6){
+// Pass 36 — denser ride queues + post caps (stations / rings unmoved)
+function queueZig(x,z,yaw,n=10){
   const rail=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  const post=new THREE.MeshLambertMaterial({color:0x3d3428});
   for(let i=0;i<n;i++){
     const bar=new THREE.Mesh(new THREE.BoxGeometry(5.2,0.85,0.07),rail);
-    const along=i*1.35,side=(i%2?1:-1)*1.1;
-    bar.position.set(x+Math.cos(yaw)*along+Math.cos(yaw+Math.PI/2)*side,0.48,z+Math.sin(yaw)*along+Math.sin(yaw+Math.PI/2)*side);
+    const along=i*1.2,side=(i%2?1:-1)*1.15;
+    const bx=x+Math.cos(yaw)*along+Math.cos(yaw+Math.PI/2)*side;
+    const bz=z+Math.sin(yaw)*along+Math.sin(yaw+Math.PI/2)*side;
+    bar.position.set(bx,0.48,bz);
     bar.rotation.y=yaw+(i%2?0.12:-0.12);scene.add(bar);
+    const p=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,1.05,6),post);
+    p.position.set(bx,0.52,bz);scene.add(p);
   }
 }
 function rideStation(cx,cz,outer,ang){

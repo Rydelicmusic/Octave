@@ -126,6 +126,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.equal(ITINERARY.totalMin, 52);
 assert.ok(ITINERARY.returnToGate);
 assert.match(indexHtml, /returnToGatePath/);
+assert.match(indexHtml, /Pass 36/);
 assert.ok(ITINERARY.stops.length === ITINERARY.sequence.length);
 assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
 assert.match(indexHtml, /tourMarker/);

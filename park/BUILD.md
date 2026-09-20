@@ -164,6 +164,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 35 — itinerary return-to-Gate leg
 - Spine-shoulder return path from last walk to Gate; tour marker + Return sign; totalMin 52; spine strip clear
 
+## Pass 36 — ride station queue polish
+- Longer queueZig (n=10) with posts; STATIONS / rings unmoved
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -204,6 +207,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 33: water rim shimmer
 - SHIPPED Pass 34: denser earth / grass patches
 - SHIPPED Pass 35: itinerary return-to-Gate leg
+- SHIPPED Pass 36: ride station queue polish
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
