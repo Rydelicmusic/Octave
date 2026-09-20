@@ -780,3 +780,18 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 5b7613c3a5c28bbc8fb0dffb12aebff6ca4fc80f
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 33 link audit + tip sync
+
+- **TIME:** 2026-09-20 13:24 CDT (America/Chicago)
+- **LANE:** Site Luxury / audit
+- **STARTED:** After Pass 32 denser Gate (806af69); full relative link audit + thin directory/map polish
+- **GOING:** Audit ok=3321 broken=0; fixed 12 directory unclosed SKU </a> tags; directory/map lamp-rails → Gate/programs/journal; stop for parent re-dispatch
+- **NEXT:** Parent re-dispatch (STOP after Pass 32/33)
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild
+- **SOLUTIONS:** Audit first; thin polish only; Home→Land→Venue→Work + 12 short + 12 SKU present
+- **LINK AUDIT:** ok=3321 broken=0
+- **COMMITS:** 806af69 Pass 32 Gate · 1697076 Pass 33 directory · 97db3ed Pass 33b map
+- **COMMIT / LAST COMMIT:** 97db3ed — Pass 33b map polish
+- **TIP:** 97db3ed
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
