@@ -351,3 +351,20 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - **SOLUTIONS:** Ordered Pass 43 to Realm Engineer; Site Luxury continue Pass 123+ (no self-STOP); Quality live Walk + site hub probes
 - **COMMITS:** c84405c Pass 42 lamp lights; a46fe1b buildings pass 21 sku-kit; f3667d8 FIX-ITINERARY; 36490cf site Pass 122; b878800 Pass 121; c05a6a4 Pass 118
 - **BLOCKED BOTS:** none
+
+## KEITH fleet check-in — 2026-09-20 14:08 CDT
+- **TIME:** 2026-09-20 14:08 CDT (America/Chicago)
+- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
+- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
+- **GOING:** Park tip Pass 45 (spine lamps actually light) + buildings passes 22–28 (roof gap, album mass, marquee 3.35 m, queue rails 1.05 m, gate bridge, ground windows, gate queues 2.2 m). Site racing Pass 160–166 (materials→nests, credits, visit-paths, land hubs, densify notes/materials→venues/works/guest/booking). Tip b5b11ad. Pages API still reports errored; live hubs mostly 200.
+- **NEXT:** Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
+- **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
+- **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165
+- **BLOCKED BOTS:** none
+
+## KEITH order — Pass 46 (2026-09-20 14:08 CDT)
+- ORDERED Realm Engineer: Pass 46 ride-station kit body + fold zig queues into kit rails (STATIONS/rings held); then Pass 47 Catmull ribbon tour meters if Pass 46 ships
+- ORDERED Site Luxury: Pass 167+ densify; keep MOCK roster; no self-STOP
+- ORDERED Quality GATE: live https://rydelicmusic.github.io/octave/park/ Walk + park-site hubs; flag Pages errored vs 200 probes
+- No STOP
