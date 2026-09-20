@@ -265,3 +265,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Editorial density into measure pages
 - **COMMIT / LAST COMMIT:** 0066ec7 — Pass 18 STATUS
 
+## Check-in — Pass 20 Pages build blocker noted
+
+- **TIME:** 2026-09-20 13:36 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Live probe: index/programs/venues/visit-paths 200; geometry.html 404 despite present on main; Pages API status=errored
+- **GOING:** Document blocker; keep densifying; tip 688c781
+- **NEXT:** Director may need to clear GitHub Pages build error; continue site density meanwhile
+- **CONSTRAINTS:** park-site/ only; cannot retarget Pages source without director
+- **SOLUTIONS:** Files on main; site partial-live; 3D park still https://rydelicmusic.github.io/octave/park/
+- **COMMIT / LAST COMMIT:** 688c781 — Pass 19 STATUS
+- **BLOCKER:** GitHub Pages status=errored (legacy source main:/). New paths may lag/404 until build recovers.
+
