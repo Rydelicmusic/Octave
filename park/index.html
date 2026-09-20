@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> SKU service aprons</div>
+  <div><b>This pass:</b> night water mist</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass62-apron';
+import * as LockMod from './lock.js?v=pass63-mist';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1621,6 +1621,36 @@ BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')
   for(let z=40;z<LOCK.gate.z-20;z+=42){
     addLampPointLight(0, z, 3.2, 24);
   }
+})();
+// Pass 63 — local night mist near waters (waters x/z/rx/rz held; soft volume only)
+(function pass63WaterMist(){
+  const mistMat=new THREE.MeshLambertMaterial({
+    color:0xb8c8d8, emissive:0x4a6078, emissiveIntensity:0.22,
+    transparent:true, opacity:0.18, depthWrite:false
+  });
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    // low dome-ish stack of translucent discs just above water
+    for(let i=0;i<3;i++){
+      const t=0.55+i*0.18;
+      const disc=new THREE.Mesh(new THREE.CircleGeometry(1,48), mistMat.clone());
+      disc.material.opacity=0.14-i*0.03;
+      disc.rotation.x=-Math.PI/2;
+      disc.position.set(cx, 0.55+i*0.85, cz);
+      disc.scale.set(rx*t, rz*t, 1);
+      scene.add(disc);
+    }
+    // shore wisps — thin vertical cards around rim (skip spine)
+    for(let a=0;a<Math.PI*2;a+=Math.PI/5){
+      const x=cx+Math.cos(a)*rx*1.05;
+      const z=cz+Math.sin(a)*rz*1.05;
+      if(Math.abs(x)<LOCK.spineWidth/2+2) continue;
+      const card=new THREE.Mesh(new THREE.PlaneGeometry(rx*0.35, 2.2), mistMat.clone());
+      card.material.opacity=0.12;
+      card.position.set(x, 1.1, z);
+      card.lookAt(cx, 1.1, cz);
+      scene.add(card);
+    }
+  });
 })();
 
 const avatar=new THREE.Group();
