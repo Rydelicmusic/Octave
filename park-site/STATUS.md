@@ -1047,23 +1047,26 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 13:50 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 0905fc8; deepen materials/nests/related/guest/booking/credits
-- **GOING:** Tip pending
+- **GOING:** Tip adbbc3a; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html/dir basename collisions; nested only; MOCK; LAYOUT
 - **SOLUTIONS:** materials studies; EP+song nest rooms (12 total rooms); related EP/song; guest/booking→rooms; credits→rooms
-- **COMMIT / LAST COMMIT:** 36490cf — Pass 122
+- **COMMIT / LAST COMMIT:** adbbc3a — Pass 123
+- **TIP:** adbbc3a158269d007a9770c5fac31aa72c53cbfb
 - **COLLISIONS:** NONE
+- **PAGES:** errored
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `materials/lamps.html` | 200 |
+| `lands/the-block/nests/concrete-hymn-room.html` | 200 |
+| `lands/the-pocket/nests/plaza-rings-room.html` | 200 |
+| `artists/vale-mercer/related-west-gate-echo.html` | 200 |
+| `artists/ori-hale/related-gate-distance.html` | 200 |
+| `guest/gate-desk.html` | 200 |
+| `booking/night.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-
-## KEITH fleet check-in — 2026-09-20 13:50 CDT
-- **TIME:** 2026-09-20 13:50 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
-- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
-- **GOING:** Site tip Pass 122 guest/booking deepen (36490cf) after Pass 118–121 materials + nest rooms + related sheets; Park Pass 42 lamp PointLights + sku-kit Walk restore. Live probes: park/ 200, park-site/ 200, notes/spine-fourteen 200, materials/kiosk 200
-- **NEXT:** Pass 123+ — continue collision-safe nested IA density (notes/materials/guest/booking/nests/related); periodic full link audit. Park Pass 43 hub-apron itinerary ribbons
-- **CONSTRAINTS:** park-site/ only; MOCK locked; LAYOUT axes; relative links; no hotel-tower; NEVER html/dir basename collision; no clone; no root index.html
-- **SOLUTIONS:** Ordered Site Luxury Pass 123+ (do not self-STOP); Quality GATE hub probes + Walk spot-check; Realm Engineer Pass 43 on park/
-- **COMMITS:** tip 36490cf Pass 122; b878800 Pass 121; 8a9897e Pass 120; d04026c Pass 119; c05a6a4 Pass 118; 7ec79ad Pass 112 desks
-- **BLOCKED BOTS:** none
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
