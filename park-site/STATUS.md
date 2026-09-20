@@ -493,3 +493,27 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Programs hub aggregates boards
 - **COMMIT / LAST COMMIT:** pending
 
+## Check-in — Pass 38 live probe + tip sync
+
+- **TIME:** 2026-09-20 13:28 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 38 — live probe Gate/night/day/venue/paths/geometry; tip was dbc0c59
+- **GOING:** STATUS tip sync; continue Pass 39 if budget
+- **NEXT:** Pass 39 venues index polish or STOP from director
+- **CONSTRAINTS:** park-site/ only; Pages may lag new paths briefly
+- **SOLUTIONS:** Continuous live checks after density bursts
+- **COMMIT / LAST COMMIT:** dbc0c59 — Pass 37
+- **TIP:** dbc0c59e0536b0869403563f60656d4d8141329e
+- **ROLLUP THIS RUN:** Passes 28–37 densify venues, night/day boards, journal lands, map legend, tickets/guest/atelier/works no-dead-end, directory/programs
+
+## Check-in — Pass 39 venues tonight/today desk
+
+- **TIME:** 2026-09-20 13:29 CDT (America/Chicago)
+- **LANE:** venues
+- **STARTED:** Pass 39 — venues index tonight/today service menu
+- **GOING:** Push Pass 38–39 STATUS; report tip
+- **NEXT:** Continue densify unless STOP
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Venues hub → boards
+- **COMMIT / LAST COMMIT:** pending Pass 38/39 push
+
