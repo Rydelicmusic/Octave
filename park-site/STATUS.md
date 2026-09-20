@@ -1075,11 +1075,25 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 13:53 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 6e7647b; deepen rooms/notes/essays/materials/related
-- **GOING:** Tip pending
+- **GOING:** Tip 9d52a54; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html/dir collisions; nested only; no rebuild spam
 - **SOLUTIONS:** Room measure deepen; land notes→rooms; stadium/hub essays; SKU briefs→rooms; album related deepen
-- **COMMIT / LAST COMMIT:** fc601f8 — Pass 128
+- **COMMIT / LAST COMMIT:** 9d52a54 — Pass 129
+- **TIP:** 9d52a548ed4b0592012901aacf2828184f5b3d8c
 - **COLLISIONS:** NONE
+- **PAGES:** errored
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `notes/stadium.html` | 404 |
+| `notes/hub-rings.html` | 404 |
+| `notes/the-block.html` | 200 |
+| `lands/the-block/nests/night-ledger-room.html` | 200 |
+| `materials/building.html` | 200 |
+| `artists/ori-hale/related-spine-fourteen.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
