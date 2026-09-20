@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> path curbs + tree massing</div>
+  <div><b>This pass:</b> SKU buildings in land canopies</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -34,7 +34,8 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-const A=380,B=230,R=B,S=A-R,WALK=1.34,EYE=1.72,DRONE=55,DRONE_FAST=110;
+import { LOCK, BUILDINGS } from './lock.js';
+const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
 const PATH=0xe6d3a4,CURB=0x5a4630;
 const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
@@ -76,7 +77,7 @@ function water(x,z,rx,rz){
   const lip=new THREE.Mesh(new THREE.RingGeometry(0.97,1+rimT*0.55,48),stone);
   lip.rotation.x=-Math.PI/2;lip.position.set(x,rimH+0.01,z);lip.scale.set(rx,rz,1);scene.add(lip);
 }
-[[-210,-20,48,70],[-165,10,55,42],[-120,70,32,26],[-95,-85,28,22],[-150,-40,24,18],[-20,-18,16,10],[22,-22,18,12],[-18,22,16,9],[28,20,17,10],[8,-8,10,7],[155,-85,22,16],[200,-40,18,12]].forEach(w=>water(...w));
+LOCK.waters.forEach(w=>water(...w));
 // Paths: raised sand surface + tall side curbs (hub-curb spirit, walk stays clear)
 function pathBox(w,len,x,z,rotY=0){
   const g=new THREE.Group();
@@ -118,9 +119,9 @@ function pathRing(inner,outer,x,z){
   curbRing(outer,outer+0.7,0.4,0);
   curbRing(Math.max(0.5,inner-0.7),inner,0.4,0);
 }
-pathBox(14,B,0,B/2);
+pathBox(LOCK.spineWidth,B,0,B/2);
 pathBox(22,18,0,B);
-pathBox(14,B,0,-B/2);
+pathBox(LOCK.spineWidth,B,0,-B/2);
 // Short aprons at hub gaps — path continuity onto raised plaza (SLAB 0.28)
 [[0,34],[0,-34]].forEach(([ax,az])=>{
   const apr=new THREE.Mesh(new THREE.BoxGeometry(14,0.2,8),pathMat);
@@ -155,7 +156,7 @@ function arcWall(innerR,outerR,h,y0,a0,a1,mat){
   mesh.rotation.x=-Math.PI/2;mesh.position.y=y0;scene.add(mesh);
 }
 function hubPlaza(){
-  const IN=18,OUT=32,SLAB=0.28,WALL=0.55,WALL_T=0.75;
+  const IN=LOCK.hubInner,OUT=LOCK.hubOuter,SLAB=0.28,WALL=0.55,WALL_T=0.75;
   const GAP=0.28; // half-angle (~18 m chord) openings at ±Z for 14 m Gate spine
   // Raised outer plaza slab mass (solid ring under deck)
   ringWall(IN,OUT,SLAB,0,stone);
@@ -204,8 +205,8 @@ function hubPlaza(){
   glow.rotation.x=Math.PI/2;glow.position.y=0.22;scene.add(glow);
 }
 hubPlaza();
-pathRing(14,20,95,95);
-pathRing(6,11,118,108);
+pathRing(LOCK.rings.A.inner,LOCK.rings.A.outer,LOCK.rings.A.x,LOCK.rings.A.z);
+pathRing(LOCK.rings.B.inner,LOCK.rings.B.outer,LOCK.rings.B.x,LOCK.rings.B.z);
 const railPts=[];
 const segs=24;
 for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(-S+t*2*S,0.4,-B));}
@@ -258,6 +259,60 @@ for(let i=0;i<10;i++){
   if(Math.abs(Math.sin(a))>0.88)continue; // skip ±Z gate/north openings
   clump(Math.cos(a)*40,Math.sin(a)*40,5,4.5,0.9);
 }
+function addKiosk(b){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.7,b.d),new THREE.MeshLambertMaterial({color:b.body}));
+  body.position.y=b.h*0.35;
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.15,0.1,b.d+1.5),new THREE.MeshLambertMaterial({color:b.trim}));
+  roof.position.y=b.h*0.78;roof.rotation.x=-0.1;
+  const trim=new THREE.MeshLambertMaterial({color:b.trim});
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>{
+    const p=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.08,b.h*0.72,6),trim);
+    p.position.set(sx*(b.w/2+0.28),b.h*0.36,sz*(b.d/2+0.38));g.add(p);
+  });
+  const counter=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.92,0.1,0.5),new THREE.MeshLambertMaterial({color:0x3d3428}));
+  counter.position.set(0,1.08,b.d/2+0.22);
+  g.add(body,roof,counter);g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
+}
+function addPavilion(b){
+  const g=new THREE.Group();
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(b.w+1.8,0.22,b.d+1.8),new THREE.MeshLambertMaterial({color:0xb9b3a8}));
+  deck.position.y=0.11;
+  const hall=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.7,b.h*0.68,b.d*0.68),new THREE.MeshLambertMaterial({color:b.body}));
+  hall.position.y=0.22+b.h*0.34;
+  const colM=new THREE.MeshLambertMaterial({color:b.trim});
+  for(let i=0;i<8;i++){
+    const t=(i/8)*Math.PI*2;
+    const col=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,b.h*0.82,8),colM);
+    col.position.set(Math.cos(t)*(b.w/2-0.35),b.h*0.41,Math.sin(t)*(b.d/2-0.35));g.add(col);
+  }
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(b.w,b.d)*0.7,2.15,4),new THREE.MeshLambertMaterial({color:b.trim}));
+  roof.position.y=b.h+0.45;roof.rotation.y=Math.PI/4;
+  g.add(deck,hall,roof);g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
+}
+function addHall(b){
+  const g=new THREE.Group();
+  const mat=new THREE.MeshLambertMaterial({color:b.body});
+  const trim=new THREE.MeshLambertMaterial({color:b.trim});
+  const glass=new THREE.MeshLambertMaterial({color:0x1c2830});
+  const base=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.9,0.42,b.d+0.9),trim);base.position.y=0.21;
+  const lower=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.56,b.d),mat);lower.position.y=0.42+b.h*0.28;
+  const upper=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.9,b.h*0.36,b.d*0.88),mat);upper.position.y=0.42+b.h*0.56+b.h*0.18;
+  const cornice=new THREE.Mesh(new THREE.BoxGeometry(b.w*1.05,0.26,b.d*1.05),trim);cornice.position.y=0.42+b.h*0.56;
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(b.w*0.98,0.32,b.d*0.96),trim);roof.position.y=0.42+b.h+0.08;
+  const door=new THREE.Mesh(new THREE.BoxGeometry(2.15,3.05,0.35),new THREE.MeshLambertMaterial({color:0x1a1410}));
+  door.position.set(0,1.72,b.d/2+0.04);
+  for(const wx of [-b.w*0.28,b.w*0.28]){
+    for(const wy of [2.05,5.25]){
+      const win=new THREE.Mesh(new THREE.BoxGeometry(2.35,1.55,0.16),glass);
+      win.position.set(wx,wy,b.d/2+0.02);g.add(win);
+    }
+  }
+  const steps=new THREE.Mesh(new THREE.BoxGeometry(4.4,0.32,1.55),new THREE.MeshLambertMaterial({color:0xb9b3a8}));
+  steps.position.set(0,0.16,b.d/2+1.05);
+  g.add(base,lower,upper,cornice,roof,door,steps);g.position.set(b.x,0,b.z);g.rotation.y=b.yaw;scene.add(g);
+}
+BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
 const avatar=new THREE.Group();
 const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
 const head=new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12),new THREE.MeshLambertMaterial({color:0xe8d7b0}));head.position.y=1.72;
