@@ -852,40 +852,50 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 8c512f3554e125591882d034e668231d7e14d935
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-## Check-in — Pass 70 artist densify (Site Luxury)
+## Check-in — Pass 82–87 substance
 
-- **TIME:** 2026-09-20 13:27 CDT (America/Chicago)
-- **LANE:** Site Luxury / artists
-- **STARTED:** Aborted Pass 34/35; tip was Pass 69; ship Pass 70 from live tip
-- **GOING:** Denser artists index + four MOCK worlds — short-slug venues primary, SKU aliases secondary, hospitality night/day desks
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; FIX c95c7e2 short-slugs clean; no hotel-tower
-- **COMMIT / LAST COMMIT:** abfa60b — Pass 70 artist densify
-- **TIP:** abfa60b990db245956a36c6666ba6f1f7ce7dc28
+- **TIME:** 2026-09-20 13:30 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip afcd107 / main 366d1e8; Pass 82 visit desks; 83 guest boards; 84 tickets measure; 85 venue voice; 86 journal programs; 87 atelier Gate order
+- **GOING:** Push 82–87
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; substance-first; no new lands; LAYOUT axes
+- **SOLUTIONS:** Path desks; guest megas; tickets→measure; nest voice; journal board hours; atelier arrival order
+- **COMMIT / LAST COMMIT:** afcd107 — prior park-site tip
+
+## Check-in — Pass 87 tip
+
+- **TIME:** 2026-09-20 13:31 CDT (America/Chicago)
+- **LANE:** atelier
+- **STARTED:** Passes 82–87 from tip afcd107 / main raced with park Pass 20
+- **GOING:** Tip 4587d56; audits clean
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT; substance-first; FF retries
+- **SOLUTIONS:** Visit desks; guest boards; tickets measure; venue voice; journal hours; atelier Gate order
+- **COMMIT / LAST COMMIT:** 4587d56 — Pass 87
+- **TIP:** 4587d56ed30cb6ab66b2000760ce71997fb0004a
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-## Check-in — Pass 71 link audit + tickets polish
+## Check-in — Pass 88–93 substance
 
-- **TIME:** 2026-09-20 13:29 CDT (America/Chicago)
-- **LANE:** Site Luxury / audit
-- **STARTED:** After Pass 70 (abfa60b); full relative link audit; tickets lamp-rail thin
-- **GOING:** Audit ok=3491 broken=0; tickets before-book desk + denser lamp-rail; STATUS tip sync; STOP for parent re-dispatch
-- **NEXT:** Parent re-dispatch (STOP)
-- **CONSTRAINTS:** park-site/ only; MOCK locked; Home→Land→Venue→Work + 12 short-slugs (FIX c95c7e2) clean
-- **SOLUTIONS:** Audit first; light tickets polish only
-- **LINK AUDIT:** ok=3491 broken=0
-- **COMMITS:** abfa60b Pass 70 artists · (this) Pass 71 tickets+STATUS
-- **COMMIT / LAST COMMIT:** pending Pass 71 push
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+- **TIME:** 2026-09-20 13:31 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 3bb59f6 / main 73d2a41; Pass 88 map Gate; 89 land voice; 90 artist measure; 91 work measure; 92 README; 93 Gate hubs
+- **GOING:** Push 88–93
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; substance-first; no new lands; LAYOUT axes
+- **SOLUTIONS:** Map Gate; land voice; artist measure; work meters; README canopies; Gate hubs
+- **COMMIT / LAST COMMIT:** 3bb59f6 — Pass 87 tip / 73d2a41 main
 
-## Check-in — Pass 72 programs hospitality desk
+## Check-in — Pass 93 tip
 
-- **TIME:** 2026-09-20 13:33 CDT (America/Chicago)
-- **LANE:** Site Luxury / programs
-- **STARTED:** Tip ~73d2a41 Pass 71; densify programs.html hospitality desk
-- **GOING:** Desk links lands, 12 short venues, MOCK works, tickets/journal/atelier/guest/paths
-- **NEXT:** Pass 73 — link audit (0 broken goal); STATUS tip sync; light polish
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; FIX c95c7e2 short-slugs clean; no hotel-tower; no rebuild
-- **SOLUTIONS:** One hospitality densify; menus → lands/venues/works/tickets/journal
-- **COMMIT / LAST COMMIT:** pending Pass 72 push
+- **TIME:** 2026-09-20 13:32 CDT (America/Chicago)
+- **LANE:** gate
+- **STARTED:** Passes 88–93 from tip 3bb59f6 / main 73d2a41
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT; substance-first; FF retries
+- **SOLUTIONS:** Map Gate; land voice; artist measure; work meters; README; Gate hubs
+- **COMMIT / LAST COMMIT:** fb111b0 — Pass 92
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
