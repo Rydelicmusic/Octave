@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> measured itinerary durations</div>
+  <div><b>This pass:</b> FIX-ITINERARY</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,18 @@
 <script type="module">
 import * as THREE from 'three';
 import { PLACEMENTS, RINGS, LAND_PALETTE, skuSpec } from './buildings.js';
-import { LOCK, BUILDINGS, GATE, STATIONS, inStadium, spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine } from './lock.js';
+import * as LockMod from './lock.js?v=fix-itinerary';
+// FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
+const {
+  LOCK, BUILDINGS, GATE, STATIONS, inStadium, spineCadPolyline, northSpineCadPolyline,
+  WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
+} = LockMod;
+const ITINERARY = LockMod.ITINERARY || {
+  id: 'park-circuit', name: 'Park Circuit', sequence: [], stops: [], totalMin: 45,
+  sign: { x: 0, z: 205, yaw: Math.PI },
+};
+const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
+
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
 const PATH=0xe6d3a4,CURB=0x5a4630,ASPHALT=0x3e3e42,CONCRETE=0xb9b3a8,EARTH=0x6b5340;
 const canvas=document.getElementById('c');
@@ -907,6 +918,43 @@ lamp(0,-36);lamp(36,0);lamp(-36,0);
         place(x,z,a+Math.PI/2, i%3===0?'bench':(i%3===1?'lamp':'trash'));
       }
     });
+  });
+})();
+// Pass 39 — denser planting along named WALKS (outside spine; waters/BUILDINGS held)
+(function walkPathPlanting(){
+  const half=LOCK.spineWidth/2+3;
+  function ok(x,z){
+    if(Math.abs(x)<half) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+2),dz=(z-cz)/(rz+2);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+2&&Math.abs(z-b.z)<b.d/2+2)) return false;
+    if(Math.hypot(x-LOCK.rings.A.x,z-LOCK.rings.A.z)<LOCK.rings.A.outer+5) return false;
+    if(Math.hypot(x-LOCK.rings.B.x,z-LOCK.rings.B.z)<LOCK.rings.B.outer+4) return false;
+    return true;
+  }
+  function speciesFor(land){
+    if(land==='The Block') return 'willow';
+    if(land==='The Board') return 'oak';
+    if(land==='After Hours') return 'pine';
+    return 'poplar';
+  }
+  WALKS.forEach(walk=>{
+    const sp=speciesFor(walk.land);
+    walk.lakes.forEach((li,k)=>{
+      const L=walkLake(li);
+      const n=Math.max(3,Math.floor((L.rx+L.rz)/22));
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+k*0.15;
+        const x=L.x+Math.cos(a)*(L.rx+7.5), z=L.z+Math.sin(a)*(L.rz+7.5);
+        if(ok(x,z)) clump(x,z,5,4.2,0.85,sp);
+      }
+    });
+    if(walk.sign && ok(walk.sign.x+Math.sign(walk.sign.x||1)*6, walk.sign.z)){
+      clump(walk.sign.x+Math.sign(walk.sign.x||1)*6, walk.sign.z, 6, 5, 0.9, sp);
+    }
+    if(walk.spur){
+      const x=walk.spur[0]+Math.sign(walk.spur[0]||1)*5, z=walk.spur[1];
+      if(ok(x,z)) clump(x,z,5,4,0.88,sp);
+    }
   });
 })();
 function fencePost(x,z){

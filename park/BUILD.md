@@ -174,11 +174,18 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - Lamps / benches / trash along named walk connectors, spurs, lake rims, and signs
 - Placement skips 14 m spine strip, water ellipses, and BUILDINGS footprints
 
+## FIX-ITINERARY (Quality GATE FAIL)
+- Console: lock.js missing ITINERARY export (stale CDN vs Pass 38 index)
+- Fix: keep `export const ITINERARY`, add PARK_ITINERARY re-export, cache-bust `lock.js?v=fix-itinerary`, defensive fallback in index
+
 ## Pass 39 — measured itinerary durations
 - `measureItinerary()` derives atMin / legMin / totalMin from sign-to-sign + walk-path meters / LOCK.walk (1.34 m/s)
 - Gate sign and tour markers read the measured `ITINERARY.totalMin`; no authored 52
 - Layout locks / WALKS / rings / waters unmoved
 
+## Pass 40 — denser planting along WALKS
+- Land-biased tree clumps (willow/oak/pine/poplar) outside lake rims along named walks
+- Skips spine strip, water, rings, BUILDINGS
 
 ## Buildings pass 20 — SKU kit facades (meters)
 Callable `park/sku-kit.js` `skuKit()` always emits roof, overhang, window, queue, marquee, service door. 3D addKiosk/addPavilion/addHall/gateHouse/rideStation mount that kit. GATE/STATIONS footprints drive mesh size.
@@ -234,6 +241,10 @@ Callable `park/sku-kit.js` `skuKit()` always emits roof, overhang, window, queue
 - SHIPPED Pass 36: ride station queue polish
 - SHIPPED Pass 37: building window glow
 - SHIPPED Pass 38: denser path furniture along WALKS
+- SHIPPED FIX-ITINERARY: restore/cache-bust ITINERARY export
+- SHIPPED Pass 39: measured itinerary durations
+- SHIPPED Pass 40: denser planting along WALKS
+- SHIPPED Pass 39: denser planting along WALKS
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL

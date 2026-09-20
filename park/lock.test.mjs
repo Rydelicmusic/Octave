@@ -12,6 +12,7 @@ import {
 const dir = dirname(fileURLToPath(import.meta.url));
 const indexHtml = readFileSync(join(dir, 'index.html'), 'utf8');
 const blueprintHtml = readFileSync(join(dir, 'blueprint.html'), 'utf8');
+const lockSrc = readFileSync(join(dir, 'lock.js'), 'utf8');
 
 assert.equal(LOCK.A, 380);
 assert.equal(LOCK.B, 230);
@@ -112,7 +113,7 @@ assert.match(indexHtml, /northSpineCadPolyline\(-1\)/);
 assert.match(indexHtml, /northSpineCadPolyline\(1\)/);
 assert.doesNotMatch(indexHtml, /0\.55\*Math\.sin/);
 
-assert.match(indexHtml, /from ['"]\.\/lock\.js['"]/);
+assert.match(indexHtml, /from ['"]\.\/lock\.js/);
 assert.match(indexHtml, /BUILDINGS/);
 assert.match(indexHtml, /LOCK\.walk/);
 assert.match(indexHtml, /function pathRibbon/);
@@ -125,6 +126,11 @@ assert.ok(WALKS.length >= 4);
 assert.ok(WALKS.find((w) => w.id === 'after-hours-quiet'));
 assert.ok(WALKS.find((w) => w.id === 'pocket-rim'));
 assert.equal(ITINERARY.id, 'park-circuit');
+assert.match(lockSrc, /export const ITINERARY/);
+assert.match(lockSrc, /FIX-ITINERARY/);
+assert.ok(ITINERARY);
+assert.match(indexHtml, /fix-itinerary/);
+assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
   assert.equal(ITINERARY.totalMin, m.totalMin);
@@ -146,8 +152,8 @@ assert.match(indexHtml, /returnToGatePath/);
 assert.match(indexHtml, /Pass 36/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
-assert.match(indexHtml, /measured itinerary durations/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
+assert.match(indexHtml, /walkPathPlanting/);
 assert.ok(ITINERARY.stops.length === ITINERARY.sequence.length);
 assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
 assert.match(indexHtml, /tourMarker/);
@@ -252,7 +258,7 @@ for (const s of STATIONS) {
   assert.deepEqual(placementIssues(s), [], s.id);
 }
 
-assert.match(blueprintHtml, /from ['"]\.\/lock\.js['"]/);
+assert.match(blueprintHtml, /lock\.js\?v=fix-itinerary/);
 assert.match(blueprintHtml, /GATE/);
 assert.match(blueprintHtml, /STATIONS/);
 assert.match(blueprintHtml, /hoverLabel/);

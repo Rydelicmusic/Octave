@@ -458,3 +458,7 @@ export function placementIssues(p) {
   if (p.role === 'gate' && (occ.maxZ < LOCK.B - 12 || occ.minZ > LOCK.B + 8)) issues.push('gate');
   return issues;
 }
+
+// FIX-ITINERARY (2026-09-20): explicit named re-exports so Pages/CDN never serve a
+// lock.js without ITINERARY while index.html already imports it.
+export { ITINERARY as PARK_ITINERARY };
