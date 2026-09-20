@@ -1097,3 +1097,17 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+
+## Check-in — FIX-GUEST-BOOKING-INDEX
+
+- **TIME:** 2026-09-20 13:54 CDT (America/Chicago)
+- **LANE:** shell / quality
+- **STARTED:** Quality FAIL — guest/index.html + booking/index.html 404 on live tip
+- **GOING:** Ship collision-safe nested index hubs under guest/ and booking/; menus to ask + gate-desk + day + night + guest-services + tickets; MOCK locked; relative links
+- **NEXT:** Resume Pass 124 densify after FIX SHA lands
+- **CONSTRAINTS:** park-site/ only; NEVER html/dir basename collision (indexes live inside dirs); no hotel-tower; FIX c95c7e2 clean
+- **SOLUTIONS:** guest/index.html + booking/index.html directory landings; parent hubs remain guest-services.html + tickets.html
+- **COMMIT / LAST COMMIT:** (fill after push)
+- **TIP:** (fill after push)
+- **FILES:** park-site/guest/index.html, park-site/booking/index.html, park-site/STATUS.md
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
