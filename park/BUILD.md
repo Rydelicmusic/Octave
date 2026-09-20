@@ -60,12 +60,8 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 1. Path ribbons still polyline-ish vs blueprint lake walks (finer tracing later)
 2. Stay-on-path soft-pull can still cut corners at sharp ribbon bends
 
-
-## KEITH check-in — 2026-09-20 13:00 CDT
-- FLEET: KEITH COO online; Realm Engineer = park/; Site Luxury = park-site/; Quality standby
-- SHIPPED: Pass 5 SKU facade polish (kiosk/pavilion/hall) — footprints held
-- SHIPPED Pass 6: species-varied tree crowns
-- SHIPPED Pass 7: ribbon-constrained stay-on-path
-- SHIPPED Pass 8: winding spine ribbon
-- NEXT candidate: finer lake-edge ribbon tracing / sharper stay-on-path corners
-- CONSTRAINTS: no rebuild; LAYOUT.md meters held; no hotel-tower
+## KEITH check-in — 2026-09-20 13:03 CDT
+- FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
+- SHIPPED Pass 5–8: ef8c8f8 / e987bd3 / 82da95d / 1f9a911
+- ORDERED Pass 9: finer lake-edge ribbon tracing
+- CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower
