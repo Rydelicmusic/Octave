@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> hub plaza densify</div>
+  <div><b>This pass:</b> path curb polish</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass55-hub';
+import * as LockMod from './lock.js?v=pass56-curb';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -145,6 +145,20 @@ function pathBox(w,len,x,z,rotY=0,topMat=pathMat){
   capL.position.set(-(w/2+curbT/2),curbH+0.035,0);
   const capR=capL.clone();capR.position.x=(w/2+curbT/2);
   g.add(bed,top,eL,eR,L,R,capL,capR);
+  // Pass 56 — curb top articulation: wear chips + joint grooves (spine width held)
+  const wear=new THREE.MeshLambertMaterial({color:0x7a6a58});
+  const nChip=Math.max(4, Math.floor(len/3.2));
+  for(let i=0;i<nChip;i++){
+    const along=(i+0.5)/nChip*len - len/2;
+    const chipL=new THREE.Mesh(new THREE.BoxGeometry(curbT*0.55,0.04,0.55+(i%3)*0.15),wear);
+    chipL.position.set(-(w/2+curbT/2),curbH+0.08,along);g.add(chipL);
+    const chipR=chipL.clone();chipR.position.x=(w/2+curbT/2);g.add(chipR);
+    if(i%2===0){
+      const groove=new THREE.Mesh(new THREE.BoxGeometry(0.06,curbH*0.7,0.08),stone);
+      groove.position.set(-(w/2+curbT/2),curbH*0.4,along);g.add(groove);
+      const grooveR=groove.clone();grooveR.position.x=(w/2+curbT/2);g.add(grooveR);
+    }
+  }
   g.position.set(x,0,z);g.rotation.y=rotY;scene.add(g);
 }
 function pathRing(inner,outer,x,z){
@@ -247,6 +261,24 @@ addWalkSeg(-11,B,11,B,10);
   // Pass 18 — north −Z CAD corridor edges: x=±spineWidth/2, z=0→−B (−230)
   pathRibbon(northSpineCadPolyline(-1),0.9,stoneDark);
   pathRibbon(northSpineCadPolyline(1),0.9,stoneDark);
+  // Pass 56 — curb chips along CAD spine edges (14 m spine held)
+  (function pass56CurbPolish(){
+    const wear=new THREE.MeshLambertMaterial({color:0x7a6a58});
+    const half=LOCK.spineWidth/2;
+    function chipsAlong(side){
+      for(let z=-LOCK.B+8;z<=LOCK.gate.z-8;z+=4.5){
+        if(Math.abs(z)<LOCK.hubOuter+1) continue;
+        const x=side*(half+0.55);
+        const chip=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.06,0.7),wear);
+        chip.position.set(x,0.42,z);scene.add(chip);
+        if(Math.abs(Math.round(z))%9===0){
+          const joint=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.35,0.1),stone);
+          joint.position.set(x,0.22,z);scene.add(joint);
+        }
+      }
+    }
+    chipsAlong(-1);chipsAlong(1);
+  })();
   // Pass 25 — path lanterns along CAD corridor edges (spine width held)
   (function corridorLanterns(){
     const postMat=new THREE.MeshLambertMaterial({color:0x2b241c});
