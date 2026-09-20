@@ -229,9 +229,21 @@ Pass 41 dropped `import { addSkuKit }` and double-bound LAND_PALETTE (Walk Synta
 - Shared `LAMP_LIGHT_CAP` (56); denser lit spine/WALKS lamps; corridor+hub lantern PointLights every other
 - Softened intensity/distance vs Pass 42 to protect fill-rate; locks held
 
+## Buildings pass 22 — close 1.2–3.2 m roof gap
+Kit body was `h*0.7` so a 3.15 m kiosk was a 2.20 m box (shorter than its 2.05 m door) with 1.2–3.2 m of air under the roof. Body now fills plinth 0.28 m → `h-0.08` m; roof sits on the eaves. Footprints (x,z,w,d,h) unchanged.
+
+| sku | example | body H was → now (m) | roof gap was → now |
+|---|---|---|---|
+| kiosk | block-song 3.15 | 2.20 → 3.07 | 1.24 → ~0.22 |
+| pavilion | block-ep 5.20 | 3.64 → 5.12 | 1.93 → ~0.22 |
+| album | block-album 9.20 | 6.44 → 9.12 | 3.22 → ~0.22 |
+
 ## Still fake (worst next)
-1. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
-2. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
+1. addHall still stacks a second lower/upper hall on the kit body (z-fight / double mass)
+2. Portico door is 2.7 m (should be ~2.1 m); marquee sits at ~0.78 h on albums (~7 m)
+3. Queue rails 0.92 m, 0.09 m thick, no posts
+4. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
+5. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered

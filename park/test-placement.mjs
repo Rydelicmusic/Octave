@@ -126,7 +126,12 @@ test('skuKit always emits roof overhang window queue marquee service with palett
     const overhang = report.parts.find((x) => x.name === 'overhang');
     assert.ok(overhang.w > p.w, `${p.id} overhang must outspan body`);
     assert.ok(overhang.z > 0, `${p.id} overhang must project forward`);
+    const body = report.parts.find((x) => x.name === 'body');
+    const roof = report.parts.find((x) => x.name === 'roof');
     const service = report.parts.find((x) => x.name === 'service');
+    assert.ok(body.h > service.h, `${p.id} body ${body.h} must be taller than door ${service.h}`);
+    const gap = (roof.y - roof.h / 2) - (body.y + body.h / 2);
+    assert.ok(gap >= -0.02 && gap < 0.45, `${p.id} roof gap ${gap.toFixed(2)} m`);
     assert.ok(service.z < 0, `${p.id} service door on rear`);
     assert.ok(report.parts.filter((x) => x.name === 'queue').length >= 2, `${p.id} queue rails`);
     for (const name of FACADE_PARTS) {

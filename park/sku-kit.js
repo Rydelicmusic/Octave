@@ -16,9 +16,12 @@ export function skuKit(p, emit) {
   const roofH = spec.roofH;
   const qL = Math.max(2.2, spec.queueL);
   const qW = Math.max(1.6, spec.queueW);
-  emit.box({ name: 'body', w, h: h * 0.7, d, x: 0, y: 0.28 + h * 0.35, z: 0, color: pal.body });
-  emit.box({ name: 'overhang', w: w + eaves * 2, h: 0.2, d: Math.max(1.15, eaves * 2.4), x: 0, y: 0.28 + h * 0.9, z: d / 2 + eaves * 0.55, color: pal.trim });
-  emit.box({ name: 'roof', w: w + eaves, h: Math.max(0.28, roofH * 0.32), d: d + eaves, x: 0, y: 0.28 + h + 0.16 + roofH * 0.28, z: 0, color: pal.roof });
+  const plinth = 0.28;
+  const bodyH = Math.max(2.45, h - 0.08);
+  emit.box({ name: 'body', w, h: bodyH, d, x: 0, y: plinth + bodyH / 2, z: 0, color: pal.body });
+  emit.box({ name: 'overhang', w: w + eaves * 2, h: 0.22, d: Math.max(1.15, eaves * 2.4), x: 0, y: plinth + bodyH + 0.11, z: d / 2 + eaves * 0.55, color: pal.trim });
+  const roofBoxH = Math.max(0.28, roofH * 0.32);
+  emit.box({ name: 'roof', w: w + eaves, h: roofBoxH, d: d + eaves, x: 0, y: plinth + bodyH + 0.22 + roofBoxH / 2, z: 0, color: pal.roof });
   emit.box({ name: 'window', w: Math.min(2.4, w * 0.45), h: Math.min(1.5, h * 0.32), d: 0.14, x: 0, y: 0.28 + h * 0.5, z: d / 2 + 0.08, color: pal.window });
   if (w >= 6) {
     emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: -w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
