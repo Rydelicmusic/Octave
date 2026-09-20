@@ -345,6 +345,10 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 ## Pass 66 — station queue shade
 - Canopy posts + fabric over zig queue in front of STATIONS (footprints held)
 
+## Pass 67 — hub plaza mid densify
+- Mid-ring litter cans + planters; inner pocket planter ring
+- Hub IN/OUT + spine gaps held
+
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
@@ -367,8 +371,9 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 19. ~~PathRibbon curb companions~~ — addressed Pass 64 (sand ribbon chips/joints)
 20. ~~Gate approach thin~~ — addressed Pass 65 (crosswalk/planters/shade)
 21. ~~Station queue shade thin~~ — addressed Pass 66 (posts + fabric over zig)
-22. Hub plaza still needs mid-plaza litter + planter densify
+22. ~~Hub plaza mid litter/planters~~ — addressed Pass 67
 23. After Hours walk furniture still sparse mid-loop
+24. Boardwalk shore still needs seating clusters
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -484,7 +489,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 64: PathRibbon curb companions (pathMat sand only)
 - SHIPPED Pass 65: Gate approach densify
 - SHIPPED Pass 66: station queue shade
-- **NEXT:** (await Keith) hub plaza densify or After Hours furniture (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 67: hub plaza mid densify
+- **NEXT:** (await Keith) After Hours furniture or Board seating (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165

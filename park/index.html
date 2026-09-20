@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> station queue shade</div>
+  <div><b>This pass:</b> hub plaza densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass66-shade';
+import * as LockMod from './lock.js?v=pass67-hub';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -482,6 +482,36 @@ function hubPlaza(){
     chip.position.set(Math.cos(a)*rr,0.12,Math.sin(a)*rr);
     scene.add(chip);
   }
+  // Pass 67 — mid-plaza litter + planter densify (hub IN/OUT held; spine gaps held)
+  // pass67HubPlaza
+  (function pass67HubPlaza(){
+    const litter=new THREE.MeshLambertMaterial({color:0x3a342c});
+    const pot=new THREE.MeshLambertMaterial({color:0x8a7a68});
+    const midR=(IN+OUT)*0.42;
+    for(let i=0;i<18;i++){
+      const a=(i/18)*Math.PI*2+0.08;
+      if(Math.abs(Math.sin(a))>0.86) continue;
+      const x=Math.cos(a)*midR, z=Math.sin(a)*midR;
+      const can=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.65,8),litter);
+      can.position.set(x,SLAB+0.32,z);scene.add(can);
+      if(i%2===0){
+        const planter=new THREE.Mesh(new THREE.CylinderGeometry(0.48,0.55,0.38,10),pot);
+        planter.position.set(Math.cos(a+0.12)*(midR+1.4),SLAB+0.19,Math.sin(a+0.12)*(midR+1.4));scene.add(planter);
+        const bush=new THREE.Mesh(new THREE.SphereGeometry(0.4,7,5),hedge);
+        bush.position.set(Math.cos(a+0.12)*(midR+1.4),SLAB+0.52,Math.sin(a+0.12)*(midR+1.4));scene.add(bush);
+      }
+    }
+    // inner pocket ring of low planters
+    for(let i=0;i<10;i++){
+      const a=(i/10)*Math.PI*2;
+      if(Math.abs(Math.sin(a))>0.9) continue;
+      const rr=IN*0.72;
+      const p=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.48,0.32,9),pot);
+      p.position.set(Math.cos(a)*rr,0.16,Math.sin(a)*rr);scene.add(p);
+      const b=new THREE.Mesh(new THREE.SphereGeometry(0.35,6,5),bloom);
+      b.position.set(Math.cos(a)*rr,0.42,Math.sin(a)*rr);scene.add(b);
+    }
+  })();
   // Pocket marker — abstract torus center
   const pocket=new THREE.Mesh(new THREE.TorusGeometry(5.5,0.28,10,48),new THREE.MeshLambertMaterial({color:0xc9b48a}));
   pocket.rotation.x=Math.PI/2;pocket.position.y=1.15;scene.add(pocket);
