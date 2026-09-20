@@ -642,3 +642,58 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 70cb0e043cee542a894d5f9bfa93913fc7c8f78d
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 50 artists roster tonight
+
+- **TIME:** 2026-09-20 13:21 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Tip 8fc2b5b; Pass 50 — artists/index tonight hours + lands/wayfind mega-menu
+- **GOING:** Pass 51 land boards; 52 tickets artists; 53 README; 54 journal SKU
+- **NEXT:** Push 50–54
+- **CONSTRAINTS:** park-site/ only; MOCK roster; no new lands
+- **SOLUTIONS:** Roster hub opens timed works + boards
+- **COMMIT / LAST COMMIT:** 8fc2b5b — Pass 49 tip
+
+## Check-in — Pass 51 land boards
+
+- **TIME:** 2026-09-20 13:22 CDT (America/Chicago)
+- **LANE:** lands
+- **STARTED:** Pass 51 — all four lands get night/day/geometry/paths/venues/guest service menu
+- **GOING:** Continue
+- **NEXT:** Pass 52
+- **CONSTRAINTS:** LAYOUT axes cited
+- **SOLUTIONS:** Lands escape to boards without dead ends
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 52 tickets by artist
+
+- **TIME:** 2026-09-20 13:23 CDT (America/Chicago)
+- **LANE:** tickets
+- **STARTED:** Pass 52 — tickets mega-menu by MOCK artist (work+nest+artist)
+- **GOING:** Continue
+- **NEXT:** Pass 53–54
+- **CONSTRAINTS:** MOCK desk not live inventory
+- **SOLUTIONS:** Tickets → real pages
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 53 README refresh
+
+- **TIME:** 2026-09-20 13:24 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 53 — README canopy numbers + key hubs refresh
+- **GOING:** Pass 54
+- **NEXT:** Push
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Operator sheet matches LAYOUT
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 54 journal SKU rails note
+
+- **TIME:** 2026-09-20 13:25 CDT (America/Chicago)
+- **LANE:** journal
+- **STARTED:** Pass 54 — journal SKU rails voice linking venues + sister works + night board
+- **GOING:** Push 50–54; STATUS tip sync
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park voice, not lorem
+- **SOLUTIONS:** Editorial → wayfinding
+- **COMMIT / LAST COMMIT:** pending
+
