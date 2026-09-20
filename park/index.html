@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> hub plaza benches</div>
+  <div><b>This pass:</b> land canopy edge ribbons</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -705,6 +705,19 @@ for(let i=0;i<10;i++){
   [[48,95],[62,88],[150,118],[140,100],[95,48],[105,62],[118,148],[70,138],[80,120],[45,120],[160,95],[55,110]].forEach(([x,z],i)=>bed(x,z,4.2+i%3,2.8+i%2,i*0.2));
   [[50,70,7,5],[130,70,7,5],[70,150,6,4.5],[140,140,6,4.5],[40,100,6,4],[165,120,6,4],[100,160,5,4],[55,140,5,4]].forEach(([x,z,n,r])=>clump(x,z,n,r,0.72,'oak'));
   for(let z=50;z<=200;z+=14){bed(-12.5,z,2.2,8,0);bed(12.5,z,2.2,8,0);}
+})();
+// Pass 30 — soft land canopy edge ribbons (canopy ellipses unmoved)
+(function canopyEdgeRibbons(){
+  Object.entries(LOCK.canopies).forEach(([name,c])=>{
+    const pts=[], n=72;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push([c.cx+Math.cos(a)*c.rx, c.cz+Math.sin(a)*c.rz]);
+    }
+    // filter samples that sit on the 14 m spine
+    const filtered=pts.filter(([x,z])=>!(Math.abs(x)<LOCK.spineWidth/2+1 && Math.abs(z)<=LOCK.B));
+    if(filtered.length>8) pathRibbon(filtered, 2.4);
+  });
 })();
 function landSign(text,x,z,yaw){
   const c=document.createElement('canvas');c.width=1024;c.height=256;
