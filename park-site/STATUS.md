@@ -80,3 +80,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Retry on 422; relative nests only
 - **COMMIT / LAST COMMIT:** 8a43fe6 — park-site Pass 3d: cross-land related on four album works
 
+## Check-in — Pass 4 complete
+
+- **TIME:** 2026-09-20 13:05 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 4a–4c atelier/tickets/artists/map density
+- **GOING:** Link audit next; continue Pass 5 if no STOP
+- **NEXT:** Pass 5 — link audit fixes + STATUS tip sync
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Relative nests; MOCK stable
+- **COMMIT / LAST COMMIT:** e345068 — park-site Pass 4c: artists index + map venue-nest CTAs
+
