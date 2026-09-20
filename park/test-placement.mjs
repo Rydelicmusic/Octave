@@ -172,6 +172,9 @@ test('index.html mounts sku-kit and drives GATE/STATIONS footprints', () => {
   assert.equal(landBinds, 1, 'LAND_PALETTE must be bound once (duplicate is a SyntaxError)');
   assert.doesNotMatch(src, /overhang\s*=\s*null/);
   assert.doesNotMatch(src, /BoxGeometry\(14,0\.32,7\.5\)/);
+  assert.doesNotMatch(src, /BoxGeometry\(b\.w,b\.h\*0\.56,b\.d\)/);
+  assert.doesNotMatch(src, /BoxGeometry\(1\.7,2\.7,0\.12\)/);
+  assert.match(src, /BoxGeometry\(1\.1,2\.1,0\.12\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
   assert.doesNotMatch(src, /\belevator\b/i);
 });
