@@ -46,6 +46,7 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Home→Land→Venue nest→Work; menus open menus; night/day as content
 - **COMMIT / LAST COMMIT:** 7c02834 — park-site Pass 2h: deepen Solenne Park + Ori Hale works
 
+
 ## Check-in — Pass 2 complete → Pass 3
 
 - **TIME:** 2026-09-20 13:02 CDT (America/Chicago)
@@ -90,21 +91,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Relative nests; MOCK stable
 - **COMMIT / LAST COMMIT:** e345068 — park-site Pass 4c: artists index + map venue-nest CTAs
 
----
+## Check-in — Pass 5 link audit + venues index
 
-## Check-in — KEITH 15-min (13:03 CDT)
+- **TIME:** 2026-09-20 13:06 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 5 — audited 2002 internal links (0 broken); adding venues.html index; wiring Gate/directory/guest
+- **GOING:** Push Pass 5; continue density until STOP
+- **NEXT:** Pass 6 — night program pages / deeper artist worlds
+- **CONSTRAINTS:** park-site/ only; MOCK roster; locked LAYOUT axes
+- **SOLUTIONS:** Relative nests; race-safe tip refresh on push
+- **COMMIT / LAST COMMIT:** 639b803 — park-site STATUS: Pass 4 complete; continue Pass 5
 
-- **TIME:** 2026-09-20 13:03 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Realm Engineer park/ Pass 5–8 shipped; park-site through Pass 4 (tip e345068 / STATUS 639b803); Site Luxury owns park-site/; Quality standby → GATE now
-- **STARTED:** First 15-min ops cycle
-- **GOING:** park Pass 8 live (1f9a911 winding spine). park-site Pass 4 complete; Pass 5 link audit ordered
-- **NEXT:** park Pass 9 finer lake-edge ribbon tracing; park-site Pass 5 link audit; Quality gate both
-- **CONSTRAINTS:** Still fake — polyline lake ribbons; soft-pull corner cuts. Pages may not serve park-site/. Parallel writers on main — one lane per folder enforced
-- **SOLUTIONS:** Pass 9 ribbons; Pass 5 site audit; Quality report with paths
-- **COMMITS:**
-  - 1f9a911 park Pass 8: winding spine ribbon
-  - 82da95d park Pass 7: ribbon stay-on-path
-  - e987bd3 park Pass 6: species crowns
-  - ef8c8f8 park Pass 5: SKU facades
-  - e345068 park-site Pass 4c; 639b803 STATUS Pass 4 complete
-- **BLOCKED BOTS:** none — orders issuing
