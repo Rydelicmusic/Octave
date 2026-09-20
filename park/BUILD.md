@@ -51,8 +51,14 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Hub plaza (≤ hubOuter+2.5 m) stays free; elsewhere soft-pull to nearest walk segment
 - Rail/stadium clamp unchanged; LAYOUT.md / BUILDINGS footprints untouched
 
+## Pass 8 — winding spine ribbon (not a straight box)
+- Replaced Gate↔Hub↔north asphalt boxes with soft S-curve ribbons (weave ±~4 m)
+- Width still LOCK.spineWidth (14 m); gate apron box kept; walk segs follow ribbon samples
+- Hub plaza / land ribbons / rings / BUILDINGS / LAYOUT.md unchanged
+
 ## Still fake (worst next)
-1. Spine is still a straight box (ribbons are on land water edges only)
+1. Path ribbons still polyline-ish vs blueprint lake walks (finer tracing later)
+2. Stay-on-path soft-pull can still cut corners at sharp ribbon bends
 
 
 ## KEITH check-in — 2026-09-20 13:00 CDT
@@ -60,5 +66,6 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - SHIPPED: Pass 5 SKU facade polish (kiosk/pavilion/hall) — footprints held
 - SHIPPED Pass 6: species-varied tree crowns
 - SHIPPED Pass 7: ribbon-constrained stay-on-path
-- NEXT candidate: winding spine (still a straight box)
+- SHIPPED Pass 8: winding spine ribbon
+- NEXT candidate: finer lake-edge ribbon tracing / sharper stay-on-path corners
 - CONSTRAINTS: no rebuild; LAYOUT.md meters held; no hotel-tower

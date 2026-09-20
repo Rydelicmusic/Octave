@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> ribbon stay-on-path</div>
+  <div><b>This pass:</b> winding spine ribbon</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -137,7 +137,7 @@ function nearestWalk(x,z){
   }
   return {x:bx,z:bz,on,d:best};
 }
-function pathRibbon(pts,width=6){
+function pathRibbon(pts,width=6,mat=pathMat){
   if(pts.length<2)return;
   const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,0.15,z)),false,'catmullrom',0.18);
   const segs=Math.max(20,pts.length*10);
@@ -153,7 +153,7 @@ function pathRibbon(pts,width=6){
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
   geo.setIndex(idx);geo.computeVertexNormals();
-  scene.add(new THREE.Mesh(geo,pathMat));
+  scene.add(new THREE.Mesh(geo,mat));
   for(let i=0;i<segs;i++){
     const p0=curve.getPoint(i/segs),p1=curve.getPoint((i+1)/segs);
     addWalkSeg(p0.x,p0.z,p1.x,p1.z,hw+1.25);
@@ -178,13 +178,24 @@ function lakeWalk(x,z,rx,rz){
   outerC.rotation.x=Math.PI/2;outerC.position.y=0.28;
   g.add(innerC,outerC);g.position.set(x,0,z);g.scale.set(rx,1,rz);scene.add(g);
 }
-pathBox(LOCK.spineWidth,B,0,B/2,0,asphaltMat);
+// Pass 8 — spine as soft winding ribbon (not a straight box); Gate apron kept
 pathBox(22,18,0,B,0,asphaltMat);
-pathBox(LOCK.spineWidth,B,0,-B/2,0,asphaltMat);
-addWalkSeg(0,0,0,B,LOCK.spineWidth/2+1.8);
-addWalkSeg(0,0,0,-B,LOCK.spineWidth/2+1.8);
 addWalkSeg(-11,B-9,11,B-9,10);
 addWalkSeg(-11,B,11,B,10);
+(function spineRibbon(){
+  const w=LOCK.spineWidth, south=[], north=[];
+  for(let z=0;z<=B;z+=10){
+    // gentle S-weave ±4.2 m — still reads Gate→Hub corridor
+    const x=Math.sin((z/B)*Math.PI*1.6)*4.2;
+    south.push([x,z]);
+  }
+  for(let z=0;z>=-B;z-=10){
+    const x=Math.sin((z/(-B||1))*Math.PI*1.4)*-3.6;
+    north.push([x,z]);
+  }
+  pathRibbon(south,w,asphaltMat);
+  pathRibbon(north,w,asphaltMat);
+})();
 addWalkSeg(-7,34,7,34,5);
 addWalkSeg(-7,-34,7,-34,5);
 // Short aprons at hub gaps — path continuity onto raised plaza (SLAB 0.28)
