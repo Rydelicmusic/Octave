@@ -357,7 +357,17 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Seating clusters on Board land + board-promenade spur densify
 - Waters / rings / BUILDINGS / spine held
 
+## Pass 70 — 3.2 m lakeside walks (layout)
+- Was RingGeometry 1.03–1.18 scaled by water rx,rz (west lake path ~7.2×10.5 m, torus curb 0.022×rx)
+- Now `lakesideRibbonRuns` + `pathRibbon` at PATH_SCALE.lakesideW = 3.2 m, offset 2.6 m outside rim
+- Spine strip skipped; water ellipses unmoved
+
 ## Still fake (worst next)
+- Corridor lanterns ~2.4 m (should read ~3.6 m along the 14 m spine)
+- CAD spine curb ribbons are 0.9 m on top of 14 m asphalt
+- Water coping still scales with ellipse rx
+
+
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
 3. ~~Sparse PointLights~~ — addressed Pass 48 (cap 80 + denser lit; still not 1:1 every mesh under fill-rate)

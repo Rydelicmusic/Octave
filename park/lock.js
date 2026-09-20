@@ -125,6 +125,52 @@ export function northSpineCadPolyline(side, step = 8) {
   return pts;
 }
 
+/** Meter-true path sizes. Do not scale these by water ellipse rx, rz. */
+export const PATH_SCALE = {
+  lakesideW: 3.2,
+  lakesideOffset: 2.6,
+  copingW: 0.5,
+  copingH: 0.32,
+};
+
+/** Closed polyline around a locked water ellipse at a constant offset (meters). */
+export function lakesideRibbonPolyline(cx, cz, rx, rz, offset = PATH_SCALE.lakesideOffset, n = 48) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    pts.push([cx + Math.cos(a) * (rx + offset), cz + Math.sin(a) * (rz + offset)]);
+  }
+  pts.push(pts[0]);
+  return pts;
+}
+
+/** Lakeside runs that stay off the 14 m spine strip. */
+export function lakesideRibbonRuns(cx, cz, rx, rz, offset = PATH_SCALE.lakesideOffset, n = 48) {
+  const half = LOCK.spineWidth / 2 + 0.8;
+  const ring = lakesideRibbonPolyline(cx, cz, rx, rz, offset, n).slice(0, -1);
+  const off = (p) => Math.abs(p[0]) >= half;
+  const runs = [];
+  let cur = [];
+  for (const p of ring) {
+    if (off(p)) cur.push(p);
+    else if (cur.length) {
+      if (cur.length >= 3) runs.push(cur);
+      cur = [];
+    }
+  }
+  if (cur.length >= 3) runs.push(cur);
+  if (runs.length >= 2 && off(ring[0]) && off(ring[ring.length - 1])) {
+    const last = runs[runs.length - 1];
+    const first = runs[0];
+    if (last[last.length - 1] === ring[ring.length - 1] && first[0] === ring[0]) {
+      runs[0] = last.concat(first);
+      runs.pop();
+    }
+  }
+  if (runs.length === 1 && runs[0].length === ring.length) runs[0] = runs[0].concat([runs[0][0]]);
+  return runs;
+}
+
 /**
  * Designed named guest walks (not k-NN). Lake indices into LOCK.waters.
  * Circuits stay west of the 14 m spine (Block) or east of it (Board).

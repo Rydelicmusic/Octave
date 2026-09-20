@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> Board shore seating</div>
+  <div><b>This pass:</b> 3.2 m lakeside walks</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,13 +35,14 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass69-board';
+import * as LockMod from './lock.js?v=pass70-lakeside';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
   WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
   walkLinkPolyline, walkSpurPolyline, hubApronPath,
   LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast,
+  PATH_SCALE, lakesideRibbonRuns,
 } = LockMod;
 const ITINERARY = LockMod.ITINERARY || {
   id: 'park-circuit', name: 'Park Circuit', sequence: [], stops: [], totalMin: 45,
@@ -262,15 +263,10 @@ function pathRibbon(pts,width=6,mat=pathMat){
   }
 }
 function lakeWalk(x,z,rx,rz){
-  // Pass 9: denser ring mesh (64→96) hugging water rim — ellipse unmoved
-  const g=new THREE.Group();
-  const ring=new THREE.Mesh(new THREE.RingGeometry(1.03,1.18,96),pathMat);
-  ring.rotation.x=-Math.PI/2;ring.position.y=0.15;g.add(ring);
-  const innerC=new THREE.Mesh(new THREE.TorusGeometry(1.03,0.022,6,64),stoneDark);
-  innerC.rotation.x=Math.PI/2;innerC.position.y=0.28;
-  const outerC=new THREE.Mesh(new THREE.TorusGeometry(1.18,0.022,6,64),stoneDark);
-  outerC.rotation.x=Math.PI/2;outerC.position.y=0.28;
-  g.add(innerC,outerC);g.position.set(x,0,z);g.scale.set(rx,1,rz);scene.add(g);
+  // Pass 70 — 3.2 m lakeside walks (PATH_SCALE); ellipse unmoved; not scaled by rx,rz
+  for(const pts of lakesideRibbonRuns(x,z,rx,rz)){
+    if(pts.length>=3) pathRibbon(pts, PATH_SCALE.lakesideW);
+  }
 }
 // Pass 12/16 — blueprint centerline (x=0) + CAD-traced edges at hover x=±7 m
 pathBox(22,18,0,B,0,asphaltMat);
