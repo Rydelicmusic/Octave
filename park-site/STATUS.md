@@ -804,13 +804,26 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 7197d8d4eda7fb44e5cb4d460702a0330a2be726
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-## KEITH fleet check-in — 2026-09-20 13:24 CDT
-- **TIME:** 2026-09-20 13:24 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Site Luxury = park-site/; Realm Engineer = park/; Quality = GATE
-- **STARTED:** 15-min scheduled check-in; no STOP
-- **GOING:** Site Pass 58–63+ shipping hard; park 3D idle at Pass 16; BUILD check-in e8dd881
-- **NEXT:** Site Pass 64+ density (one hospitality densify per commit); park Pass 17 named guest-walk circuit
-- **CONSTRAINTS:** park-site/ only for Site Luxury; MOCK roster stable; LAYOUT axes; no hotel-tower; user-GitHub-xai / gh writes
-- **SOLUTIONS:** Ordered Site Luxury continue; Quality probe visit-paths/geometry 200; kick Realm Engineer on park/
-- **COMMITS:** park BUILD e8dd881 KEITH 13:24; site tip racing
-- **BLOCKED BOTS:** none on site; Realm Engineer idle on park (separate lane)
+## Check-in — Pass 70–75 substance
+
+- **TIME:** 2026-09-20 13:27 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 011dc92 (fleet) / b216efc lineage; Pass 70 artist day hours; 71 land measured walks; 72 atelier SKU materials; 73 map boards; 74 Gate day arrivals; 75 roster day
+- **GOING:** Push 70–75
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; substance-first; no new lands; LAYOUT axes
+- **SOLUTIONS:** Artist day desks; land ship-gate paths; atelier→works; map→boards; Gate daylight; roster day board
+- **COMMIT / LAST COMMIT:** 011dc92 — prior tip
+
+## Check-in — Pass 75 tip
+
+- **TIME:** 2026-09-20 13:28 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Passes 70–75 from tip 011dc92
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT; substance-first
+- **SOLUTIONS:** Artist day; land paths; atelier SKU; map boards; Gate daylight; roster day
+- **COMMIT / LAST COMMIT:** f201ffd — Pass 74
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
