@@ -1018,11 +1018,27 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 13:45 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Collision inventory; rename journal→notes, atelier→materials; deepen notes/nests/related
-- **GOING:** Tip pending after Pass 117
+- **GOING:** Tip 8b40c3b; collisions cleared; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; NEVER html/dir basename collision; deepen existing trees; MOCK; LAYOUT; FF retries; ≤1 Pages rebuild
 - **SOLUTIONS:** Collision-safe notes/ + materials/; nests rooms; related album sheets; parent wiring
-- **COMMIT / LAST COMMIT:** 1a34907 — Pass 116
+- **COMMIT / LAST COMMIT:** 8b40c3b — Pass 117
+- **TIP:** 8b40c3bd5e03269ebeb620874e0ffbf0d664ad53
 - **COLLISIONS:** NONE (top-level)
+- **PAGES:** built
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `notes/spine-fourteen.html` | 200 |
+| `materials/kiosk.html` | 200 |
+| `guest/gate-desk.html` | 200 |
+| `booking/night.html` | 200 |
+| `lands/the-block/daylight.html` | 200 |
+| `lands/the-block/nests/night-ledger-room.html` | 200 |
+| `artists/vale-mercer/credits.html` | 200 |
+| `artists/vale-mercer/related-night-ledger.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
