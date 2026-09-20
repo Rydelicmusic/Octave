@@ -335,3 +335,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **ROLLUP:** Passes 1–26 on main; live https://rydelicmusic.github.io/octave/park-site/ ; link audits clean; MOCK roster stable; LAYOUT axes honored
 - **COMMIT / LAST COMMIT:** 7b15b30 — Pass 25
 
+## Check-in — Pass 27 ship-gate verify
+
+- **TIME:** 2026-09-20 13:50 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 27 — verify index/map/artists/pocket path/venue nest exist; live probes 200
+- **GOING:** STATUS tip sync; **awaiting director STOP** (will keep densifying on next tick if no STOP)
+- **NEXT:** Pass 28 or STOP
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Continuous ship-gate checklist
+- **COMMIT / LAST COMMIT:** f56e3ee — Pass 26
+- **TIP:** f56e3eefdaea9ab1bc3413796055098b74b7f1aa
+
