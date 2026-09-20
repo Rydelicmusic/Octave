@@ -26,16 +26,68 @@ export function skuKit(p, emit) {
     emit.box({ name: 'body', w: w + 0.12, h: 0.22, d: d + 0.12, x: 0, y: plinth + bodyH * 0.55, z: 0, color: pal.trim });
     emit.box({ name: 'body', w: w * 0.92, h: 0.14, d: d * 0.92, x: 0, y: plinth + 0.2, z: 0, color: pal.trim });
   }
+  // Pass 51 — mid-block facade articulation (w/d/h held): base, belt, pilasters
+  emit.box({
+    name: 'body', w: w + 0.08, h: Math.max(0.22, plinth + 0.08), d: d + 0.08,
+    x: 0, y: (plinth + 0.08) / 2, z: 0, color: pal.trim,
+  });
+  const beltY = plinth + bodyH * 0.42;
+  emit.box({
+    name: 'body', w: w + 0.1, h: 0.16, d: d + 0.1,
+    x: 0, y: beltY, z: 0, color: pal.trim,
+  });
+  if (!isStation && bodyH > 3.2) {
+    emit.box({
+      name: 'body', w: w + 0.08, h: 0.12, d: d + 0.08,
+      x: 0, y: plinth + bodyH * 0.72, z: 0, color: pal.trim,
+    });
+  }
+  // pilaster rhythm on +Z face (and corners on ±X)
+  const pilW = Math.min(0.28, w * 0.06);
+  const pilD = 0.14;
+  const pilH = bodyH * 0.88;
+  const pilY = plinth + pilH / 2;
+  const pilXs = [-w / 2 + pilW * 0.4, w / 2 - pilW * 0.4];
+  if (w >= 5) pilXs.splice(1, 0, 0);
+  if (w >= 9) { pilXs.splice(1, 0, -w * 0.25); pilXs.splice(pilXs.length - 1, 0, w * 0.25); }
+  for (const sx of pilXs) {
+    emit.box({
+      name: 'body', w: pilW, h: pilH, d: pilD,
+      x: sx, y: pilY, z: d / 2 + pilD * 0.45, color: pal.trim,
+    });
+  }
+  // corner returns on ±X mid
+  for (const sx of [-w / 2 - 0.05, w / 2 + 0.05]) {
+    emit.box({
+      name: 'body', w: pilD, h: pilH * 0.92, d: Math.min(0.32, d * 0.12),
+      x: sx, y: pilY, z: 0, color: pal.trim,
+    });
+  }
   const overD = isStation ? Math.max(1.45, eaves * 2.8) : Math.max(1.15, eaves * 2.4);
   emit.box({ name: 'overhang', w: w + eaves * 2, h: 0.22, d: overD, x: 0, y: plinth + bodyH + 0.11, z: d / 2 + eaves * 0.55, color: pal.trim });
   const roofBoxH = Math.max(0.28, roofH * 0.32);
   emit.box({ name: 'roof', w: w + eaves * (isStation ? 1.15 : 1), h: roofBoxH, d: d + eaves * (isStation ? 1.15 : 1), x: 0, y: plinth + bodyH + 0.22 + roofBoxH / 2, z: 0, color: pal.roof });
   const winH = p.sku === 'kiosk' ? 0.9 : Math.min(1.4, Math.max(1.05, h * 0.22));
   const winY = p.sku === 'kiosk' ? 1.45 : 1.6;
-  emit.box({ name: 'window', w: Math.min(2.2, w * 0.42), h: winH, d: 0.14, x: 0, y: winY, z: d / 2 + 0.08, color: pal.window });
+  function emitWindow(wx, wy, ww, wh) {
+    emit.box({ name: 'window', w: ww, h: wh, d: 0.14, x: wx, y: wy, z: d / 2 + 0.08, color: pal.window });
+    // Pass 51 — muntins
+    emit.box({ name: 'window', w: Math.max(0.04, ww * 0.04), h: wh * 0.92, d: 0.16, x: wx, y: wy, z: d / 2 + 0.12, color: pal.trim });
+    emit.box({ name: 'window', w: ww * 0.9, h: Math.max(0.04, wh * 0.06), d: 0.16, x: wx, y: wy, z: d / 2 + 0.12, color: pal.trim });
+  }
+  emitWindow(0, winY, Math.min(2.2, w * 0.42), winH);
   if (w >= 6 || isStation) {
-    emit.box({ name: 'window', w: Math.min(1.6, w * 0.2), h: winH * 0.92, d: 0.14, x: -w * 0.28, y: winY, z: d / 2 + 0.08, color: pal.window });
-    emit.box({ name: 'window', w: Math.min(1.6, w * 0.2), h: winH * 0.92, d: 0.14, x: w * 0.28, y: winY, z: d / 2 + 0.08, color: pal.window });
+    emitWindow(-w * 0.28, winY, Math.min(1.6, w * 0.2), winH * 0.92);
+    emitWindow(w * 0.28, winY, Math.min(1.6, w * 0.2), winH * 0.92);
+  }
+  // Pass 51 — second-row windows on taller SKUs
+  if (!isStation && bodyH >= 4.5) {
+    const winY2 = Math.min(plinth + bodyH * 0.72, winY + winH + 0.85);
+    emitWindow(0, winY2, Math.min(1.8, w * 0.32), winH * 0.85);
+    if (w >= 7) {
+      emitWindow(-w * 0.3, winY2, Math.min(1.4, w * 0.18), winH * 0.8);
+      emitWindow(w * 0.3, winY2, Math.min(1.4, w * 0.18), winH * 0.8);
+    }
   }
   if (isStation) {
     // side windows on ±X faces

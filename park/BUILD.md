@@ -279,14 +279,20 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 ## Pass 50 — water material densify
 - Deep tint core + mid ring + dual shimmer bands + foam lip (LOCK.waters x/z/rx/rz held)
 
+## Pass 51 — facade mid-block detail
+- SKU kit: base + mid belt + pilaster rhythm + window muntins (+ upper row on tall SKUs)
+- Album halls: denser bay grid, hall belt/base, denser pilasters, muntins in addWindowBay
+- BUILDINGS x/z/w/d/h/yaw held
+
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
 3. ~~Sparse PointLights~~ — addressed Pass 48 (cap 80 + denser lit; still not 1:1 every mesh under fill-rate)
 4. ~~Gate ticket booth blank kiosk~~ — addressed Pass 49 (windows/counter/queue)
 5. ~~Water flat Lambert~~ — addressed Pass 50 (deep tint + foam lip + shimmer bands)
-6. Building facades still light on mid-block detail (pilaster/bay density uneven)
+6. ~~Facade mid-block light~~ — addressed Pass 51 (pilasters/muntins/belts)
 7. Night fill still thin away from lit poles (some dark pockets between capped PointLights)
+8. Earth/ground still large flat patches between path curbs
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -386,7 +392,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 48: denser PointLights (cap 80, spine/corridor/hub/WALKS)
 - SHIPPED Pass 49: gate ticket booth polish (windows/counter/queue; GATE held)
 - SHIPPED Pass 50: water material densify (deep/foam/shimmer; waters held)
-- **NEXT:** (await Keith) facade mid-block detail or night fill polish (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 51: facade mid-block detail (pilasters/muntins/belts; BUILDINGS held)
+- **NEXT:** Pass 52 — night fill polish (Still fake #7) or earth densify (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165

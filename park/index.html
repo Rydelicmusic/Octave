@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> water material densify</div>
+  <div><b>This pass:</b> facade mid-block detail</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass50-water';
+import * as LockMod from './lock.js?v=pass51-facade';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1100,6 +1100,11 @@ function addWindowBay(g,x,y,z,face='z+',mat,trim,glass){
   rec.position.set(x+dx*0.02,y,z+dz*0.02);g.add(rec);
   const pane=new THREE.Mesh(new THREE.BoxGeometry(dx?0.08:bw*0.82,bh*0.82,dz?0.08:bw*0.82),glass);
   pane.position.set(x-dx*(inset*0.45),y,z-dz*(inset*0.45));g.add(pane);
+  // Pass 51 — muntins
+  const mV=new THREE.Mesh(new THREE.BoxGeometry(dx?0.1:0.06,bh*0.78,dz?0.1:0.06),trim);
+  mV.position.set(x-dx*(inset*0.35),y,z-dz*(inset*0.35));g.add(mV);
+  const mH=new THREE.Mesh(new THREE.BoxGeometry(dx?0.1:bw*0.7,0.06,dz?0.1:bw*0.7),trim);
+  mH.position.set(x-dx*(inset*0.35),y,z-dz*(inset*0.35));g.add(mH);
   const sill=new THREE.Mesh(new THREE.BoxGeometry(dx?0.34:bw+0.15,0.1,dz?0.34:bw+0.15),trim);
   sill.position.set(x+dx*0.22,y-bh*0.52,z+dz*0.22);g.add(sill);
   const lintel=new THREE.Mesh(new THREE.BoxGeometry(dx?0.3:bw+0.18,0.14,dz?0.3:bw+0.18),trim);
@@ -1131,20 +1136,29 @@ function addHall(b){
   const glass=new THREE.MeshLambertMaterial({color:0x1c2830,emissive:0x0a1520});
   addPortico(g,b,trim,mat);
   const zFront=b.d/2+0.02,zBack=-b.d/2-0.02,xR=b.w/2+0.02,xL=-b.w/2-0.02;
-  for(const wx of [-b.w*0.32,b.w*0.32]){
+  // Pass 51 — denser bay rhythm (3 across + mid belt on hall)
+  const frontXs=[-b.w*0.34,0,b.w*0.34];
+  for(const wx of frontXs){
     addWindowBay(g,wx,2.15,zFront,'z+',mat,trim,glass);
-    addWindowBay(g,wx*0.9,5.35,zFront*0.9,'z+',mat,trim,glass);
+    addWindowBay(g,wx*0.92,5.35,zFront*0.92,'z+',mat,trim,glass);
     addWindowBay(g,wx,2.15,zBack,'z-',mat,trim,glass);
   }
-  for(const wz of [-b.d*0.22,b.d*0.22]){
+  for(const wz of [-b.d*0.28,0,b.d*0.28]){
     addWindowBay(g,xR,2.15,wz,'x+',mat,trim,glass);
     addWindowBay(g,xL,2.15,wz,'x-',mat,trim,glass);
-    addWindowBay(g,xR*0.9,5.35,wz*0.85,'x+',mat,trim,glass);
+    if(Math.abs(wz)>0.01) addWindowBay(g,xR*0.9,5.35,wz*0.85,'x+',mat,trim,glass);
   }
+  // mid belt course around hall (footprint held)
+  const belt=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.2,0.18,b.d+0.2),trim);
+  belt.position.set(0,3.55,0);g.add(belt);
+  const base=new THREE.Mesh(new THREE.BoxGeometry(b.w+0.16,0.35,b.d+0.16),trim);
+  base.position.set(0,0.22,0);g.add(base);
   const pilH=b.h*0.56, pilY=0.42+b.h*0.28;
-  for(const sx of [-b.w/2,0,b.w/2]) addPilaster(g,sx,pilY,zFront+0.12,pilH,trim,true);
-  for(const sx of [-b.w/2,b.w/2]) addPilaster(g,sx,pilY,zBack-0.12,pilH,trim,true);
-  for(const sz of [-b.d/2,b.d/2]) addPilaster(g,xR+0.12,pilY,sz,pilH,trim,false);
+  const pilFront=[-b.w/2,-b.w*0.25,0,b.w*0.25,b.w/2];
+  for(const sx of pilFront) addPilaster(g,sx,pilY,zFront+0.12,pilH,trim,true);
+  for(const sx of [-b.w/2,-b.w*0.25,b.w*0.25,b.w/2]) addPilaster(g,sx,pilY,zBack-0.12,pilH,trim,true);
+  for(const sz of [-b.d/2,-b.d*0.25,b.d*0.25,b.d/2]) addPilaster(g,xR+0.12,pilY,sz,pilH,trim,false);
+  for(const sz of [-b.d/2,b.d/2]) addPilaster(g,xL-0.12,pilY,sz,pilH,trim,false);
   const steps=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.28,1.35),new THREE.MeshLambertMaterial({color:0xb9b3a8}));
   steps.position.set(0,0.14,b.d/2+2.05);
   const step2=steps.clone();step2.scale.set(0.82,1,0.7);step2.position.z=b.d/2+1.45;step2.position.y=0.28;
