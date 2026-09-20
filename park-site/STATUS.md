@@ -1490,11 +1490,33 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:28 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip cb0e0cd; Pass 192–194 densify already on main; NEW nested IA
-- **GOING:** Tip pending
+- **GOING:** Tip e42b07c; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
 - **SOLUTIONS:** NEW light/ (5); sound/ (4); artist bio+liner ×4; land foyer+lamp-rail ×4; measure gate/stadium; guest seating/water; booking gift; paths court-ring/sister-walk; thin wires
-- **COMMIT / LAST COMMIT:** 3176a37 — Pass 200
+- **COMMIT / LAST COMMIT:** e42b07c — Pass 201
+- **TIP:** e42b07ce9128f172aa812b96ecb27b84c8f6a9ba
 - **COLLISIONS:** NONE
+- **AUDIT:** 14803 OK / 0 broken
+- **PAGES:** built
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `light/index.html` | 200 |
+| `light/gate-lamp.html` | 200 |
+| `sound/hush.html` | 200 |
+| `sound/album-hall.html` | 200 |
+| `artists/vale-mercer/bio.html` | 200 |
+| `artists/ori-hale/liner.html` | 200 |
+| `lands/the-block/foyer.html` | 200 |
+| `lands/the-pocket/lamp-rail.html` | 200 |
+| `measure/stadium-meter.html` | 200 |
+| `guest/seating.html` | 200 |
+| `booking/gift.html` | 200 |
+| `paths/court-ring.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
