@@ -130,6 +130,7 @@ assert.match(indexHtml, /tourMarker/);
 assert.match(indexHtml, /afterHoursShore/);
 assert.match(indexHtml, /wayChevrons/);
 assert.match(indexHtml, /boardShore/);
+assert.match(indexHtml, /blockShore/);
 
 
 assert.ok(ITINERARY.sequence.every((id) => walkById(id)));

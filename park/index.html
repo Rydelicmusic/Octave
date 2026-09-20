@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> Board shore densify</div>
+  <div><b>This pass:</b> Block shore densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -366,6 +366,19 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
 (function boardShore(){
   LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     if(cx<80) return; // The Board side
+    if(rx<10) return;
+    const pts=[], n=rx>=20?56:40;
+    for(let i=0;i<=n;i++){
+      const a=(i/n)*Math.PI*2;
+      pts.push([cx+Math.cos(a)*(rx+4.8), cz+Math.sin(a)*(rz+4.8)]);
+    }
+    pathRibbon(pts, 3.8);
+  });
+})();
+// Pass 23 — denser Block (west) shore bands (waters unmoved)
+(function blockShore(){
+  LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+    if(cx>-60) return; // The Block side
     if(rx<10) return;
     const pts=[], n=rx>=20?56:40;
     for(let i=0;i<=n;i++){
