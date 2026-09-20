@@ -56,12 +56,17 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Width still LOCK.spineWidth (14 m); gate apron box kept; walk segs follow ribbon samples
 - Hub plaza / land ribbons / rings / BUILDINGS / LAYOUT.md unchanged
 
-## Still fake (worst next)
-1. Path ribbons still polyline-ish vs blueprint lake walks (finer tracing later)
-2. Stay-on-path soft-pull can still cut corners at sharp ribbon bends
+## Pass 9 — finer lake-edge path ribbon tracing
+- Replaced coarse freehand land polylines with ellipse-sampled ribbons from LOCK.waters (+margin)
+- Denser rings (48–72 pts) + short connectors between nearby large lakes
+- Water ellipses / spine width / hub / rings / BUILDINGS / LAYOUT.md unchanged
 
-## KEITH check-in — 2026-09-20 13:03 CDT
+## Still fake (worst next)
+1. Stay-on-path soft-pull can still cut corners at sharp ribbon bends  ← Pass 10 candidate
+
+## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
 - SHIPPED Pass 5–8: ef8c8f8 / e987bd3 / 82da95d / 1f9a911
-- ORDERED Pass 9: finer lake-edge ribbon tracing
+- SHIPPED Pass 9: finer lake-edge ribbon tracing
+- NEXT candidate: stay-on-path corner cuts (Pass 10)
 - CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower
