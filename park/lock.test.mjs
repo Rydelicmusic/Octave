@@ -123,6 +123,11 @@ assert.ok(WALKS.length >= 4);
 assert.ok(WALKS.find((w) => w.id === 'after-hours-quiet'));
 assert.ok(WALKS.find((w) => w.id === 'pocket-rim'));
 assert.equal(ITINERARY.id, 'park-circuit');
+assert.equal(ITINERARY.totalMin, 45);
+assert.ok(ITINERARY.stops.length === ITINERARY.sequence.length);
+assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
+assert.match(indexHtml, /tourMarker/);
+
 assert.ok(ITINERARY.sequence.every((id) => walkById(id)));
 assert.match(indexHtml, /ITINERARY/);
 assert.match(indexHtml, /parkItinerary/);

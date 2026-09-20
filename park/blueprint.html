@@ -88,9 +88,15 @@ WALKS.forEach(walk => {
     const d = pts.map((p, i) => `${i ? 'L' : 'M'} ${toX(p.x)} ${toY(p.z)}`).join(' ');
     svg.appendChild(el('path', { d, fill: 'none', stroke: '#8a4030', 'stroke-width': '2.8', 'stroke-dasharray': '10 6' }));
     const t = el('text', { x: toX(ITINERARY.sign.x), y: toY(ITINERARY.sign.z) - 10, fill: '#8a4030', 'font-size': 12, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
-    t.textContent = ITINERARY.name;
+    t.textContent = ITINERARY.name + ' · ' + ITINERARY.totalMin + ' min';
     svg.appendChild(t);
   }
+  (ITINERARY.stops || []).forEach((s, i) => {
+    const w = walkById(s.walk); if (!w || !w.sign) return;
+    const m = el('text', { x: toX(w.sign.x), y: toY(w.sign.z) + 14, fill: '#8a4030', 'font-size': 10, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
+    m.textContent = (i + 1) + ' · ' + s.atMin + 'm';
+    svg.appendChild(m);
+  });
 }
 svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(0), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
 // Pass 18 — north −Z corridor fill (hub → stadium north rail)

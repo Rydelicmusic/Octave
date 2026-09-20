@@ -184,6 +184,15 @@ export const ITINERARY = {
     'board-promenade',
     'pocket-rim',
   ],
+  // Pass 20 — measured timed tour (minutes from Gate; leg duration after each stop)
+  stops: [
+    { walk: 'block-spine-approach', atMin: 3, legMin: 5 },
+    { walk: 'block-lakeshore', atMin: 8, legMin: 10 },
+    { walk: 'after-hours-quiet', atMin: 18, legMin: 10 },
+    { walk: 'board-promenade', atMin: 28, legMin: 10 },
+    { walk: 'pocket-rim', atMin: 38, legMin: 7 },
+  ],
+  totalMin: 45,
   // Gate apron → first stop; eye-height sign
   sign: { x: 0, z: 205, yaw: Math.PI },
 };

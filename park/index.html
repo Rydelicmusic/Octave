@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> park-wide guest itinerary</div>
+  <div><b>This pass:</b> timed tour markers (Park Circuit)</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -573,8 +573,30 @@ landSign('The Block',-42,6,Math.PI/2);
 landSign('The Board',42,6,-Math.PI/2);
 landSign('After Hours',0,-42,0);
 landSign('The Pocket',0,46,Math.PI);
+function tourMarker(n,label,x,z,yaw=0){
+  const g=new THREE.Group();
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.14,1.55,8),new THREE.MeshLambertMaterial({color:0x3d3428}));
+  post.position.y=0.78;g.add(post);
+  const disc=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.08,16),new THREE.MeshLambertMaterial({color:0x8a4030}));
+  disc.position.y=1.55;g.add(disc);
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#f2e6d0';ctx.fillRect(0,0,256,128);
+  ctx.fillStyle='#8a4030';ctx.font='bold 42px sans-serif';ctx.textAlign='center';ctx.fillText(String(n),128,48);
+  ctx.fillStyle='#3d3428';ctx.font='28px sans-serif';ctx.fillText(label,128,95);
+  const tex=new THREE.CanvasTexture(canvas);
+  const board=new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.7),new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+  board.position.set(0,2.05,0.2);g.add(board);
+  g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
+}
 WALKS.forEach(w=>{if(w.sign)landSign(w.name,w.sign.x,w.sign.z,w.sign.yaw);});
-if(ITINERARY.sign)landSign(ITINERARY.name,ITINERARY.sign.x,ITINERARY.sign.z,ITINERARY.sign.yaw);
+if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINERARY.sign.x,ITINERARY.sign.z,ITINERARY.sign.yaw);
+// Pass 20 — timed tour markers at each itinerary stop
+(ITINERARY.stops||[]).forEach((s,i)=>{
+  const w=walkById(s.walk); if(!w||!w.sign) return;
+  tourMarker(i+1, s.atMin+' min', w.sign.x, w.sign.z, w.sign.yaw);
+});
+
 function lamp(x,z){
   const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,3.5,6),stoneDark);pole.position.set(x,1.75,z);
   const arm=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.08,0.55),stoneDark);arm.position.set(x,3.4,z);
