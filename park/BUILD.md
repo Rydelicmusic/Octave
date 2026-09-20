@@ -70,8 +70,14 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Outer promenade bands on large lakes + shore-arc connectors (MST-ish) between rx≥16 waters
 - West-lake spurs toward spine shoulder; waters / LAYOUT / BUILDINGS unchanged
 
+## Pass 12 — spine centerline matches blueprint (x=0)
+- Replaced ±4 m S-weave with blueprint centerline at x=0; 14 m width held
+- Soft scalloped edge ribbons inside half-width (not a hard box silhouette)
+- Gate apron / hub / waters / BUILDINGS unchanged
+
 ## Still fake (worst next)
-1. Spine weave still procedural S-curve vs blueprint centerline  ← Pass 12 candidate
+1. Scalloped spine edges are procedural, not traced from blueprint CAD
+2. Shore network still MST-ish, not full guest-routing graph
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -79,5 +85,6 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - SHIPPED Pass 9: finer lake-edge ribbon tracing
 - SHIPPED Pass 10: stay-on-path corner cuts
 - SHIPPED Pass 11: fuller lake shoreline path network
-- NEXT candidate: spine weave vs blueprint centerline (Pass 12)
+- SHIPPED Pass 12: blueprint spine centerline + soft edges
+- NEXT candidate: await ORDER
 - CONSTRAINTS: no rebuild; LAYOUT.md meters; no hotel-tower
