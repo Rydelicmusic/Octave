@@ -86,6 +86,8 @@ assert.match(indexHtml, /BUILDINGS/);
 assert.match(indexHtml, /LOCK\.walk/);
 assert.match(indexHtml, /function pathRibbon/);
 assert.match(indexHtml, /function lakeWalk/);
+assert.match(indexHtml, /guest-routing graph/);
+assert.match(indexHtml, /function linkLakes/);
 assert.match(indexHtml, /8 radial walk spokes \+ planted beds/);
 assert.match(indexHtml, /West lakes \/ The Block/);
 assert.match(indexHtml, /SE grove/);

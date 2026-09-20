@@ -79,9 +79,14 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Dirt beds + hedge/bloom near Pocket SKUs; oak understory clumps in Pocket canopy
 - Spine-shoulder hedge strips in +Z Pocket; rings / spine / hub / BUILDINGS held
 
+## Pass 15 — guest-routing shore graph
+- Each lake (rx≥16) links to two nearest neighbors via shore-arc + bridge (not MST-only)
+- Links that cross the 14 m Gate→Hub spine are refused
+- East and west large-lake spurs to spine shoulder; waters / BUILDINGS / LAYOUT unchanged
+
 ## Still fake (worst next)
 1. Scalloped spine edges are procedural, not traced from blueprint CAD
-2. Shore network still MST-ish, not full guest-routing graph
+2. Guest-routing graph is k-NN, not a designed circuit with named walks
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -99,7 +104,8 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
 - **STARTED:** First scheduled 15-min loop
 - **GOING:** Park Pass 12 blueprint spine shipped; site Pass 11 polish shipped; no STOP
-- **NEXT:** Pass 15 — fuller guest-routing shore graph (replace MST-ish)
+- SHIPPED Pass 15: guest-routing shore graph (k-NN, spine-safe)
+- **NEXT:** Pass 16 — CAD-traced spine edges if still fake
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551
