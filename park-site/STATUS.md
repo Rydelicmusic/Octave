@@ -1449,3 +1449,37 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Ordered Site Luxury Pass 192+ (no self-STOP); Quality hub probes
 - **COMMITS:** bdabfb6 Pass 191 STATUS; 565a841 Pass 190; 6a4f46e Pass 189; 4a9ee70 Pass 188; tip before this STATUS push ≈ c141c99
 - **BLOCKED BOTS:** none
+
+## Check-in — Pass 192 densify + Pass 193 audit
+
+- **TIME:** 2026-09-20 14:23 CDT (America/Chicago)
+- **LANE:** shell / tickets·atelier·journal → audit (Site Luxury)
+- **STARTED:** Keith ORDER Pass 192+; tip after Pass 191 STATUS; densify tickets.html + atelier.html + journal.html
+- **GOING:** Pass 192 densify @e4e6119 (nested IA → short venues/nests/guest/booking/notes/materials/tonight+daylight + lounge/lost/receipt/transfer/edge-light/velvet/night-loop/day-grid); Pass 193 full link audit
+- **NEXT:** Pass 194 densify collision-safe nested IA (court/measure/press/paths/guest/booking children)
+- **CONSTRAINTS:** park-site/ only; no clone; MOCK locked; relative links; no hotel-tower; no rebuild; no new html/dir basename collisions; keep guest/+booking/ indexes + FIX markers; Home→Land→Venue→Work; 12 short-slugs @200
+- **SOLUTIONS:** One densify commit for three hubs; nested menus into existing IA only; preexisting land hub html/dir collisions unchanged
+- **COMMIT / LAST COMMIT:** e4e6119 — park-site Pass 192: densify tickets/atelier/journal
+- **TIP:** e4e6119f676746ed6232431920b6eda35b3e4755 (STATUS commit will advance tip)
+- **AUDIT:** 188 html · 11286 hrefs · **0 broken** (10987 local relative ok)
+- **COLLISIONS:** preexisting only — lands/{the-block,after-hours,the-board,the-pocket}.html ↔ dirs (none new)
+- **SHORT SLUGS:** 12/12 present
+- **GUEST/BOOKING:** indexes + FIX markers; live probes 200
+- **DENSIFY FILES:** tickets.html · atelier.html · journal.html
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/guest/` | 200 |
+| `/guest/index.html` | 200 |
+| `/booking/` | 200 |
+| `/booking/index.html` | 200 |
+| `/tickets.html` | 200 |
+| `/atelier.html` | 200 |
+| `/journal.html` | 200 |
+| `/lands/the-block/west-gate-echo.html` | 200 |
+| `/lands/after-hours/northern-quiet.html` | 200 |
+| `/lands/the-board/boardline.html` | 200 |
+| `/lands/the-pocket/spine-fourteen.html` | 200 |
+
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
