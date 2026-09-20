@@ -972,3 +972,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 426b689e741a1874bf022100fd4a9046107a4a1c
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 106 programs + guest land+artist desks
+
+- **TIME:** 2026-09-20 13:39 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Assigned densify programs/guest land+artist desks (dispatch @37c7267 Pass 105); parallel nested lane already used Pass 106–109 numbers for daylight/guest/tickets/credits nests
+- **GOING:** Ship assigned densify substance on programs.html + guest-services.html (12 short venues + works + tickets/atelier/paths); MOCK locked
+- **NEXT:** Pass 107 assigned — link audit 0 broken; STATUS tip sync
+- **CONSTRAINTS:** park-site/ only; no hotel-tower; FIX c95c7e2 clean; Home→Land→Venue→Work; FF races
+- **SOLUTIONS:** Mega land+artist desks; denser #artists all 12 works+nests; relative links
+- **COMMIT / LAST COMMIT:** (fill after push)
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
