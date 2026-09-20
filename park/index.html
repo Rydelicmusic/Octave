@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> ride-station kit densify</div>
+  <div><b>This pass:</b> Catmull ribbon tour meters</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass46-stations';
+import * as LockMod from './lock.js?v=pass47-catmull';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -986,6 +986,7 @@ function fencePost(x,z){
   }
 })();
 // Pass 46 — zig queues live in sku-kit rails; rideStation densifies shed body only
+// Pass 47 — tour meters use catmullRibbonMeters in lock.js (matches pathRibbon)
 function rideStation(s){
   const g=addSkuKit(THREE,scene,s);
   // platform lip under kit (STATIONS x/z/w/d held)

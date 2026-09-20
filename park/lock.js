@@ -320,6 +320,61 @@ export function polylineMeters(pts) {
   return m;
 }
 
+/** 1D Catmull-Rom (matches THREE.CatmullRomCurve3 curveType='catmullrom'). */
+export function catmull1D(x0, x1, x2, x3, t, tension = 0.18) {
+  const v0 = tension * (x2 - x0);
+  const v1 = tension * (x3 - x1);
+  const c0 = x1;
+  const c1 = v0;
+  const c2 = -3 * x1 + 3 * x2 - 2 * v0 - v1;
+  const c3 = 2 * x1 - 2 * x2 + v0 + v1;
+  return ((c3 * t + c2) * t + c1) * t + c0;
+}
+
+/** Point on open Catmull-Rom through [x,z] control pts; u in [0,1]. */
+export function catmullPoint(pts, u, tension = 0.18) {
+  const l = pts.length;
+  if (l === 0) return [0, 0];
+  if (l === 1) return [pts[0][0], pts[0][1]];
+  if (l === 2) {
+    const a = pts[0], b = pts[1];
+    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+  }
+  const p = (l - 1) * u;
+  let intPoint = Math.floor(p);
+  let weight = p - intPoint;
+  if (weight === 0 && intPoint === l - 1) {
+    intPoint = l - 2;
+    weight = 1;
+  }
+  const p1 = pts[intPoint];
+  const p2 = pts[Math.min(intPoint + 1, l - 1)];
+  const p0 = intPoint > 0 ? pts[intPoint - 1] : [2 * p1[0] - p2[0], 2 * p1[1] - p2[1]];
+  const p3 = intPoint + 2 < l ? pts[intPoint + 2] : [2 * p2[0] - p1[0], 2 * p2[1] - p1[1]];
+  return [
+    catmull1D(p0[0], p1[0], p2[0], p3[0], weight, tension),
+    catmull1D(p0[1], p1[1], p2[1], p3[1], weight, tension),
+  ];
+}
+
+/**
+ * Pass 47 — sample Catmull ribbon length (same tension/segs heuristic as pathRibbon in index.html).
+ * Prefer this over polylineMeters for tour HUD meters so times match the 3D curve.
+ */
+export function catmullRibbonMeters(pts, tension = 0.18) {
+  if (!pts || pts.length < 2) return 0;
+  if (pts.length === 2) return distMeters(pts[0][0], pts[0][1], pts[1][0], pts[1][1]);
+  const segs = Math.max(20, pts.length * 10);
+  let m = 0;
+  let prev = catmullPoint(pts, 0, tension);
+  for (let i = 1; i <= segs; i++) {
+    const cur = catmullPoint(pts, i / segs, tension);
+    m += distMeters(prev[0], prev[1], cur[0], cur[1]);
+    prev = cur;
+  }
+  return m;
+}
+
 /** Hub-apron shoulder used by Pass 19 3D itinerary ribbons (x/z ±22). */
 export function hubApronPoint(x, z) {
   return [Math.sign(x || 1) * 22, Math.sign(z || 1) * 22];
@@ -348,14 +403,14 @@ export function hubApronPath(ax, az, bx, bz) {
   return path;
 }
 
-/** Pass 41 — ribbon length of a named walk (shore arcs, not lake-center chords). */
+/** Pass 41/47 — Catmull-sampled ribbon length of a named walk (matches 3D pathRibbon). */
 export function walkRibbonMeters(walk) {
   let m = 0;
   for (const [ia, ib] of walkPairs(walk)) {
-    m += polylineMeters(walkLinkPolyline(walkLake(ia), walkLake(ib)));
+    m += catmullRibbonMeters(walkLinkPolyline(walkLake(ia), walkLake(ib)));
   }
   const spur = walkSpurPolyline(walk);
-  if (spur.length) m += polylineMeters(spur);
+  if (spur.length) m += catmullRibbonMeters(spur);
   return m;
 }
 
@@ -364,7 +419,7 @@ export function metersToMin(m) {
 }
 
 /**
- * Pass 39/41/43 — tour times from ribbon polyline meters / walk 1.34 m/s.
+ * Pass 39/41/43/47 — tour times from Catmull-sampled ribbon meters / walk 1.34 m/s.
  * Gate sign → hub-apron → each walk + shore-arc walk → hub-apron return.
  */
 export function measureItinerary(it = ITINERARY) {
@@ -374,8 +429,8 @@ export function measureItinerary(it = ITINERARY) {
   let prev = { x: it.sign.x, z: it.sign.z };
   for (const w of seq) {
     const p = w.sign;
-    // Pass 43 — approach via hub-apron ribbon (not sign-to-sign chord)
-    const approach = polylineMeters(hubApronPath(prev.x, prev.z, p.x, p.z));
+    // Pass 47 — approach via Catmull-sampled hub-apron ribbon
+    const approach = catmullRibbonMeters(hubApronPath(prev.x, prev.z, p.x, p.z));
     const onWalk = walkRibbonMeters(w);
     const legM = approach + onWalk;
     const legMin = metersToMin(legM);
@@ -389,8 +444,8 @@ export function measureItinerary(it = ITINERARY) {
     prev = { x: p.x, z: p.z };
   }
   const ret = it.returnToGate;
-  // Pass 43 — return via hub-apron ribbon
-  const retM = polylineMeters(hubApronPath(prev.x, prev.z, ret.x, ret.z));
+  // Pass 47 — return via Catmull-sampled hub-apron ribbon
+  const retM = catmullRibbonMeters(hubApronPath(prev.x, prev.z, ret.x, ret.z));
   tMin += metersToMin(retM);
   return {
     stops,

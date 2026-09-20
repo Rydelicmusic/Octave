@@ -6,7 +6,7 @@ import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
   spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine,
-  measureItinerary, hubApronPath, polylineMeters, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
+  measureItinerary, hubApronPath, polylineMeters, catmullRibbonMeters, walkPathMeters, walkRibbonMeters, walkLinkPolyline, metersToMin, distMeters,
   LAMP_LIGHT, SPINE_LAMP, spineLampZs, spineLampLitWest, spineLampLitEast, spineLampPointLights,
 } from './lock.js';
 
@@ -130,7 +130,7 @@ assert.equal(ITINERARY.id, 'park-circuit');
 assert.match(lockSrc, /export const ITINERARY/);
 assert.match(lockSrc, /FIX-ITINERARY/);
 assert.ok(ITINERARY);
-assert.match(indexHtml, /pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass47-catmull|pass46-stations|pass45-lamps/);
 assert.match(indexHtml, /FIX-ITINERARY/);
 {
   const m = measureItinerary();
@@ -142,13 +142,21 @@ assert.match(indexHtml, /FIX-ITINERARY/);
     assert.equal(ITINERARY.stops[i].meters, m.stops[i].meters);
   }
   const first = walkById(ITINERARY.sequence[0]);
-  const approach = polylineMeters(hubApronPath(ITINERARY.sign.x, ITINERARY.sign.z, first.sign.x, first.sign.z));
+  const approach = catmullRibbonMeters(hubApronPath(ITINERARY.sign.x, ITINERARY.sign.z, first.sign.x, first.sign.z));
   const onWalk = walkRibbonMeters(first);
   assert.equal(ITINERARY.stops[0].meters, Math.round(approach + onWalk));
   assert.ok(Math.abs(ITINERARY.stops[0].legMin - metersToMin(approach + onWalk)) < 1);
   const loop = WALKS.find((w) => w.loop && w.lakes.length > 2);
   assert.ok(loop);
   assert.ok(walkRibbonMeters(loop) > walkPathMeters(loop), 'ribbon longer than lake-center chords');
+  {
+    const A = walkLake(loop.lakes[0]), B = walkLake(loop.lakes[1]);
+    const poly = walkLinkPolyline(A, B);
+    const chord = polylineMeters(poly);
+    const cat = catmullRibbonMeters(poly);
+    assert.ok(cat >= chord * 0.98, `catmull ${cat} vs polyline ${chord}`);
+    assert.ok(Number.isFinite(cat) && cat > 0, 'catmull length finite');
+  }
   const A = walkLake(loop.lakes[0]), B = walkLake(loop.lakes[1]);
   assert.ok(walkLinkPolyline(A, B).length > 3);
   assert.equal(ITINERARY.returnToGate.atMin, m.totalMin);
@@ -159,10 +167,10 @@ assert.match(indexHtml, /Pass 46 — zig queues live in sku-kit/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
-assert.match(indexHtml, /spine lamps actually light|denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades|ride-station kit densify|Pass 46/);
+assert.match(indexHtml, /spine lamps actually light|denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades|ride-station kit densify|Pass 46|Catmull ribbon tour meters/);
 assert.match(indexHtml, /walkLinkPolyline/);
 assert.match(indexHtml, /walkSpurPolyline/);
-assert.match(indexHtml, /pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass47-catmull|pass46-stations|pass45-lamps/);
 assert.match(indexHtml, /function lamp\(x,z,lit=false\)/);
 assert.match(indexHtml, /addLampPointLight/);
 assert.match(indexHtml, /spineLampLitWest\(z\)/);
@@ -252,6 +260,8 @@ assert.match(indexHtml, /The Pocket/);
 assert.match(indexHtml, /function gateHouse/);
 assert.match(indexHtml, /function rideStation/);
 assert.match(indexHtml, /Pass 46/);
+assert.match(indexHtml, /Catmull ribbon tour meters|pass47-catmull/);
+assert.match(lockSrc, /catmullRibbonMeters/);
 assert.doesNotMatch(indexHtml, /function queueZig/);
 assert.match(readFileSync(join(dir, 'sku-kit.js'), 'utf8'), /Pass 46/);
 assert.match(indexHtml, /function lamp/);
@@ -308,4 +318,4 @@ console.log('lock tests ok', BUILDINGS.length, 'buildings');
 assert.match(indexHtml, /hubApronPath/);
 assert.match(indexHtml, /LAMP_LIGHT_CAP/);
 assert.match(indexHtml, /pass44LampLights/);
-assert.match(indexHtml, /pass46-stations|pass45-lamps/);
+assert.match(indexHtml, /pass47-catmull|pass46-stations|pass45-lamps/);
