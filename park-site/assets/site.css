@@ -502,3 +502,17 @@ a:focus-visible { outline: 1px solid var(--lamp); outline-offset: 3px; }
 .venue-nest h2 { letter-spacing: -0.02em; }
 .service-menu li span { color: var(--cream); }
 .mega-menu { margin-bottom: 1.5rem; }
+
+/* Pass 28 venue densify */
+.venue-nest{background:linear-gradient(165deg,rgba(212,165,116,.06),transparent 55%),var(--ink-3,#1a1d26);border:1px solid var(--glass-edge,rgba(210,220,240,.18));border-radius:2px;padding:1.5rem 1.45rem 1.65rem;margin:1.25rem 0}
+.venue-nest h2{font-family:var(--serif,Georgia,serif);font-weight:500;font-size:1.55rem;margin:0 0 .55rem}
+.service-menu{list-style:none;margin:1rem 0 0;padding:0;display:grid;gap:.45rem}
+.service-menu li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.55rem .75rem;border:1px solid var(--line-soft,rgba(154,163,181,.15));background:rgba(0,0,0,.22);font-size:.88rem;color:var(--mist,#9aa3b5)}
+.service-menu li a{font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--lamp,#d4a574);white-space:nowrap}
+.nest-links{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:1.15rem}
+.mega-menu{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin:1.25rem 0;padding:1rem;border:1px solid var(--line-soft,rgba(154,163,181,.15));background:rgba(0,0,0,.2)}
+.mega-menu h4{font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:var(--lamp,#d4a574);margin:0 0 .5rem;font-weight:500}
+.mega-menu ul{list-style:none;margin:0;padding:0}
+.mega-menu li{margin-bottom:.35rem}
+.mega-menu a{color:var(--mist,#9aa3b5);font-size:.88rem}
+.mega-menu a:hover{color:var(--lamp,#d4a574)}

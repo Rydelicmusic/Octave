@@ -359,3 +359,26 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** 59bc4c8 — Pass 24 (pending Pass 25 push)
 - **LINK AUDIT:** (see push note)
 
+## Check-in — Pass 28 night/day utility beats + short dual
+
+- **TIME:** 2026-09-20 13:52 CDT (America/Chicago)
+- **LANE:** shell / utility
+- **STARTED:** Tip after Pass 25 (5d32801); Pass 26–27 already by parallel lane; densify thin utilities
+- **GOING:** programs/atelier/guest/night/day night·day beats; short-slug + SKU dual; link audit
+- **NEXT:** Pass 29+ or director STOP
+- **CONSTRAINTS:** park-site/ only; MOCK locked; no rebuild
+- **SOLUTIONS:** Content modes not theme toggles; hubs expose short+SKU
+- **COMMIT / LAST COMMIT:** 5d32801 — Pass 25 (pending Pass 28 push)
+- **LINK AUDIT:** ok=2557 broken=0
+
+## Check-in — Pass 28 venue nest densify
+
+- **TIME:** 2026-09-20 13:13 CDT (America/Chicago)
+- **LANE:** lands / venues
+- **STARTED:** Tip 39d9eb7; 12 short-slug venue pages were thin redirects/aliases — densified all 12 with submenu, mega-menu, 3 MOCK desk entries, night/day, work/artist/land returns; SKU aliases remain redirects
+- **GOING:** Push Pass 28; then Pass 29 timed night programs; Pass 30 journal; Pass 31 map/tickets
+- **NEXT:** Pass 29 — concrete timed MOCK events on night-programs.html
+- **CONSTRAINTS:** park-site/ only; MOCK roster stable; LAYOUT axes; no force-push
+- **SOLUTIONS:** Short slug = canonical venue; -kiosk/-pavilion/-building = alias redirect; link audit 0 broken
+- **COMMIT / LAST COMMIT:** 39d9eb7 — Pass 27 (pending Pass 28 push)
+
