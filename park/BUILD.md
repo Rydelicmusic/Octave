@@ -161,6 +161,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 34 — denser earth / grass patches
 - Tone-varied ground discs across lands; waters / spine / buildings held
 
+## Pass 35 — itinerary return-to-Gate leg
+- Spine-shoulder return path from last walk to Gate; tour marker + Return sign; totalMin 52; spine strip clear
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -185,7 +188,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 17: named guest-walk circuit (Block Lakeshore / Board Promenade)
 - SHIPPED Pass 18: north −Z CAD corridor edges
 - SHIPPED Pass 19: park-wide guest itinerary (Park Circuit)
-- SHIPPED Pass 20: timed tour markers (45 min Park Circuit)
+- SHIPPED Pass 20: timed tour markers (Park Circuit; total now 52 min)
 - SHIPPED Pass 21: After Hours shore densify + wayfinding chevrons
 - SHIPPED Pass 22: Board shore densify
 - SHIPPED Pass 23: Block shore densify
@@ -200,6 +203,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 32: evening fog / sky
 - SHIPPED Pass 33: water rim shimmer
 - SHIPPED Pass 34: denser earth / grass patches
+- SHIPPED Pass 35: itinerary return-to-Gate leg
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL

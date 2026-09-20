@@ -192,7 +192,9 @@ export const ITINERARY = {
     { walk: 'board-promenade', atMin: 28, legMin: 10 },
     { walk: 'pocket-rim', atMin: 38, legMin: 7 },
   ],
-  totalMin: 45,
+  totalMin: 52,
+  // Pass 35 — return-to-Gate waypoint (hub SE → spine shoulder → Gate)
+  returnToGate: { x: 12, z: 180, atMin: 52 },
   // Gate apron → first stop; eye-height sign
   sign: { x: 0, z: 205, yaw: Math.PI },
 };

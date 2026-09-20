@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> earth / grass patches</div>
+  <div><b>This pass:</b> return-to-Gate itinerary leg</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -765,6 +765,25 @@ if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINE
   const w=walkById(s.walk); if(!w||!w.sign) return;
   tourMarker(i+1, s.atMin+' min', w.sign.x, w.sign.z, w.sign.yaw);
 });
+// Pass 35 — itinerary return-to-Gate leg (spine shoulder; 14 m strip clear)
+(function returnToGatePath(){
+  const last=walkById(ITINERARY.sequence[ITINERARY.sequence.length-1]);
+  const ret=ITINERARY.returnToGate;
+  if(!last||!last.sign||!ret) return;
+  const a=[last.sign.x, last.sign.z];
+  const mid=[12, 40];
+  const b=[ret.x, ret.z];
+  const gate=[0, LOCK.gate.z-8];
+  const path=[a, mid, b, [12, gate[1]], gate];
+  let ok=true;
+  for(let i=0;i<path.length-1;i++){
+    if(walkSegmentCrossesSpine(path[i][0],path[i][1],path[i+1][0],path[i+1][1])){ok=false;break;}
+  }
+  if(ok) pathRibbon(path, 3.8);
+  else pathRibbon([[12, last.sign.z],[12,180],[12, LOCK.gate.z-8]], 3.8);
+  tourMarker(ITINERARY.stops.length+1, ret.atMin+' min', ret.x, ret.z, Math.PI);
+  landSign('Return · Gate', ret.x, ret.z-6, Math.PI);
+})();
 // Pass 21 — itinerary wayfinding chevrons (hub-apron legs)
 (function wayChevrons(){
   const mat=new THREE.MeshLambertMaterial({color:0x8a4030});
