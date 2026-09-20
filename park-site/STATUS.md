@@ -113,3 +113,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Content modes not theme toggles; relative nests
 - **COMMIT / LAST COMMIT:** 8b34e5e — Pass 5 STATUS (pending Pass 6 push)
 
+## Check-in — Pass 7 hub wiring + re-audit
+
+- **TIME:** 2026-09-20 13:10 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Wire night/day into guest/tickets/journal/directory/venues; journal night entry; re-audit links (ok=2162, broken=0)
+- **GOING:** Push Pass 7; continue Pass 8 unless STOP
+- **NEXT:** Pass 8 — CSS polish / density accents
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Relative links; content modes
+- **COMMIT / LAST COMMIT:** 41538a1 — Pass 6 STATUS (pending Pass 7)
+
