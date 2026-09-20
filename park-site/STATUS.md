@@ -741,7 +741,7 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only
 - **SOLUTIONS:** Tip pointer accurate for next agent
-- **COMMIT / LAST COMMIT:** 91152ef — Pass 57 STATUS rollup
-- **TIP:** 91152efc14057cced6f13cade1bd5808a2620478
+- **COMMIT / LAST COMMIT:** 887301e — Pass 57 tip sync
+- **TIP:** 887301e1f05abbf60dc385066229b31d085f2da4
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
