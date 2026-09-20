@@ -84,6 +84,17 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Links that cross the 14 m Gate→Hub spine are refused
 - East and west large-lake spurs to spine shoulder; waters / BUILDINGS / LAYOUT unchanged
 
+## Buildings — Pocket album hall (7bda880)
+Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building).
+
+| id | land | sku | x | z | w × d × h (m) |
+|---|---|---|---:|---:|---|
+| pocket-album | The Pocket | album | 22.0 | 112.0 | 18 × 14 × 8.4 |
+
+- Inside Pocket canopy ellipse (80, 105, rx 95, rz 80); 14 m spine, hub r32, water, rings unmoved
+- Gate wings + ring stations in `lock.js` `GATE` / `STATIONS`; 3D `rideStation` iterates `STATIONS`
+- Clearance: `park/test-placement.mjs` + `park/lock.test.mjs`
+
 ## Still fake (worst next)
 1. Scalloped spine edges are procedural, not traced from blueprint CAD
 2. Guest-routing graph is k-NN, not a designed circuit with named walks
