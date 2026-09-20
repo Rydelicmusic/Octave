@@ -33,8 +33,13 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Start yaw 0 so Gate Walk looks down the 14 m asphalt spine into the hub
 - Optional `#drone` hash opens Drone at 90 m (cameras unchanged)
 
+## Pass 5 — hall facade depth
+- Album halls: recessed window bays on four faces, corner pilasters, belt + cornice
+- Front portico (columns, entablature, door recess) and stepped entry
+- Building x,z,w,d unchanged — still in-canopy, off spine, off water, inside rail
+
 ## Still fake (worst next)
-1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple)
-2. Spine is still a straight box (ribbons are on land water edges only)
-3. Tree crowns still cone+sphere, not species-varied
-4. Stay-on-path is rail-only, not ribbon-constrained
+1. Spine is still a straight box (ribbons are on land water edges only)
+2. Tree crowns still cone+sphere, not species-varied
+3. Stay-on-path is rail-only, not ribbon-constrained
+4. Kiosks/pavilions still kit-simple vs the new halls
