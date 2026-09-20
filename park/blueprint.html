@@ -24,7 +24,7 @@
 <div id="wrap"></div>
 <div class="hud" id="hud">hover grid — m</div>
 <script type="module">
-import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, walkLake, hoverLabel } from './lock.js';
+import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, walkLake, hoverLabel, spineCadPolyline, northSpineCadPolyline } from './lock.js';
 const A = LOCK.A, B = LOCK.B;
 const CX = BLUEPRINT.CX, CY = BLUEPRINT.CY, W = BLUEPRINT.W, H = BLUEPRINT.H;
 const toX = x => CX + x;
@@ -81,6 +81,16 @@ WALKS.forEach(walk => {
   svg.appendChild(t);
 });
 svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(0), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
+// Pass 18 — north −Z corridor fill (hub → stadium north rail)
+svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(-B), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
+// CAD edge strokes ±7 m (south Gate + north −Z)
+function cadEdges(poly) {
+  const d = poly.map((p, i) => `${i ? 'L' : 'M'} ${toX(p[0])} ${toY(p[1])}`).join(' ');
+  svg.appendChild(el('path', { d, fill: 'none', stroke: '#3d3428', 'stroke-width': '1.6' }));
+}
+[-1, 1].forEach(side => { cadEdges(spineCadPolyline(side)); cadEdges(northSpineCadPolyline(side)); });
+label(0, -B / 2, 'N CAD ±7', 10);
+
 svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:LOCK.hubOuter, fill:'none', stroke:'#6b5a3a', 'stroke-width':'2'}));
 svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:LOCK.hubInner, fill:'none', stroke:'#6b5a3a', 'stroke-width':'2'}));
 svg.appendChild(el('circle', {cx:toX(0), cy:toY(0), r:8, fill:'#6b5a3a'}));

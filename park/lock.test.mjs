@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
-  spineCadPolyline, WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
+  spineCadPolyline, northSpineCadPolyline, WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -94,9 +94,20 @@ assert.equal(hoverLabel(BLUEPRINT.CX + 25, BLUEPRINT.CY + 230), 'x 25 m   z 230 
   assert.equal(east[east.length - 1][1], LOCK.gate.z);
   assert.ok(west.every(([x]) => x === -half));
   assert.ok(east.every(([x]) => x === half));
+  const nWest = northSpineCadPolyline(-1);
+  const nEast = northSpineCadPolyline(1);
+  assert.equal(nWest[0][0], -half);
+  assert.equal(nEast[0][0], half);
+  assert.equal(nWest[0][1], 0);
+  assert.equal(nWest[nWest.length - 1][1], -LOCK.B);
+  assert.equal(nEast[nEast.length - 1][1], -LOCK.B);
+  assert.ok(nWest.every(([x]) => x === -half));
+  assert.ok(nEast.every(([x]) => x === half));
 }
 assert.match(indexHtml, /spineCadPolyline\(-1\)/);
 assert.match(indexHtml, /spineCadPolyline\(1\)/);
+assert.match(indexHtml, /northSpineCadPolyline\(-1\)/);
+assert.match(indexHtml, /northSpineCadPolyline\(1\)/);
 assert.doesNotMatch(indexHtml, /0\.55\*Math\.sin/);
 
 assert.match(indexHtml, /from ['"]\.\/lock\.js['"]/);

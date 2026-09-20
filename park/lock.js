@@ -110,6 +110,19 @@ export function spineCadPolyline(side, step = 8) {
 }
 
 /**
+ * Blueprint CAD edges for the north −Z corridor (mirror of Gate spine).
+ * x=±spineWidth/2, z=0 (hub) → z=−B (−230, stadium north rail).
+ */
+export function northSpineCadPolyline(side, step = 8) {
+  const x = side * (LOCK.spineWidth / 2);
+  const zEnd = -LOCK.B;
+  const pts = [];
+  for (let z = 0; z >= zEnd; z -= step) pts.push([x, z]);
+  if (pts[pts.length - 1][1] !== zEnd) pts.push([x, zEnd]);
+  return pts;
+}
+
+/**
  * Designed named guest walks (not k-NN). Lake indices into LOCK.waters.
  * Circuits stay west of the 14 m spine (Block) or east of it (Board).
  */

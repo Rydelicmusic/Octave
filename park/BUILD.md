@@ -105,8 +105,11 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - Eye-height walk-name signs; blueprint draws the same named dashed circuits
 - No walk segment crosses the 14 m Gate→Hub spine; waters / rings / hub / gate unmoved
 
+## Pass 18 — north −Z CAD corridor edges
+- `northSpineCadPolyline` mirrors Pass 16 Gate CAD: x=±7 m, z=0 (hub) → z=−230 (−B)
+- Blueprint north corridor fill + edge strokes; 14 m spine width / hub / rings / waters / BUILDINGS held
+
 ## Still fake (worst next)
-1. North −Z corridor edges are not on the 2D blueprint CAD rect (south Gate spine only)
 2. Named walks are lakeshore circuits, not a full park-wide guest itinerary
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
@@ -128,7 +131,8 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 15: guest-routing shore graph (k-NN, spine-safe)
 - SHIPPED Pass 16: CAD-traced 14 m spine edges from blueprint hover
 - SHIPPED Pass 17: named guest-walk circuit (Block Lakeshore / Board Promenade)
-- **NEXT:** Pass 18 — CAD-trace north −Z corridor edges, or a park-wide itinerary
+- SHIPPED Pass 18: north −Z CAD corridor edges
+- **NEXT:** Pass 19 — park-wide guest itinerary (named walks → full circuit)
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551
@@ -144,7 +148,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
 - **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
 - **GOING:** Park tip still Pass 16 (CAD spine edges) — Realm Engineer idle since ~13:08; site blasting Pass 58–63 on main (tip 9f4d57f)
-- **NEXT:** Park Pass 17 — named guest-walk circuit (replace k-NN shore graph); then Pass 18 north −Z CAD corridor edges
+- **NEXT:** Pass 19 — park-wide guest itinerary after Pass 18 CAD north
 - **CONSTRAINTS:** park/ only for Realm; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/rings/waters held; never touch root index.html
 - **SOLUTIONS:** Re-issued Pass 17 to Realm Engineer; Site Luxury continue Pass 64+ density; Quality spot-check live park Walk + site visit-paths/geometry
 - **COMMITS:** tip 9f4d57f site STATUS Pass 58–63; 5b7613c Pass 63 geometry artists; b947529 Pass 62 directory; park BUILD unchanged since Pass 16
