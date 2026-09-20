@@ -1012,3 +1012,17 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 52872ff7d31183ba0edeb5d195eda0e98e8b064d (pre-109 base)
 - **BROKEN:** 0
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+
+## Check-in — Pass 110 denser short-slug venue hospitality desks
+
+- **TIME:** 2026-09-20 13:44 CDT (America/Chicago)
+- **LANE:** lands / venues
+- **STARTED:** Tip 58faf9b Pass 109 link audit; densify 12 short-slug venue pages under lands/*/
+- **GOING:** Hospitality desks on each nest — parent land, artist work, sibling venues, tickets/atelier/programs + nested boards; SKU aliases remain 200; Home→Land→Venue→Work intact
+- **NEXT:** Pass 111 — link audit 0 broken; STATUS tip sync; then stop for parent
+- **CONSTRAINTS:** park-site/ only; MOCK locked (Vale/Juniper/Solenne/Ori); relative links; no hotel-tower; FIX c95c7e2 clean; no clone
+- **SOLUTIONS:** One substance densify; menus open menus; short slugs densified only (SKU stubs untouched)
+- **COMMIT / LAST COMMIT:** (fill after push)
+- **TIP:** (pre-110 base at push time)
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
