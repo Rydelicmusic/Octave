@@ -1126,3 +1126,21 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** (fill after push)
 - **FILES:** 14 nested HTML + STATUS.md
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+
+## Check-in — Pass 125 link audit + STATUS tip sync
+
+- **TIME:** 2026-09-20 13:56 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip 5c3a691 Pass 124 nested IA densify; full park-site relative href audit
+- **GOING:** 0 broken local hrefs (6829 checked); guest/index + booking/index present; 12/12 short venues; Home→Land→Venue→Work OK; FIX c95c7e2 clean; no hotel-tower language; collision-safe nested IA intact
+- **NEXT:** Stop for parent (Pass 124+125 shipped; FIX-GUEST-BOOKING-INDEX ba665e5)
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower
+- **SOLUTIONS:** Audit-only — no dead links to fix; STATUS tip sync to live
+- **COMMIT / LAST COMMIT:** (fill after push)
+- **TIP:** 5c3a6913fe0356a07f6c2887fb75f4a25726d1ee (Pass 124 base)
+- **BROKEN:** 0
+- **CHECKED:** 6829
+- **FIX_SHA:** ba665e555f100e1fb1a1d37abc912e9117ff6062
+- **PASS124_SHA:** 5c3a6913fe0356a07f6c2887fb75f4a25726d1ee
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
