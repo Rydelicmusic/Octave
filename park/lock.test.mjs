@@ -158,7 +158,7 @@ assert.match(indexHtml, /Pass 36/);
 assert.match(indexHtml, /windowGlowPass/);
 assert.match(indexHtml, /walkPathFurniture/);
 assert.match(indexHtml, /measureItinerary|totalMin/);
-assert.match(indexHtml, /hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades/);
+assert.match(indexHtml, /denser lamp PointLights|hub-apron itinerary ribbons|ribbon-length tour meters|lamp lights on facades/);
 assert.match(indexHtml, /walkLinkPolyline/);
 assert.match(indexHtml, /walkSpurPolyline/);
 assert.match(indexHtml, /pass43-apron/);
@@ -282,4 +282,6 @@ assert.doesNotMatch(blueprintHtml, /\belevator\b/i);
 console.log('lock tests ok', BUILDINGS.length, 'buildings');
 
 assert.match(indexHtml, /hubApronPath/);
+assert.match(indexHtml, /LAMP_LIGHT_CAP/);
+assert.match(indexHtml, /pass44LampLights/);
 assert.match(indexHtml, /pass43-apron/);

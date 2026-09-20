@@ -223,6 +223,11 @@ Pass 41 dropped `import { addSkuKit }` and double-bound LAND_PALETTE (Walk Synta
 - Approach/return meters use apron polylines (not sign-to-sign chords); locks held
 
 - SHIPPED Pass 43: hub-apron itinerary ribbons
+- SHIPPED Pass 44: denser lamp PointLights (cap 56)
+
+## Pass 44 — denser lamp PointLights
+- Shared `LAMP_LIGHT_CAP` (56); denser lit spine/WALKS lamps; corridor+hub lantern PointLights every other
+- Softened intensity/distance vs Pass 42 to protect fill-rate; locks held
 
 ## Still fake (worst next)
 1. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
