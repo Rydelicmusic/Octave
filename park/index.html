@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> After Hours walk furniture</div>
+  <div><b>This pass:</b> Board shore seating</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass68-ah';
+import * as LockMod from './lock.js?v=pass69-board';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1391,6 +1391,47 @@ lamp(0,-36,true);lamp(36,0,true);lamp(-36,0,true);
     if(!ok(x,z)) continue;
     benchAt(x,z,a+Math.PI/2);
     trashCan(x+1.5,z);
+  }
+})();
+
+// Pass 69 — Boardwalk shore seating clusters (Board land; waters held)
+// pass69BoardSeats
+(function pass69BoardSeats(){
+  const half=LOCK.spineWidth/2+2.5;
+  function ok(x,z){
+    if(x<70) return false; // Board only
+    if(Math.abs(x)<half) return false;
+    if(nearRing(x,z,8)) return false;
+    if(LOCK.waters.some(([cx,cz,rx,rz])=>{const dx=(x-cx)/(rx+1.5),dz=(z-cz)/(rz+1.5);return dx*dx+dz*dz<=1;})) return false;
+    if(BUILDINGS.some(b=>Math.abs(x-b.x)<b.w/2+1.5&&Math.abs(z-b.z)<b.d/2+1.5)) return false;
+    return true;
+  }
+  // clusters along Board promenade / east shore
+  const hubs=[
+    [95,20],[110,-30],[125,40],[140,-10],[105,70],[130,90],[155,15],[118,-70]
+  ];
+  hubs.forEach(([cx,cz],hi)=>{
+    for(let k=0;k<3;k++){
+      const a=k*2.1+hi*0.3;
+      const x=cx+Math.cos(a)*2.4, z=cz+Math.sin(a)*2.4;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,a+Math.PI/2);
+    }
+    if(ok(cx+3.2,cz)) trashCan(cx+3.2,cz);
+    if(ok(cx-2.8,cz+1.5)) lamp(cx-2.8,cz+1.5,hi%2===0);
+  });
+  // board-promenade walk spur densify
+  const walk=walkById('board-promenade');
+  if(walk&&walk.spur&&walk.sign){
+    const [sx,sz]=walk.spur;
+    const tx=walk.sign.x, tz=walk.sign.z;
+    const dx=tx-sx, dz=tz-sz, len=Math.hypot(dx,dz)||1;
+    const ux=dx/len, uz=dz/len, px=-uz, pz=ux;
+    for(let d=5;d<len-4;d+=6){
+      const x=sx+ux*d+px*3.5, z=sz+uz*d+pz*3.5;
+      if(!ok(x,z)) continue;
+      benchAt(x,z,Math.atan2(dx,dz)+Math.PI/2);
+    }
   }
 })();
 

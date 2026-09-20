@@ -353,6 +353,10 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Mid-loop benches/lamps/trash on after-hours-quiet spur + north seating clusters
 - Spine / waters / BUILDINGS / rings held
 
+## Pass 69 — Boardwalk shore seating
+- Seating clusters on Board land + board-promenade spur densify
+- Waters / rings / BUILDINGS / spine held
+
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
@@ -377,8 +381,9 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 21. ~~Station queue shade thin~~ — addressed Pass 66 (posts + fabric over zig)
 22. ~~Hub plaza mid litter/planters~~ — addressed Pass 67
 23. ~~After Hours mid-loop furniture~~ — addressed Pass 68
-24. Boardwalk shore still needs seating clusters
+24. ~~Boardwalk shore seating~~ — addressed Pass 69
 25. Block land still needs mid-path bollard rhythm
+26. Pocket rim still thin on south approach furniture
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -496,7 +501,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 66: station queue shade
 - SHIPPED Pass 67: hub plaza mid densify
 - SHIPPED Pass 68: After Hours walk furniture
-- **NEXT:** (await Keith) Board seating or Block bollards (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 69: Board shore seating clusters
+- **NEXT:** (await Keith) Block bollards or Pocket rim furniture (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165
