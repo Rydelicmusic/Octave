@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> hub plaza lantern ring</div>
+  <div><b>This pass:</b> ring approach aprons</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -342,6 +342,29 @@ function hubPlaza(){
 hubPlaza();
 pathRing(LOCK.rings.A.inner,LOCK.rings.A.outer,LOCK.rings.A.x,LOCK.rings.A.z);
 pathRing(LOCK.rings.B.inner,LOCK.rings.B.outer,LOCK.rings.B.x,LOCK.rings.B.z);
+// Pass 27 — ring approach aprons (rings / footprints unmoved)
+(function ringApproachAprons(){
+  function apron(ring, from){
+    const ang=Math.atan2(ring.z-from[1], ring.x-from[0]);
+    const start=[from[0], from[1]];
+    const end=[ring.x+Math.cos(ang)*(ring.outer+1.2), ring.z+Math.sin(ang)*(ring.outer+1.2)];
+    const mid=[(start[0]+end[0])/2, (start[1]+end[1])/2];
+    if(walkSegmentCrossesSpine(start[0],start[1],mid[0],mid[1])) return;
+    pathRibbon([start, mid, end], 4.2);
+    // outer curb ring just outside outer (visual only)
+    const pts=[];
+    for(let i=0;i<=48;i++){
+      const a=(i/48)*Math.PI*2;
+      pts.push([ring.x+Math.cos(a)*(ring.outer+2.4), ring.z+Math.sin(a)*(ring.outer+2.4)]);
+    }
+    pathRibbon(pts, 2.8);
+  }
+  const A=LOCK.rings.A, B=LOCK.rings.B;
+  apron(A, [22, 22]); // hub SE shoulder
+  apron(A, [12, 70]); // spine shoulder toward Pocket
+  apron(B, [22, 40]);
+  apron(B, [55, 88]); // Pocket Rim sign approach
+})();
 (function ringWalk(cx,cz,inner,outer){
   const mid=(inner+outer)/2,half=(outer-inner)/2+1.1,n=48;
   for(let i=0;i<n;i++){
