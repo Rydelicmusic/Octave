@@ -129,6 +129,7 @@ assert.ok(ITINERARY.stops.every((s) => s.atMin >= 0 && walkById(s.walk)));
 assert.match(indexHtml, /tourMarker/);
 assert.match(indexHtml, /afterHoursShore/);
 assert.match(indexHtml, /wayChevrons/);
+assert.match(indexHtml, /boardShore/);
 
 
 assert.ok(ITINERARY.sequence.every((id) => walkById(id)));

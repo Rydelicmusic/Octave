@@ -122,6 +122,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - Second shore band on waters with cz < −5; itinerary chevrons on hub-apron legs (off spine strip)
 - Waters / spine / rings / BUILDINGS held
 
+## Pass 22 — Board shore densify
+- Second shore band on waters with cx > 80 (The Board); waters / locks held
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -148,6 +151,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 19: park-wide guest itinerary (Park Circuit)
 - SHIPPED Pass 20: timed tour markers (45 min Park Circuit)
 - SHIPPED Pass 21: After Hours shore densify + wayfinding chevrons
+- SHIPPED Pass 22: Board shore densify
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
