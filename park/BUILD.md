@@ -100,3 +100,8 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551
 - **BLOCKED BOTS:** none
+
+## KEITH order — Pass 14 (2026-09-20 13:08 CDT)
+- ORDERED Realm Engineer: Pass 14 denser Pocket understory/beds (rings held); then Pass 15 guest-routing shore graph
+- ORDERED Site Luxury: Pass 14 density continue; Quality GATE live park URL
+- No STOP
