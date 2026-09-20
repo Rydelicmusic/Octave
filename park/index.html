@@ -137,15 +137,121 @@ for (let i = 0; i < 28; i++) {
   treeClump(Math.cos(t) * (A - jitter), Math.sin(t) * (B - jitter), 6 + (i % 4));
 }
 
-// Gate volume — readable edge, not a castle
-const gateMat = new THREE.MeshStandardMaterial({ color: 0x3d3428, roughness: 0.75 });
-const postL = new THREE.Mesh(new THREE.BoxGeometry(2.2, 6, 2.2), gateMat);
-const postR = postL.clone();
-postL.position.set(-8, 3, B + 36);
-postR.position.set(8, 3, B + 36);
-const lintel = new THREE.Mesh(new THREE.BoxGeometry(18, 1.2, 2.4), gateMat);
-lintel.position.set(0, 6.2, B + 36);
-scene.add(postL, postR, lintel);
+// Path curbs — human-scale edges along Gate → Hub (raised ~0.15 m, ~0.35 m wide)
+const curbMat = new THREE.MeshStandardMaterial({ color: 0x4a4034, roughness: 0.82 });
+const CURB_W = 0.35;
+const CURB_H = 0.15;
+function makePathCurb(xInnerGate, xInnerHub, outward) {
+  // Shape XY → Extrude Z → rot -X → world XZ path with height in Y
+  const o = outward; // -1 left, +1 right
+  const shape = new THREE.Shape();
+  const x0a = xInnerGate;
+  const x0b = xInnerGate + o * CURB_W;
+  const x1a = xInnerHub;
+  const x1b = xInnerHub + o * CURB_W;
+  // y of shape maps to -world Z after rot
+  shape.moveTo(x0a, -(B + 40));
+  shape.lineTo(x0b, -(B + 40));
+  shape.lineTo(x1b, 0);
+  shape.lineTo(x1a, 0);
+  shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: CURB_H, bevelEnabled: false });
+  const mesh = new THREE.Mesh(geo, curbMat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.05;
+  scene.add(mesh);
+}
+makePathCurb(-4, -6, -1);
+makePathCurb(4, 6, 1);
+
+// Hub ring thin curb (outer + inner lip)
+function hubCurbRing(radius) {
+  const t = new THREE.Mesh(
+    new THREE.TorusGeometry(radius, 0.08, 6, 48),
+    curbMat
+  );
+  t.rotation.x = Math.PI / 2;
+  t.position.y = 0.14;
+  scene.add(t);
+}
+hubCurbRing(18);
+hubCurbRing(32);
+
+// Gate volume — thick stone tunnel you walk through (not posts)
+const gateStone = new THREE.MeshStandardMaterial({ color: 0x3a3228, roughness: 0.78 });
+const gateStoneDark = new THREE.MeshStandardMaterial({ color: 0x2c261e, roughness: 0.85 });
+const gateAccent = new THREE.MeshStandardMaterial({ color: 0x4a4032, roughness: 0.7 });
+const GATE_Z = B + 34;       // tunnel center (spawn at B+40 looks through toward Pocket)
+const GATE_DEPTH = 10;       // ~8–12 m deep
+const GATE_OPEN_W = 7;       // clear opening width
+const GATE_OPEN_H = 5.5;     // clear opening height
+const WALL_T = 4.5;          // thick side walls
+const GATE_H = 8.5;          // outer height
+const OUTER_W = GATE_OPEN_W + WALL_T * 2; // ~16 m massing width
+
+const gateGroup = new THREE.Group();
+gateGroup.position.set(0, 0, GATE_Z);
+
+// Left / right wall volumes (full depth)
+const wallGeo = new THREE.BoxGeometry(WALL_T, GATE_H, GATE_DEPTH);
+const wallL = new THREE.Mesh(wallGeo, gateStone);
+wallL.position.set(-(GATE_OPEN_W / 2 + WALL_T / 2), GATE_H / 2, 0);
+const wallR = new THREE.Mesh(wallGeo, gateStone);
+wallR.position.set(GATE_OPEN_W / 2 + WALL_T / 2, GATE_H / 2, 0);
+gateGroup.add(wallL, wallR);
+
+// Roof / lintel slab over opening (full depth)
+const roof = new THREE.Mesh(
+  new THREE.BoxGeometry(GATE_OPEN_W + 0.4, GATE_H - GATE_OPEN_H, GATE_DEPTH),
+  gateStone
+);
+roof.position.set(0, GATE_OPEN_H + (GATE_H - GATE_OPEN_H) / 2, 0);
+gateGroup.add(roof);
+
+// Floor threshold inside tunnel
+const threshold = new THREE.Mesh(
+  new THREE.BoxGeometry(GATE_OPEN_W, 0.2, GATE_DEPTH),
+  gateStoneDark
+);
+threshold.position.set(0, 0.1, 0);
+gateGroup.add(threshold);
+
+// Outer / inner face frames (read as depth + arch mass)
+function faceFrame(zLocal) {
+  const g = new THREE.Group();
+  // side returns
+  const retGeo = new THREE.BoxGeometry(1.2, GATE_H + 0.4, 1.4);
+  const retL = new THREE.Mesh(retGeo, gateAccent);
+  retL.position.set(-(OUTER_W / 2 + 0.2), (GATE_H + 0.4) / 2, zLocal);
+  const retR = retL.clone();
+  retR.position.x = OUTER_W / 2 + 0.2;
+  // crowning band
+  const crown = new THREE.Mesh(
+    new THREE.BoxGeometry(OUTER_W + 2.8, 1.1, 1.6),
+    gateAccent
+  );
+  crown.position.set(0, GATE_H + 0.15, zLocal);
+  // arched reveal as stepped soffit over opening
+  const soffit = new THREE.Mesh(
+    new THREE.BoxGeometry(GATE_OPEN_W + 1.2, 0.7, 1.2),
+    gateStoneDark
+  );
+  soffit.position.set(0, GATE_OPEN_H + 0.15, zLocal);
+  g.add(retL, retR, crown, soffit);
+  return g;
+}
+gateGroup.add(faceFrame(-GATE_DEPTH / 2 + 0.3));
+gateGroup.add(faceFrame(GATE_DEPTH / 2 - 0.3));
+
+// Interior side liners (darker, read the tunnel)
+const linerGeo = new THREE.BoxGeometry(0.35, GATE_OPEN_H, GATE_DEPTH - 0.8);
+const linerL = new THREE.Mesh(linerGeo, gateStoneDark);
+linerL.position.set(-(GATE_OPEN_W / 2 - 0.15), GATE_OPEN_H / 2, 0);
+const linerR = linerL.clone();
+linerR.position.x = GATE_OPEN_W / 2 - 0.15;
+gateGroup.add(linerL, linerR);
+
+scene.add(gateGroup);
 
 // Hub marker (The Pocket) — abstract ring, no IP
 const pocket = new THREE.Mesh(
