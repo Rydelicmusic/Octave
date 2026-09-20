@@ -868,10 +868,11 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 13:31 CDT (America/Chicago)
 - **LANE:** atelier
 - **STARTED:** Passes 82–87 from tip afcd107 / main raced with park Pass 20
-- **GOING:** Tip pending
+- **GOING:** Tip 4587d56; audits clean
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; MOCK; LAYOUT; substance-first; FF retries
 - **SOLUTIONS:** Visit desks; guest boards; tickets measure; venue voice; journal hours; atelier Gate order
-- **COMMIT / LAST COMMIT:** b19a87a — Pass 86
+- **COMMIT / LAST COMMIT:** 4587d56 — Pass 87
+- **TIP:** 4587d56ed30cb6ab66b2000760ce71997fb0004a
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
