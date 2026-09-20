@@ -1277,11 +1277,30 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:12 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip b5b11ad (Pass 166 parallel); NEW nested IA not mega strips
-- **GOING:** Tip pending
+- **GOING:** Tip 8423774; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
 - **SOLUTIONS:** NEW paths/ (6); guest arrivals/hours/party; booking hold/party/axis-night; notes material essays (3); materials finish/warm-glass; land hours (4); thin submenu wires only
-- **COMMIT / LAST COMMIT:** 43fff49 — Pass 172
+- **COMMIT / LAST COMMIT:** 8423774 — Pass 173
+- **TIP:** 84237745bc3a5300c6525010e8eada98d65c438b
 - **COLLISIONS:** NONE
+- **AUDIT:** 8176 OK / 0 broken (pre-push)
+- **PAGES:** building
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `paths/hub-circuit.html` | 200 |
+| `paths/axis-block.html` | 200 |
+| `guest/arrivals.html` | 200 |
+| `guest/hours.html` | 200 |
+| `booking/hold.html` | 200 |
+| `booking/axis-night.html` | 200 |
+| `notes/lamps-night.html` | 200 |
+| `materials/finish.html` | 200 |
+| `lands/the-block/hours.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
