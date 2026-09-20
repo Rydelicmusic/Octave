@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> tour mid-leg pause seating</div>
+  <div><b>This pass:</b> Gate secondary queue furniture</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass60-pause';
+import * as LockMod from './lock.js?v=pass61-gateq';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -734,6 +734,48 @@ gateHouse();
     const b=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.25,0.9,8),stoneDark);
     b.position.set(x,0.45,z-4);scene.add(b);
   }
+  // Pass 61 — secondary queue furniture beyond ticket rails (GATE / spine held)
+  const railMat=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  const postMat=new THREE.MeshLambertMaterial({color:0x3d3428});
+  const brass=new THREE.MeshLambertMaterial({color:0xb08a4a});
+  function outerLane(side){
+    // parallel queue lane further out on arrival pad
+    const qx=side*9.5;
+    for(let i=0;i<6;i++){
+      const qz=z-6-i*1.35;
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post.position.set(qx,0.5,qz);scene.add(post);
+      const cap=new THREE.Mesh(new THREE.SphereGeometry(0.1,6,5),brass);
+      cap.position.set(qx,1.05,qz);scene.add(cap);
+      const post2=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.0,6),postMat);
+      post2.position.set(qx+side*1.1,0.5,qz);scene.add(post2);
+      if(i<5){
+        const rail=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,1.25),railMat);
+        rail.position.set(qx,0.92,qz-0.65);scene.add(rail);
+        const rail2=rail.clone();rail2.position.x=qx+side*1.1;scene.add(rail2);
+      }
+    }
+    // waiting bench beside outer lane
+    const seat=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.12,0.5),stone);
+    seat.position.set(side*14,0.44,z-12);seat.rotation.y=side>0?-0.2:0.2;scene.add(seat);
+    const back=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.4,0.08),stone);
+    back.position.set(side*14,0.7,z-12.25);back.rotation.y=side>0?-0.2:0.2;scene.add(back);
+  }
+  outerLane(-1);outerLane(1);
+  // denser bollards on approach (skip spine center)
+  for(let x=-12;x<=12;x+=3){
+    if(Math.abs(x)<3.5) continue;
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.85,8),stoneDark);
+    b.position.set(x,0.42,z-16);scene.add(b);
+  }
+  // info / map pedestals off spine
+  [-1,1].forEach(side=>{
+    const ped=new THREE.Mesh(new THREE.BoxGeometry(1.1,1.2,0.35),stoneDark);
+    ped.position.set(side*11,0.7,z-20);scene.add(ped);
+    const top=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.08,0.5),stone);
+    top.position.set(side*11,1.35,z-20);scene.add(top);
+  });
+
 })();
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});
 const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});

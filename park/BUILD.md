@@ -322,6 +322,10 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - Benches + trash along hub-apron itinerary legs between tour stops
 - Spine strip / waters / BUILDINGS skipped; LAYOUT itinerary held
 
+## Pass 61 — Gate secondary queue furniture
+- Outer parallel queue lanes + waiting benches; denser approach bollards; info pedestals
+- GATE footprints + 14 m spine held
+
 ## Still fake (worst next)
 1. ~~Ride-station kit body / zig queues~~ — addressed Pass 46 (zig in sku-kit; denser shed)
 2. ~~Tour meters hub-apron chords~~ — addressed Pass 47 (Catmull ribbon sample length)
@@ -338,8 +342,9 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 13. ~~Guest seating thin~~ — addressed Pass 58 (WALKS/canopy/Gate/corridor benches)
 14. ~~Canopy understory soft~~ — addressed Pass 59 (beds + clumps under canopies)
 15. ~~Tour mid-leg pause seating thin~~ — addressed Pass 60 (hub-apron pause benches)
-16. Gate arrival still light on secondary queue furniture beyond ticket rails
+16. ~~Gate secondary queue thin~~ — addressed Pass 61 (outer lanes/bollards/info)
 17. SKU service doors still bare (no loading apron polish)
+18. Night fog still uniform (little local mist near water)
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -449,7 +454,8 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - SHIPPED Pass 58: guest seating densify (WALKS/canopy/Gate/corridor)
 - SHIPPED Pass 59: canopy understory densify (beds/clumps; ellipses held)
 - SHIPPED Pass 60: tour mid-leg pause seating (hub-apron benches)
-- **NEXT:** (await Keith) Gate secondary queue furniture or SKU service aprons (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
+- SHIPPED Pass 61: Gate secondary queue furniture (outer lanes; GATE/spine held)
+- **NEXT:** (await Keith) SKU service aprons or water mist (was: Pass 46 — ride-station kit body: fold Pass-36 zig queues into kit rails; densify shed body (STATIONS / rings held). Site Pass 167+ collision-safe nested density + periodic link audit.
 - **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/GATE/STATIONS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
 - **SOLUTIONS:** Ordered Pass 46 to Realm Engineer; Site Luxury continue Pass 167+ (no self-STOP); Quality live Walk + site hub probes (note Pages errored)
 - **COMMITS:** b5b11ad site Pass 166; 46ca18d buildings pass 28 gate queues; b0cec02 Pass 45 spine lamps; 4a60b3f STATUS Pass 165
