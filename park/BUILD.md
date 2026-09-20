@@ -202,9 +202,14 @@ Callable `park/sku-kit.js` `skuKit()` always emits roof, overhang, window, queue
 - `measureItinerary()` uses ribbon meters / LOCK.walk (1.34 m/s); 3D `linkLakes` consumes `walkLinkPolyline`
 - Layout locks / WALKS / rings / waters unmoved
 
+## Pass 42 — lamp PointLights on facades
+- Spine / hub / selected WALKS lamps emit `PointLight` (warm 0xffe1b0) so Lambert building walls pick up night light
+- Window glow remains; count capped (every ~42 m on spine, sparse on walk furniture)
+- Layout locks unmoved
+
 ## Still fake (worst next)
 1. Approach/return legs are still sign-to-sign chords, not hub-apron ribbons
-2. Night facade lighting is emissive panes only (no lamp contribution on walls)
+2. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
