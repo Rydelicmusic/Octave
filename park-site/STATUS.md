@@ -1445,10 +1445,10 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 | Path | HTTP |
 |------|------|
 | `/` | 200 |
-| `court/index.html` | 404 |
-| `court/pocket.html` | 404 |
-| `artists/vale-mercer/press.html` | 404 |
-| `artists/ori-hale/setlist.html` | 404 |
+| `court/index.html` | 200 |
+| `court/pocket.html` | 200 |
+| `artists/vale-mercer/press.html` | 200 |
+| `artists/ori-hale/setlist.html` | 200 |
 | `measure/hub-meter.html` | 200 |
 | `measure/day-grid.html` | 200 |
 | `guest/lounge.html` | 200 |
@@ -1456,6 +1456,32 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 | `paths/night-loop.html` | 200 |
 | `materials/velvet.html` | 200 |
 | `notes/hub-spoke.html` | 200 |
+
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+## Check-in — Pass 191 re-probe
+
+- **TIME:** 2026-09-20 14:25 CDT (America/Chicago)
+- **LANE:** shell
+- **NOTE:** court/ + press/setlist first probe 404 = Pages lag for new paths; re-probe below
+- **PAGES:** errored
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `court/index.html` | 200 |
+| `court/pocket.html` | 200 |
+| `artists/vale-mercer/press.html` | 200 |
+| `artists/ori-hale/setlist.html` | 200 |
+| `measure/hub-meter.html` | 200 |
+| `guest/lounge.html` | 200 |
+| `booking/receipt.html` | 200 |
+| `paths/night-loop.html` | 200 |
+| `materials/velvet.html` | 200 |
+| `notes/hub-spoke.html` | 200 |
+| `measure/day-grid.html` | 200 |
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
