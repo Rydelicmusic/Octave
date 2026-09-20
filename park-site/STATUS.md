@@ -1355,8 +1355,32 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 | Path | HTTP |
 |------|------|
 | `/` | 200 |
-| `roster/index.html` | 404 |
-| `roster/vale-mercer.html` | 404 |
+| `roster/index.html` | 200 (lag→200) |
+| `roster/vale-mercer.html` | 200 (lag→200) |
+| `artists/vale-mercer/hours.html` | 200 |
+| `artists/ori-hale/stage.html` | 200 |
+| `paths/song-loop.html` | 200 |
+| `booking/confirm.html` | 200 |
+| `guest/access.html` | 200 |
+| `materials/dark-metal.html` | 200 |
+| `notes/gate-arrival.html` | 200 |
+
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+## Check-in — Pass 182 re-probe
+
+- **TIME:** 2026-09-20 14:19 CDT (America/Chicago)
+- **LANE:** shell
+- **NOTE:** roster/ 404 was Pages lag for new dir; re-probe all 200
+- **PAGES:** built
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `roster/index.html` | 200 |
+| `roster/vale-mercer.html` | 200 |
 | `artists/vale-mercer/hours.html` | 200 |
 | `artists/ori-hale/stage.html` | 200 |
 | `paths/song-loop.html` | 200 |
