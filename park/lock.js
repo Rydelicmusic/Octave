@@ -37,6 +37,29 @@ export const LOCK = {
   ],
 };
 
+export const RINGS = [
+  { id: 'A', ...LOCK.rings.A },
+  { id: 'B', ...LOCK.rings.B },
+];
+
+export const LAND_PALETTE = {
+  'The Block': { body: 0x6a4030, trim: 0x3a2418, roof: 0x3a2a22, window: 0x8ec4d4, marquee: 0xc45c3a, queue: 0x4a3a28, door: 0x2a1c16 },
+  'After Hours': { body: 0x2a2438, trim: 0x1a1428, roof: 0x1a1524, window: 0xd4a0ff, marquee: 0x6a4cff, queue: 0x3a3050, door: 0x161018 },
+  'The Board': { body: 0xc4b08a, trim: 0x6a5840, roof: 0x5a4030, window: 0x7eb8e8, marquee: 0xd4a04a, queue: 0x6a5438, door: 0x3a2a1c },
+  'The Pocket': { body: 0x5a4a38, trim: 0x3d3428, roof: 0x3d3428, window: 0xa8d4c8, marquee: 0xc9b48a, queue: 0x4a3a28, door: 0x2b241c },
+  Gate: { body: 0x5a4634, trim: 0x3d2e22, roof: 0x2b241c, window: 0x1a2430, marquee: 0xc9b48a, queue: 0x3d3428, door: 0x1e1812 },
+};
+
+export function skuSpec(p) {
+  return {
+    w: p.w, d: p.d, h: p.h,
+    eaves: p.sku === 'kiosk' ? 0.55 : p.sku === 'pavilion' ? 0.95 : 1.3,
+    roofH: p.sku === 'kiosk' ? 1.15 : p.sku === 'pavilion' ? 1.75 : 2.5,
+    queueL: p.queueL ?? 0,
+    queueW: p.queueW ?? Math.min(p.w * 0.85, 4.2),
+  };
+}
+
 /** Blueprint SVG: origin is viewBox center; +x east, +z south (same as 3D). */
 export const BLUEPRINT = {
   PAD: 80,
@@ -135,3 +158,106 @@ export const BUILDINGS = [
   { id: 'pocket-song-b', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Kiosk B', x: 118, z: 140, w: 3.6, d: 3.6, h: 3.1, yaw: 0.3, body: 0x6a7a68, trim: 0x243028 },
   { id: 'pocket-song-c', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Cart', x: 70, z: 130, w: 3.6, d: 3.6, h: 3.05, yaw: 0.15, body: 0x6a7a68, trim: 0x243028 },
 ];
+
+/** Gate house wings on the south rail. 18 m opening keeps the 14 m spine walkable. */
+export const GATE = [
+  { id: 'gate-west', name: 'Gate West', sku: 'album', land: 'Gate', role: 'gate', x: -13.5, z: 233, w: 9, d: 7.2, h: 8.6, yaw: 0, body: 0x5a4634, trim: 0x3d2e22 },
+  { id: 'gate-east', name: 'Gate East', sku: 'album', land: 'Gate', role: 'gate', x: 13.5, z: 233, w: 9, d: 7.2, h: 8.6, yaw: 0, body: 0x5a4634, trim: 0x3d2e22 },
+];
+
+export function stationPose(ringId, ang) {
+  const r = LOCK.rings[ringId];
+  const dist = r.outer + 9;
+  return { x: r.x + Math.cos(ang) * dist, z: r.z + Math.sin(ang) * dist, ang };
+}
+
+const stationA = stationPose('A', -2.4);
+const stationB = stationPose('B', -0.6);
+
+/** Ride stations beside locked rings. Rings stay at (95,95) and (118,108). */
+export const STATIONS = [
+  { id: 'station-a', name: 'Ring A', sku: 'pavilion', land: 'The Board', role: 'station', ring: 'A', x: stationA.x, z: stationA.z, ang: stationA.ang, w: 14, d: 7.5, h: 4.05, yaw: -stationA.ang + Math.PI / 2, body: 0x6a5844, trim: 0x3d3428 },
+  { id: 'station-b', name: 'Ring B', sku: 'kiosk', land: 'The Board', role: 'station', ring: 'B', x: stationB.x, z: stationB.z, ang: stationB.ang, w: 8, d: 6, h: 3.6, yaw: -stationB.ang + Math.PI / 2, body: 0x6a5844, trim: 0x3d3428 },
+];
+
+export const PLACEMENTS = [...BUILDINGS, ...GATE, ...STATIONS];
+
+export function occupancyAABB(b) {
+  const hw = b.w / 2, hd = b.d / 2;
+  return { minX: b.x - hw, maxX: b.x + hw, minZ: b.z - hd, maxZ: b.z + hd };
+}
+
+function clamp(v, a, b) {
+  return Math.max(a, Math.min(b, v));
+}
+
+export function aabbHitsCircle(aabb, cx, cz, r) {
+  const qx = clamp(cx, aabb.minX, aabb.maxX);
+  const qz = clamp(cz, aabb.minZ, aabb.maxZ);
+  return Math.hypot(qx - cx, qz - cz) < r;
+}
+
+export function aabbHitsEllipse(aabb, cx, cz, rx, rz) {
+  const nx0 = (aabb.minX - cx) / rx, nx1 = (aabb.maxX - cx) / rx;
+  const nz0 = (aabb.minZ - cz) / rz, nz1 = (aabb.maxZ - cz) / rz;
+  const minX = Math.min(nx0, nx1), maxX = Math.max(nx0, nx1);
+  const minZ = Math.min(nz0, nz1), maxZ = Math.max(nz0, nz1);
+  const qx = clamp(0, minX, maxX);
+  const qz = clamp(0, minZ, maxZ);
+  return qx * qx + qz * qz < 1;
+}
+
+export function aabbHitsAabb(a, b) {
+  return a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
+}
+
+export function hitsHub(aabb) {
+  return aabbHitsCircle(aabb, 0, 0, LOCK.hubOuter);
+}
+
+export function hitsSpine(aabb) {
+  return aabbHitsAabb(aabb, {
+    minX: -LOCK.spineWidth / 2,
+    maxX: LOCK.spineWidth / 2,
+    minZ: 0,
+    maxZ: LOCK.B,
+  });
+}
+
+export function hitsWater(aabb) {
+  return LOCK.waters.some(([x, z, rx, rz]) => aabbHitsEllipse(aabb, x, z, rx, rz));
+}
+
+export function hitsRail(aabb, role) {
+  const pts = [
+    [aabb.minX, aabb.minZ], [aabb.maxX, aabb.minZ],
+    [aabb.minX, aabb.maxZ], [aabb.maxX, aabb.maxZ],
+  ];
+  for (const [x, z] of pts) {
+    if (inStadium(x, z)) continue;
+    if (role === 'gate' && z >= LOCK.B - 2 && z <= LOCK.B + 8 && Math.abs(x) <= 40) continue;
+    return true;
+  }
+  return false;
+}
+
+export function stationBesideRing(s) {
+  const r = LOCK.rings[s.ring];
+  if (!r) return false;
+  if (aabbHitsCircle(occupancyAABB(s), r.x, r.z, r.outer)) return false;
+  return Math.hypot(s.x - r.x, s.z - r.z) < r.outer + 28;
+}
+
+export function placementIssues(p) {
+  const issues = [];
+  if (!['kiosk', 'pavilion', 'album'].includes(p.sku)) issues.push('sku');
+  const occ = occupancyAABB(p);
+  if (hitsHub(occ)) issues.push('hub');
+  if (hitsSpine(occ)) issues.push('spine');
+  if (hitsWater(occ)) issues.push('water');
+  if (hitsRail(occ, p.role)) issues.push('rail');
+  if (p.role !== 'gate' && p.role !== 'station' && !inCanopy(p.x, p.z, p.land)) issues.push('canopy');
+  if (p.role === 'station' && !stationBesideRing(p)) issues.push('station');
+  if (p.role === 'gate' && (occ.maxZ < LOCK.B - 12 || occ.minZ > LOCK.B + 8)) issues.push('gate');
+  return issues;
+}

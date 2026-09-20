@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  LOCK, BUILDINGS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
-  onSpine, nearRing, hoverLabel, svgToMeters,
+  LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
+  onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -122,7 +122,25 @@ assert.doesNotMatch(indexHtml, /\bhotel\b/i);
 assert.doesNotMatch(indexHtml, /\btower\b/i);
 assert.doesNotMatch(indexHtml, /\belevator\b/i);
 
+assert.equal(GATE.length, 2);
+assert.equal(STATIONS.length, 2);
+for (const g of GATE) {
+  assert.deepEqual(placementIssues(g), [], g.id);
+  assert.equal(hitsSpine(occupancyAABB(g)), false, g.id);
+}
+{
+  const maxWest = Math.max(...GATE.filter((g) => g.x < 0).map((g) => occupancyAABB(g).maxX));
+  const minEast = Math.min(...GATE.filter((g) => g.x > 0).map((g) => occupancyAABB(g).minX));
+  assert.ok(minEast - maxWest >= LOCK.spineWidth, 'gate opening');
+}
+for (const s of STATIONS) {
+  assert.ok(stationBesideRing(s), s.id);
+  assert.deepEqual(placementIssues(s), [], s.id);
+}
+
 assert.match(blueprintHtml, /from ['"]\.\/lock\.js['"]/);
+assert.match(blueprintHtml, /GATE/);
+assert.match(blueprintHtml, /STATIONS/);
 assert.match(blueprintHtml, /hoverLabel/);
 assert.match(blueprintHtml, /id="hud"/);
 assert.doesNotMatch(blueprintHtml, /\bhotel\b/i);

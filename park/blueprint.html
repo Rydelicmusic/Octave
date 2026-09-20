@@ -24,7 +24,7 @@
 <div id="wrap"></div>
 <div class="hud" id="hud">hover grid — m</div>
 <script type="module">
-import { LOCK, BLUEPRINT, BUILDINGS, hoverLabel } from './lock.js';
+import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, hoverLabel } from './lock.js';
 const A = LOCK.A, B = LOCK.B;
 const CX = BLUEPRINT.CX, CY = BLUEPRINT.CY, W = BLUEPRINT.W, H = BLUEPRINT.H;
 const toX = x => CX + x;
@@ -61,8 +61,8 @@ svg.appendChild(el('rect', {x:toX(-18), y:toY(0), width:36, height:B+20, fill:'#
 LOCK.waters.forEach(([x,z,rx,rz]) => svg.appendChild(el('ellipse', {cx:toX(x), cy:toY(z), rx, ry:rz, fill:'#8bb8c4', stroke:'#5a8a96', 'stroke-width':'1'})));
 svg.appendChild(el('ellipse', {cx:toX(LOCK.rings.A.x), cy:toY(LOCK.rings.A.z), rx:LOCK.rings.A.outer, ry:LOCK.rings.A.inner, fill:'none', stroke:'#7a6a55', 'stroke-width':'3'}));
 svg.appendChild(el('ellipse', {cx:toX(LOCK.rings.B.x), cy:toY(LOCK.rings.B.z), rx:LOCK.rings.B.outer+1, ry:LOCK.rings.B.inner+4, fill:'none', stroke:'#7a6a55', 'stroke-width':'3'}));
-BUILDINGS.forEach(b => {
-  const fill = b.sku === 'album' ? '#8a5a3a' : b.sku === 'pavilion' ? '#b08960' : '#c9b48a';
+[...BUILDINGS, ...GATE, ...STATIONS].forEach(b => {
+  const fill = b.role === 'gate' ? '#4a3a28' : b.role === 'station' ? '#6a5844' : b.sku === 'album' ? '#8a5a3a' : b.sku === 'pavilion' ? '#b08960' : '#c9b48a';
   svg.appendChild(el('rect', {x:toX(b.x - b.w/2), y:toY(b.z - b.d/2), width:b.w, height:b.d, fill, opacity:'0.9', stroke:'#3d3428', 'stroke-width':'0.8'}));
 });
 svg.appendChild(el('path', {d:stadiumPath(A, B), fill:'none', stroke:'#2b241c', 'stroke-width':'6'}));
