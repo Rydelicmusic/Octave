@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> PathRibbon curb companions</div>
+  <div><b>This pass:</b> Gate approach densify</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass64-ribbon';
+import * as LockMod from './lock.js?v=pass65-gate';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -803,6 +803,34 @@ gateHouse();
     const top=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.08,0.5),stone);
     top.position.set(side*11,1.35,z-20);scene.add(top);
   });
+  // Pass 65 — denser Gate approach beyond Pass 61 (GATE footprints + spine held)
+  // pass65GateApproach
+  (function pass65GateApproach(){
+    for(let i=0;i<5;i++){
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(22,0.04,0.55),new THREE.MeshLambertMaterial({color:0xd8d0c0}));
+      bar.position.set(0,0.17,z-7-i*1.1);scene.add(bar);
+    }
+    [-1,1].forEach(side=>{
+      for(let k=0;k<3;k++){
+        const pz=z-24-k*5;
+        const planter=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.25,0.5,10),stone);
+        planter.position.set(side*16,0.25,pz);scene.add(planter);
+        const bush=new THREE.Mesh(new THREE.SphereGeometry(0.95,8,6),new THREE.MeshLambertMaterial({color:0x2f5a32}));
+        bush.position.set(side*16,0.95,pz);scene.add(bush);
+      }
+      for(let i=0;i<4;i++){
+        const qz=z-7-i*1.6;
+        const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,2.4,6),postMat);
+        pole.position.set(side*9.5+side*0.55,1.2,qz);scene.add(pole);
+      }
+      const shade=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.06,6.2),new THREE.MeshLambertMaterial({color:0xc4a574}));
+      shade.position.set(side*10.05,2.35,z-10);scene.add(shade);
+    });
+    [-1,1].forEach(side=>{
+      const can=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.32,0.85,8),stoneDark);
+      can.position.set(side*7.5,0.42,z-22);scene.add(can);
+    });
+  })();
 
 })();
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});
