@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> corridor path lanterns</div>
+  <div><b>This pass:</b> hub plaza lantern ring</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -218,6 +218,21 @@ addWalkSeg(-11,B,11,B,10);
     const half=LOCK.spineWidth/2+0.85;
     for(let z=12;z<=LOCK.gate.z-8;z+=28){lantern(-half,z);lantern(half,z);}
     for(let z=-12;z>=-LOCK.B+8;z-=28){lantern(-half,z);lantern(half,z);}
+  })();
+  // Pass 26 — hub plaza lantern ring (outside hubOuter; gaps at ±Z spine)
+  (function hubLanternRing(){
+    const postMat=new THREE.MeshLambertMaterial({color:0x2b241c});
+    const lampMat=new THREE.MeshLambertMaterial({color:0xe8d4a0, emissive:0x6a5830, emissiveIntensity:0.4});
+    const r=LOCK.hubOuter+2.2;
+    for(let i=0;i<16;i++){
+      const a=(i/16)*Math.PI*2;
+      if(Math.abs(Math.sin(a))>0.92) continue; // spine gaps
+      const x=Math.cos(a)*r, z=Math.sin(a)*r;
+      const g=new THREE.Group();
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,2.2,6),postMat);post.position.y=1.1;g.add(post);
+      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.26,8,6),lampMat);lamp.position.y=2.35;g.add(lamp);
+      g.position.set(x,0,z);scene.add(g);
+    }
   })();
   const half=w/2;
   addWalkSeg(0,0,0,B,half+1.2);

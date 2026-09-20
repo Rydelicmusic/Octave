@@ -134,6 +134,9 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 ## Pass 25 — corridor path lanterns
 - Lantern posts outside ±7 m CAD edges on Gate +Z and north −Z corridors; spine width / locks held
 
+## Pass 26 — hub plaza lantern ring
+- 16-ish lanterns on r≈hubOuter+2.2 with ±Z spine gaps; hub / spine / locks held
+
 ## Still fake (worst next)
 1. Tour times are authored estimates, not GPS-measured walk durations
 
@@ -164,6 +167,7 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 23: Block shore densify
 - SHIPPED Pass 24: Pocket shore densify
 - SHIPPED Pass 25: corridor path lanterns
+- SHIPPED Pass 26: hub plaza lantern ring
 - **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
