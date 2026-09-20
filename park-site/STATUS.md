@@ -277,3 +277,28 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** 688c781 — Pass 19 STATUS
 - **BLOCKER:** GitHub Pages status=errored (legacy source main:/). New paths may lag/404 until build recovers.
 
+
+
+## Check-in — FIX-VENUE-404 short-slug nests
+
+- **TIME:** 2026-09-20 13:07 CDT (America/Chicago)
+- **LANE:** lands / Quality GATE
+- **STARTED:** Quality GATE FAIL — 12 short-slug Land→Venue hrefs 404; SKU aliases redirected into missing files
+- **GOING:** Shipped 12 short-slug venue HTML nests so SKU redirects + menus resolve 200
+- **NEXT:** Continue density; Quality re-gate Land→Venue
+- **CONSTRAINTS:** park-site/ only; MOCK roster; no rebuild
+- **SOLUTIONS:** Real venue pages at short slugs; leave *-kiosk/*-pavilion/*-building/*-lounge redirects intact
+- **PATHS FIXED (12):**
+  1. park-site/lands/the-block/west-gate-echo.html
+  2. park-site/lands/the-block/concrete-hymn.html
+  3. park-site/lands/the-block/night-ledger.html
+  4. park-site/lands/after-hours/last-call-geometry.html
+  5. park-site/lands/after-hours/velvet-cap-r.html
+  6. park-site/lands/after-hours/northern-quiet.html
+  7. park-site/lands/the-board/east-glass-walk.html
+  8. park-site/lands/the-board/boardline.html
+  9. park-site/lands/the-board/measured-light.html
+  10. park-site/lands/the-pocket/spine-fourteen.html
+  11. park-site/lands/the-pocket/gate-distance.html
+  12. park-site/lands/the-pocket/plaza-rings.html
+- **COMMIT / LAST COMMIT:** (this push) — park-site FIX-VENUE-404: 12 short-slug venue nests
