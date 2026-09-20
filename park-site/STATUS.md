@@ -1430,56 +1430,32 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:22 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 7491f96 (Pass 184 densify parallel); NEW nested IA not mega strips
-- **GOING:** Tip pending
+- **GOING:** Tip bdabfb6; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
 - **SOLUTIONS:** NEW court/ (5); artist press+setlist ×4; measure/ (5); guest lounge/lost; booking receipt/transfer; paths night-loop/day-grid; materials edge-light/velvet; notes hub-spoke; thin wires
-- **COMMIT / LAST COMMIT:** 565a841 — Pass 190
+- **COMMIT / LAST COMMIT:** bdabfb6 — Pass 191
+- **TIP:** bdabfb6e21a3d2f7f23e33d55406cdc289a824c9
 - **COLLISIONS:** NONE
-- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
-
-
-## KEITH fleet check-in — 2026-09-20 14:21 CDT
-- **TIME:** 2026-09-20 14:21 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
-- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
-- **GOING:** Site tip Pass 185–191 (court/measure/press/guest/booking/paths/materials/notes); park tip Pass 57. Link audits clean on recent densify passes. Live hubs 200; Pages API intermittently errored.
-- **NEXT:** Pass 192+ collision-safe nested density + periodic link audit (MOCK roster held)
-- **CONSTRAINTS:** park-site/ only; MOCK locked; LAYOUT axes; no hotel-tower; no rebuild; no new html/dir basename collisions; never touch park/ or root index.html
-- **SOLUTIONS:** Ordered Site Luxury Pass 192+ (no self-STOP); Quality hub probes
-- **COMMITS:** bdabfb6 Pass 191 STATUS; 565a841 Pass 190; 6a4f46e Pass 189; 4a9ee70 Pass 188; tip before this STATUS push ≈ c141c99
-- **BLOCKED BOTS:** none
-
-## Check-in — Pass 192 densify + Pass 193 audit
-
-- **TIME:** 2026-09-20 14:23 CDT (America/Chicago)
-- **LANE:** shell / tickets·atelier·journal → audit (Site Luxury)
-- **STARTED:** Keith ORDER Pass 192+; tip after Pass 191 STATUS; densify tickets.html + atelier.html + journal.html
-- **GOING:** Pass 192 densify @e4e6119 (nested IA → short venues/nests/guest/booking/notes/materials/tonight+daylight + lounge/lost/receipt/transfer/edge-light/velvet/night-loop/day-grid); Pass 193 full link audit
-- **NEXT:** Pass 194 densify collision-safe nested IA (court/measure/press/paths/guest/booking children)
-- **CONSTRAINTS:** park-site/ only; no clone; MOCK locked; relative links; no hotel-tower; no rebuild; no new html/dir basename collisions; keep guest/+booking/ indexes + FIX markers; Home→Land→Venue→Work; 12 short-slugs @200
-- **SOLUTIONS:** One densify commit for three hubs; nested menus into existing IA only; preexisting land hub html/dir collisions unchanged
-- **COMMIT / LAST COMMIT:** e4e6119 — park-site Pass 192: densify tickets/atelier/journal
-- **TIP:** e4e6119f676746ed6232431920b6eda35b3e4755 (STATUS commit will advance tip)
-- **AUDIT:** 188 html · 11286 hrefs · **0 broken** (10987 local relative ok)
-- **COLLISIONS:** preexisting only — lands/{the-block,after-hours,the-board,the-pocket}.html ↔ dirs (none new)
-- **SHORT SLUGS:** 12/12 present
-- **GUEST/BOOKING:** indexes + FIX markers; live probes 200
-- **DENSIFY FILES:** tickets.html · atelier.html · journal.html
+- **AUDIT:** 10693 OK / 0 broken
+- **PAGES:** errored
+- **REBUILD:** none
 - **LIVE PROBES:**
 
 | Path | HTTP |
 |------|------|
-| `/guest/` | 200 |
-| `/guest/index.html` | 200 |
-| `/booking/` | 200 |
-| `/booking/index.html` | 200 |
-| `/tickets.html` | 200 |
-| `/atelier.html` | 200 |
-| `/journal.html` | 200 |
-| `/lands/the-block/west-gate-echo.html` | 200 |
-| `/lands/after-hours/northern-quiet.html` | 200 |
-| `/lands/the-board/boardline.html` | 200 |
-| `/lands/the-pocket/spine-fourteen.html` | 200 |
+| `/` | 200 |
+| `court/index.html` | 404 |
+| `court/pocket.html` | 404 |
+| `artists/vale-mercer/press.html` | 404 |
+| `artists/ori-hale/setlist.html` | 404 |
+| `measure/hub-meter.html` | 200 |
+| `measure/day-grid.html` | 200 |
+| `guest/lounge.html` | 200 |
+| `booking/receipt.html` | 200 |
+| `paths/night-loop.html` | 200 |
+| `materials/velvet.html` | 200 |
+| `notes/hub-spoke.html` | 200 |
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
