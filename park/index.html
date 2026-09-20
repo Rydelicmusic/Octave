@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> facade mid-block detail</div>
+  <div><b>This pass:</b> night fill polish</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -35,7 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import * as LockMod from './lock.js?v=pass51-facade';
+import * as LockMod from './lock.js?v=pass52-night';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -65,6 +65,8 @@ const pos=new THREE.Vector3(0,EYE,B-6);
 const drone=new THREE.Vector3(0,90,B+20);
 const droneVel=new THREE.Vector3();
 scene.add(new THREE.HemisphereLight(0xf0f4f8,0x5a4a32,1.15));
+// Pass 52 — soft night fill ambient (no PointLight cost; dark pockets between capped lamps)
+scene.add(new THREE.AmbientLight(0x2a3040,0.38));
 const sun=new THREE.DirectionalLight(0xfff3d6,1.1);sun.position.set(-90,180,70);scene.add(sun);
 const grass=new THREE.Mesh(new THREE.PlaneGeometry(A*3.2,B*3.2),new THREE.MeshLambertMaterial({color:0x4f7a3c}));
 grass.rotation.x=-Math.PI/2;scene.add(grass);
@@ -1167,9 +1169,10 @@ function addHall(b){
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
 // Pass 37 — evening window glow on SKUs (footprints unmoved)
 (function windowGlowPass(){
-  const glow=new THREE.MeshLambertMaterial({color:0xf0d090, emissive:0xc9a050, emissiveIntensity:0.65});
+  // Pass 52 — denser evening window glow (footprints unmoved; free fill vs PointLights)
+  const glow=new THREE.MeshLambertMaterial({color:0xf0d090, emissive:0xc9a050, emissiveIntensity:0.78});
   BUILDINGS.forEach(b=>{
-    const n=b.sku==='hall'?6:b.sku==='pavilion'?4:2;
+    const n=b.sku==='album'||b.sku==='hall'?10:b.sku==='pavilion'?6:4;
     for(let i=0;i<n;i++){
       const face=i%4;
       const u=(Math.floor(i/4)+0.5)/(Math.ceil(n/4)+0.01);
@@ -1183,6 +1186,23 @@ BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')
       scene.add(pane);
     }
   });
+})();
+// Pass 52 — soft fill PointLights at walk signs + land pockets (shared LAMP_LIGHT_CAP)
+(function pass52NightFill(){
+  WALKS.forEach((w)=>{
+    if(!w.sign) return;
+    addLampPointLight(w.sign.x, w.sign.z, 4.5, 20);
+  });
+  // land canopy centers as dim fill (LAYOUT canopies held)
+  const cans=LOCK.canopies||{};
+  Object.values(cans).forEach((c)=>{
+    if(!c||c.cx==null) return;
+    addLampPointLight(c.cx, c.cz, 3.5, 28);
+  });
+  // mid-spine soft fill between denser poles (cap may drop late ones)
+  for(let z=40;z<LOCK.gate.z-20;z+=42){
+    addLampPointLight(0, z, 3.2, 24);
+  }
 })();
 
 const avatar=new THREE.Group();
