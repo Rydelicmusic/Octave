@@ -1561,11 +1561,34 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:40 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 3819f00; NEW nested IA (atlas/ritual/lantern/thresholds)
-- **GOING:** Tip pending
+- **GOING:** Tip e0555d3; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
 - **SOLUTIONS:** NEW atlas/ (7); ritual/ (5); lantern/ (5); diary+portrait ×4; land threshold ×4; song seats ×4; grain/veil; ritual-walk/note; badge; waive; thin wires
-- **COMMIT / LAST COMMIT:** a057056 — Pass 216
+- **COMMIT / LAST COMMIT:** e0555d3 — Pass 217
+- **TIP:** e0555d31d10f0e0a83d1868ac15fe002c755d91b
 - **COLLISIONS:** NONE
+- **AUDIT:** 17196 OK / 0 broken
+- **PAGES:** built
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `atlas/index.html` | 200 |
+| `atlas/hub.html` | 200 |
+| `ritual/lamps.html` | 200 |
+| `ritual/last-call.html` | 200 |
+| `lantern/pocket.html` | 200 |
+| `artists/vale-mercer/diary.html` | 200 |
+| `artists/ori-hale/portrait.html` | 200 |
+| `lands/the-block/threshold.html` | 200 |
+| `lands/the-pocket/nests/plaza-rings-seat.html` | 200 |
+| `materials/grain.html` | 200 |
+| `paths/ritual-walk.html` | 200 |
+| `guest/badge.html` | 200 |
+| `booking/waive.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
