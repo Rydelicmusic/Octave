@@ -1525,11 +1525,34 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIME:** 2026-09-20 14:35 CDT (America/Chicago)
 - **LANE:** shell
 - **STARTED:** Tip 7d0fcbb; NEW nested IA (folio/tempo/signal/doors)
-- **GOING:** Tip pending
+- **GOING:** Tip 72b29c6; probes below
 - **NEXT:** Continue unless STOP
 - **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
 - **SOLUTIONS:** NEW folio/ (5); tempo/ (5); signal/ (7); gallery+interview ×4; nest doors ×12; bronze/cloth; tempo-night note; companion guest/booking; folio-walk; thin wires
-- **COMMIT / LAST COMMIT:** 2b51d2b — Pass 208
+- **COMMIT / LAST COMMIT:** 72b29c6 — Pass 209
+- **TIP:** 72b29c6345728769e9dd8089fea69e3b6c8b10cb
 - **COLLISIONS:** NONE
+- **AUDIT:** 15871 OK / 0 broken
+- **PAGES:** built
+- **REBUILD:** none
+- **LIVE PROBES:**
+
+| Path | HTTP |
+|------|------|
+| `/` | 200 |
+| `folio/index.html` | 200 |
+| `folio/vale-mercer.html` | 200 |
+| `tempo/night.html` | 200 |
+| `tempo/spine.html` | 200 |
+| `signal/hub.html` | 200 |
+| `signal/pocket.html` | 200 |
+| `artists/vale-mercer/gallery.html` | 200 |
+| `artists/ori-hale/interview.html` | 200 |
+| `lands/the-block/nests/west-gate-echo-door.html` | 200 |
+| `lands/the-pocket/nests/spine-fourteen-door.html` | 200 |
+| `materials/bronze.html` | 200 |
+| `paths/folio-walk.html` | 200 |
+| `guest/companion.html` | 200 |
+
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
