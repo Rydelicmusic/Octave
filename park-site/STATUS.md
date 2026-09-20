@@ -1272,39 +1272,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
-## Check-in — Pass 166 densify (notes/ + materials/)
+## Check-in — Pass 167–173
 
-- **TIME:** 2026-09-20 14:08 CDT (America/Chicago)
-- **LANE:** Site Luxury / notes+materials
-- **STARTED:** Tip race past assigned 149/150; shipped next free as Pass 166
-- **GOING:** Densified notes/{the-block,after-hours,the-board,the-pocket} + materials/{glass,lamps,metal} with cross-links to lands, 12 short venues, works, guest/ + booking/ hubs
-- **NEXT:** Pass 167 full link audit + STATUS tip sync
-- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; keep guest/index.html + booking/index.html; Home→Land→Venue→Work; 12 short-slugs @200
-- **SOLUTIONS:** One substance densify commit; Pages-safe redirects for hub-rings/stadium left untouched
-- **COMMIT / LAST COMMIT:** b5b11ad — park-site Pass 166: densify notes/ + materials/ → lands/short venues/works/guest/booking
-- **FILES:** park-site/notes/{the-block,after-hours,the-board,the-pocket}.html · park-site/materials/{glass,lamps,metal}.html
-
-## Check-in — Pass 167 link audit + tip sync
-
-- **TIME:** 2026-09-20 14:09 CDT (America/Chicago)
-- **LANE:** Site Luxury / audit
-- **STARTED:** Full relative-link audit on tip b5b11ad (Pass 166 densify)
-- **GOING:** 116 HTML · 7478 internal hrefs checked · **0 broken** · guest/index + booking/index present · guest/ + booking/ live 200 · 12 short-slugs live 200 · hotel-tower hits 0 · MOCK roster stable
-- **NEXT:** Stop for parent (Pass 166+167 shipped)
-- **CONSTRAINTS:** park-site/ only; no clone; no rebuild; FIX c95c7e2 + ba665e5 kept
-- **SOLUTIONS:** Audit against tip tarball; land.html + land/ dir pairs are intentional hubs (pre-existing)
-- **COMMIT / LAST COMMIT:** b5b11ad densify; this STATUS tip sync
-- **AUDIT:** broken=0 · collisions(intentional land hubs)=4 · guest/booking 200 · short-slugs 12/12 @200
-
-## KEITH fleet check-in — 2026-09-20 14:08 CDT
-
-- **TIME:** 2026-09-20 14:08 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
-- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
-- **GOING:** Site tip Pass 166+ densify; park tip Pass 45 + buildings 28. Live hubs 200; Pages status=errored (intermittent).
-- **NEXT:** Pass 167+ collision-safe nested density; periodic link audit; no html/dir basename collisions
-- **CONSTRAINTS:** park-site/ only; MOCK roster stable; LAYOUT axes; no hotel-tower; no rebuild from scratch
-- **SOLUTIONS:** Ordered Site Luxury Pass 167+; Quality hub probes; Pages note for Ryan
-- **COMMITS:** tip after Pass 166; BUILD 0bf7c6d KEITH 14:08; park 46ca18d buildings 28; b0cec02 Pass 45
-- **BLOCKED BOTS:** none
+- **TIME:** 2026-09-20 14:12 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Tip b5b11ad (Pass 166 parallel); NEW nested IA not mega strips
+- **GOING:** Tip pending
+- **NEXT:** Continue unless STOP
+- **CONSTRAINTS:** park-site/ only; no html↔dir collisions; no rebuild spam
+- **SOLUTIONS:** NEW paths/ (6); guest arrivals/hours/party; booking hold/party/axis-night; notes material essays (3); materials finish/warm-glass; land hours (4); thin submenu wires only
+- **COMMIT / LAST COMMIT:** 43fff49 — Pass 172
+- **COLLISIONS:** NONE
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
