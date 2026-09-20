@@ -4,99 +4,119 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Guest Services · Rydelic Park</title>
-<meta name="description" content="Rydelic Park luxury hospitality site — night park, measured lands, mock artist roster.">
+<meta name="description" content="Rydelic Park guest services — wayfinding desk, venue menus, MOCK hospitality.">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="index.html">
-      <span class="brand-mark">Rydelic Park</span>
-      <span class="brand-sub">Luxury Site</span>
-    </a>
-    <nav aria-label="Primary">
-      <ul class="nav-primary">
-        <li><a href="index.html" >Gate</a></li>
-        <li><a href="map.html" >Map</a></li>
-        <li><a href="directory.html" >Directory</a></li>
-        <li><a href="artists/index.html" >Artists</a></li>
-        <li><a href="lands/the-block.html" >The Block</a></li>
-        <li><a href="lands/after-hours.html" >After Hours</a></li>
-        <li><a href="lands/the-board.html" >The Board</a></li>
-        <li><a href="lands/the-pocket.html" >The Pocket</a></li>
-      </ul>
-    </nav>
+    <a class="brand" href="index.html"><span class="brand-mark">Rydelic Park</span><span class="brand-sub">Luxury Site</span></a>
+    <nav aria-label="Primary"><ul class="nav-primary">
+      <li><a href="index.html">Gate</a></li><li><a href="map.html">Map</a></li>
+      <li><a href="directory.html">Directory</a></li><li><a href="artists/index.html">Artists</a></li>
+      <li><a href="lands/the-block.html">The Block</a></li><li><a href="lands/after-hours.html">After Hours</a></li>
+      <li><a href="lands/the-board.html">The Board</a></li><li><a href="lands/the-pocket.html">The Pocket</a></li>
+    </ul></nav>
     <ul class="nav-utility">
-      <li><a href="tickets.html">Tickets</a></li>
-      <li><a href="journal.html">Journal</a></li>
+      <li><a href="tickets.html">Tickets</a></li><li><a href="journal.html">Journal</a></li>
       <li><a href="atelier.html">Atelier</a></li>
-      <li><a href="guest-services.html">Guest Services</a></li>
+      <li><a href="guest-services.html" aria-current="page">Guest Services</a></li>
     </ul>
   </div>
 </header>
-
-
 <main>
   <div class="wrap">
     <ul class="crumbs"><li><a href="index.html">Home</a></li><li>Guest Services</li></ul>
     <header class="page-hero">
-      <p class="eyebrow">Utility · hospitality</p>
+      <p class="eyebrow">Hospitality desk · Gate (0,+230)</p>
       <h1>Guest Services</h1>
-      <p class="sub">Hospitality desk: wayfinding to lands, artists, and the live 3D park. Spine clears ±Z at fourteen meters.</p>
-      <div class="cta-row" style="margin-top:1.25rem"><a class="btn btn-ghost" href="tickets.html">Tickets</a><a class="btn btn-ghost" href="map.html">Map</a><a class="btn btn-ghost" href="https://rydelicmusic.github.io/octave/park/">3D Park</a><a class="btn" href="index.html">Return to Gate</a></div>
+      <p class="sub">Wayfinding desk at the Gate. Ask for a land — the menu opens venues; venues open works. Spine clears ±Z at fourteen meters.</p>
+      <nav class="submenu">
+        <a href="#desk">Desk menu</a>
+        <a href="#lands">Land desks</a>
+        <a href="#artists">Artist desks</a>
+        <a href="tickets.html">Tickets</a>
+        <a href="map.html">Map</a>
+      </nav>
     </header>
-    <section class="section" style="border:0;padding-top:0">
-      <div class="grid-3">
-        <article class="card"><p class="card-kicker">Wayfinding</p><h3><a href="map.html">Meter map</a></h3><p>Stadium, hub, spine, four lands.</p></article>
-        <article class="card"><p class="card-kicker">Roster</p><h3><a href="artists/index.html">MOCK artists</a></h3><p>Four residents, twelve works.</p></article>
-        <article class="card"><p class="card-kicker">Lands</p><h3><a href="directory.html">Directory</a></h3><p>Venues by SKU ladder.</p></article>
+
+    <div class="venue-nest" id="desk">
+      <p class="sku">Primary desk</p>
+      <h2>How may we direct you?</h2>
+      <ul class="service-menu">
+        <li><span>Arrive at Gate → Hub</span><a href="lands/the-pocket.html">Pocket</a></li>
+        <li><span>West canopy (The Block)</span><a href="lands/the-block.html">Open</a></li>
+        <li><span>North late service</span><a href="lands/after-hours.html">Open</a></li>
+        <li><span>East glass</span><a href="lands/the-board.html">Open</a></li>
+        <li><span>MOCK roster</span><a href="artists/index.html">Open</a></li>
+        <li><span>Live 3D park</span><a href="https://rydelicmusic.github.io/octave/park/">Walk</a></li>
+      </ul>
+    </div>
+
+    <div class="mega-menu" id="lands">
+      <div>
+        <h4>The Block desk</h4>
+        <ul>
+          <li><a href="lands/the-block/west-gate-echo-kiosk.html">West Gate Echo kiosk</a></li>
+          <li><a href="lands/the-block/concrete-hymn-pavilion.html">Concrete Hymn pavilion</a></li>
+          <li><a href="lands/the-block/night-ledger-building.html">Night Ledger building</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>After Hours desk</h4>
+        <ul>
+          <li><a href="lands/after-hours/northern-quiet-kiosk.html">Northern Quiet kiosk</a></li>
+          <li><a href="lands/after-hours/velvet-cap-r-pavilion.html">Velvet Cap R pavilion</a></li>
+          <li><a href="lands/after-hours/last-call-geometry-lounge.html">Last Call Geometry lounge</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>The Board desk</h4>
+        <ul>
+          <li><a href="lands/the-board/boardline-kiosk.html">Boardline kiosk</a></li>
+          <li><a href="lands/the-board/measured-light-pavilion.html">Measured Light pavilion</a></li>
+          <li><a href="lands/the-board/east-glass-walk-building.html">East Glass Walk building</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>The Pocket desk</h4>
+        <ul>
+          <li><a href="lands/the-pocket/plaza-rings-kiosk.html">Plaza Rings kiosk</a></li>
+          <li><a href="lands/the-pocket/gate-distance-pavilion.html">Gate Distance pavilion</a></li>
+          <li><a href="lands/the-pocket/spine-fourteen-building.html">Spine Fourteen building</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mega-menu" id="artists">
+      <div><h4>Vale Mercer</h4><ul>
+        <li><a href="artists/vale-mercer/index.html">Artist world</a></li>
+        <li><a href="artists/vale-mercer/night-ledger.html">Night Ledger</a></li>
+      </ul></div>
+      <div><h4>Juniper Kline</h4><ul>
+        <li><a href="artists/juniper-kline/index.html">Artist world</a></li>
+        <li><a href="artists/juniper-kline/last-call-geometry.html">Last Call Geometry</a></li>
+      </ul></div>
+      <div><h4>Solenne Park</h4><ul>
+        <li><a href="artists/solenne-park/index.html">Artist world</a></li>
+        <li><a href="artists/solenne-park/east-glass-walk.html">East Glass Walk</a></li>
+      </ul></div>
+      <div><h4>Ori Hale</h4><ul>
+        <li><a href="artists/ori-hale/index.html">Artist world</a></li>
+        <li><a href="artists/ori-hale/spine-fourteen.html">Spine Fourteen</a></li>
+      </ul></div>
+    </div>
+
+    <section class="section" style="border:0">
+      <div class="mode-split">
+        <div class="mode-night"><h3>Night desk</h3><p>Staffed through After Hours. Menus stay nested; every answer returns a land, venue, or work link.</p></div>
+        <div class="mode-day"><h3>Day desk</h3><p>Blueprint coordinates: stadium 760×460, hub r18/32, spine 14 m, Gate (0,+230).</p></div>
       </div>
     </section>
   </div>
 </main>
-
-
 <footer class="site-foot">
-  <div class="wrap foot-grid">
-    <div>
-      <div class="foot-brand">Rydelic Park</div>
-      <p>Editorial hospitality for a night park measured in meters. Stadium 760×460 · Hub r18/32 · Spine 14 m · Gate (0,+230).</p>
-    </div>
-    <div>
-      <h4>Lands</h4>
-      <ul>
-        <li><a href="lands/the-block.html">The Block (−X)</a></li>
-        <li><a href="lands/after-hours.html">After Hours (−Z)</a></li>
-        <li><a href="lands/the-board.html">The Board (+X)</a></li>
-        <li><a href="lands/the-pocket.html">The Pocket (+Z)</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Artists</h4>
-      <ul>
-        <li><a href="artists/index.html">MOCK Roster</a></li>
-        <li><a href="artists/vale-mercer/index.html">Vale Mercer</a></li>
-        <li><a href="artists/juniper-kline/index.html">Juniper Kline</a></li>
-        <li><a href="artists/solenne-park/index.html">Solenne Park</a></li>
-        <li><a href="artists/ori-hale/index.html">Ori Hale</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Live Park</h4>
-      <ul>
-        <li><a href="https://rydelicmusic.github.io/octave/park/" rel="noopener">3D Walk</a></li>
-        <li><a href="https://rydelicmusic.github.io/octave/park/blueprint.html" rel="noopener">Blueprint</a></li>
-        <li><a href="map.html">Meter Map</a></li>
-        <li><a href="directory.html">Directory</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="wrap foot-note">
-    <span>Geometry locked per park/LAYOUT.md · Mock roster marked MOCK</span>
-    <span>Luxury target: /octave/park-site/</span>
-  </div>
+  <div class="wrap foot-note"><span>Guest desk · MOCK hospitality</span><span><a href="tickets.html">Tickets</a> · <a href="index.html">Gate</a></span></div>
 </footer>
-
 </body>
 </html>
