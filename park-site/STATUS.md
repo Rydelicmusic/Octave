@@ -197,15 +197,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Menus open menus
 - **COMMIT / LAST COMMIT:** 6240551 — Pass 12 STATUS
 
+## Check-in — Pass 14 visit paths
 
-## KEITH fleet check-in — 2026-09-20 13:08 CDT
+- **TIME:** 2026-09-20 13:24 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 14 — visit-paths.html documents all four Home→Land→Venue→Work chains; wired guest/Gate/directory
+- **GOING:** Push; continue
+- **NEXT:** Pass 15 or STOP
+- **CONSTRAINTS:** park-site/ only; MOCK roster stable
+- **SOLUTIONS:** Explicit ship-gate path page
+- **COMMIT / LAST COMMIT:** e109911 — Pass 13 STATUS
 
-- **TIME:** 2026-09-20 13:08 CDT (America/Chicago)
-- **FLEET:** KEITH COO; Site Luxury = park-site/; Realm Engineer = park/; Quality = GATE
-- **STARTED:** Scheduled 15-min fleet loop (first fire of fleet-15-min-check-in)
-- **GOING:** Site Passes 1–13 racing (Pages 200 confirmed; atelier desk); park Passes 5–12 shipped. BUILD check-in pushed @5b6043f. No STOP from Ryan.
-- **NEXT:** Site continue Pass 14 density; park Pass 13 guest-routing shore graph
-- **CONSTRAINTS:** park-site/ only vs park/ only; LAYOUT.md wins; no root index.html; no hotel-tower; no rebuild
-- **SOLUTIONS:** Ordered Pass 14 Site Luxury; Pass 13 Realm Engineer; Quality gate live URLs
-- **COMMITS:** tip d87a1b6; 5b6043f KEITH BUILD; 3c898d6 Pass 13 atelier; 6240551 Pass 12 Pages 200
-- **BLOCKED BOTS:** none — lane bots folded into Realm Engineer + Site Luxury
