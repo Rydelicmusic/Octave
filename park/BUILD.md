@@ -43,6 +43,7 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - pass 7: park trees 5.2–11 m trunks, 0.13–0.28 m radius (not toy, not poles)
 - pass 8: lamps 3.6 m + fixture; benches 0.45 m with legs; rope rail 1.55 m off 14 m spine
 - pass 9: water coping 0.5 m wide × 0.32 m high in world meters (not rx-scaled)
+- pass 10: hub radial beds 0.38 m soil planters with 0.12 m stone lip; shrubs 0.7–1.2 m
 
 ## Still fake (worst next)
 1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple) — buildings agent
@@ -50,4 +51,4 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 3. Stay-on-path is rail-only, not ribbon-constrained
 4. Lakeside ribbons that hit the spine are segmented boxes, not one spline
 5. Mobile look + stick still coarse
-6. Hub planting beds still a 0.2 m dirt sheet — next pass
+6. Stadium rail is still a 1 px line, not a 0.4 m curb bed

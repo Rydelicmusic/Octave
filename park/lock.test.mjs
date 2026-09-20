@@ -183,6 +183,7 @@ assert.match(indexHtml, /trunk/);
 }
 assert.equal(hubBedCenters().length, 8);
 assert.match(indexHtml, /radial planting bed/i);
+assert.match(indexHtml, /GROUNDS_SCALE\.hubBedH/);
 assert.match(indexHtml, /lakesideRibbon/);
 assert.match(indexHtml, /lakesideRibbonMesh/);
 assert.match(indexHtml, /Constant-width walk in meters/);

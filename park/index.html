@@ -254,12 +254,17 @@ function hubPlaza(){
     for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;k?sh.lineTo(Math.cos(t)*r1,Math.sin(t)*r1):sh.moveTo(Math.cos(t)*r1,Math.sin(t)*r1);}
     for(let k=n;k>=0;k--){const t=a0+(a1-a0)*k/n;sh.lineTo(Math.cos(t)*r0,Math.sin(t)*r0);}
     sh.closePath();
-    const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:0.2,bevelEnabled:false}),dirt);
+    const bedH=GROUNDS_SCALE.hubBedH;
+    const bed=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:bedH,bevelEnabled:false}),dirt);
     bed.rotation.x=-Math.PI/2;bed.position.y=SLAB+0.02;scene.add(bed);
+    const rimSh=sh.clone();
+    const rim=new THREE.Mesh(new THREE.ExtrudeGeometry(rimSh,{depth:0.12,bevelEnabled:false}),stoneDark);
+    rim.rotation.x=-Math.PI/2;rim.position.y=SLAB+bedH;scene.add(rim);
     for(let k=1;k<=5;k++){
       const t=a0+(a1-a0)*k/6,rr=(r0+r1)/2+(k%2?0.35:-0.25);
-      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.42+k%2*0.12,6,5),k===3?bloom:hedge);
-      bush.position.set(Math.cos(t)*rr,SLAB+0.55,Math.sin(t)*rr);bush.scale.set(1,0.7,1);scene.add(bush);
+      const bh=0.7+(k%3)*0.18;
+      const bush=new THREE.Mesh(new THREE.SphereGeometry(0.38+k%2*0.1,6,5),k===3?bloom:hedge);
+      bush.position.set(Math.cos(t)*rr,SLAB+bedH+bh*0.45,Math.sin(t)*rr);bush.scale.set(1,0.85,1);scene.add(bush);
     }
   }
   // Low benches on outer deck (seat ~0.45 m) — skip spine axes

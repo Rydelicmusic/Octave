@@ -195,6 +195,7 @@ export const GROUNDS_SCALE = {
   lakesideOffset: 2.6,
   copingW: 0.5,
   copingH: 0.32,
+  hubBedH: 0.38,
   treeTrunkH: [5.2, 11.2],
   treeTrunkR: [0.12, 0.28]
 };
