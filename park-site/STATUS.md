@@ -427,3 +427,36 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Legend cites lock; tickets → nests not placeholders
 - **COMMIT / LAST COMMIT:** 3083834 — Pass 28 (batch pending)
 
+## Check-in — Pass 32 guest desk menus
+
+- **TIME:** 2026-09-20 13:20 CDT (America/Chicago)
+- **LANE:** guest
+- **STARTED:** Pass 32 — guest-services mega-menus (arrival/tonight/wayfind/artists) opening real pages
+- **GOING:** Pass 33 work no-dead-end strips; Pass 34 atelier SKU apply desk
+- **NEXT:** Push 32–34; continue
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Desk menus → nests/artists/programs
+- **COMMIT / LAST COMMIT:** 093620a — Pass 31
+
+## Check-in — Pass 33 work no-dead-end
+
+- **TIME:** 2026-09-20 13:21 CDT (America/Chicago)
+- **LANE:** artists
+- **STARTED:** Pass 33 — all 12 work pages get Keep walking strip (venue/land/artist/night/paths/guest)
+- **GOING:** Push
+- **NEXT:** Pass 34 atelier
+- **CONSTRAINTS:** no dead ends on works
+- **SOLUTIONS:** Explicit return paths on every leaf
+- **COMMIT / LAST COMMIT:** pending
+
+## Check-in — Pass 34 atelier SKU apply desk
+
+- **TIME:** 2026-09-20 13:22 CDT (America/Chicago)
+- **LANE:** atelier
+- **STARTED:** Pass 34 — atelier service menu applies materials to real nests; geometry link
+- **GOING:** Push 32–34; aim Pass 35+
+- **NEXT:** Pass 35 day-measure timed counterpart or directory polish
+- **CONSTRAINTS:** skins only — no footprint moves
+- **SOLUTIONS:** Atelier → venue nests
+- **COMMIT / LAST COMMIT:** pending
+
