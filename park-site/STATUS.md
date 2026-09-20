@@ -876,3 +876,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMITS:** abfa60b Pass 70 artists · (this) Pass 71 tickets+STATUS
 - **COMMIT / LAST COMMIT:** pending Pass 71 push
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
+## Check-in — Pass 72 programs hospitality desk
+
+- **TIME:** 2026-09-20 13:33 CDT (America/Chicago)
+- **LANE:** Site Luxury / programs
+- **STARTED:** Tip ~73d2a41 Pass 71; densify programs.html hospitality desk
+- **GOING:** Desk links lands, 12 short venues, MOCK works, tickets/journal/atelier/guest/paths
+- **NEXT:** Pass 73 — link audit (0 broken goal); STATUS tip sync; light polish
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; FIX c95c7e2 short-slugs clean; no hotel-tower; no rebuild
+- **SOLUTIONS:** One hospitality densify; menus → lands/venues/works/tickets/journal
+- **COMMIT / LAST COMMIT:** pending Pass 72 push
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
