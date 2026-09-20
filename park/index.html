@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> lake path ribbons + hub beds + tree belts</div>
+  <div><b>This pass:</b> gate, stations, signs, lamps, queues</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -34,9 +34,9 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import { LOCK, BUILDINGS } from './lock.js';
+import { LOCK, BUILDINGS, inStadium } from './lock.js';
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
-const PATH=0xe6d3a4,CURB=0x5a4630;
+const PATH=0xe6d3a4,CURB=0x5a4630,ASPHALT=0x3e3e42,CONCRETE=0xb9b3a8,EARTH=0x6b5340;
 const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -61,6 +61,9 @@ plate(36,B+20,0,B/2,0x6b8a4a);
 const stone=new THREE.MeshLambertMaterial({color:0x6a5844});
 const stoneDark=new THREE.MeshLambertMaterial({color:CURB});
 const pathMat=new THREE.MeshLambertMaterial({color:PATH});
+const asphaltMat=new THREE.MeshLambertMaterial({color:ASPHALT});
+const concreteMat=new THREE.MeshLambertMaterial({color:CONCRETE});
+const earthMat=new THREE.MeshLambertMaterial({color:EARTH});
 function water(x,z,rx,rz){
   // Recessed pool + raised coping (not flush with ground)
   const pool=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshPhongMaterial({color:0x2a7a8a,shininess:48}));
@@ -80,12 +83,12 @@ function water(x,z,rx,rz){
 LOCK.waters.forEach(w=>water(...w));
 LOCK.waters.forEach(([x,z,rx,rz])=>{if(rx>=16)lakeWalk(x,z,rx,rz);});
 // Paths: raised sand surface + tall side curbs (hub-curb spirit, walk stays clear)
-function pathBox(w,len,x,z,rotY=0){
+function pathBox(w,len,x,z,rotY=0,topMat=pathMat){
   const g=new THREE.Group();
   const curbH=0.48,curbT=0.7;
   const bed=new THREE.Mesh(new THREE.BoxGeometry(w+curbT*2+0.3,0.1,len),stone);
   bed.position.y=0.05;
-  const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.22,len),pathMat);
+  const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.22,len),topMat);
   top.position.y=0.15;
   // Dark edge strips on path for surface readability
   const edgeW=0.45;
@@ -157,12 +160,12 @@ function lakeWalk(x,z,rx,rz){
   outerC.rotation.x=Math.PI/2;outerC.position.y=0.28;
   g.add(innerC,outerC);g.position.set(x,0,z);g.scale.set(rx,1,rz);scene.add(g);
 }
-pathBox(LOCK.spineWidth,B,0,B/2);
-pathBox(22,18,0,B);
-pathBox(LOCK.spineWidth,B,0,-B/2);
+pathBox(LOCK.spineWidth,B,0,B/2,0,asphaltMat);
+pathBox(22,18,0,B,0,asphaltMat);
+pathBox(LOCK.spineWidth,B,0,-B/2,0,asphaltMat);
 // Short aprons at hub gaps — path continuity onto raised plaza (SLAB 0.28)
 [[0,34],[0,-34]].forEach(([ax,az])=>{
-  const apr=new THREE.Mesh(new THREE.BoxGeometry(14,0.2,8),pathMat);
+  const apr=new THREE.Mesh(new THREE.BoxGeometry(14,0.2,8),asphaltMat);
   apr.position.set(ax,0.22,az);scene.add(apr);
   const cH=0.38,cT=0.55;
   [-1,1].forEach(side=>{
@@ -198,7 +201,7 @@ function hubPlaza(){
   const GAP=0.28; // half-angle (~18 m chord) openings at ±Z for 14 m Gate spine
   // Raised outer plaza slab mass (solid ring under deck)
   ringWall(IN,OUT,SLAB,0,stone);
-  const deck=new THREE.Mesh(new THREE.RingGeometry(IN,OUT,72),pathMat);
+  const deck=new THREE.Mesh(new THREE.RingGeometry(IN,OUT,72),concreteMat);
   deck.rotation.x=-Math.PI/2;deck.position.set(0,SLAB+0.01,0);scene.add(deck);
   // Outer curb/parapet ~0.55 m; gaps at +Z (Gate) and -Z (north) so spine walk clears
   // angle 0=+X, π/2=+Z south/Gate, π=-X, 3π/2=-Z north
@@ -220,7 +223,7 @@ function hubPlaza(){
   const innerCap=new THREE.Mesh(new THREE.RingGeometry(IN-0.55,IN,64),stone);
   innerCap.rotation.x=-Math.PI/2;innerCap.position.y=SLAB+0.23;scene.add(innerCap);
   // Center pocket pad
-  const pad=new THREE.Mesh(new THREE.CylinderGeometry(IN-0.6,IN-0.6,0.18,48),pathMat);
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(IN-0.6,IN-0.6,0.18,48),concreteMat);
   pad.position.y=0.09;scene.add(pad);
   // 8 radial walk spokes + planted beds between them (skip covering the 14 m spine)
   const dirt=new THREE.MeshLambertMaterial({color:0x5a4030});
@@ -228,7 +231,7 @@ function hubPlaza(){
   const bloom=new THREE.MeshLambertMaterial({color:0xa45a6a});
   for(let i=0;i<8;i++){
     const a=(i/8)*Math.PI*2;
-    const spoke=new THREE.Mesh(new THREE.BoxGeometry(1.15,0.14,OUT-IN-0.4),pathMat);
+    const spoke=new THREE.Mesh(new THREE.BoxGeometry(1.15,0.14,OUT-IN-0.4),Math.abs(Math.sin(a))>0.9?asphaltMat:pathMat);
     spoke.position.set(Math.cos(a)*(IN+OUT)/2,SLAB+0.1,Math.sin(a)*(IN+OUT)/2);
     spoke.rotation.y=-a;scene.add(spoke);
     const mid=a+Math.PI/8;
@@ -275,10 +278,29 @@ for(let i=0;i<=segs;i++){const a=-Math.PI/2+(i/segs)*Math.PI;railPts.push(new TH
 for(let i=0;i<=segs;i++){const t=i/segs;railPts.push(new THREE.Vector3(S-t*2*S,0.4,B));}
 for(let i=0;i<=segs;i++){const a=Math.PI/2+(i/segs)*Math.PI;railPts.push(new THREE.Vector3(-S+Math.cos(a)*R,0.4,Math.sin(a)*R));}
 scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(railPts),new THREE.LineBasicMaterial({color:0x2b241c})));
-const gm=new THREE.MeshLambertMaterial({color:0x4a3a28});
-const pL=new THREE.Mesh(new THREE.BoxGeometry(2.2,6.5,2.2),gm);const pR=pL.clone();
-pL.position.set(-9,3.25,B+4);pR.position.set(9,3.25,B+4);
-const lintel=new THREE.Mesh(new THREE.BoxGeometry(22,1.2,2.4),gm);lintel.position.set(0,6.8,B+4);scene.add(pL,pR,lintel);
+function gateHouse(){
+  const mat=new THREE.MeshLambertMaterial({color:0x5a4634});
+  const trim=new THREE.MeshLambertMaterial({color:0x3d2e22});
+  const glass=new THREE.MeshLambertMaterial({color:0x1a2430});
+  const z=LOCK.gate.z+3;
+  const left=new THREE.Mesh(new THREE.BoxGeometry(9,8.6,7.2),mat);left.position.set(-13.5,4.3,z);
+  const right=left.clone();right.position.x=13.5;
+  const roofL=new THREE.Mesh(new THREE.BoxGeometry(10.2,0.55,8.2),trim);roofL.position.set(-13.5,8.85,z);
+  const roofR=roofL.clone();roofR.position.x=13.5;
+  const bridge=new THREE.Mesh(new THREE.BoxGeometry(20,3.4,4.2),mat);bridge.position.set(0,8.4,z);
+  const cornice=new THREE.Mesh(new THREE.BoxGeometry(21,0.35,4.6),trim);cornice.position.set(0,10.2,z);
+  scene.add(left,right,roofL,roofR,bridge,cornice);
+  [-13.5,13.5].forEach(x=>{
+    const w=new THREE.Mesh(new THREE.BoxGeometry(3.4,1.7,0.2),glass);w.position.set(x,2.15,z+3.7);scene.add(w);
+    const door=new THREE.Mesh(new THREE.BoxGeometry(1.6,2.4,0.18),trim);door.position.set(x,1.2,z+3.65);scene.add(door);
+  });
+  [-11,11].forEach(x=>{
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.7,1.05,10),trim);t.position.set(x,0.52,LOCK.gate.z-3);scene.add(t);
+  });
+  const banner=new THREE.Mesh(new THREE.BoxGeometry(16,1.1,0.2),new THREE.MeshLambertMaterial({color:0xc9b48a}));
+  banner.position.set(0,9.6,z+2.2);scene.add(banner);
+}
+gateHouse();
 const leaf=new THREE.MeshLambertMaterial({color:0x2c5a2c});const leafDeep=new THREE.MeshLambertMaterial({color:0x1e4a24});const bark=new THREE.MeshLambertMaterial({color:0x5a3e28});
 // Abstract kit tree: trunk + cone + soft crown mass
 function tree(x,z,s=1){
@@ -321,6 +343,77 @@ for(let i=0;i<10;i++){
   if(Math.abs(Math.sin(a))>0.88)continue; // skip ±Z gate/north openings
   clump(Math.cos(a)*40,Math.sin(a)*40,5,4.5,0.9);
 }
+function landSign(text,x,z,yaw){
+  const c=document.createElement('canvas');c.width=1024;c.height=256;
+  const g=c.getContext('2d');
+  g.fillStyle='#2c2418';g.fillRect(0,0,1024,256);
+  g.fillStyle='#c9b48a';g.fillRect(16,16,992,224);
+  g.fillStyle='#2c2418';g.fillRect(28,28,968,200);
+  g.fillStyle='#f4efe6';g.font='bold 96px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(text,512,128);
+  const board=new THREE.Mesh(new THREE.PlaneGeometry(9.4,2.35),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(c),side:THREE.DoubleSide}));
+  board.position.set(x,2.4,z);board.rotation.y=yaw;
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.16,2.45,8),stoneDark);post.position.set(x,1.22,z);
+  scene.add(board,post);
+}
+landSign('The Block',-42,6,Math.PI/2);
+landSign('The Board',42,6,-Math.PI/2);
+landSign('After Hours',0,-42,0);
+landSign('The Pocket',0,46,Math.PI);
+function lamp(x,z){
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,3.5,6),stoneDark);pole.position.set(x,1.75,z);
+  const arm=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.08,0.55),stoneDark);arm.position.set(x,3.4,z);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(0.2,8,6),new THREE.MeshLambertMaterial({color:0xe8d5a3,emissive:0xaa8844,emissiveIntensity:0.35}));
+  head.position.set(x,3.38,z);
+  scene.add(pole,arm,head);
+}
+function benchAt(x,z,yaw){
+  const seat=new THREE.Mesh(new THREE.BoxGeometry(1.85,0.12,0.48),stone);seat.position.set(x,0.44,z);seat.rotation.y=yaw;
+  const back=new THREE.Mesh(new THREE.BoxGeometry(1.85,0.45,0.08),stone);back.position.set(x,0.72,z);back.rotation.y=yaw;back.translateZ(-0.22);
+  scene.add(seat,back);
+}
+function trashCan(x,z){
+  const c=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.72,8),new THREE.MeshLambertMaterial({color:0x2a2a28}));
+  c.position.set(x,0.36,z);scene.add(c);
+}
+for(let z=18;z<B-12;z+=14){lamp(-8.3,z);lamp(8.3,z);if(z%28<1){benchAt(-10.2,z,Math.PI/2);trashCan(10.2,z+3);}}
+for(let z=-18;z>-B+20;z-=18){lamp(-8.3,z);lamp(8.3,z);}
+lamp(0,-36);lamp(36,0);lamp(-36,0);
+function fencePost(x,z){
+  const p=new THREE.Mesh(new THREE.BoxGeometry(0.18,1.15,0.18),stoneDark);p.position.set(x,0.57,z);scene.add(p);
+}
+railPts.forEach((p,i)=>{if(i%3)return;if(Math.abs(p.x)<16&&p.z>B-12)return;fencePost(p.x*0.985,p.z*0.985);});
+function queueZig(x,z,yaw,n=6){
+  const rail=new THREE.MeshLambertMaterial({color:0x8a7a60});
+  for(let i=0;i<n;i++){
+    const bar=new THREE.Mesh(new THREE.BoxGeometry(5.2,0.85,0.07),rail);
+    const along=i*1.35,side=(i%2?1:-1)*1.1;
+    bar.position.set(x+Math.cos(yaw)*along+Math.cos(yaw+Math.PI/2)*side,0.48,z+Math.sin(yaw)*along+Math.sin(yaw+Math.PI/2)*side);
+    bar.rotation.y=yaw+(i%2?0.12:-0.12);scene.add(bar);
+  }
+}
+function rideStation(cx,cz,outer,ang){
+  const px=cx+Math.cos(ang)*(outer+9),pz=cz+Math.sin(ang)*(outer+9);
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(14,0.32,7.5),concreteMat);
+  deck.position.set(px,0.16,pz);deck.rotation.y=-ang+Math.PI/2;
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(15,0.18,8.2),stoneDark);
+  roof.position.set(px,4.05,pz);roof.rotation.y=-ang+Math.PI/2;
+  [-5.5,5.5].forEach(s=>{
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.18,4,8),stone);
+    const sx=px+Math.cos(ang+Math.PI/2)*s,sz=pz+Math.sin(ang+Math.PI/2)*s;
+    post.position.set(sx,2.0,sz);scene.add(post);
+  });
+  const kiosk=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,2.4),new THREE.MeshLambertMaterial({color:0x6a5844}));
+  kiosk.position.set(px+Math.cos(ang)*2,1.2,pz+Math.sin(ang)*2);scene.add(deck,roof,kiosk);
+  queueZig(px-Math.cos(ang)*12,pz-Math.sin(ang)*12,ang+Math.PI,7);
+}
+rideStation(LOCK.rings.A.x,LOCK.rings.A.z,LOCK.rings.A.outer,-2.4);
+rideStation(LOCK.rings.B.x,LOCK.rings.B.z,LOCK.rings.B.outer,-0.6);
+plate(90,70,-200,-50,EARTH);
+plate(60,50,130,-70,EARTH);
+plate(70,40,0,-175,EARTH);
+const gateLight=new THREE.PointLight(0xffe1b0,40,55);gateLight.position.set(0,8,LOCK.gate.z);scene.add(gateLight);
+const hubLight=new THREE.PointLight(0xfff0d0,28,40);hubLight.position.set(0,7,0);scene.add(hubLight);
+sun.intensity=1.25;sun.color.set(0xffe6c4);
 function addKiosk(b){
   const g=new THREE.Group();
   const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.h*0.7,b.d),new THREE.MeshLambertMaterial({color:b.body}));
@@ -421,7 +514,8 @@ function tick(){
     drone.x+=droneVel.x*dt;drone.z+=droneVel.z*dt;drone.y=Math.max(8,Math.min(420,drone.y+droneVel.y*dt));
   }else if(len>0){
     mx/=len;mz/=len;const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-    pos.x+=(fx*-mz+rx*mx)*WALK*dt;pos.z+=(fz*-mz+rz*mx)*WALK*dt;
+    const nx=pos.x+(fx*-mz+rx*mx)*WALK*dt,nz=pos.z+(fz*-mz+rz*mx)*WALK*dt;
+    if(inStadium(nx,nz)){pos.x=nx;pos.z=nz;}
   }
   pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
   if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}

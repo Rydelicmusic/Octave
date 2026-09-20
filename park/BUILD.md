@@ -21,8 +21,16 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Hub: 8 sand spokes + 8 planted dirt/hedge beds (clear of 14 m spine)
 - Denser west-lakes, SE grove, north-split belts; trees skip spine + building footprints
 
+## Pass 3 — gate, stations, signs, lamps, queues, materials
+- Eye-height land-name markers: The Block, After Hours, The Board, The Pocket
+- Gatehouse volume at (0,+230) with ticket windows; turnstiles off-spine
+- Ride station decks + queues around unmoved ∞ rings
+- Spine lamps / benches / trash; rail fence posts
+- Asphalt spine, concrete hub, packed-sand land ribbons, earth patches
+- Stadium-rail walk clamp (speed still 1.34 m/s)
+
 ## Still fake (worst next)
-1. Empty plazas, no queues, lamps, trash, eye-height land names
-2. Gate is two posts; rings have no station massing
-3. Materials mostly one sand + one grass; facades still simple boxes
-4. Spine path still a box; collision / stay-on-path not in yet
+1. Facades still fairly boxy (window insets help halls; kiosks/pavilions are kit-simple)
+2. Spine is still a straight box (ribbons are on land water edges only)
+3. Tree crowns still cone+sphere, not species-varied
+4. Stay-on-path is rail-only, not ribbon-constrained
