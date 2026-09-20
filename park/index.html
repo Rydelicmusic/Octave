@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rydelic Park — Kit Walk</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0b0c;color:#f4efe6;font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden}
+  #c{display:block;width:100%;height:100%}
+  .hud{position:fixed;left:16px;bottom:16px;z-index:2;padding:12px 14px;border-radius:12px;
+    background:rgba(18,16,14,.55);border:1px solid rgba(201,180,138,.28);backdrop-filter:blur(10px);
+    font-size:12px;letter-spacing:.04em;line-height:1.45;max-width:280px}
+  .hud b{color:#c9b48a;font-weight:600}
+  .top{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:2;font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:#c9b48a}
+  a{color:#c9b48a}
+</style>
+</head>
+<body>
+<div class="top">Rydelic Park · kit v1</div>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div><b>WASD</b> walk · <b>mouse</b> look (click to lock)</div>
+  <div>1 unit = 1 m · walk 1.34 m/s · eye 1.72 m</div>
+  <div>Oval A=380 · B=230 · spawn Gate → Pocket</div>
+  <div style="margin-top:6px"><a href="../">← Octave landing</a> · see <b>KIT.md</b></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+// KIT constants — change only via park/KIT.md
+const A = 380, B = 230;
+const WALK = 1.34;
+const EYE = 1.72;
+const GATE = new THREE.Vector3(0, EYE, B + 40);
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0b0c);
+scene.fog = new THREE.Fog(0x0b0b0c, 80, 900);
+
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 2000);
+camera.position.copy(GATE);
+
+const hemi = new THREE.HemisphereLight(0xb8c4d4, 0x2a241c, 0.85);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xf0e2c4, 0.65);
+sun.position.set(-120, 220, 80);
+scene.add(sun);
+
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(Math.max(A, B) + 80, 64),
+  new THREE.MeshStandardMaterial({ color: 0x1a1714, roughness: 0.95 })
+);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+// Oval rail (ellipse path)
+const railPts = [];
+for (let i = 0; i <= 128; i++) {
+  const t = (i / 128) * Math.PI * 2;
+  railPts.push(new THREE.Vector3(Math.cos(t) * A, 0.4, Math.sin(t) * B));
+}
+const rail = new THREE.LineLoop(
+  new THREE.BufferGeometry().setFromPoints(railPts),
+  new THREE.LineBasicMaterial({ color: 0xc9b48a })
+);
+scene.add(rail);
+
+// Soft rail bed
+const railTube = new THREE.Mesh(
+  new THREE.TorusGeometry(1, 0.35, 6, 64),
+  new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 0.9 })
+);
+// approximate oval with scaled torus
+railTube.scale.set(A, 1, B);
+railTube.rotation.x = Math.PI / 2;
+railTube.position.y = 0.15;
+scene.add(railTube);
+
+// Path Gate → Hub (The Pocket at origin)
+const pathShape = new THREE.Shape();
+pathShape.moveTo(-4, -B - 40);
+pathShape.lineTo(4, -B - 40);
+pathShape.lineTo(6, 0);
+pathShape.lineTo(-6, 0);
+pathShape.closePath();
+const pathGeo = new THREE.ShapeGeometry(pathShape);
+const path = new THREE.Mesh(
+  pathGeo,
+  new THREE.MeshStandardMaterial({ color: 0x2c281f, roughness: 0.85 })
+);
+path.rotation.x = -Math.PI / 2;
+path.position.y = 0.05;
+scene.add(path);
+
+// Hub plaza ring
+const hub = new THREE.Mesh(
+  new THREE.RingGeometry(18, 32, 48),
+  new THREE.MeshStandardMaterial({ color: 0x2a261e, roughness: 0.88, side: THREE.DoubleSide })
+);
+hub.rotation.x = -Math.PI / 2;
+hub.position.y = 0.06;
+scene.add(hub);
+
+// Water (simple ellipse pool near hub — kit layer, not IP)
+const water = new THREE.Mesh(
+  new THREE.CircleGeometry(14, 32),
+  new THREE.MeshStandardMaterial({ color: 0x1a3038, metalness: 0.2, roughness: 0.35 })
+);
+water.rotation.x = -Math.PI / 2;
+water.position.set(48, 0.07, -20);
+scene.add(water);
+
+// Tree massing — abstract dark clumps only
+function treeClump(x, z, r = 8) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 10, 10),
+    new THREE.MeshStandardMaterial({ color: 0x142016, roughness: 1 })
+  );
+  m.position.set(x, r * 0.55, z);
+  m.scale.y = 0.7;
+  scene.add(m);
+}
+for (let i = 0; i < 28; i++) {
+  const t = (i / 28) * Math.PI * 2;
+  const jitter = 12 + (i % 5) * 3;
+  treeClump(Math.cos(t) * (A - jitter), Math.sin(t) * (B - jitter), 6 + (i % 4));
+}
+
+// Gate volume — readable edge, not a castle
+const gateMat = new THREE.MeshStandardMaterial({ color: 0x3d3428, roughness: 0.75 });
+const postL = new THREE.Mesh(new THREE.BoxGeometry(2.2, 6, 2.2), gateMat);
+const postR = postL.clone();
+postL.position.set(-8, 3, B + 36);
+postR.position.set(8, 3, B + 36);
+const lintel = new THREE.Mesh(new THREE.BoxGeometry(18, 1.2, 2.4), gateMat);
+lintel.position.set(0, 6.2, B + 36);
+scene.add(postL, postR, lintel);
+
+// Hub marker (The Pocket) — abstract ring, no IP
+const pocket = new THREE.Mesh(
+  new THREE.TorusGeometry(6, 0.25, 8, 48),
+  new THREE.MeshStandardMaterial({ color: 0xc9b48a, metalness: 0.4, roughness: 0.4 })
+);
+pocket.rotation.x = Math.PI / 2;
+pocket.position.y = 1.2;
+scene.add(pocket);
+
+const controls = new PointerLockControls(camera, document.body);
+scene.add(controls.getObject());
+canvas.addEventListener('click', () => controls.lock());
+
+const keys = {};
+addEventListener('keydown', e => keys[e.code] = true);
+addEventListener('keyup', e => keys[e.code] = false);
+
+const vel = new THREE.Vector3();
+const dir = new THREE.Vector3();
+let prev = performance.now();
+
+function tick(now) {
+  requestAnimationFrame(tick);
+  const dt = Math.min(0.05, (now - prev) / 1000);
+  prev = now;
+  if (controls.isLocked) {
+    dir.set(0, 0, 0);
+    if (keys['KeyW']) dir.z -= 1;
+    if (keys['KeyS']) dir.z += 1;
+    if (keys['KeyA']) dir.x -= 1;
+    if (keys['KeyD']) dir.x += 1;
+    if (dir.lengthSq() > 0) dir.normalize();
+    vel.x = dir.x * WALK;
+    vel.z = dir.z * WALK;
+    controls.moveRight(vel.x * dt);
+    controls.moveForward(-vel.z * dt);
+    controls.getObject().position.y = EYE;
+  }
+  pocket.rotation.z += dt * 0.25;
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(tick);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// Face The Pocket from Gate
+controls.getObject().rotation.y = Math.PI;
+</script>
+</body>
+</html>
