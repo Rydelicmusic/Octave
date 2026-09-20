@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Octave</title>
-<meta name="description" content="Octave — sonic realms. A house for sound.">
+<meta name="description" content="Octave — Walk in. Don’t press play. A private lobby of sonic realms.">
 <style>
   :root{
     --ink:#0b0b0c; --paper:#f4efe6; --mute:#b7b1a6;
@@ -64,71 +64,82 @@
   .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
 
   /* —— Lobby —— */
-  .lobby{position:relative;min-height:180vh;overflow:hidden}
-  .stage{position:sticky;top:0;height:100vh;overflow:hidden}
+  .lobby{position:relative;min-height:160vh;overflow:hidden}
+  .stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden}
   .bg{
     position:absolute;inset:-12%;
     background:
-      radial-gradient(ellipse at 50% 18%, rgba(232,208,160,.28), transparent 42%),
-      radial-gradient(ellipse at 50% 110%, rgba(201,180,138,.32), transparent 52%),
-      radial-gradient(ellipse at 15% 40%, rgba(90,70,45,.55), transparent 45%),
-      radial-gradient(ellipse at 85% 35%, rgba(60,50,80,.35), transparent 40%),
-      linear-gradient(180deg,#1c1814 0%, #100e0c 45%, #0b0b0c 100%);
+      radial-gradient(ellipse at 50% 12%, rgba(240,220,180,.38), transparent 38%),
+      radial-gradient(ellipse at 50% 70%, rgba(201,180,138,.34), transparent 48%),
+      radial-gradient(ellipse at 12% 45%, rgba(110,85,55,.5), transparent 42%),
+      radial-gradient(ellipse at 88% 40%, rgba(70,55,95,.32), transparent 38%),
+      linear-gradient(180deg,#24201a 0%, #161310 42%, #0e0c0a 100%);
     animation:drift 28s ease-in-out infinite alternate;
     transform:scale(1.08);
   }
   .bg:before{
     content:"";position:absolute;inset:0;
     background:
-      linear-gradient(90deg,transparent 0%,rgba(201,180,138,.05) 48%,transparent 52%,rgba(201,180,138,.04) 100%),
-      repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 80px);
+      linear-gradient(90deg,transparent 0%,rgba(201,180,138,.07) 48%,transparent 52%,rgba(201,180,138,.05) 100%),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 80px);
     animation:walk 22s linear infinite;
   }
-  .grain{position:absolute;inset:0;opacity:.14;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
+  .grain{position:absolute;inset:0;opacity:.12;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
   @keyframes drift{from{transform:scale(1.08) translate3d(0,0,0)}to{transform:scale(1.16) translate3d(-2%,1%,0)}}
   @keyframes walk{from{transform:translateX(0)}to{transform:translateX(-80px)}}
 
   .hall{
-    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-    text-align:center;padding:14vh 24px 42vh;z-index:2;
+    position:absolute;left:0;right:0;top:0;z-index:2;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    text-align:center;padding:max(92px,11vh) 22px 0;
     transition:transform .2s linear, opacity .2s linear;
+    pointer-events:none;
   }
+  .hall > *{pointer-events:auto}
   .brand-mark{
     font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;
     letter-spacing:.55em;text-transform:uppercase;font-size:12px;color:var(--gold);
-    margin-bottom:28px;
+    margin-bottom:18px;
   }
-  .brand-mark span{display:inline-block;width:48px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);vertical-align:middle;margin:0 14px}
-  .kicker{letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:18px;font-family:-apple-system,sans-serif}
-  .hall h1{font-weight:400;font-size:clamp(44px,8vw,92px);letter-spacing:-.03em;line-height:.95;color:var(--paper);text-shadow:0 8px 40px rgba(0,0,0,.55)}
+  .brand-mark span{display:inline-block;width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);vertical-align:middle;margin:0 12px}
+  .kicker{letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:14px;font-family:-apple-system,sans-serif}
+  .hall .kicker{display:none} /* mark carries the house line; keep class for explore */
+  .hall h1{font-weight:400;font-size:clamp(40px,7.6vw,88px);letter-spacing:-.03em;line-height:.94;color:var(--paper);text-shadow:0 8px 40px rgba(0,0,0,.45)}
   .hall h1 em{font-style:italic;color:var(--gold2)}
-  .lede{margin:22px auto 0;max-width:32ch;color:#d9d2c6;font-size:17px;line-height:1.55;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-  .hint{
-    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;
-    font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);
-    animation:pulse 2.4s ease-in-out infinite;transition:opacity .6s var(--ease);
+  .lede{margin:16px auto 0;max-width:34ch;color:#e4ddd1;font-size:16px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+  .enter-row{
+    margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
   }
-  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+  .enter-row .btn{pointer-events:auto}
+  .hint{
+    position:absolute;bottom:max(16px,2.5vh);left:50%;transform:translateX(-50%);z-index:3;
+    font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold2);
+    animation:pulse 2.4s ease-in-out infinite;transition:opacity .6s var(--ease);
+    text-shadow:0 2px 16px rgba(0,0,0,.5);
+  }
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
   .lifts{
-    position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;gap:18px;
-    padding:0 20px 11vh;opacity:.55;pointer-events:auto;z-index:2;transition:opacity .8s var(--ease), transform .8s var(--ease);
-    transform:translateY(18px);
+    position:absolute;left:0;right:0;bottom:0;top:auto;display:flex;align-items:flex-end;justify-content:center;gap:16px;
+    padding:0 18px max(56px,9vh);opacity:.92;pointer-events:auto;z-index:2;transition:opacity .8s var(--ease), transform .8s var(--ease);
+    transform:translateY(0);
   }
   .lifts.on{opacity:1;transform:translateY(0)}
   .lift{
-    width:min(240px,28vw);height:min(58vh,520px);
+    width:min(230px,28vw);height:min(42vh,420px);
     border-radius:18px 18px 8px 8px;position:relative;overflow:hidden;
     transition:transform .8s var(--ease), box-shadow .8s var(--ease);
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
   }
   .lift:hover{transform:translateY(-10px)}
-  .door{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;padding:22px;text-align:left}
+  .lift:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+  .door{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;padding:20px;text-align:left}
   .door small{font-family:-apple-system,sans-serif;letter-spacing:.28em;text-transform:uppercase;font-size:10px;color:var(--gold);margin-bottom:8px}
-  .door strong{font-size:clamp(20px,3vw,32px);font-weight:400}
-  .shaft{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.25));pointer-events:none}
-  .lift:nth-child(1){background:linear-gradient(180deg,#2a241c,#12100d)}
-  .lift:nth-child(2){background:linear-gradient(180deg,#201c28,#0e0d12)}
-  .lift:nth-child(3){background:linear-gradient(180deg,#1c2422,#0c1010)}
+  .door strong{font-size:clamp(18px,2.8vw,30px);font-weight:400}
+  .shaft{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.28));pointer-events:none}
+  .lift:nth-child(1){background:linear-gradient(180deg,#3a3228,#16120e)}
+  .lift:nth-child(2){background:linear-gradient(180deg,#2c2636,#121018)}
+  .lift:nth-child(3){background:linear-gradient(180deg,#24322e,#0e1412)}
 
   .sheet{
     position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;
@@ -230,10 +241,31 @@
   .sub{color:var(--mute);font-size:14px}
 
   @media(max-width:700px){
-    .lifts{gap:8px}
-    .lift{width:30vw;height:46vh}
     .nav-links{display:none}
     .nav-search{display:none}
+    .hall{padding:max(78px,10vh) 18px 0}
+    .brand-mark{margin-bottom:12px;letter-spacing:.42em;font-size:11px}
+    .brand-mark span{width:28px;margin:0 8px}
+    .hall h1{font-size:clamp(34px,11vw,52px);line-height:.96}
+    .lede{margin-top:12px;font-size:14px;max-width:30ch}
+    .enter-row{margin-top:16px}
+    .lifts{
+      gap:8px;
+      padding:0 12px max(48px,8vh);
+      opacity:1;
+    }
+    .lift{
+      width:31vw;height:min(32vh,260px);
+      border-radius:14px 14px 6px 6px;
+    }
+    .door{padding:14px}
+    .door strong{font-size:clamp(15px,4.2vw,20px)}
+    .hint{bottom:max(12px,1.8vh);letter-spacing:.22em;font-size:10px}
+  }
+  @media(max-width:700px) and (max-height:720px){
+    .hall{padding-top:max(70px,8vh)}
+    .lift{height:min(28vh,210px)}
+    .lede{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   }
 </style>
 </head>
@@ -265,20 +297,24 @@
       <div class="brand-mark"><span></span>Octave<span></span></div>
       <div class="kicker">A house for sound</div>
       <h1>Walk in.<br><em>Don’t press play.</em></h1>
-      <p class="lede">A private lobby of sonic realms. Three lifts ahead — About, Origin, Explore. Scroll as if you were crossing the marble.</p>
+      <p class="lede">Private lobby. Three lifts ahead — About, Origin, Explore. Cross the marble.</p>
+      <div class="enter-row ui">
+        <button class="btn btn-gold" type="button" onclick="goExplore()">Enter lobby</button>
+        <button class="btn btn-ghost" type="button" onclick="document.getElementById('lifts').scrollIntoView({behavior:'smooth',block:'nearest'});window.scrollBy({top:Math.min(280, innerHeight*0.35),behavior:'smooth'})">Take a lift</button>
+      </div>
     </div>
     <div class="lifts" id="lifts">
-      <button class="lift glass" type="button" onclick="openSheet('about')">
+      <button class="lift glass" type="button" onclick="openSheet('about')" aria-label="About us">
         <div class="shaft"></div>
-        <div class="door"><small>01</small><strong>About us</strong></div>
+        <div class="door"><small>01 · About</small><strong>House</strong></div>
       </button>
-      <button class="lift glass" type="button" onclick="openSheet('origin')">
+      <button class="lift glass" type="button" onclick="openSheet('origin')" aria-label="Where we started">
         <div class="shaft"></div>
-        <div class="door"><small>02</small><strong>Where we started</strong></div>
+        <div class="door"><small>02 · Origin</small><strong>Story</strong></div>
       </button>
-      <button class="lift glass" type="button" onclick="goExplore()">
+      <button class="lift glass" type="button" onclick="goExplore()" aria-label="Explore realms">
         <div class="shaft"></div>
-        <div class="door"><small>03</small><strong>Explore</strong></div>
+        <div class="door"><small>03 · Explore</small><strong>Realms</strong></div>
       </button>
     </div>
     <div class="hint" id="hint">Scroll to enter</div>
@@ -416,8 +452,8 @@ function onScroll(){
   const fade=Math.min(1, Math.max(0,(t-0.15)/0.55));
   hall.style.opacity=String(1-fade*0.92);
   hall.style.transform="translateY("+(-t*56)+"px) scale("+(1-t*0.06)+")";
-  lifts.classList.toggle("on", t>0.08);
-  hint.style.opacity=String(t>0.2?0:1);
+  lifts.classList.toggle("on", t>0.04);
+  hint.style.opacity=String(t>0.28?0:1);
 }
 addEventListener("scroll", onScroll, {passive:true});
 onScroll();
