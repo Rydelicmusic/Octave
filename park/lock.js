@@ -152,7 +152,41 @@ export const WALKS = [
     spur: [-12, 70],
     sign: { x: -55, z: 55, yaw: Math.PI / 2 },
   },
+  // Pass 19 — park-wide itinerary legs (lands held; no spine cut-through)
+  {
+    id: 'after-hours-quiet',
+    name: 'After Hours Quiet',
+    land: 'After Hours',
+    loop: false,
+    lakes: [5],
+    spur: [-12, -100],
+    sign: { x: 8, z: -72, yaw: 0 },
+  },
+  {
+    id: 'pocket-rim',
+    name: 'Pocket Rim',
+    land: 'The Pocket',
+    loop: false,
+    lakes: [8],
+    spur: [12, 95],
+    sign: { x: 55, z: 88, yaw: -Math.PI / 2 },
+  },
 ];
+
+/** Ordered guest itinerary stitching named WALKS via hub / spine shoulders. */
+export const ITINERARY = {
+  id: 'park-circuit',
+  name: 'Park Circuit',
+  sequence: [
+    'block-spine-approach',
+    'block-lakeshore',
+    'after-hours-quiet',
+    'board-promenade',
+    'pocket-rim',
+  ],
+  // Gate apron → first stop; eye-height sign
+  sign: { x: 0, z: 205, yaw: Math.PI },
+};
 
 export function walkLake(i) {
   const [x, z, rx, rz] = LOCK.waters[i];
@@ -168,13 +202,19 @@ export function walkPairs(walk) {
 }
 
 export function walkSegmentCrossesSpine(ax, az, bx, bz) {
+  const half = LOCK.spineWidth / 2;
   for (let i = 0; i <= 8; i++) {
     const t = i / 8;
     const x = ax + (bx - ax) * t;
     const z = az + (bz - az) * t;
-    if (Math.abs(x) < LOCK.spineWidth / 2 && z >= 0 && z <= LOCK.B) return true;
+    // Gate +Z and north −Z 14 m corridors both refuse cut-throughs
+    if (Math.abs(x) < half && z >= -LOCK.B && z <= LOCK.B) return true;
   }
   return false;
+}
+
+export function walkById(id) {
+  return WALKS.find((w) => w.id === id);
 }
 
 export function inWater(x, z, margin = 0) {

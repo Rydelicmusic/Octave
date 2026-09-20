@@ -24,7 +24,7 @@
 <div id="wrap"></div>
 <div class="hud" id="hud">hover grid — m</div>
 <script type="module">
-import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, walkLake, hoverLabel, spineCadPolyline, northSpineCadPolyline } from './lock.js';
+import { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, ITINERARY, walkById, walkLake, hoverLabel, spineCadPolyline, northSpineCadPolyline } from './lock.js';
 const A = LOCK.A, B = LOCK.B;
 const CX = BLUEPRINT.CX, CY = BLUEPRINT.CY, W = BLUEPRINT.W, H = BLUEPRINT.H;
 const toX = x => CX + x;
@@ -80,6 +80,18 @@ WALKS.forEach(walk => {
   t.textContent = walk.name;
   svg.appendChild(t);
 });
+
+// Pass 19 — park-wide itinerary polyline (sign waypoints)
+{
+  const pts = ITINERARY.sequence.map(id => walkById(id)).filter(Boolean).map(w => w.sign).filter(Boolean);
+  if (pts.length >= 2) {
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'} ${toX(p.x)} ${toY(p.z)}`).join(' ');
+    svg.appendChild(el('path', { d, fill: 'none', stroke: '#8a4030', 'stroke-width': '2.8', 'stroke-dasharray': '10 6' }));
+    const t = el('text', { x: toX(ITINERARY.sign.x), y: toY(ITINERARY.sign.z) - 10, fill: '#8a4030', 'font-size': 12, 'font-family': 'ui-monospace,monospace', 'text-anchor': 'middle' });
+    t.textContent = ITINERARY.name;
+    svg.appendChild(t);
+  }
+}
 svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(0), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));
 // Pass 18 — north −Z corridor fill (hub → stadium north rail)
 svg.appendChild(el('rect', {x:toX(-LOCK.spineWidth/2), y:toY(-B), width:LOCK.spineWidth, height:B, fill:'#c9b48a', opacity:'0.85'}));

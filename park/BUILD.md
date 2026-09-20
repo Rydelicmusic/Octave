@@ -109,8 +109,13 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - `northSpineCadPolyline` mirrors Pass 16 Gate CAD: x=±7 m, z=0 (hub) → z=−230 (−B)
 - Blueprint north corridor fill + edge strokes; 14 m spine width / hub / rings / waters / BUILDINGS held
 
+## Pass 19 — park-wide guest itinerary
+- Added After Hours Quiet + Pocket Rim walks; `ITINERARY` Park Circuit sequences all named walks
+- Hub-apron stitches between walk signs (no 14 m spine cut-through); Gate itinerary sign + blueprint dash
+- Waters / rings / BUILDINGS / spine width held
+
 ## Still fake (worst next)
-2. Named walks are lakeshore circuits, not a full park-wide guest itinerary
+1. Itinerary stitches are hub-apron waypoints, not a measured timed tour
 
 ## KEITH check-in — 2026-09-20 13:04 CDT
 - FLEET: KEITH 15-min loop; Realm Engineer = park/; Site Luxury = park-site/; Quality GATE ordered
@@ -132,7 +137,8 @@ Completes SKU ladder in The Pocket (song=kiosk, EP=pavilion, album=full building
 - SHIPPED Pass 16: CAD-traced 14 m spine edges from blueprint hover
 - SHIPPED Pass 17: named guest-walk circuit (Block Lakeshore / Board Promenade)
 - SHIPPED Pass 18: north −Z CAD corridor edges
-- **NEXT:** Pass 19 — park-wide guest itinerary (named walks → full circuit)
+- SHIPPED Pass 19: park-wide guest itinerary (Park Circuit)
+- **NEXT:** (await Keith / Ryan STOP) polish itinerary timed tour or denser After Hours shore
 - **CONSTRAINTS:** park/ only; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS footprints held
 - **SOLUTIONS:** Ordered Pass 13 to Realm Engineer; Quality spot-check walk on live park URL
 - **COMMITS:** bac38ad Pass 12; 918bf3c Pass 11; tip 6240551

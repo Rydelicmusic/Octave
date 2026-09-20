@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   LOCK, BUILDINGS, GATE, STATIONS, BLUEPRINT, canPlaceBuilding, inCanopy, inStadium, inWater,
   onSpine, nearRing, hoverLabel, svgToMeters, placementIssues, occupancyAABB, hitsSpine, stationBesideRing,
-  spineCadPolyline, northSpineCadPolyline, WALKS, walkLake, walkPairs, walkSegmentCrossesSpine,
+  spineCadPolyline, northSpineCadPolyline, WALKS, ITINERARY, walkById, walkLake, walkPairs, walkSegmentCrossesSpine,
 } from './lock.js';
 
 const dir = dirname(fileURLToPath(import.meta.url));
@@ -119,6 +119,14 @@ assert.match(indexHtml, /named circuits \(WALKS/);
 assert.match(indexHtml, /WALKS\.forEach/);
 assert.doesNotMatch(indexHtml, /2 nearest neighbors/);
 assert.ok(WALKS.length >= 2);
+assert.ok(WALKS.length >= 4);
+assert.ok(WALKS.find((w) => w.id === 'after-hours-quiet'));
+assert.ok(WALKS.find((w) => w.id === 'pocket-rim'));
+assert.equal(ITINERARY.id, 'park-circuit');
+assert.ok(ITINERARY.sequence.every((id) => walkById(id)));
+assert.match(indexHtml, /ITINERARY/);
+assert.match(indexHtml, /parkItinerary/);
+
 assert.ok(WALKS.every((w) => w.name && w.land && Array.isArray(w.lakes)));
 assert.deepEqual(WALKS.find((w) => w.id === 'block-lakeshore').lakes, [0, 4, 3, 2, 1]);
 assert.deepEqual(WALKS.find((w) => w.id === 'board-promenade').lakes, [10, 11]);
@@ -128,6 +136,7 @@ for (const w of WALKS) {
     const L = walkLake(i);
     if (w.land === 'The Block') assert.ok(L.x < -LOCK.spineWidth / 2, w.id);
     if (w.land === 'The Board') assert.ok(L.x > LOCK.spineWidth / 2, w.id);
+    // After Hours / Pocket may straddle hub; no hard side rule
   }
   for (const [ia, ib] of walkPairs(w)) {
     const A = walkLake(ia), B = walkLake(ib);
