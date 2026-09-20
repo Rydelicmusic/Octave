@@ -517,3 +517,16 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Venues hub → boards
 - **COMMIT / LAST COMMIT:** 5265904 — Pass 38
 
+## Check-in — Pass 40 run rollup (28–39)
+
+- **TIME:** 2026-09-20 13:30 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Density burst from tip 39d9eb7; shipped Passes 28–39 on main
+- **GOING:** Tip 74c21b3; live probes 200 on Gate/night/day/venue/geometry/paths; link audits 0 broken
+- **NEXT:** Continue densify unless director STOP
+- **CONSTRAINTS:** park-site/ only; MOCK roster stable; LAYOUT axes; FF races retried
+- **SOLUTIONS:** Venue short-slug densify; timed night/day boards; journal lands; map meters; guest/tickets/atelier/works no-dead-end; directory/programs/venues hubs
+- **COMMIT / LAST COMMIT:** 74c21b3 — Pass 39 venues tonight/today desk
+- **TIP:** 74c21b3f55a58f102f14555b1792f7913736acaf
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
