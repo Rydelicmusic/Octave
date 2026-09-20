@@ -243,3 +243,14 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **COMMIT / LAST COMMIT:** 1071470 — Pass 16 STATUS
 - **TIP TARGET:** pending
 
+## Check-in — Pass 18 guest desk wayfinding
+
+- **TIME:** 2026-09-20 13:32 CDT (America/Chicago)
+- **LANE:** shell
+- **STARTED:** Pass 18 — guest desk Measured hospitality menu (paths/geometry/programs/venues/map)
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 19+
+- **CONSTRAINTS:** park-site/ only
+- **SOLUTIONS:** Desk menus open menus
+- **COMMIT / LAST COMMIT:** e55def7 — Pass 17
+
