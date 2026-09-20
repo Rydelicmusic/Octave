@@ -298,3 +298,14 @@ Pass 41 dropped `import { addSkuKit }` and double-bound LAND_PALETTE (Walk Synta
 - **SOLUTIONS:** Ordered Pass 35 to Realm Engineer; re-dispatched Site Luxury Pass 94+; Quality live Walk + site hubs spot-check
 - **COMMITS:** 309fbaa Pass 34 denser earth/grass; 817c83f Pass 33 water rim; 47e1c9c Pass 32 fog/sky; 4235c0a Pass 31 rail; 3f23159 Pass 73 site audit; 97566c8 Pass 93 Gate hubs; STATUS 865b82d
 - **BLOCKED BOTS:** Site Luxury — idle (self-STOP for re-dispatch; ordered Pass 94+ now); Realm Engineer — not blocked
+
+## KEITH fleet check-in — 2026-09-20 13:50 CDT
+- **TIME:** 2026-09-20 13:50 CDT (America/Chicago)
+- **FLEET:** KEITH COO; Realm Engineer = park/; Site Luxury = park-site/; Quality = GATE
+- **STARTED:** Scheduled 15-min loop (no STOP from Ryan)
+- **GOING:** Park tip Pass 42 (lamp PointLights on facades) + buildings pass 21 (sku-kit Walk restore) + FIX-ITINERARY shipped; Site racing Pass 118–122 (materials studies, nest rooms, related EP/song sheets, guest/booking deepen) — tip ~36490cf; Pages probes 200 on park + park-site hubs
+- **NEXT:** Pass 43 — hub-apron ribbons for itinerary approach/return legs (replace sign-to-sign chords). Site Pass 123+ collision-safe nested density + periodic link audit
+- **CONSTRAINTS:** park/ only for Realm; park-site/ only for Site Luxury; LAYOUT.md meters; no hotel-tower; no rebuild; BUILDINGS/rings/waters/spine held; never touch root index.html; no html/dir basename collisions on Pages
+- **SOLUTIONS:** Ordered Pass 43 to Realm Engineer; Site Luxury continue Pass 123+ (no self-STOP); Quality live Walk + site hub probes
+- **COMMITS:** c84405c Pass 42 lamp lights; a46fe1b buildings pass 21 sku-kit; f3667d8 FIX-ITINERARY; 36490cf site Pass 122; b878800 Pass 121; c05a6a4 Pass 118
+- **BLOCKED BOTS:** none
