@@ -108,7 +108,7 @@
     position:relative;z-index:2;flex:1;min-height:0;height:100%;
     display:flex;flex-direction:column;align-items:center;
     justify-content:flex-start;
-    padding:max(80px,9vh) 20px 16px;
+    padding:max(72px,8vh) 20px 14px;
     box-sizing:border-box;
     overflow:hidden;
   }
@@ -126,7 +126,7 @@
   .brand-mark span{display:inline-block;width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);vertical-align:middle;margin:0 12px}
   .kicker{letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:14px;font-family:-apple-system,sans-serif}
   .hall .kicker{display:none}
-  .hall h1{font-weight:400;font-size:clamp(36px,6.5vw,72px);letter-spacing:-.03em;line-height:.94;color:var(--paper);text-shadow:0 8px 40px rgba(0,0,0,.4)}
+  .hall h1{font-weight:400;font-size:clamp(34px,6.2vw,64px);letter-spacing:-.03em;line-height:.94;color:var(--paper);text-shadow:0 8px 40px rgba(0,0,0,.4)}
   .hall h1 em{font-style:italic;color:var(--gold2)}
   .lede{
     margin:12px auto 0;max-width:34ch;color:#e8e2d6;font-size:16px;line-height:1.55;
@@ -162,7 +162,7 @@
   .lifts.on{opacity:1}
   .lift{
     flex:1 1 0;min-width:0;max-width:220px;
-    height:120px;
+    height:200px;
     border-radius:14px 14px 6px 6px;position:relative;overflow:hidden;
     transition:box-shadow .9s var(--ease), border-color .9s var(--ease);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 10px 28px rgba(0,0,0,.28);
@@ -368,9 +368,9 @@
   .sub{color:var(--mute);font-size:14px}
 
   @media(min-width:701px){
-    .lift-gap{flex-basis:48px;height:48px}
+    .lift-gap{flex-basis:48px;height:48px;min-height:48px}
     .lifts{gap:16px}
-    .lift{height:120px}
+    .lift{height:200px}
   }
   @media(max-width:700px){
     .nav-links{display:none}
@@ -381,9 +381,9 @@
     .hall h1{font-size:clamp(32px,10.5vw,48px);line-height:.96}
     .lede{margin-top:10px;font-size:14px;max-width:30ch}
     .enter-row{margin-top:12px}
-    .lift-gap{flex-basis:28px;height:28px}
+    .lift-gap{flex-basis:28px;height:28px;min-height:28px}
     .lifts{gap:8px}
-    .lift{height:100px;border-radius:12px 12px 5px 5px}
+    .lift{height:150px;border-radius:12px 12px 5px 5px}
     .door{padding:12px}
     .door strong{font-size:clamp(15px,4vw,18px)}
     .hint{letter-spacing:.22em;font-size:10px}
@@ -394,8 +394,8 @@
   }
   @media(max-width:700px) and (max-height:700px){
     .stage-inner{padding-top:max(64px,8vh)}
-    .lift{height:88px}
-    .lift-gap{flex-basis:20px;height:20px}
+    .lift{height:128px}
+    .lift-gap{flex-basis:24px;height:24px;min-height:24px}
     .enter-row .btn{padding:8px 12px}
   }
 </style>
