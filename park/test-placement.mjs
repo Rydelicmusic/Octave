@@ -124,6 +124,8 @@ test('skuKit always emits roof overhang window queue marquee service with palett
     assert.equal(marquee.color, pal.marquee, `${p.id} marquee color`);
     assert.equal(marquee.color, LAND_PALETTE[p.land].marquee, `${p.id} LAND_PALETTE.marquee`);
     assert.ok(marquee.y <= 3.6, `${p.id} marquee y ${marquee.y} must be walk-under (<=3.6 m)`);
+    const window0 = report.parts.find((x) => x.name === 'window');
+    assert.ok(window0.y >= 1.2 && window0.y <= 1.75, `${p.id} ground window y ${window0.y}`);
     const overhang = report.parts.find((x) => x.name === 'overhang');
     assert.ok(overhang.w > p.w, `${p.id} overhang must outspan body`);
     assert.ok(overhang.z > 0, `${p.id} overhang must project forward`);

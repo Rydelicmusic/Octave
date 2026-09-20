@@ -250,8 +250,11 @@ Kit queues were 0.92 m high, 0.09 m thick, two rails only. Now 1.05 m rails (0.0
 ## Buildings pass 26 — gate bridge 1.1 m on 8.6 m wings
 Was a 3.4 m-tall block centered at wing h=8.6 m (cut through the attic). Now a 1.1 m deck sits on the wings at y≈9.0 m, span = wing spacing + w (27 m), 18 m spine opening held. Ticket windows 1.6 × 0.9 m at y=1.2 m on each wing. GATE footprints ±13.5, 233 unchanged.
 
+## Buildings pass 27 — ground windows at 1.45–1.6 m
+Kiosk window center was `0.28+h*0.5` ≈ 1.85 m. Now kiosk 0.9 m pane at y=1.45 (sill ≈ 1.0 m); pavilion/album 1.05–1.4 m pane at y=1.6. Footprints unchanged.
+
 ## Still fake (worst next)
-1. Kiosk windows sit at `0.28+h*0.5` ≈ 1.85 m (high for a 3.15 m shed)
+1. Ride-station kit body is a shed; extra Pass-36 zig queues still sit beside the kit rails
 2. Tour meters use hub-apron polylines; still not full Catmull ribbon sample length
 3. PointLights are sparse (not every lamp) to keep WebGL fill-rate in check
 

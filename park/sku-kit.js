@@ -22,10 +22,12 @@ export function skuKit(p, emit) {
   emit.box({ name: 'overhang', w: w + eaves * 2, h: 0.22, d: Math.max(1.15, eaves * 2.4), x: 0, y: plinth + bodyH + 0.11, z: d / 2 + eaves * 0.55, color: pal.trim });
   const roofBoxH = Math.max(0.28, roofH * 0.32);
   emit.box({ name: 'roof', w: w + eaves, h: roofBoxH, d: d + eaves, x: 0, y: plinth + bodyH + 0.22 + roofBoxH / 2, z: 0, color: pal.roof });
-  emit.box({ name: 'window', w: Math.min(2.4, w * 0.45), h: Math.min(1.5, h * 0.32), d: 0.14, x: 0, y: 0.28 + h * 0.5, z: d / 2 + 0.08, color: pal.window });
+  const winH = p.sku === 'kiosk' ? 0.9 : Math.min(1.4, Math.max(1.05, h * 0.22));
+  const winY = p.sku === 'kiosk' ? 1.45 : 1.6;
+  emit.box({ name: 'window', w: Math.min(2.2, w * 0.42), h: winH, d: 0.14, x: 0, y: winY, z: d / 2 + 0.08, color: pal.window });
   if (w >= 6) {
-    emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: -w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
-    emit.box({ name: 'window', w: Math.min(1.8, w * 0.22), h: Math.min(1.35, h * 0.28), d: 0.14, x: w * 0.28, y: 0.28 + h * 0.48, z: d / 2 + 0.08, color: pal.window });
+    emit.box({ name: 'window', w: Math.min(1.6, w * 0.2), h: winH * 0.92, d: 0.14, x: -w * 0.28, y: winY, z: d / 2 + 0.08, color: pal.window });
+    emit.box({ name: 'window', w: Math.min(1.6, w * 0.2), h: winH * 0.92, d: 0.14, x: w * 0.28, y: winY, z: d / 2 + 0.08, color: pal.window });
   }
   const marqueeY = Math.min(3.35, plinth + bodyH - 0.5);
   emit.box({ name: 'marquee', w: Math.min(w * 0.72, 8.5), h: 0.78, d: 1.15, x: 0, y: marqueeY, z: d / 2 + 0.72, color: pal.marquee });
