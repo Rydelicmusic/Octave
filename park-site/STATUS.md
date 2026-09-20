@@ -900,3 +900,18 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **TIP:** 97566c8594fe040cae8f2763278adc646ac4769f
 - **LIVE:** https://rydelicmusic.github.io/octave/park-site/
 
+## Check-in — Pass 73 link audit + tip sync
+
+- **TIME:** 2026-09-20 13:35 CDT (America/Chicago)
+- **LANE:** Site Luxury / audit
+- **STARTED:** After Pass 72 (0bf18f4); full relative link audit; STATUS tip sync; light programs foot polish
+- **GOING:** Audit ok=3674 broken=0; 12 short-slugs + 12 SKU aliases present; Home→Land→Venue→Work intact; FIX c95c7e2 clean
+- **NEXT:** STOP for parent re-dispatch
+- **CONSTRAINTS:** park-site/ only; MOCK locked; relative links; no hotel-tower; no rebuild
+- **SOLUTIONS:** Audit first; tip pointer accurate; foot meta only polish
+- **LINK AUDIT:** ok=3674 broken=0
+- **COMMITS:** 0bf18f4 Pass 72 programs desk · (this) Pass 73 audit+STATUS
+- **COMMIT / LAST COMMIT:** pending Pass 73 push
+- **TIP:** 0bf18f4a2983122ce1b97b5d3399c4b737c893d8
+- **LIVE:** https://rydelicmusic.github.io/octave/park-site/
+
