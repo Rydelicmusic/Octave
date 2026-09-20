@@ -288,3 +288,15 @@ Geometry lock: Origin hub (0,0); +X The Board; −X The Block; +Z Gate / The Poc
 - **SOLUTIONS:** Hub discoverability for measure pages
 - **COMMIT / LAST COMMIT:** 578a8c3 — Pass 20
 
+## Check-in — Pass 22 land cross-strips
+
+- **TIME:** 2026-09-20 13:40 CDT (America/Chicago)
+- **LANE:** lands
+- **STARTED:** Pass 22 — cross-land mega-menus + geometry/paths/programs on all four land pages; geometry.html live 200
+- **GOING:** Push; continue until STOP
+- **NEXT:** Pass 23+
+- **CONSTRAINTS:** park-site/ only; LAYOUT axes
+- **SOLUTIONS:** No dead-end lands — always offer other axes
+- **COMMIT / LAST COMMIT:** 2b48703 — Pass 21
+- **LIVE:** geometry.html HTTP 200 (Pages still intermittently reports errored)
+
