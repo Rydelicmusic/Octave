@@ -1,7 +1,8 @@
 /** The Pocket song kiosk. G2,2 / x 70 z 50 / 6 × 4 m. Off rings. Queue 4 m toward pocket-drive (x=60). */
-import { claim, whyBlocked } from '../occupy.js';
+import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy, nearRing } from '../lock.js';
 import { addSkuKit } from '../sku-kit.js';
+import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-pocket-01',
@@ -33,6 +34,7 @@ function queueLot() {
 }
 
 export function claimRide() {
+  if (lots().some((c) => c.id === RIDE.id)) return true;
   if (!inCanopy(RIDE.x, RIDE.z, RIDE.land)) return false;
   if (occupiesSpine(RIDE.x, RIDE.z, Math.max(RIDE.w, RIDE.d) / 2)) return false;
   if (nearRing(RIDE.x, RIDE.z, 10)) return false;
@@ -46,5 +48,6 @@ export function claimRide() {
 
 export function addRidePocket01(THREE, scene) {
   if (!claimRide()) return null;
-  return addSkuKit(THREE, scene, RIDE);
+  const g = addSkuKit(THREE, scene, RIDE);
+  return markRide(THREE, scene, RIDE, g);
 }

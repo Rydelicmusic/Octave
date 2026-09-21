@@ -10,6 +10,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 100 — four land belts, rides readable
+- Trees 6 m off drives/spine, 8–10 m spacing, 0–2/cell; claim rides before canopy
+- 1.2 m stone pads under the 8 land rides; queue still faces each T-drive; no new rides
+
 ## Pass 99 — RIDE_QUEUE #1–#9 DONE
 - Song kiosks: Board G6,0 / x 160 z 14; Block G-8,1 / x -187.5 z 37.5; Hours G-2,-7 / x -36 z -175; Pocket G2,2 / x 70 z 50
 - EP pavilions: Board G7,0 / x 187.5 z 14; Block G-8,-1 / x -187.5 z -20; Hours G-3,-7 / x -60 z -175; Pocket G1,3 / x 40 z 80

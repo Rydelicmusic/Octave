@@ -1,7 +1,8 @@
 /** After Hours song kiosk. G-2,-7 / x -36 z -175 / 6 × 4 m. G0,-7 hit spine; next free in land. Queue 4 m toward hours-drive. */
-import { claim, whyBlocked } from '../occupy.js';
+import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
 import { addSkuKit } from '../sku-kit.js';
+import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-hours-01',
@@ -33,6 +34,7 @@ function queueLot() {
 }
 
 export function claimRide() {
+  if (lots().some((c) => c.id === RIDE.id)) return true;
   if (!inCanopy(RIDE.x, RIDE.z, RIDE.land)) return false;
   if (occupiesSpine(RIDE.x, RIDE.z, Math.max(RIDE.w, RIDE.d) / 2)) return false;
   const lot = massLot();
@@ -45,5 +47,6 @@ export function claimRide() {
 
 export function addRideHours01(THREE, scene) {
   if (!claimRide()) return null;
-  return addSkuKit(THREE, scene, RIDE);
+  const g = addSkuKit(THREE, scene, RIDE);
+  return markRide(THREE, scene, RIDE, g);
 }

@@ -9,6 +9,7 @@ const HUB = LOCK.hubOuter || 32;
 const LANDS = ['The Block', 'After Hours', 'The Board', 'The Pocket'];
 const SPINE_OFF = (LOCK.spineWidth || 14) / 2 + 6;
 const BELT_SPACING = 9;
+const DRIVE_OFF = ROAD_W / 2 + 6;
 const treeCount = new Map();
 const propCount = new Map();
 const log = [];
@@ -38,15 +39,65 @@ export function treeStats() {
   return { claimed, skipped, overCap: over };
 }
 
+function distToDrive(x, z) {
+  let best = 1e9;
+  for (const d of LAND_DRIVES) {
+    for (let i = 0; i < d.pts.length - 1; i++) {
+      const [x0, z0] = d.pts[i];
+      const [x1, z1] = d.pts[i + 1];
+      const dx = x1 - x0;
+      const dz = z1 - z0;
+      const len2 = dx * dx + dz * dz || 1;
+      let u = ((x - x0) * dx + (z - z0) * dz) / len2;
+      if (u < 0) u = 0;
+      else if (u > 1) u = 1;
+      const dist = Math.hypot(x - (x0 + dx * u), z - (z0 + dz * u));
+      if (dist < best) best = dist;
+    }
+  }
+  return best;
+}
+
 export function beltSlots(pts) {
   const kept = [];
   for (const p of pts || []) {
     if (Math.abs(p.x) < SPINE_OFF) continue;
     if (Math.hypot(p.x, p.z) < HUB + 6) continue;
+    if (distToDrive(p.x, p.z) < DRIVE_OFF - 0.05) continue;
     if (kept.some((k) => Math.hypot(k.x - p.x, k.z - p.z) < BELT_SPACING)) continue;
     kept.push(p);
   }
   return kept;
+}
+
+export function landDriveBelts() {
+  const raw = [];
+  for (const d of LAND_DRIVES) {
+    for (let i = 0; i < d.pts.length - 1; i++) {
+      const [x0, z0] = d.pts[i];
+      const [x1, z1] = d.pts[i + 1];
+      const dx = x1 - x0;
+      const dz = z1 - z0;
+      const len = Math.hypot(dx, dz) || 1;
+      const nx = -dz / len;
+      const nz = dx / len;
+      const n = Math.max(1, Math.floor(len / BELT_SPACING));
+      for (let k = 0; k <= n; k++) {
+        const t = k / n;
+        const x = x0 + dx * t;
+        const z = z0 + dz * t;
+        for (const side of [-1, 1]) {
+          const px = x + nx * DRIVE_OFF * side;
+          const pz = z + nz * DRIVE_OFF * side;
+          if (!inCanopy(px, pz, d.land)) continue;
+          if (occupiesSpine(px, pz, 1.5)) continue;
+          if (Math.hypot(px, pz) < HUB + 6) continue;
+          raw.push({ x: px, z: pz, s: 1, seed: k + i * 17, land: d.land });
+        }
+      }
+    }
+  }
+  return beltSlots(raw);
 }
 
 function driveSegs(d) {
@@ -182,16 +233,12 @@ export function replayTrees() {
   for (const name of ['west lakes', 'SE grove', 'north split']) {
     for (const p of beltSlots(beltTreePositions(name))) add(p.x, p.z, p.s, p.seed);
   }
+  for (const p of landDriveBelts()) add(p.x, p.z, p.s, p.seed);
   const B = LOCK.B;
   for (let z = 34; z < B - 10; z += 9) {
     for (const [cx, cz] of [[-13.5, z], [13.5, z]]) {
       clumpPts(cx, cz, 2, 3.2).forEach(([x, zz], i) => add(x, zz, 1.05 * (0.72 + (i % 5) * 0.13), i + 11));
     }
-  }
-  for (let i = 0; i < 24; i++) {
-    const a = (i / 24) * Math.PI * 2 + 0.3;
-    if (Math.abs(Math.sin(a)) > 0.88) continue;
-    add(Math.cos(a) * 38, Math.sin(a) * 38, 0.9, i + 11);
   }
   return seq;
 }

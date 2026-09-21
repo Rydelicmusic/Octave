@@ -1,7 +1,8 @@
 /** The Block song kiosk. G-8,1 / x -187.5 z 37.5 / 6 × 4 m. Queue 4 m toward block-drive (z=0). */
-import { claim, whyBlocked } from '../occupy.js';
+import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
 import { addSkuKit } from '../sku-kit.js';
+import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-block-01',
@@ -33,6 +34,7 @@ function queueLot() {
 }
 
 export function claimRide() {
+  if (lots().some((c) => c.id === RIDE.id)) return true;
   if (!inCanopy(RIDE.x, RIDE.z, RIDE.land)) return false;
   if (occupiesSpine(RIDE.x, RIDE.z, Math.max(RIDE.w, RIDE.d) / 2)) return false;
   const lot = massLot();
@@ -45,5 +47,6 @@ export function claimRide() {
 
 export function addRideBlock01(THREE, scene) {
   if (!claimRide()) return null;
-  return addSkuKit(THREE, scene, RIDE);
+  const g = addSkuKit(THREE, scene, RIDE);
+  return markRide(THREE, scene, RIDE, g);
 }

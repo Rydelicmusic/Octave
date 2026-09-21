@@ -1,5 +1,5 @@
 /** Gate wayfinding. Off 14 m spine. G-1,8 / G0,8 / x ±24 z 210 / 1.2 × 0.35 m posts. */
-import { claim, whyBlocked } from '../occupy.js';
+import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine } from '../lock.js';
 
 export const SIGNS = [
@@ -8,6 +8,7 @@ export const SIGNS = [
 ];
 
 export function claimRide() {
+  if (SIGNS.every((s) => lots().some((c) => c.id === s.id))) return true;
   let n = 0;
   for (const s of SIGNS) {
     if (occupiesSpine(s.x, s.z, 1)) continue;

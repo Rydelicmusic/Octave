@@ -33,3 +33,6 @@ G-8,-1 claim ride-block-02 / x -187.5 z -20 / 12 × 8 m
 G-3,-7 claim ride-hours-02 / x -60 z -175 / 12 × 8 m
 G1,3 claim ride-pocket-02 / x 40 z 80 / 12 × 8 m
 G-1,8 / G0,8 claim ride-gate-signs / x ±24 z 210
+
+## Pass 100 organize
+trees-moved (belts 6 m off drives/spine, 8–10 m), rides-visible (1.2 m stone pads, 8 ids kept), cells-over-cap=0

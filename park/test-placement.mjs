@@ -19,7 +19,8 @@ import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 import { parkToGeo } from './gps-hud.js';
 import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
 import { seedPark, claim, treeLot, lots, clearDynamic, whyBlocked, dump } from './occupy.js';
-import { claimDrives, replayTrees, placeTree, surveyLog, treeStats } from './organize.js';
+import { claimDrives, replayTrees, placeTree, surveyLog, treeStats, landDriveBelts } from './organize.js';
+import { claimAllRides } from './rides/seed-rides.js';
 import { claimRide as claimBoard01, RIDE as BOARD01 } from './rides/ride-board-01.js';
 import { claimRide as claimBlock01, RIDE as BLOCK01 } from './rides/ride-block-01.js';
 import { claimRide as claimHours01, RIDE as HOURS01 } from './rides/ride-hours-01.js';
@@ -395,6 +396,7 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   assert.equal(seeded.spine, true);
   assert.equal(seeded.plates, 4);
   assert.ok(claimDrives() >= 4);
+  assert.ok(claimAllRides() >= 9);
   replayTrees();
   assert.equal(claimBoard01(), true);
   assert.equal(claimBlock01(), true);
@@ -434,6 +436,8 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   assert.match(src, /addRidePocket01\(THREE,scene\)/);
   assert.match(src, /addRideBoard02\(THREE,scene\)/);
   assert.match(src, /addRideGateSigns\(THREE,scene\)/);
+  assert.match(src, /claimAllRides\(\)/);
+  assert.match(src, /landDriveBelts\(\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
   assert.match(src, /whyBlocked\(/);
   assert.match(src, /claimStruct\(/);
@@ -476,7 +480,9 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   const treeN = map.lots.filter((l) => l.kind === 'tree').length;
   assert.ok(treeN < 180, 'forest ' + treeN);
   assert.equal(stats.overCap, 0);
-  assert.ok(stats.claimed === treeN || stats.claimed >= treeN);
+  assert.ok(landDriveBelts().length >= 8);
+  const rideLots = map.lots.filter((l) => /^ride-(board|block|hours|pocket)-0[12]$/.test(l.id));
+  assert.equal(rideLots.length, 8);
 });
 
 test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {

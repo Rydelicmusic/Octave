@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> walk free in oval — no ribbon snap</div>
+  <div><b>This pass:</b> four land belts — rides on 1.2 m pads</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -53,7 +53,8 @@ import { addRideGateSigns } from './rides/ride-gate-signs.js';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
 import { claim, seedPark, whyBlocked, dump } from './occupy.js';
-import { claimDrives, placeTree, placeProp, beltSlots } from './organize.js';
+import { claimDrives, placeTree, placeProp, beltSlots, landDriveBelts } from './organize.js';
+import { claimAllRides } from './rides/seed-rides.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -73,6 +74,7 @@ const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
 window.__PARK_DRY=true;
 seedPark(LOCK, BUILDINGS, GATE, STATIONS);
 claimDrives();
+claimAllRides();
 function claimStruct(b, kind='building'){
   if(!b||!b.id) return false;
   const rad=Math.max((b.w||0)/2,(b.d||0)/2);
@@ -1002,11 +1004,7 @@ beltSlots(beltTreePositions('west lakes')).forEach(p=>tree(p.x,p.z,p.s,p.seed,'w
 beltSlots(beltTreePositions('SE grove')).forEach(p=>tree(p.x,p.z,p.s,p.seed,'oak'));
 // North / After Hours split — pine-biased
 beltSlots(beltTreePositions('north split')).forEach(p=>tree(p.x,p.z,p.s,p.seed,'pine'));
-for(let i=0;i<24;i++){
-  const a=(i/24)*Math.PI*2+0.3;
-  if(Math.abs(Math.sin(a))>0.88)continue;
-  tree(Math.cos(a)*38,Math.sin(a)*38,0.9,i,'poplar');
-}
+landDriveBelts().forEach(p=>tree(p.x,p.z,p.s,p.seed));
 // Pass 14 — denser Pocket understory / planted beds (rings & footprints held)
 (function pocketUnderstory(){
   const dirt=new THREE.MeshLambertMaterial({color:0x4a3a28});
