@@ -25,6 +25,7 @@
 <div class="hud" id="hud">hover grid — m</div>
 <script type="module">
 import * as LockMod from './lock.js?v=pass45-lamps';
+import { mountDraw } from './draw.js';
 const { LOCK, BLUEPRINT, BUILDINGS, GATE, STATIONS, WALKS, walkLake, hoverLabel, spineCadPolyline, northSpineCadPolyline } = LockMod;
 const ITINERARY = LockMod.ITINERARY || { id:'park-circuit', name:'Park Circuit', sequence:[], stops:[], totalMin:45, sign:{x:0,z:205,yaw:Math.PI} };
 const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
@@ -135,6 +136,7 @@ for (let x = -300; x <= 300; x += 100) { if (x === 0) continue; svg.appendChild(
 for (let z = -200; z <= 200; z += 100) { if (z === 0) continue; svg.appendChild(el('line', {x1:toX(-6), y1:toY(z), x2:toX(6), y2:toY(z), stroke:'#b33', 'stroke-width':'1'})); label(12, z + 4, String(z), 10); }
 document.getElementById('wrap').appendChild(svg);
 svg.addEventListener('mousemove', e => { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse()); document.getElementById('hud').textContent = hoverLabel(p.x, p.y); });
+mountDraw({ svg, toX, toY, CX, CY });
 </script>
 </body>
 </html>
