@@ -71,7 +71,7 @@ scene.fog=new THREE.Fog(0x7a8494,70,820);
 const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.2,2500);
 let yaw=0,pitch=-0.04,mode='walk',droneYaw=Math.PI,dronePitch=-0.72,lift=0;
 const pos=new THREE.Vector3(0,EYE,B-6);
-mountGpsHud(() => pos);
+mountGpsHud(() => (mode==='above'||mode==='drone'?drone:pos));
 const drone=new THREE.Vector3(0,90,B+20);
 const droneVel=new THREE.Vector3();
 scene.add(new THREE.HemisphereLight(0xf0f4f8,0x5a4a32,1.15));
