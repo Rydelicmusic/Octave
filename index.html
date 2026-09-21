@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Octave</title>
 <meta name="description" content="Octave — Walk in. Don’t press play.">
-<style>html,body{margin:0;background:#0b0b0c;color:#f4efe6;font-family:Georgia,serif}#boot{position:fixed;inset:0;display:grid;place-items:center;letter-spacing:.4em;text-transform:uppercase;font-size:11px;color:#c9b48a}</style>
+<style>html,body{margin:0;background:#0b0b0c;color:#f4efe6}#boot{position:fixed;inset:0;display:grid;place-items:center;letter-spacing:.4em;text-transform:uppercase;font-size:11px;color:#c9b48a;font-family:-apple-system,sans-serif}</style>
 </head>
 <body>
 <div id="boot">OCTAVE</div>
 <script>
 (function(){
-  var SRC = "https://cdn.jsdelivr.net/gh/Rydelicmusic/octave@d8e1320be190efc5a8f672d5d4ebb81148defeff/index.html";
+  var SRC = "https://raw.githubusercontent.com/Rydelicmusic/octave/de755d13616a9f6cbb6a7b562ae3b0087111d7ed/index.html";
   fetch(SRC, {cache:"force-cache"}).then(function(r){return r.text()}).then(function(html){
     document.open();
     document.write(html);
@@ -21,7 +21,8 @@
     s.defer = true;
     document.body.appendChild(s);
   }).catch(function(){
-    document.getElementById("boot").textContent = "Could not load lobby";
+    var b = document.getElementById("boot");
+    if (b) b.textContent = "Could not load lobby";
   });
 })();
 </script>
