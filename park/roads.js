@@ -10,10 +10,10 @@ export const HUB_RING_R = LOCK.hubOuter; // 32 m plaza lip
 export const RING_SEGS = 96;
 
 export const LAND_DRIVES = [
-  { id: 'block-drive', land: 'The Block', pts: [[-36.5, 0], [-55, -28], [-90, -48], [-130, -55]] },
-  { id: 'board-drive', land: 'The Board', pts: [[36.5, 0], [80, 6], [125, 10], [175, 12]] },
-  { id: 'hours-drive', land: 'After Hours', pts: [[-18, -36], [-48, -80], [-48, -140], [-30, -165]] },
-  { id: 'pocket-drive', land: 'The Pocket', pts: [[18, 36], [32, 48], [48, 64], [60, 78]] },
+  { id: 'block-drive', land: 'The Block', pts: [[-36.5, 0], [-100, 0], [-165, 0]] },
+  { id: 'board-drive', land: 'The Board', pts: [[36.5, 0], [100, 0], [160, 0]] },
+  { id: 'hours-drive', land: 'After Hours', pts: [[-18, -36], [-18, -90], [-18, -140]] },
+  { id: 'pocket-drive', land: 'The Pocket', pts: [[18, 36], [60, 36], [60, 80]] },
 ];
 
 export function roadOk(x, z, half = ROAD_W / 2) {

@@ -10,6 +10,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 95 — 45 min survey loop: axis drives, 2 trees/cell
+- G-cell jobs: axis-aligned T-drives claimed as road lots; trees cap 2/cell then rehome or skip; props skip hub r32 and spine asphalt
+- `organize.js` + SURVEY_LOG.md; occupy-map.json dumped with cells; lock.js / occupy.js / LAYOUT.md untouched
+
 ## Pass 94 — tidy After Hours oval: lawn plots, T-drives only
 - Strip leftover lily-pad circles / pale rings / pink discs; stadium grass is the lawn
 - Streets: hub ring on r32 + 14 m spine + one T-drive per land (After Hours turns into the canopy, not a second spine)

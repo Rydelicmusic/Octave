@@ -19,6 +19,7 @@ import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 import { parkToGeo } from './gps-hud.js';
 import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
 import { seedPark, claim, treeLot, lots, clearDynamic, whyBlocked, dump } from './occupy.js';
+import { claimDrives, replayTrees, placeTree, surveyLog } from './organize.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -226,13 +227,14 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
   const lands = LAND_DRIVES.map((d) => d.land).sort();
   assert.deepEqual(lands, ['After Hours', 'The Block', 'The Board', 'The Pocket']);
   const hours = LAND_DRIVES.find((d) => d.id === 'hours-drive');
-  const hoursX = new Set(hours.pts.map((p) => p[0]));
-  assert.ok(hoursX.size >= 2, 'After Hours drive must T into the land, not a second spine');
+  assert.ok(hours.pts.every((p) => Math.abs(p[0]) >= 18), 'After Hours drive offset from 14 m spine');
   for (const d of LAND_DRIVES) {
     assert.ok(d.pts.length >= 3, d.id);
     for (let i = 0; i < d.pts.length - 1; i++) {
-      const mx = (d.pts[i][0] + d.pts[i + 1][0]) / 2;
-      const mz = (d.pts[i][1] + d.pts[i + 1][1]) / 2;
+      const x0 = d.pts[i][0], z0 = d.pts[i][1], x1 = d.pts[i + 1][0], z1 = d.pts[i + 1][1];
+      assert.ok(Math.abs(x1 - x0) < 0.05 || Math.abs(z1 - z0) < 0.05, d.id + ' axis-aligned');
+      const mx = (x0 + x1) / 2;
+      const mz = (z0 + z1) / 2;
       assert.equal(roadOk(mx, mz), true, d.id + ' ' + mx + ',' + mz);
       assert.equal(occupiesSpine(mx, mz, ROAD_W / 2), false, d.id + ' second spine');
       assert.equal(nearRing(mx, mz, 8), false, d.id + ' rings');
@@ -381,7 +383,10 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   assert.equal(seeded.locked, BUILDINGS.length + GATE.length + STATIONS.length);
   assert.equal(seeded.spine, true);
   assert.equal(seeded.plates, 4);
+  assert.ok(claimDrives() >= 4);
+  replayTrees();
   const hall = BUILDINGS.find((b) => b.id === 'block-album');
+  assert.equal(placeTree('tree-on-hall-2', hall.x, hall.z, 4), null);
   assert.equal(claim(treeLot('tree-on-hall', hall.x, hall.z, 4)), false);
   assert.ok(whyBlocked(treeLot('tree-on-hall', hall.x, hall.z, 4)).some((h) => h.id === hall.id));
   assert.equal(occupiesSpine(0, 80, 4), true);
@@ -394,8 +399,9 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/occupy\.js['"]/);
   assert.match(src, /seedPark\(LOCK, BUILDINGS, GATE, STATIONS\)/);
+  assert.match(src, /claimDrives\(\)/);
+  assert.match(src, /placeTree\(/);
   assert.match(src, /whyBlocked\(/);
-  assert.match(src, /claim\(treeLot\(/);
   assert.match(src, /claimStruct\(/);
   assert.match(src, /__parkOccupyDump=dump\(\)/);
   assert.match(src, /__parkGpsGet/);
@@ -425,6 +431,13 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   assert.equal(board.x, 160);
   assert.equal(board.z, 10);
   assert.equal(board.cell, 'G6,0');
+  const treesByCell = new Map();
+  for (const l of map.lots.filter((x) => x.kind === 'tree')) {
+    treesByCell.set(l.cell, (treesByCell.get(l.cell) || 0) + 1);
+  }
+  for (const [c, n] of treesByCell) assert.ok(n <= 2, c + ' trees ' + n);
+  assert.ok(map.lots.some((l) => l.kind === 'road'));
+  assert.ok(surveyLog().some((e) => e.action === 'claim-road'));
 });
 
 test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {

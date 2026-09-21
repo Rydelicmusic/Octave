@@ -35,14 +35,15 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import { addParkRoads } from './roads.js?v=pass94-tidy';
+import { addParkRoads } from './roads.js?v=pass95-axis';
 import { addHubClean } from './hub-clean.js?v=pass86-hub';
 import { addWaterClean } from './water-clean.js?v=pass87-block';
 import { addDryPark } from './dry-park.js?v=pass94-lawn';
 import { addTidyOval } from './tidy-oval.js?v=pass94-oval';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
-import { claim, seedPark, treeLot, whyBlocked, dump } from './occupy.js';
+import { claim, seedPark, whyBlocked, dump } from './occupy.js';
+import { claimDrives, placeTree, placeProp } from './organize.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -60,6 +61,7 @@ const ITINERARY = LockMod.ITINERARY || {
 };
 const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
 seedPark(LOCK, BUILDINGS, GATE, STATIONS);
+claimDrives();
 function claimStruct(b, kind='building'){
   if(!b||!b.id) return false;
   const rad=Math.max((b.w||0)/2,(b.d||0)/2);
@@ -929,7 +931,9 @@ function tree(x,z,s=1,seed=0,species){
   const m=treeMetrics(s,seed);
   if(!canPlaceSoft(x,z,m.canopyR*0.5))return;
   if(Math.hypot(x,z)<(LOCK.hubOuter||32))return;
-  if(!claim(treeLot('tree-'+(++treeSeq),x,z,m.canopyR)))return;
+  const planted=placeTree('tree-'+(++treeSeq),x,z,m.canopyR);
+  if(!planted)return;
+  x=planted.x;z=planted.z;
   const kind=species||pickSpecies(x,z);
   const g=new THREE.Group();
   const trunk=new THREE.Mesh(new THREE.CylinderGeometry(m.trunkR*0.72,m.trunkR*1.15,m.trunkH,8),kind==='pine'||kind==='poplar'?barkDark:bark);
@@ -1253,6 +1257,7 @@ function addLampPointLight(x,z,intensity=LAMP_LIGHT.intensity,dist=LAMP_LIGHT.di
   return true;
 }
 function lamp(x,z,lit=false){
+  if(!placeProp('lamp-'+Math.round(x)+'-'+Math.round(z),x,z,0.5,0.5))return;
   const H=GROUNDS_SCALE.lampH;
   const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.055,H,8),stoneDark);pole.position.set(x,H/2,z);
   const fixture=new THREE.Mesh(new THREE.BoxGeometry(0.44,0.14,0.44),new THREE.MeshLambertMaterial({color:0xe8d5a3,emissive:0xc9a056,emissiveIntensity:0.5}));
@@ -1263,6 +1268,7 @@ function lamp(x,z,lit=false){
   if(lit) addLampPointLight(x,z);
 }
 function benchAt(x,z,yaw){
+  if(!placeProp('bench-'+Math.round(x)+'-'+Math.round(z),x,z,1.8,0.5))return;
   const seatY=GROUNDS_SCALE.benchSeat;
   const g=new THREE.Group();
   const seat=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.08,0.5),stone);seat.position.y=seatY;
