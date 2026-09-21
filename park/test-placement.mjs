@@ -17,6 +17,7 @@ import { HUB_INNER, HUB_OUTER, HUB_T_JUNCTIONS, inHubDisc } from './hub-clean.js
 import { BLOCK_WATERS, BLOCK_DRIVE_AROUND, BERM_M, inBlockWater, roadClearsBlockWater } from './water-clean.js';
 import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 import { parkToGeo } from './gps-hud.js';
+import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -353,6 +354,21 @@ test('GPS HUD wires walk player pos, CRS hub/gate, stays top-right', () => {
   const hudJs = readFileSync(join(here, 'gps-hud.js'), 'utf8');
   assert.match(hudJs, /top:14px/);
   assert.match(hudJs, /right:14px/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
+});
+
+test('CRS ground grid is 25 m minor / 100 m major with G-cell labels', () => {
+  assert.equal(GRID_MINOR, 25);
+  assert.equal(GRID_MAJOR, 100);
+  assert.equal(cellId(0, 0), 'G0,0');
+  assert.equal(cellId(160, 10), 'G6,0');
+  assert.equal(cellId(0, 230), 'G0,9');
+  assert.equal(cellId(-165, -10), 'G-7,-1');
+  assert.equal(cellId(80, 105), 'G3,4');
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /from ['"]\.\/grid-overlay\.js['"]/);
+  assert.match(src, /addParkGrid\(THREE,scene\)/);
+  assert.match(src, /parkGrid\.setMode\(m\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 

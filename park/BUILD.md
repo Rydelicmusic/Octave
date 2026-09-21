@@ -10,6 +10,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 90 — CRS ground grid 25 / 100 m
+- `park/grid-overlay.js` 25 m minor / 100 m major lines on grade; G-cell labels every 100 m
+- Off in Walk, on in Drone; KeyG toggles; lock.js untouched
+
 ## Pass 89 — GPS HUD top-right (CRS)
 - Wire only: `import { mountGpsHud } from './gps-hud.js'` then `mountGpsHud(() => pos)` (walk player meters)
 - Chip is top-right; bottom-left pass card unmoved; lock.js untouched

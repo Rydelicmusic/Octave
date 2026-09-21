@@ -40,6 +40,7 @@ import { addHubClean } from './hub-clean.js?v=pass86-hub';
 import { addWaterClean } from './water-clean.js?v=pass87-block';
 import { addDryPark } from './dry-park.js?v=pass88-dry';
 import { mountGpsHud } from './gps-hud.js';
+import { addParkGrid } from './grid-overlay.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -1928,6 +1929,7 @@ ropes.forEach((p,i)=>{
 addHubClean(THREE,scene);
 addWaterClean(THREE,scene);
 addDryPark(THREE,scene);
+const parkGrid=addParkGrid(THREE,scene);
 
 const avatar=new THREE.Group();
 const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
@@ -1938,7 +1940,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyV')cycle();});
 addEventListener('keyup',e=>keys[e.code]=false);
 const modes=['walk','third','above'];
 const btns={walk:document.getElementById('b1'),third:document.getElementById('b3'),above:document.getElementById('bM')};
-function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:900;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}}
+function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:900;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}parkGrid.setMode(m);}
 function cycle(){setMode(modes[(modes.indexOf(mode)+1)%3]);}
 btns.walk.onclick=()=>setMode('walk');btns.third.onclick=()=>setMode('third');btns.above.onclick=()=>setMode('above');
 if(location.hash==='#drone')setMode('above');
