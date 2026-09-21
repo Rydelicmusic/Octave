@@ -10,6 +10,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 91 — occupy lots + cam/GPS handoff
+- `occupy.js` seeded with BUILDINGS/GATE/STATIONS; trees `claim(treeLot)` or skip; kits claim before mesh; no spine nudge
+- setMode keeps Walk/3rd/Drone on the same XZ; GPS getter follows drone vs pos; lock.js untouched
+
 ## Pass 90 — CRS ground grid 25 / 100 m
 - `park/grid-overlay.js` 25 m minor / 100 m major lines on grade; G-cell labels every 100 m
 - Off in Walk, on in Drone; KeyG toggles; lock.js untouched

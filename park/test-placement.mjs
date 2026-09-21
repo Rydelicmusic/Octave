@@ -18,6 +18,7 @@ import { BLOCK_WATERS, BLOCK_DRIVE_AROUND, BERM_M, inBlockWater, roadClearsBlock
 import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 import { parkToGeo } from './gps-hud.js';
 import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
+import { seedLocked, claim, treeLot, lots, clearDynamic } from './occupy.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -348,7 +349,7 @@ test('GPS HUD wires walk player pos, CRS hub/gate, stays top-right', () => {
   assert.ok(Math.abs(gate.lng + 95.694) < 1e-8);
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /import \{ mountGpsHud \} from '\.\/gps-hud\.js'/);
-  assert.match(src, /mountGpsHud\(\(\) => pos\)/);
+  assert.match(src, /mountGpsHud\(\(\) => \(mode==='above'\|\|mode==='drone'\?drone:pos\)\)/);
   assert.match(src, /\.hud\{position:fixed;left:12px;bottom:12px/);
   assert.doesNotMatch(src, /#rydelic-gps\{[^}]*bottom:/);
   const hudJs = readFileSync(join(here, 'gps-hud.js'), 'utf8');
@@ -370,6 +371,23 @@ test('CRS ground grid is 25 m minor / 100 m major with G-cell labels', () => {
   assert.match(src, /addParkGrid\(THREE,scene\)/);
   assert.match(src, /parkGrid\.setMode\(m\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
+});
+
+test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () => {
+  clearDynamic();
+  const n = seedLocked([...BUILDINGS, ...GATE, ...STATIONS]);
+  assert.equal(n, BUILDINGS.length + GATE.length + STATIONS.length);
+  const hall = BUILDINGS.find((b) => b.id === 'block-album');
+  assert.equal(claim(treeLot('tree-on-hall', hall.x, hall.z, 4)), false);
+  assert.equal(occupiesSpine(0, 80, 4), true);
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /from ['"]\.\/occupy\.js['"]/);
+  assert.match(src, /seedLocked\(\[\.\.\.BUILDINGS, \.\.\.GATE, \.\.\.STATIONS\]\)/);
+  assert.match(src, /claim\(treeLot\(/);
+  assert.match(src, /claimStruct\(/);
+  assert.match(src, /__parkGpsGet/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
+  assert.ok(lots().length >= n);
 });
 
 test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {
