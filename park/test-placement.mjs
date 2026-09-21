@@ -11,6 +11,7 @@ import {
   hubBedCenters, occupiesSpine, canPlaceSoft, beltTreePositions,
 } from './lock.js';
 import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from './sku-kit.js';
+import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY } from './roads.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -207,6 +208,30 @@ test('index.html mounts sku-kit and drives GATE/STATIONS footprints', () => {
   assert.match(src, /BoxGeometry\(1\.1,2\.1,0\.12\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
   assert.doesNotMatch(src, /\belevator\b/i);
+});
+
+test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
+  assert.equal(HUB_RING_R, LOCK.hubOuter);
+  assert.equal(HUB_RING_R, 32);
+  assert.ok(ROAD_W >= 8 && ROAD_W <= 10);
+  assert.notEqual(ROAD_W, LOCK.spineWidth);
+  assert.equal(LAND_DRIVES.length, 4);
+  const lands = LAND_DRIVES.map((d) => d.land).sort();
+  assert.deepEqual(lands, ['After Hours', 'The Block', 'The Board', 'The Pocket']);
+  for (const d of LAND_DRIVES) {
+    assert.ok(d.pts.length >= 3, d.id);
+    for (let i = 0; i < d.pts.length - 1; i++) {
+      const mx = (d.pts[i][0] + d.pts[i + 1][0]) / 2;
+      const mz = (d.pts[i][1] + d.pts[i + 1][1]) / 2;
+      assert.equal(roadOk(mx, mz), true, d.id + ' ' + mx + ',' + mz);
+      assert.equal(occupiesSpine(mx, mz, ROAD_W / 2), false, d.id + ' second spine');
+    }
+  }
+  assert.equal(roadGradeY(), ROAD_DECK);
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /from ['"]\.\/roads\.js['"]/);
+  assert.match(src, /addParkRoads\(THREE,scene\)/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
 });
 
 test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {

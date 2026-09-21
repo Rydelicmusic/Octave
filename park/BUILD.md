@@ -10,6 +10,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 84 — hub ring + 9 m land drives
+- `park/roads.js` asphalt ring on hub r=32 (gaps at 14 m spine + water) and one 9 m drive into each land
+- Curbs 0.45×0.48 m; deck 0.28 m; kits sit on ROAD_DECK; waters / ∞ rings / spine width unmoved
+
 ## Pass 1 — SKU-ladder buildings in land canopies
 - 11 buildings (kiosk / pavilion / album) via `park/lock.js` `BUILDINGS`
 - Inside The Block / After Hours / The Board canopies only

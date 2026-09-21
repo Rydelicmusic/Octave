@@ -35,6 +35,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
+import { addParkRoads } from './roads.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -1775,6 +1776,7 @@ function addHall(b){
   g.add(steps,step2);
 }
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
+addParkRoads(THREE,scene);
 // Pass 62 — SKU service/loading aprons at rear doors (BUILDINGS footprints held)
 (function pass62ServiceAprons(){
   const apronMat=new THREE.MeshLambertMaterial({color:0x9a958c});
