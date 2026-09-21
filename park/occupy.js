@@ -1,5 +1,5 @@
 /** Occupancy + spatial index. Claim before mesh. Build reads dump() instead of guessing. */
-import { createIndex, aabbOverlap3, pointInAABB, distPointAABB } from './spatial.js';
+import { CELL, createIndex, aabbOverlap3, pointInAABB, distPointAABB } from './spatial.js';
 
 const index = createIndex();
 
@@ -33,17 +33,26 @@ function asBox(lot) {
   };
 }
 
+function isPlate(lot) {
+  return lot.kind === 'plate' || lot.kind === 'land' || lot.kind === 'floor';
+}
+
 function blocks(a, b) {
   if (!aabbOverlap3(a, b) && !(a.y1 === undefined)) {
     if (!(a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ)) return false;
   }
   const xz = a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
   if (!xz) return false;
+  if (isPlate(a) || isPlate(b)) return false;
   if (a.layer === 'ground' && b.layer === 'mass') return false;
   if (a.layer === 'ground' || b.layer === 'ground') return true;
   if (a.layer === 'mass' || b.layer === 'mass') return true;
   if (a.layer === 'canopy' && b.layer === 'canopy') return true;
   return true;
+}
+
+export function cellOf(x, z) {
+  return 'G' + Math.floor(x / CELL) + ',' + Math.floor(z / CELL);
 }
 
 export function fits(lot) {
@@ -91,6 +100,41 @@ export function seedSpine(LOCK) {
   });
 }
 
+const PLATE_IDS = {
+  'The Block': 'plate-block',
+  'After Hours': 'plate-hours',
+  'The Board': 'plate-board',
+  'The Pocket': 'plate-pocket',
+};
+
+export function seedPlates(LOCK) {
+  let n = 0;
+  const cans = (LOCK && LOCK.canopies) || {};
+  for (const [land, id] of Object.entries(PLATE_IDS)) {
+    const c = cans[land];
+    if (!c) continue;
+    if (claim({
+      id,
+      kind: 'plate',
+      layer: 'ground',
+      x: c.cx, z: c.cz,
+      w: (c.rx || 0) * 2,
+      d: (c.rz || 0) * 2,
+      h: 0.02,
+      pad: 0,
+      land,
+    })) n += 1;
+  }
+  return n;
+}
+
+export function seedPark(LOCK, BUILDINGS, GATE, STATIONS) {
+  const locked = seedLocked([...(BUILDINGS || []), ...(GATE || []), ...(STATIONS || [])]);
+  const spine = seedSpine(LOCK);
+  const plates = seedPlates(LOCK);
+  return { locked, spine, plates };
+}
+
 export function lots() {
   return index.all();
 }
@@ -116,7 +160,30 @@ export function whyBlocked(lot) {
 }
 
 export function dump() {
-  return { crs: 'park/CRS.md', index: '25m-hash', count: index.size(), lots: index.all().map(({ src, ...c }) => c) };
+  return {
+    crs: 'park/CRS.md',
+    index: '25m-hash',
+    rule: 'park/MAP.md',
+    count: index.size(),
+    lots: index.all().map(({ src, ...c }) => ({
+      id: c.id,
+      kind: c.kind,
+      layer: c.layer,
+      x: c.x,
+      z: c.z,
+      w: c.w,
+      d: c.d,
+      h: c.h,
+      pad: c.pad,
+      cell: cellOf(c.x, c.z),
+      minX: c.minX,
+      maxX: c.maxX,
+      minZ: c.minZ,
+      maxZ: c.maxZ,
+      y0: c.y0,
+      y1: c.y1,
+    })),
+  };
 }
 
 export function clearDynamic() {

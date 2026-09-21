@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 93 — seedPark: masses + spine + land plates, dump cells
+- One boot call `seedPark(LOCK, BUILDINGS, GATE, STATIONS)` (locked masses, 14 m spine, LAYOUT canopy plates)
+- Trees `claim(treeLot)` or skip (no slide, hub r32 empty); `dump()` lots include CRS `cell`; spatial.js via occupy.js
+- lock.js / LAYOUT.md untouched; no water; no hotel
+
 ## Pass 92 — occupy queries: spine seed, whyBlocked, dump map
 - Boot: `seedLocked([...BUILDINGS,...GATE,...STATIONS]); seedSpine(LOCK)`
 - New structure: `whyBlocked(lot)` first; fail = skip mesh; no spine nudge

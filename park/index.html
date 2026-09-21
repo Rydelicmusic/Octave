@@ -41,7 +41,7 @@ import { addWaterClean } from './water-clean.js?v=pass87-block';
 import { addDryPark } from './dry-park.js?v=pass88-dry';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
-import { claim, seedLocked, seedSpine, treeLot, whyBlocked, dump } from './occupy.js';
+import { claim, seedPark, treeLot, whyBlocked, dump } from './occupy.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -58,8 +58,7 @@ const ITINERARY = LockMod.ITINERARY || {
   sign: { x: 0, z: 205, yaw: Math.PI },
 };
 const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
-seedLocked([...BUILDINGS, ...GATE, ...STATIONS]);
-seedSpine(LOCK);
+seedPark(LOCK, BUILDINGS, GATE, STATIONS);
 function claimStruct(b, kind='building'){
   if(!b||!b.id) return false;
   const rad=Math.max((b.w||0)/2,(b.d||0)/2);
@@ -928,6 +927,7 @@ function tree(x,z,s=1,seed=0,species){
   if(typeof seed==='string'){species=seed;seed=0;}
   const m=treeMetrics(s,seed);
   if(!canPlaceSoft(x,z,m.canopyR*0.5))return;
+  if(Math.hypot(x,z)<(LOCK.hubOuter||32))return;
   if(!claim(treeLot('tree-'+(++treeSeq),x,z,m.canopyR)))return;
   const kind=species||pickSpecies(x,z);
   const g=new THREE.Group();
