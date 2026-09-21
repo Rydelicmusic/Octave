@@ -10,6 +10,9 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 97 — walk stays in stadium
+- Walk step: `if(inStadium(nx,nz)){ pos.x=nx; pos.z=nz; }` — no ribbon snap; lock.js untouched
+
 ## Pass 96 — stop old spawners: __PARK_DRY, belts not forest
 - `window.__PARK_DRY=true`: skip water() / lakeWalk / shore ribbons; `no-water.js` strips leftover discs
 - Trees via placeTree, 8–10 m belt slots, cap 2/cell; props via placeProp; dump occupy-map.json

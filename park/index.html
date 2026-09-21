@@ -2011,12 +2011,7 @@ function tick(){
     const stepX=(fx*-mz+rx*mx)*WALK*dt,stepZ=(fz*-mz+rz*mx)*WALK*dt;
     walkVelX=stepX;walkVelZ=stepZ;
     const nx=pos.x+stepX,nz=pos.z+stepZ;
-    if(inStadium(nx,nz)){
-      // Pass 10: hard snap when off ribbon — soft 0.6 blend was cutting corners
-      const w=nearestWalk(nx,nz);
-      if(w.on){pos.x=nx;pos.z=nz;}
-      else if(w.d<5){pos.x=w.x;pos.z=w.z;}
-    }
+    if(inStadium(nx,nz)){ pos.x=nx; pos.z=nz; }
   }
   pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
   if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}
