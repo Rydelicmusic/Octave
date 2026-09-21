@@ -1,0 +1,876 @@
+/** Locked Rydelic Park meters + SKU placement. Used by the 3D/blueprint pages and tests. */
+export const LOCK = {
+  A: 380,
+  B: 230,
+  capR: 230,
+  straight: 300,
+  hubInner: 18,
+  hubOuter: 32,
+  spineWidth: 14,
+  walk: 1.34,
+  origin: { x: 0, z: 0 },
+  gate: { x: 0, z: 230 },
+  rings: {
+    A: { x: 95, z: 95, inner: 14, outer: 20 },
+    B: { x: 118, z: 108, inner: 6, outer: 11 },
+  },
+  canopies: {
+    'The Block': { cx: -165, cz: -10, rx: 130, rz: 160 },
+    'After Hours': { cx: 10, cz: -140, rx: 150, rz: 70 },
+    'The Board': { cx: 160, cz: 10, rx: 130, rz: 130 },
+    // Pass 13 — Pocket canopy (hub-south / rings neighborhood); rings stay unmoved
+    'The Pocket': { cx: 80, cz: 105, rx: 95, rz: 80 },
+  },
+  waters: [
+    [-210, -20, 48, 70],
+    [-165, 10, 55, 42],
+    [-120, 70, 32, 26],
+    [-95, -85, 28, 22],
+    [-150, -40, 24, 18],
+    [-20, -18, 16, 10],
+    [22, -22, 18, 12],
+    [-18, 22, 16, 9],
+    [28, 20, 17, 10],
+    [8, -8, 10, 7],
+    [155, -85, 22, 16],
+    [200, -40, 18, 12],
+  ],
+};
+
+export const RINGS = [
+  { id: 'A', ...LOCK.rings.A },
+  { id: 'B', ...LOCK.rings.B },
+];
+
+export const LAND_PALETTE = {
+  'The Block': { body: 0x6a4030, trim: 0x3a2418, roof: 0x3a2a22, window: 0x8ec4d4, marquee: 0xc45c3a, queue: 0x4a3a28, door: 0x2a1c16 },
+  'After Hours': { body: 0x2a2438, trim: 0x1a1428, roof: 0x1a1524, window: 0xd4a0ff, marquee: 0x6a4cff, queue: 0x3a3050, door: 0x161018 },
+  'The Board': { body: 0xc4b08a, trim: 0x6a5840, roof: 0x5a4030, window: 0x7eb8e8, marquee: 0xd4a04a, queue: 0x6a5438, door: 0x3a2a1c },
+  'The Pocket': { body: 0x5a4a38, trim: 0x3d3428, roof: 0x3d3428, window: 0xa8d4c8, marquee: 0xc9b48a, queue: 0x4a3a28, door: 0x2b241c },
+  Gate: { body: 0x5a4634, trim: 0x3d2e22, roof: 0x2b241c, window: 0x1a2430, marquee: 0xc9b48a, queue: 0x3d3428, door: 0x1e1812 },
+};
+
+export function skuSpec(p) {
+  const eaves = p.sku === 'kiosk' ? 0.55 : p.sku === 'pavilion' ? 0.95 : 1.3;
+  const roofH = p.sku === 'kiosk' ? 1.15 : p.sku === 'pavilion' ? 1.75 : 2.5;
+  const queueL = p.queueL != null ? p.queueL : (p.sku === 'kiosk' ? 2.6 : p.sku === 'pavilion' ? 4.4 : 5.6);
+  return {
+    w: p.w, d: p.d, h: p.h,
+    eaves,
+    roofH,
+    queueL,
+    queueW: p.queueW ?? Math.min(p.w * 0.85, 4.2),
+  };
+}
+
+/** Blueprint SVG: origin is viewBox center; +x east, +z south (same as 3D). */
+export const BLUEPRINT = {
+  PAD: 80,
+  get W() { return (LOCK.A + this.PAD) * 2; },
+  get H() { return (LOCK.B + this.PAD) * 2; },
+  get CX() { return this.W / 2; },
+  get CY() { return this.H / 2; },
+};
+
+export function svgToMeters(svgX, svgY) {
+  return { x: svgX - BLUEPRINT.CX, z: svgY - BLUEPRINT.CY };
+}
+
+export function hoverLabel(svgX, svgY) {
+  const { x, z } = svgToMeters(svgX, svgY);
+  return `x ${x.toFixed(0)} m   z ${z.toFixed(0)} m`;
+}
+
+export function inEllipse(x, z, cx, cz, rx, rz) {
+  const dx = (x - cx) / rx;
+  const dz = (z - cz) / rz;
+  return dx * dx + dz * dz <= 1;
+}
+
+export function inStadium(x, z) {
+  const S = LOCK.A - LOCK.capR;
+  if (Math.abs(x) <= S && Math.abs(z) <= LOCK.B) return true;
+  if (Math.hypot(x - S, z) <= LOCK.capR) return true;
+  if (Math.hypot(x + S, z) <= LOCK.capR) return true;
+  return false;
+}
+
+/** 14 m Gate→Hub spine strip (half-width 7 m), z from hub to Gate. */
+export function onSpine(x, z, half = LOCK.spineWidth / 2) {
+  return Math.abs(x) < half && z >= 0 && z <= LOCK.B;
+}
+
+/**
+ * Blueprint CAD edges for the 14 m spine (hover meters).
+ * Matches blueprint.html rect: x=±spineWidth/2, z=0 (hub) → z=gate.z (+230).
+ */
+export function spineCadPolyline(side, step = 8, offset = 0) {
+  const x = side * (LOCK.spineWidth / 2 + offset);
+  const pts = [];
+  for (let z = 0; z <= LOCK.gate.z; z += step) pts.push([x, z]);
+  if (pts[pts.length - 1][1] !== LOCK.gate.z) pts.push([x, LOCK.gate.z]);
+  return pts;
+}
+
+/**
+ * Blueprint CAD edges for the north −Z corridor (mirror of Gate spine).
+ * x=±spineWidth/2, z=0 (hub) → z=−B (−230, stadium north rail).
+ */
+export function northSpineCadPolyline(side, step = 8, offset = 0) {
+  const x = side * (LOCK.spineWidth / 2 + offset);
+  const zEnd = -LOCK.B;
+  const pts = [];
+  for (let z = 0; z >= zEnd; z -= step) pts.push([x, z]);
+  if (pts[pts.length - 1][1] !== zEnd) pts.push([x, zEnd]);
+  return pts;
+}
+
+/** Meter-true path sizes. Do not scale these by water ellipse rx, rz. */
+export const PATH_SCALE = {
+  lakesideW: 3.2,
+  lakesideOffset: 2.6,
+  copingW: 0.5,
+  copingH: 0.32,
+  lampH: 3.6,
+  spineCurbW: 0.45,
+  railH: 1.2,
+  railPost: 0.28,
+  railBarT: 0.12,
+};
+
+/** Closed polyline around a locked water ellipse at a constant offset (meters). */
+export function lakesideRibbonPolyline(cx, cz, rx, rz, offset = PATH_SCALE.lakesideOffset, n = 48) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    pts.push([cx + Math.cos(a) * (rx + offset), cz + Math.sin(a) * (rz + offset)]);
+  }
+  pts.push(pts[0]);
+  return pts;
+}
+
+/** Lakeside runs that stay off the 14 m spine strip. */
+export function lakesideRibbonRuns(cx, cz, rx, rz, offset = PATH_SCALE.lakesideOffset, n = 48) {
+  const half = LOCK.spineWidth / 2 + 0.8;
+  const ring = lakesideRibbonPolyline(cx, cz, rx, rz, offset, n).slice(0, -1);
+  const off = (p) => Math.abs(p[0]) >= half;
+  const runs = [];
+  let cur = [];
+  for (const p of ring) {
+    if (off(p)) cur.push(p);
+    else if (cur.length) {
+      if (cur.length >= 3) runs.push(cur);
+      cur = [];
+    }
+  }
+  if (cur.length >= 3) runs.push(cur);
+  if (runs.length >= 2 && off(ring[0]) && off(ring[ring.length - 1])) {
+    const last = runs[runs.length - 1];
+    const first = runs[0];
+    if (last[last.length - 1] === ring[ring.length - 1] && first[0] === ring[0]) {
+      runs[0] = last.concat(first);
+      runs.pop();
+    }
+  }
+  if (runs.length === 1 && runs[0].length === ring.length) runs[0] = runs[0].concat([runs[0][0]]);
+  return runs;
+}
+
+/**
+ * Designed named guest walks (not k-NN). Lake indices into LOCK.waters.
+ * Circuits stay west of the 14 m spine (Block) or east of it (Board).
+ */
+export const WALKS = [
+  {
+    id: 'block-lakeshore',
+    name: 'Block Lakeshore',
+    land: 'The Block',
+    loop: true,
+    lakes: [0, 4, 3, 2, 1],
+    sign: { x: -88, z: 8, yaw: Math.PI / 2 },
+  },
+  {
+    id: 'board-promenade',
+    name: 'Board Promenade',
+    land: 'The Board',
+    loop: true,
+    lakes: [10, 11],
+    sign: { x: 140, z: -55, yaw: -Math.PI / 2 },
+  },
+  {
+    id: 'block-spine-approach',
+    name: 'Block Spine Approach',
+    land: 'The Block',
+    loop: false,
+    lakes: [2],
+    spur: [-12, 70],
+    sign: { x: -55, z: 55, yaw: Math.PI / 2 },
+  },
+  // Pass 19 — park-wide itinerary legs (lands held; no spine cut-through)
+  {
+    id: 'after-hours-quiet',
+    name: 'After Hours Quiet',
+    land: 'After Hours',
+    loop: false,
+    lakes: [5],
+    spur: [-12, -100],
+    sign: { x: 8, z: -72, yaw: 0 },
+  },
+  {
+    id: 'pocket-rim',
+    name: 'Pocket Rim',
+    land: 'The Pocket',
+    loop: false,
+    lakes: [8],
+    spur: [12, 95],
+    sign: { x: 55, z: 88, yaw: -Math.PI / 2 },
+  },
+];
+
+/** Ordered guest itinerary stitching named WALKS via hub / spine shoulders. */
+export const ITINERARY = {
+  id: 'park-circuit',
+  name: 'Park Circuit',
+  sequence: [
+    'block-spine-approach',
+    'block-lakeshore',
+    'after-hours-quiet',
+    'board-promenade',
+    'pocket-rim',
+  ],
+  // Pass 20 — measured timed tour (minutes from Gate; leg duration after each stop)
+  stops: [
+    { walk: 'block-spine-approach', atMin: 3, legMin: 5 },
+    { walk: 'block-lakeshore', atMin: 8, legMin: 10 },
+    { walk: 'after-hours-quiet', atMin: 18, legMin: 10 },
+    { walk: 'board-promenade', atMin: 28, legMin: 10 },
+    { walk: 'pocket-rim', atMin: 38, legMin: 7 },
+  ],
+  totalMin: 52,
+  // Pass 35 — return-to-Gate waypoint (hub SE → spine shoulder → Gate)
+  returnToGate: { x: 12, z: 180, atMin: 52 },
+  // Gate apron → first stop; eye-height sign
+  sign: { x: 0, z: 205, yaw: Math.PI },
+};
+
+export function walkLake(i) {
+  const [x, z, rx, rz] = LOCK.waters[i];
+  return { i, x, z, rx, rz };
+}
+
+export function walkPairs(walk) {
+  const idx = walk.lakes;
+  const pairs = [];
+  for (let i = 0; i < idx.length - 1; i++) pairs.push([idx[i], idx[i + 1]]);
+  if (walk.loop && idx.length > 1) pairs.push([idx[idx.length - 1], idx[0]]);
+  return pairs;
+}
+
+export function walkSegmentCrossesSpine(ax, az, bx, bz) {
+  const half = LOCK.spineWidth / 2;
+  for (let i = 0; i <= 8; i++) {
+    const t = i / 8;
+    const x = ax + (bx - ax) * t;
+    const z = az + (bz - az) * t;
+    // Gate +Z and north −Z 14 m corridors both refuse cut-throughs
+    if (Math.abs(x) < half && z >= -LOCK.B && z <= LOCK.B) return true;
+  }
+  return false;
+}
+
+export function walkById(id) {
+  return WALKS.find((w) => w.id === id);
+}
+
+/** Gate→Hub lamp row: z = 18, 32, 46, … (never remainder 0 mod 28). */
+export const LAMP_LIGHT = { color: 0xffe1b0, intensity: 7, dist: 17, y: 3.2 }; // Pass 48 — lower per-lamp fill for denser lit set
+export const SPINE_LAMP = { xWest: -8.3, xEast: 8.3, z0: 18, step: 14 };
+
+export function spineLampZs(z0 = SPINE_LAMP.z0, step = SPINE_LAMP.step, zMax = LOCK.B - 12) {
+  const zs = [];
+  for (let z = z0; z < zMax; z += step) zs.push(z);
+  return zs;
+}
+
+/** Pass 48 — both sides lit at every spine pole (PointLights still hard-capped in index). */
+export function spineLampLitWest(z) {
+  return (z - SPINE_LAMP.z0) % SPINE_LAMP.step === 0;
+}
+
+export function spineLampLitEast(z) {
+  return (z - SPINE_LAMP.z0) % SPINE_LAMP.step === 0;
+}
+
+export function spineLampPointLights() {
+  const lights = [];
+  for (const z of spineLampZs()) {
+    if (spineLampLitWest(z)) lights.push({ x: SPINE_LAMP.xWest, z, side: 'west' });
+    if (spineLampLitEast(z)) lights.push({ x: SPINE_LAMP.xEast, z, side: 'east' });
+  }
+  return lights;
+}
+
+export function distMeters(ax, az, bx, bz) {
+  return Math.hypot(bx - ax, bz - az);
+}
+
+/** Length of a named walk: lake-to-lake (+ loop close) + optional spur. */
+export function walkPathMeters(walk) {
+  const lakes = walk.lakes.map((i) => walkLake(i));
+  let m = 0;
+  for (let i = 0; i < lakes.length - 1; i++) m += distMeters(lakes[i].x, lakes[i].z, lakes[i + 1].x, lakes[i + 1].z);
+  if (walk.loop && lakes.length > 1) {
+    const a = lakes[lakes.length - 1], b = lakes[0];
+    m += distMeters(a.x, a.z, b.x, b.z);
+  }
+  if (walk.spur && lakes[0]) m += distMeters(lakes[0].x, lakes[0].z, walk.spur[0], walk.spur[1]);
+  return m;
+}
+
+export function shorePt(L, a, m = 2.85) {
+  return [L.x + Math.cos(a) * (L.rx + m), L.z + Math.sin(a) * (L.rz + m)];
+}
+
+export function shoreArc(L, a0, a1, n = 10, m = 2.85) {
+  let d = a1 - a0;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  const pts = [];
+  for (let i = 0; i <= n; i++) pts.push(shorePt(L, a0 + d * (i / n), m));
+  return pts;
+}
+
+/** Same shore-arc + bridge polyline the 3D WALKS ribbons use. */
+export function walkLinkPolyline(A, B) {
+  const aAb = Math.atan2(B.z - A.z, B.x - A.x);
+  const aBa = Math.atan2(A.z - B.z, A.x - B.x);
+  const arcA = shoreArc(A, aAb - 0.55, aAb + 0.15, 10);
+  const arcB = shoreArc(B, aBa - 0.15, aBa + 0.55, 10);
+  const aTip = arcA[arcA.length - 1];
+  const bTip = arcB[0];
+  const mid = [(aTip[0] + bTip[0]) / 2, (aTip[1] + bTip[1]) / 2];
+  const px = -(bTip[1] - aTip[1]);
+  const pz = bTip[0] - aTip[0];
+  const plen = Math.hypot(px, pz) || 1;
+  mid[0] += (px / plen) * 2.2;
+  mid[1] += (pz / plen) * 2.2;
+  return [...arcA, mid, ...arcB];
+}
+
+export function walkSpurPolyline(walk) {
+  if (!walk.spur || !walk.lakes[0]) return [];
+  const L = walkLake(walk.lakes[0]);
+  const a = Math.atan2(walk.spur[1] - L.z, walk.spur[0] - L.x);
+  const start = shorePt(L, a, 5.2);
+  const end = walk.spur;
+  return [start, [(start[0] + end[0]) / 2, start[1]], end];
+}
+
+export function polylineMeters(pts) {
+  let m = 0;
+  for (let i = 0; i < pts.length - 1; i++) m += distMeters(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]);
+  return m;
+}
+
+/** 1D Catmull-Rom (matches THREE.CatmullRomCurve3 curveType='catmullrom'). */
+export function catmull1D(x0, x1, x2, x3, t, tension = 0.18) {
+  const v0 = tension * (x2 - x0);
+  const v1 = tension * (x3 - x1);
+  const c0 = x1;
+  const c1 = v0;
+  const c2 = -3 * x1 + 3 * x2 - 2 * v0 - v1;
+  const c3 = 2 * x1 - 2 * x2 + v0 + v1;
+  return ((c3 * t + c2) * t + c1) * t + c0;
+}
+
+/** Point on open Catmull-Rom through [x,z] control pts; u in [0,1]. */
+export function catmullPoint(pts, u, tension = 0.18) {
+  const l = pts.length;
+  if (l === 0) return [0, 0];
+  if (l === 1) return [pts[0][0], pts[0][1]];
+  if (l === 2) {
+    const a = pts[0], b = pts[1];
+    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+  }
+  const p = (l - 1) * u;
+  let intPoint = Math.floor(p);
+  let weight = p - intPoint;
+  if (weight === 0 && intPoint === l - 1) {
+    intPoint = l - 2;
+    weight = 1;
+  }
+  const p1 = pts[intPoint];
+  const p2 = pts[Math.min(intPoint + 1, l - 1)];
+  const p0 = intPoint > 0 ? pts[intPoint - 1] : [2 * p1[0] - p2[0], 2 * p1[1] - p2[1]];
+  const p3 = intPoint + 2 < l ? pts[intPoint + 2] : [2 * p2[0] - p1[0], 2 * p2[1] - p1[1]];
+  return [
+    catmull1D(p0[0], p1[0], p2[0], p3[0], weight, tension),
+    catmull1D(p0[1], p1[1], p2[1], p3[1], weight, tension),
+  ];
+}
+
+/**
+ * Pass 47 — sample Catmull ribbon length (same tension/segs heuristic as pathRibbon in index.html).
+ * Prefer this over polylineMeters for tour HUD meters so times match the 3D curve.
+ */
+export function catmullRibbonMeters(pts, tension = 0.18) {
+  if (!pts || pts.length < 2) return 0;
+  if (pts.length === 2) return distMeters(pts[0][0], pts[0][1], pts[1][0], pts[1][1]);
+  const segs = Math.max(20, pts.length * 10);
+  let m = 0;
+  let prev = catmullPoint(pts, 0, tension);
+  for (let i = 1; i <= segs; i++) {
+    const cur = catmullPoint(pts, i / segs, tension);
+    m += distMeters(prev[0], prev[1], cur[0], cur[1]);
+    prev = cur;
+  }
+  return m;
+}
+
+/** Hub-apron shoulder used by Pass 19 3D itinerary ribbons (x/z ±22). */
+export function hubApronPoint(x, z) {
+  return [Math.sign(x || 1) * 22, Math.sign(z || 1) * 22];
+}
+
+/**
+ * Pass 43 — same polyline as parkItinerary 3D ribbons:
+ * a → hubA → (hubB) → b, spine-safe fallback via x=±28, z=0.
+ */
+export function hubApronPath(ax, az, bx, bz) {
+  const a = [ax, az];
+  const b = [bx, bz];
+  const hubA = hubApronPoint(ax, az);
+  const hubB = hubApronPoint(bx, bz);
+  const path = [a, hubA];
+  if (hubA[0] !== hubB[0] || hubA[1] !== hubB[1]) path.push(hubB);
+  path.push(b);
+  let ok = true;
+  for (let k = 0; k < path.length - 1; k++) {
+    if (walkSegmentCrossesSpine(path[k][0], path[k][1], path[k + 1][0], path[k + 1][1])) {
+      ok = false;
+      break;
+    }
+  }
+  if (!ok) return [a, [Math.sign(ax || bx || 1) * 28, 0], b];
+  return path;
+}
+
+/** Pass 41/47 — Catmull-sampled ribbon length of a named walk (matches 3D pathRibbon). */
+export function walkRibbonMeters(walk) {
+  let m = 0;
+  for (const [ia, ib] of walkPairs(walk)) {
+    m += catmullRibbonMeters(walkLinkPolyline(walkLake(ia), walkLake(ib)));
+  }
+  const spur = walkSpurPolyline(walk);
+  if (spur.length) m += catmullRibbonMeters(spur);
+  return m;
+}
+
+export function metersToMin(m) {
+  return m / LOCK.walk / 60;
+}
+
+/**
+ * Pass 39/41/43/47 — tour times from Catmull-sampled ribbon meters / walk 1.34 m/s.
+ * Gate sign → hub-apron → each walk + shore-arc walk → hub-apron return.
+ */
+export function measureItinerary(it = ITINERARY) {
+  const seq = it.sequence.map((id) => walkById(id)).filter(Boolean);
+  const stops = [];
+  let tMin = 0;
+  let prev = { x: it.sign.x, z: it.sign.z };
+  for (const w of seq) {
+    const p = w.sign;
+    // Pass 47 — approach via Catmull-sampled hub-apron ribbon
+    const approach = catmullRibbonMeters(hubApronPath(prev.x, prev.z, p.x, p.z));
+    const onWalk = walkRibbonMeters(w);
+    const legM = approach + onWalk;
+    const legMin = metersToMin(legM);
+    tMin += legMin;
+    stops.push({
+      walk: w.id,
+      atMin: Math.round(tMin),
+      legMin: Math.round(legMin),
+      meters: Math.round(legM),
+    });
+    prev = { x: p.x, z: p.z };
+  }
+  const ret = it.returnToGate;
+  // Pass 47 — return via Catmull-sampled hub-apron ribbon
+  const retM = catmullRibbonMeters(hubApronPath(prev.x, prev.z, ret.x, ret.z));
+  tMin += metersToMin(retM);
+  return {
+    stops,
+    totalMin: Math.round(tMin),
+    returnToGate: { x: ret.x, z: ret.z, atMin: Math.round(tMin), meters: Math.round(retM) },
+  };
+}
+
+{
+  const measured = measureItinerary();
+  ITINERARY.stops = measured.stops;
+  ITINERARY.totalMin = measured.totalMin;
+  ITINERARY.returnToGate = measured.returnToGate;
+}
+
+export function inWater(x, z, margin = 0) {
+  return LOCK.waters.some(([cx, cz, rx, rz]) => inEllipse(x, z, cx, cz, rx + margin, rz + margin));
+}
+
+export function inCanopy(x, z, land) {
+  const c = LOCK.canopies[land];
+  if (!c) return false;
+  return inEllipse(x, z, c.cx, c.cz, c.rx, c.rz);
+}
+
+export function nearRing(x, z, pad = 8) {
+  const a = LOCK.rings.A;
+  const b = LOCK.rings.B;
+  return Math.hypot(x - a.x, z - a.z) < a.outer + pad || Math.hypot(x - b.x, z - b.z) < b.outer + pad;
+}
+
+/** True if a disk of `radius` intersects a Pocket ring walking annulus (inner–outer). */
+export function onRingWalk(x, z, radius = 0) {
+  for (const ring of Object.values(LOCK.rings)) {
+    const d = Math.hypot(x - ring.x, z - ring.z);
+    if (d + radius > ring.inner && d - radius < ring.outer) return true;
+  }
+  return false;
+}
+
+/**
+ * SKU building may sit inside a land canopy, not on the 14 m spine,
+ * not in water, not through the stadium rail, not overlapping locked rings.
+ */
+export function canPlaceBuilding(b) {
+  const hw = b.w / 2;
+  const hd = b.d / 2;
+  const corners = [
+    [b.x - hw, b.z - hd],
+    [b.x + hw, b.z - hd],
+    [b.x - hw, b.z + hd],
+    [b.x + hw, b.z + hd],
+    [b.x, b.z],
+  ];
+  for (const [x, z] of corners) {
+    if (!inStadium(x, z)) return false;
+    if (onSpine(x, z)) return false;
+    if (inWater(x, z, 3)) return false;
+    if (!inCanopy(x, z, b.land)) return false;
+    if (nearRing(x, z, 10)) return false;
+    if (Math.hypot(x, z) < LOCK.hubOuter + 4) return false;
+  }
+  return true;
+}
+
+/** Radius-aware 14 m N–S walk (Gate at +Z). Plantings/props must not occupy this strip. */
+export function occupiesSpine(x, z, radius = 0) {
+  const half = LOCK.spineWidth / 2;
+  return Math.abs(x) < half + radius && Math.abs(z) < LOCK.B + 8;
+}
+
+export function canPlaceSoft(x, z, radius = 1) {
+  if (occupiesSpine(x, z, radius)) return false;
+  if (inWater(x, z, radius)) return false;
+  if (onRingWalk(x, z, radius)) return false;
+  for (const b of BUILDINGS) {
+    if (Math.abs(x - b.x) < b.w / 2 + radius + 1.5 && Math.abs(z - b.z) < b.d / 2 + radius + 1.5) return false;
+  }
+  return true;
+}
+
+export const MATERIALS = {
+  'sand-path': 0xe6d3a4,
+  'concrete-plaza': 0xb9b3a8,
+  grass: 0x4f7a3c,
+  'packed-earth': 0x6b5340,
+  curb: 0x5a4630
+};
+
+function shoreAround(cx, cz, rx, rz, extra, n, phase = 0.2) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + phase;
+    out.push([cx + Math.cos(a) * (rx + extra), cz + Math.sin(a) * (rz + extra)]);
+  }
+  return out;
+}
+
+export const TREE_BELTS = {
+  'west lakes': {
+    anchors: LOCK.waters
+      .filter(([x]) => x < -80)
+      .flatMap(([x, z, rx, rz]) => shoreAround(x, z, rx, rz, 12, 8))
+      .concat([[-70, -70], [-80, 20], [-230, 20], [-140, -100], [-185, -40]]),
+    spread: 7,
+    count: 10
+  },
+  'SE grove': {
+    anchors: [
+      ...shoreAround(LOCK.rings.A.x, LOCK.rings.A.z, LOCK.rings.A.outer, LOCK.rings.A.outer, 12, 8),
+      ...shoreAround(LOCK.rings.B.x, LOCK.rings.B.z, LOCK.rings.B.outer, LOCK.rings.B.outer, 12, 8),
+      [75, 70], [100, 50], [55, 100], [130, 85], [85, 125],
+      [145, 70], [70, 130], [110, 130], [150, 40], [110, 120], [70, 145]
+    ],
+    spread: 8,
+    count: 10
+  },
+  'north split': {
+    anchors: LOCK.waters
+      .filter(([, z]) => z < -70)
+      .flatMap(([x, z, rx, rz]) => shoreAround(x, z, rx, rz, 12, 8))
+      .concat([
+        [-45, -110], [20, -120], [-20, -160], [50, -95], [-80, -130],
+        [-10, -140], [40, -155], [-60, -90], [10, -175], [-90, -150],
+        [90, -170], [-100, -165], [0, -190]
+      ]),
+    spread: 8,
+    count: 10
+  }
+};
+
+export const GROUNDS_SCALE = {
+  lampH: 3.6,
+  benchSeat: 0.45,
+  lakesideW: 3.2,
+  lakesideOffset: 2.6,
+  copingW: 0.5,
+  copingH: 0.32,
+  hubBedH: 0.38,
+  treeTrunkH: [5.2, 11.2],
+  treeTrunkR: [0.12, 0.28]
+};
+
+export function treeMetrics(s = 1, seed = 0) {
+  const trunkH = GROUNDS_SCALE.treeTrunkH[0] + (seed % 5) * 1.15 + Math.max(0, s - 1) * 2.0;
+  const trunkR = 0.13 + (seed % 3) * 0.035 + Math.max(0, s - 1) * 0.04;
+  const canopyR = 2.6 + (seed % 4) * 0.28 + s * 0.55;
+  return { trunkH, trunkR, canopyR };
+}
+
+export const GROUNDS_DRESSING = {
+  treeBelts: ['west lakes', 'SE grove', 'north split'],
+  hubRadialBeds: 8,
+  lakesideRibbons: true,
+  materials: ['sand-path', 'concrete-plaza', 'grass', 'packed-earth', 'curb'],
+  lamps: ['spine', 'gate'],
+  landWash: true,
+  waterReflection: true,
+  softProps: ['benches', 'lamps', 'trash', 'planters', 'ropes']
+};
+
+export function beltTreePositions(name) {
+  const spec = TREE_BELTS[name];
+  if (!spec) return [];
+  const pts = [];
+  spec.anchors.forEach(([cx, cz], ai) => {
+    for (let i = 0; i < spec.count; i++) {
+      const a = (i / spec.count) * Math.PI * 2 + ai * 0.41;
+      const d = spec.spread * (0.18 + ((i * 19 + ai * 7) % 11) / 14);
+      const x = cx + Math.cos(a) * d;
+      const z = cz + Math.sin(a) * d;
+      const s = 0.9 + (i % 5) * 0.08 + (ai % 3) * 0.04;
+      const seed = i + ai * 13;
+      const rad = treeMetrics(s, seed).canopyR * 0.5;
+      if (canPlaceSoft(x, z, rad)) pts.push({ x, z, s, seed, belt: name });
+    }
+  });
+  return pts;
+}
+
+export function hubBedCenters() {
+  const r = (LOCK.hubInner + LOCK.hubOuter) / 2;
+  const beds = [];
+  for (let i = 0; i < GROUNDS_DRESSING.hubRadialBeds; i++) {
+    const a = (i / GROUNDS_DRESSING.hubRadialBeds) * Math.PI * 2 + Math.PI / 8;
+    beds.push({ i, a, x: Math.cos(a) * r, z: Math.sin(a) * r, r });
+  }
+  return beds;
+}
+
+export function lakesideRibbonSegments(cx, cz, rx, rz, n = 64) {
+  const pathW = GROUNDS_SCALE.lakesideW;
+  const dist = GROUNDS_SCALE.lakesideOffset;
+  const segs = [];
+  function edge(a, extra) {
+    const mx = Math.cos(a), mz = Math.sin(a);
+    const ex = cx + mx * rx, ez = cz + mz * rz;
+    const nx = mx * rx, nz = mz * rz;
+    const nl = Math.hypot(nx, nz) || 1;
+    return [ex + (nx / nl) * extra, ez + (nz / nl) * extra];
+  }
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2;
+    const a1 = ((i + 1) / n) * Math.PI * 2;
+    const am = (a0 + a1) / 2;
+    const [x, z] = edge(am, dist);
+    if (occupiesSpine(x, z, pathW / 2)) continue;
+    const [x0, z0] = edge(a0, dist);
+    const [x1, z1] = edge(a1, dist);
+    segs.push({ x, z, w: pathW, len: Math.hypot(x1 - x0, z1 - z0), rotY: Math.atan2(x1 - x0, z1 - z0) });
+  }
+  return segs;
+}
+
+export function lakesideRibbonMesh(cx, cz, rx, rz, n = 64) {
+  const segs = lakesideRibbonSegments(cx, cz, rx, rz, n);
+  const skipped = n - segs.length;
+  return { x: cx, z: cz, rx, rz, segs, skipped, closedRing: skipped === 0 };
+}
+
+export function allLakesideRibbons() {
+  return LOCK.waters.map(([x, z, rx, rz]) => lakesideRibbonMesh(x, z, rx, rz));
+}
+
+/** Constant-width coping around a locked water ellipse, in meters (not rx-scaled). */
+export function waterCopingSegments(cx, cz, rx, rz, n = 48) {
+  const w = GROUNDS_SCALE.copingW;
+  const extra = w * 0.15;
+  const segs = [];
+  function pt(a, off) {
+    const mx = Math.cos(a), mz = Math.sin(a);
+    const ex = cx + mx * rx, ez = cz + mz * rz;
+    const nx = mx * rx, nz = mz * rz;
+    const nl = Math.hypot(nx, nz) || 1;
+    return [ex + (nx / nl) * off, ez + (nz / nl) * off];
+  }
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2;
+    const a1 = ((i + 1) / n) * Math.PI * 2;
+    const am = (a0 + a1) / 2;
+    const [x, z] = pt(am, extra);
+    const [x0, z0] = pt(a0, extra);
+    const [x1, z1] = pt(a1, extra);
+    segs.push({ x, z, w, len: Math.hypot(x1 - x0, z1 - z0), rotY: Math.atan2(x1 - x0, z1 - z0) });
+  }
+  return segs;
+}
+
+/** 1 song = kiosk, EP = pavilion, album = full building. */
+export const BUILDINGS = [
+  { id: 'block-album', land: 'The Block', sku: 'album', name: 'Block Hall', x: -250, z: 48, w: 22, d: 14, h: 9.2, yaw: 0.18, body: 0x6a4030, trim: 0x3a2418 },
+  { id: 'block-ep', land: 'The Block', sku: 'pavilion', name: 'Block Pavilion', x: -95, z: -130, w: 12, d: 8.5, h: 5.2, yaw: 0.35, body: 0x7a4e38, trim: 0x3d281c },
+  { id: 'block-song', land: 'The Block', sku: 'kiosk', name: 'Block Kiosk', x: -78, z: 52, w: 3.8, d: 3.8, h: 3.15, yaw: 0.1, body: 0x8a5a40, trim: 0x2c1c12 },
+  { id: 'block-song-2', land: 'The Block', sku: 'kiosk', name: 'Block Cart', x: -175, z: 95, w: 3.6, d: 3.6, h: 3.05, yaw: -0.4, body: 0x8a5a40, trim: 0x2c1c12 },
+  { id: 'hours-album', land: 'After Hours', sku: 'album', name: 'After Hours', x: 28, z: -182, w: 20, d: 12, h: 8.4, yaw: 0.05, body: 0x2a2438, trim: 0x1a1428 },
+  { id: 'hours-ep', land: 'After Hours', sku: 'pavilion', name: 'Hours Pavilion', x: -78, z: -155, w: 11, d: 8, h: 4.9, yaw: 0.55, body: 0x3a3050, trim: 0x1c1828 },
+  { id: 'hours-song', land: 'After Hours', sku: 'kiosk', name: 'Hours Kiosk', x: 95, z: -148, w: 3.6, d: 3.6, h: 3.1, yaw: -0.2, body: 0x4a4060, trim: 0x1a1424 },
+  { id: 'board-album', land: 'The Board', sku: 'album', name: 'Board Hall', x: 248, z: 42, w: 22, d: 14, h: 9.0, yaw: -0.22, body: 0xc4b08a, trim: 0x6a5840 },
+  { id: 'board-ep', land: 'The Board', sku: 'pavilion', name: 'Board Pavilion', x: 175, z: 95, w: 12, d: 8.5, h: 5.1, yaw: -0.45, body: 0xd2c4a0, trim: 0x6a5840 },
+  { id: 'board-song', land: 'The Board', sku: 'kiosk', name: 'Board Kiosk', x: 88, z: -18, w: 3.8, d: 3.8, h: 3.15, yaw: 0.3, body: 0xd8c8a4, trim: 0x5a4830 },
+  { id: 'board-song-2', land: 'The Board', sku: 'kiosk', name: 'Board Cart', x: 210, z: 88, w: 3.6, d: 3.6, h: 3.05, yaw: 0.6, body: 0xd8c8a4, trim: 0x5a4830 },
+  // Pass 13 — Pocket SKU ladder near locked ∞ rings (song=kiosk, EP=pavilion; no album hall)
+  { id: 'pocket-album', land: 'The Pocket', sku: 'album', name: 'Pocket Hall', x: 22, z: 112, w: 18, d: 14, h: 8.4, yaw: 1.57, body: 0x5a4a38, trim: 0x3d3428 },
+  { id: 'pocket-ep-a', land: 'The Pocket', sku: 'pavilion', name: 'Pocket Pavilion A', x: 55, z: 95, w: 11, d: 8, h: 4.9, yaw: 0.4, body: 0x5a6a58, trim: 0x2a3228 },
+  { id: 'pocket-ep-b', land: 'The Pocket', sku: 'pavilion', name: 'Pocket Pavilion B', x: 150, z: 108, w: 11, d: 8, h: 4.9, yaw: -0.5, body: 0x5a6a58, trim: 0x2a3228 },
+  { id: 'pocket-song-a', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Kiosk A', x: 95, z: 55, w: 3.6, d: 3.6, h: 3.1, yaw: -0.2, body: 0x6a7a68, trim: 0x243028 },
+  { id: 'pocket-song-b', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Kiosk B', x: 118, z: 140, w: 3.6, d: 3.6, h: 3.1, yaw: 0.3, body: 0x6a7a68, trim: 0x243028 },
+  { id: 'pocket-song-c', land: 'The Pocket', sku: 'kiosk', name: 'Pocket Cart', x: 70, z: 130, w: 3.6, d: 3.6, h: 3.05, yaw: 0.15, body: 0x6a7a68, trim: 0x243028 },
+];
+
+/** Gate house wings on the south rail. 18 m opening keeps the 14 m spine walkable. */
+export const GATE = [
+  { id: 'gate-west', name: 'Gate West', sku: 'album', land: 'Gate', role: 'gate', x: -13.5, z: 233, w: 9, d: 7.2, h: 8.6, yaw: 0, body: 0x5a4634, trim: 0x3d2e22 },
+  { id: 'gate-east', name: 'Gate East', sku: 'album', land: 'Gate', role: 'gate', x: 13.5, z: 233, w: 9, d: 7.2, h: 8.6, yaw: 0, body: 0x5a4634, trim: 0x3d2e22 },
+];
+
+export function stationPose(ringId, ang) {
+  const r = LOCK.rings[ringId];
+  const dist = r.outer + 9;
+  return { x: r.x + Math.cos(ang) * dist, z: r.z + Math.sin(ang) * dist, ang };
+}
+
+const stationA = stationPose('A', -2.4);
+const stationB = stationPose('B', -0.6);
+
+/** Ride stations beside locked rings. Rings stay at (95,95) and (118,108). */
+export const STATIONS = [
+  { id: 'station-a', name: 'Ring A', sku: 'pavilion', land: 'The Board', role: 'station', ring: 'A', x: stationA.x, z: stationA.z, ang: stationA.ang, w: 14, d: 7.5, h: 4.05, yaw: -stationA.ang + Math.PI / 2, body: 0x6a5844, trim: 0x3d3428 },
+  { id: 'station-b', name: 'Ring B', sku: 'kiosk', land: 'The Board', role: 'station', ring: 'B', x: stationB.x, z: stationB.z, ang: stationB.ang, w: 8, d: 6, h: 3.6, yaw: -stationB.ang + Math.PI / 2, body: 0x6a5844, trim: 0x3d3428 },
+];
+
+export const PLACEMENTS = [...BUILDINGS, ...GATE, ...STATIONS];
+
+export function occupancyAABB(b) {
+  const hw = b.w / 2, hd = b.d / 2;
+  return { minX: b.x - hw, maxX: b.x + hw, minZ: b.z - hd, maxZ: b.z + hd };
+}
+
+function clamp(v, a, b) {
+  return Math.max(a, Math.min(b, v));
+}
+
+export function aabbHitsCircle(aabb, cx, cz, r) {
+  const qx = clamp(cx, aabb.minX, aabb.maxX);
+  const qz = clamp(cz, aabb.minZ, aabb.maxZ);
+  return Math.hypot(qx - cx, qz - cz) < r;
+}
+
+export function aabbHitsEllipse(aabb, cx, cz, rx, rz) {
+  const nx0 = (aabb.minX - cx) / rx, nx1 = (aabb.maxX - cx) / rx;
+  const nz0 = (aabb.minZ - cz) / rz, nz1 = (aabb.maxZ - cz) / rz;
+  const minX = Math.min(nx0, nx1), maxX = Math.max(nx0, nx1);
+  const minZ = Math.min(nz0, nz1), maxZ = Math.max(nz0, nz1);
+  const qx = clamp(0, minX, maxX);
+  const qz = clamp(0, minZ, maxZ);
+  return qx * qx + qz * qz < 1;
+}
+
+export function aabbHitsAabb(a, b) {
+  return a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
+}
+
+export function hitsHub(aabb) {
+  return aabbHitsCircle(aabb, 0, 0, LOCK.hubOuter);
+}
+
+export function hitsSpine(aabb) {
+  return aabbHitsAabb(aabb, {
+    minX: -LOCK.spineWidth / 2,
+    maxX: LOCK.spineWidth / 2,
+    minZ: 0,
+    maxZ: LOCK.B,
+  });
+}
+
+export function hitsWater(aabb) {
+  return LOCK.waters.some(([x, z, rx, rz]) => aabbHitsEllipse(aabb, x, z, rx, rz));
+}
+
+export function hitsRail(aabb, role) {
+  const pts = [
+    [aabb.minX, aabb.minZ], [aabb.maxX, aabb.minZ],
+    [aabb.minX, aabb.maxZ], [aabb.maxX, aabb.maxZ],
+  ];
+  for (const [x, z] of pts) {
+    if (inStadium(x, z)) continue;
+    if (role === 'gate' && z >= LOCK.B - 2 && z <= LOCK.B + 8 && Math.abs(x) <= 40) continue;
+    return true;
+  }
+  return false;
+}
+
+export function stationBesideRing(s) {
+  const r = LOCK.rings[s.ring];
+  if (!r) return false;
+  if (aabbHitsCircle(occupancyAABB(s), r.x, r.z, r.outer)) return false;
+  return Math.hypot(s.x - r.x, s.z - r.z) < r.outer + 28;
+}
+
+export function placementIssues(p) {
+  const issues = [];
+  if (!['kiosk', 'pavilion', 'album'].includes(p.sku)) issues.push('sku');
+  const occ = occupancyAABB(p);
+  if (hitsHub(occ)) issues.push('hub');
+  if (hitsSpine(occ)) issues.push('spine');
+  if (hitsWater(occ)) issues.push('water');
+  if (hitsRail(occ, p.role)) issues.push('rail');
+  if (p.role !== 'gate' && p.role !== 'station' && !inCanopy(p.x, p.z, p.land)) issues.push('canopy');
+  if (p.role === 'station' && !stationBesideRing(p)) issues.push('station');
+  if (p.role === 'gate' && (occ.maxZ < LOCK.B - 12 || occ.minZ > LOCK.B + 8)) issues.push('gate');
+  return issues;
+}
+
+// FIX-ITINERARY (2026-09-20): explicit named re-exports so Pages/CDN never serve a
+// lock.js without ITINERARY while index.html already imports it.
+export { ITINERARY as PARK_ITINERARY };
