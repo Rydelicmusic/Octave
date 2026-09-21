@@ -19,3 +19,6 @@ tree>2: 0; road DIAG: 0; illegal hub/spine tree/prop: 0; mass>1 G2,3 locked
 ## Rotation 2
 G2,3 skip-mass-locked pocket-ep-a,station-a
 A–E otherwise clean — stop
+
+## Pass 96
+water-calls-off, trees-claimed 97, trees-skipped (belt-thin + cap), cells-over-cap 0

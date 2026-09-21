@@ -7,6 +7,8 @@ import { claim, whyBlocked, treeLot, cellOf } from './occupy.js';
 
 const HUB = LOCK.hubOuter || 32;
 const LANDS = ['The Block', 'After Hours', 'The Board', 'The Pocket'];
+const SPINE_OFF = (LOCK.spineWidth || 14) / 2 + 6;
+const BELT_SPACING = 9;
 const treeCount = new Map();
 const propCount = new Map();
 const log = [];
@@ -22,6 +24,29 @@ function note(cell, action, id) {
 
 export function surveyLog() {
   return log.slice();
+}
+
+export function treeStats() {
+  let claimed = 0;
+  let skipped = 0;
+  for (const e of log) {
+    if (e.action === 'claim-tree' || e.action === 'rehome-tree') claimed += 1;
+    if (e.action === 'skip-tree') skipped += 1;
+  }
+  let over = 0;
+  for (const n of treeCount.values()) if (n > 2) over += 1;
+  return { claimed, skipped, overCap: over };
+}
+
+export function beltSlots(pts) {
+  const kept = [];
+  for (const p of pts || []) {
+    if (Math.abs(p.x) < SPINE_OFF) continue;
+    if (Math.hypot(p.x, p.z) < HUB + 6) continue;
+    if (kept.some((k) => Math.hypot(k.x - p.x, k.z - p.z) < BELT_SPACING)) continue;
+    kept.push(p);
+  }
+  return kept;
 }
 
 function driveSegs(d) {
@@ -75,30 +100,34 @@ export function placeTree(id, x, z, radius) {
   const r = Math.max(1.2, radius || 2);
   const land0 = landAt(x, z);
   function tryAt(tx, tz) {
-    if (!inStadium(tx, tz)) return null;
-    if (occupiesSpine(tx, tz, r) || Math.hypot(tx, tz) < HUB) return null;
+    if (!inStadium(tx, tz)) return 'no';
+    if (occupiesSpine(tx, tz, r) || Math.hypot(tx, tz) < HUB) return 'no';
     const c = cellOf(tx, tz);
-    if ((treeCount.get(c) || 0) >= 2) return null;
+    if ((treeCount.get(c) || 0) >= 2) return 'cap';
     const lot = treeLot(id, tx, tz, r);
-    if (whyBlocked(lot).length) return null;
-    if (!claim(lot)) return null;
+    if (whyBlocked(lot).length) return 'blocked';
+    if (!claim(lot)) return 'blocked';
     treeCount.set(c, (treeCount.get(c) || 0) + 1);
     return { x: tx, z: tz, cell: c };
   }
   let hit = tryAt(x, z);
-  if (hit) {
+  if (hit && typeof hit === 'object') {
     note(hit.cell, 'claim-tree', id);
     return hit;
   }
+  if (hit !== 'cap') {
+    note(cellOf(x, z), 'skip-tree', id);
+    return null;
+  }
   const gx = Math.floor(x / 25);
   const gz = Math.floor(z / 25);
-  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2], [1, 1], [-1, 1], [1, -1], [-1, -1]];
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   for (const [dx, dz] of dirs) {
     const tx = (gx + dx) * 25 + 12.5;
     const tz = (gz + dz) * 25 + 12.5;
     if (land0 && !inCanopy(tx, tz, land0)) continue;
     hit = tryAt(tx, tz);
-    if (hit) {
+    if (hit && typeof hit === 'object') {
       note(hit.cell, 'rehome-tree', id);
       return hit;
     }
@@ -151,18 +180,18 @@ export function replayTrees() {
     placeTree('tree-' + (++seq), x, z, m.canopyR);
   }
   for (const name of ['west lakes', 'SE grove', 'north split']) {
-    for (const p of beltTreePositions(name)) add(p.x, p.z, p.s, p.seed);
+    for (const p of beltSlots(beltTreePositions(name))) add(p.x, p.z, p.s, p.seed);
   }
   const B = LOCK.B;
-  for (let z = 34; z < B - 10; z += 11) {
-    for (const [cx, cz] of [[-18.5, z], [18.5, z]]) {
-      clumpPts(cx, cz, 8, 6.2).forEach(([x, zz], i) => add(x, zz, 1.05 * (0.72 + (i % 5) * 0.13), i + 11));
+  for (let z = 34; z < B - 10; z += 9) {
+    for (const [cx, cz] of [[-13.5, z], [13.5, z]]) {
+      clumpPts(cx, cz, 2, 3.2).forEach(([x, zz], i) => add(x, zz, 1.05 * (0.72 + (i % 5) * 0.13), i + 11));
     }
   }
-  for (let i = 0; i < 10; i++) {
-    const a = (i / 10) * Math.PI * 2 + 0.3;
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2 + 0.3;
     if (Math.abs(Math.sin(a)) > 0.88) continue;
-    clumpPts(Math.cos(a) * 40, Math.sin(a) * 40, 5, 4.5).forEach(([x, z], k) => add(x, z, 0.9, k + 11));
+    add(Math.cos(a) * 38, Math.sin(a) * 38, 0.9, i + 11);
   }
   return seq;
 }

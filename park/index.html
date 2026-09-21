@@ -40,10 +40,11 @@ import { addHubClean } from './hub-clean.js?v=pass86-hub';
 import { addWaterClean } from './water-clean.js?v=pass87-block';
 import { addDryPark } from './dry-park.js?v=pass94-lawn';
 import { addTidyOval } from './tidy-oval.js?v=pass94-oval';
+import { addNoWater } from './no-water.js?v=pass96-dry';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
 import { claim, seedPark, whyBlocked, dump } from './occupy.js';
-import { claimDrives, placeTree, placeProp } from './organize.js';
+import { claimDrives, placeTree, placeProp, beltSlots } from './organize.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -60,6 +61,7 @@ const ITINERARY = LockMod.ITINERARY || {
   sign: { x: 0, z: 205, yaw: Math.PI },
 };
 const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
+window.__PARK_DRY=true;
 seedPark(LOCK, BUILDINGS, GATE, STATIONS);
 claimDrives();
 function claimStruct(b, kind='building'){
@@ -147,8 +149,8 @@ function water(x,z,rx,rz){
     lip.position.set(s.x,rimH+0.02,s.z);lip.rotation.y=s.rotY;scene.add(lip);
   });
 }
-LOCK.waters.forEach(w=>water(...w));
-LOCK.waters.forEach(([x,z,rx,rz])=>lakeWalk(x,z,rx,rz));
+if(!window.__PARK_DRY) LOCK.waters.forEach(w=>water(...w));
+if(!window.__PARK_DRY) LOCK.waters.forEach(([x,z,rx,rz])=>lakeWalk(x,z,rx,rz));
 // Paths: raised sand surface + tall side curbs (hub-curb spirit, walk stays clear)
 function pathBox(w,len,x,z,rotY=0,topMat=pathMat){
   const g=new THREE.Group();
@@ -206,7 +208,7 @@ function pathRing(inner,outer,x,z){
 }
 const walkSegs=[]; // Pass 7 ribbon stay-on-path
 function addWalkSeg(ax,az,bx,bz,half){walkSegs.push({ax,az,bx,bz,half});}
-LOCK.waters.forEach(([x,z,rx,rz])=>{
+if(!window.__PARK_DRY) LOCK.waters.forEach(([x,z,rx,rz])=>{
   for(const pts of lakesideRibbonRuns(x,z,rx,rz)){
     if(pts.length<2) continue;
     for(let i=0;i<pts.length-1;i++) addWalkSeg(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1], PATH_SCALE.lakesideW/2);
@@ -617,7 +619,7 @@ function lakeEdgeRibbon(cx,cz,rx,rz,width,n=64,margin=2.75){
   }
   pathRibbon(pts,width);
 }
-LOCK.waters.forEach(([cx,cz,rx,rz])=>{
+if(!window.__PARK_DRY) LOCK.waters.forEach(([cx,cz,rx,rz])=>{
   if(rx<12) return; // skip tiny ponds
   const n=rx>=40?72:rx>=24?56:48;
   const w=rx>=40?5.6:rx>=24?5.2:4.8;
@@ -625,6 +627,7 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
 });
 // Pass 21 — denser After Hours shore bands (waters unmoved; north canopy)
 (function afterHoursShore(){
+  if(window.__PARK_DRY) return;
   LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     if(cz>-5) return; // north / After Hours side of hub
     if(rx<10) return;
@@ -638,6 +641,7 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
 })();
 // Pass 22 — denser Board (east) shore bands (waters unmoved)
 (function boardShore(){
+  if(window.__PARK_DRY) return;
   LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     if(cx<80) return; // The Board side
     if(rx<10) return;
@@ -651,6 +655,7 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
 })();
 // Pass 23 — denser Block (west) shore bands (waters unmoved)
 (function blockShore(){
+  if(window.__PARK_DRY) return;
   LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     if(cx>-60) return; // The Block side
     if(rx<10) return;
@@ -664,6 +669,7 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
 })();
 // Pass 24 — denser Pocket (hub-south / rings) shore bands (waters unmoved; rings held)
 (function pocketShore(){
+  if(window.__PARK_DRY) return;
   LOCK.waters.forEach(([cx,cz,rx,rz])=>{
     if(cz<40||cx<10) return; // Pocket neighborhood south-east of hub
     if(rx<9) return;
@@ -681,6 +687,7 @@ LOCK.waters.forEach(([cx,cz,rx,rz])=>{
 })();
 // Pass 11 — fuller shoreline network: promenade bands + shore-hugging links (waters unmoved)
 (function lakeShoreNetwork(){
+  if(window.__PARK_DRY) return;
   const lakes=LOCK.waters.filter(([, ,rx])=>rx>=16).map(([x,z,rx,rz])=>({x,z,rx,rz}));
   function angTo(L,x,z){return Math.atan2(z-L.z,x-L.x);}
   function shorePt(L,a,m=2.85){return [L.x+Math.cos(a)*(L.rx+m), L.z+Math.sin(a)*(L.rz+m)];}
@@ -975,24 +982,21 @@ function clump(cx,cz,n,r,s0=1,prefer){
     tree(tx,tz,s0*(0.72+(i%5)*0.13),i+11,sp);
   }
 }
-// Rail belt — denser every other post
-railPts.forEach((p,i)=>{if(i%2)return;if(Math.abs(p.x)<22&&p.z>40)return;tree(p.x*0.92,p.z*0.92,0.85+(i%4)*0.14);});
-// Gate→Hub corridor flanks — denser clumps outside 14 m path + curb
-for(let z=34;z<B-10;z+=11){
-  clump(-18.5,z,8,6.2,1.05);
-  clump(18.5,z,8,6.2,1.05);
+if(!window.__PARK_DRY) railPts.forEach((p,i)=>{if(i%2)return;if(Math.abs(p.x)<22&&p.z>40)return;tree(p.x*0.92,p.z*0.92,0.85+(i%4)*0.14);});
+for(let z=34;z<B-10;z+=9){
+  clump(-13.5,z,2,3.2,1.05);
+  clump(13.5,z,2,3.2,1.05);
 }
 // West lakes / The Block — willow-biased belts
-beltTreePositions('west lakes').forEach(p=>tree(p.x,p.z,p.s,p.seed,'willow'));
+beltSlots(beltTreePositions('west lakes')).forEach(p=>tree(p.x,p.z,p.s,p.seed,'willow'));
 // SE grove near Board figure-8 — oak-biased
-beltTreePositions('SE grove').forEach(p=>tree(p.x,p.z,p.s,p.seed,'oak'));
+beltSlots(beltTreePositions('SE grove')).forEach(p=>tree(p.x,p.z,p.s,p.seed,'oak'));
 // North / After Hours split — pine-biased
-beltTreePositions('north split').forEach(p=>tree(p.x,p.z,p.s,p.seed,'pine'));
-// Hub ring outer plantings (outside r32, skip spine axes)
-for(let i=0;i<10;i++){
-  const a=(i/10)*Math.PI*2+0.3;
-  if(Math.abs(Math.sin(a))>0.88)continue; // skip ±Z gate/north openings
-  clump(Math.cos(a)*40,Math.sin(a)*40,5,4.5,0.9,'poplar');
+beltSlots(beltTreePositions('north split')).forEach(p=>tree(p.x,p.z,p.s,p.seed,'pine'));
+for(let i=0;i<24;i++){
+  const a=(i/24)*Math.PI*2+0.3;
+  if(Math.abs(Math.sin(a))>0.88)continue;
+  tree(Math.cos(a)*38,Math.sin(a)*38,0.9,i,'poplar');
 }
 // Pass 14 — denser Pocket understory / planted beds (rings & footprints held)
 (function pocketUnderstory(){
@@ -1021,6 +1025,7 @@ for(let i=0;i<10;i++){
 })();
 // Pass 30 — soft land canopy edge ribbons (canopy ellipses unmoved)
 (function canopyEdgeRibbons(){
+  if(window.__PARK_DRY) return;
   Object.entries(LOCK.canopies).forEach(([name,c])=>{
     const pts=[], n=72;
     for(let i=0;i<=n;i++){
@@ -1647,11 +1652,10 @@ function rideStation(s){
   })();
 }
 STATIONS.forEach(rideStation);
-plate(90,70,-200,-50,EARTH);
-plate(60,50,130,-70,EARTH);
-plate(70,40,0,-175,EARTH);
+if(!window.__PARK_DRY){plate(90,70,-200,-50,EARTH);plate(60,50,130,-70,EARTH);plate(70,40,0,-175,EARTH);}
 // Pass 34/53 — denser earth / grass tone patches (layout locks held)
 (function earthGrassPatches(){
+  if(window.__PARK_DRY) return;
   const tones=[0x5a7a40,0x4a6a38,0x6b5340,0x5a4838,0x557848,0x6a7a48,0x4e5a34,0x7a6048,0x3d5a38];
   const spots=[
     [-180,40,55,40],[-140,-90,45,35],[-90,120,40,30],
@@ -1877,6 +1881,7 @@ addParkRoads(THREE,scene);
 })();
 // Pass 63 — local night mist near waters (waters x/z/rx/rz held; soft volume only)
 (function pass63WaterMist(){
+  if(window.__PARK_DRY) return;
   const mistMat=new THREE.MeshLambertMaterial({
     color:0xb8c8d8, emissive:0x4a6078, emissiveIntensity:0.22,
     transparent:true, opacity:0.18, depthWrite:false
@@ -1953,6 +1958,7 @@ addHubClean(THREE,scene);
 addWaterClean(THREE,scene);
 addDryPark(THREE,scene);
 addTidyOval(THREE,scene);
+addNoWater(THREE,scene);
 const parkGrid=addParkGrid(THREE,scene);
 
 const avatar=new THREE.Group();

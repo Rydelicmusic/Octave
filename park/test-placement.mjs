@@ -19,7 +19,7 @@ import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 import { parkToGeo } from './gps-hud.js';
 import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
 import { seedPark, claim, treeLot, lots, clearDynamic, whyBlocked, dump } from './occupy.js';
-import { claimDrives, replayTrees, placeTree, surveyLog } from './organize.js';
+import { claimDrives, replayTrees, placeTree, surveyLog, treeStats } from './organize.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -253,6 +253,8 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
   assert.match(src, /from ['"]\.\/roads\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addParkRoads\(THREE,scene\)/);
   assert.match(src, /addTidyOval\(THREE,scene\)/);
+  assert.match(src, /addNoWater\(THREE,scene\)/);
+  assert.match(src, /window\.__PARK_DRY=true/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 
@@ -438,6 +440,11 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   for (const [c, n] of treesByCell) assert.ok(n <= 2, c + ' trees ' + n);
   assert.ok(map.lots.some((l) => l.kind === 'road'));
   assert.ok(surveyLog().some((e) => e.action === 'claim-road'));
+  const stats = treeStats();
+  const treeN = map.lots.filter((l) => l.kind === 'tree').length;
+  assert.ok(treeN < 180, 'forest ' + treeN);
+  assert.equal(stats.overCap, 0);
+  assert.ok(stats.claimed === treeN || stats.claimed >= treeN);
 });
 
 test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {

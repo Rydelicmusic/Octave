@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 96 — stop old spawners: __PARK_DRY, belts not forest
+- `window.__PARK_DRY=true`: skip water() / lakeWalk / shore ribbons; `no-water.js` strips leftover discs
+- Trees via placeTree, 8–10 m belt slots, cap 2/cell; props via placeProp; dump occupy-map.json
+- lock.js waters array left in place, not drawn; no hotel; G2,3 locked masses kept
+
 ## Pass 95 — 45 min survey loop: axis drives, 2 trees/cell
 - G-cell jobs: axis-aligned T-drives claimed as road lots; trees cap 2/cell then rehome or skip; props skip hub r32 and spine asphalt
 - `organize.js` + SURVEY_LOG.md; occupy-map.json dumped with cells; lock.js / occupy.js / LAYOUT.md untouched
