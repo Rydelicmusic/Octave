@@ -41,6 +41,15 @@ import { addWaterClean } from './water-clean.js?v=pass87-block';
 import { addDryPark } from './dry-park.js?v=pass94-lawn';
 import { addTidyOval } from './tidy-oval.js?v=pass94-oval';
 import { addNoWater } from './no-water.js?v=pass96-dry';
+import { addRideBoard01 } from './rides/ride-board-01.js';
+import { addRideBlock01 } from './rides/ride-block-01.js';
+import { addRideHours01 } from './rides/ride-hours-01.js';
+import { addRidePocket01 } from './rides/ride-pocket-01.js';
+import { addRideBoard02 } from './rides/ride-board-02.js';
+import { addRideBlock02 } from './rides/ride-block-02.js';
+import { addRideHours02 } from './rides/ride-hours-02.js';
+import { addRidePocket02 } from './rides/ride-pocket-02.js';
+import { addRideGateSigns } from './rides/ride-gate-signs.js';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
 import { claim, seedPark, whyBlocked, dump } from './occupy.js';
@@ -1808,6 +1817,15 @@ function addHall(b){
   g.add(steps,step2);
 }
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
+addRideBoard01(THREE,scene);
+addRideBlock01(THREE,scene);
+addRideHours01(THREE,scene);
+addRidePocket01(THREE,scene);
+addRideBoard02(THREE,scene);
+addRideBlock02(THREE,scene);
+addRideHours02(THREE,scene);
+addRidePocket02(THREE,scene);
+addRideGateSigns(THREE,scene);
 window.__parkOccupyDump=dump();
 addParkRoads(THREE,scene);
 // Pass 62 — SKU service/loading aprons at rear doors (BUILDINGS footprints held)

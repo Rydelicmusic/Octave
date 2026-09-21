@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 99 — RIDE_QUEUE #1–#9 DONE
+- Song kiosks: Board G6,0 / x 160 z 14; Block G-8,1 / x -187.5 z 37.5; Hours G-2,-7 / x -36 z -175; Pocket G2,2 / x 70 z 50
+- EP pavilions: Board G7,0 / x 187.5 z 14; Block G-8,-1 / x -187.5 z -20; Hours G-3,-7 / x -60 z -175; Pocket G1,3 / x 40 z 80
+- Gate signs x ±24 z 210 off spine; 4 m queues face each land drive; hub/spine clear
+
 ## Pass 98 — Walk/3rd free in oval (no nearestWalk)
 - tick() walk: `if (inStadium(nx,nz)) { pos.x=nx; pos.z=nz; }` — no ribbon snap; drone unchanged
 

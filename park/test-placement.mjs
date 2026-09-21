@@ -20,6 +20,15 @@ import { parkToGeo } from './gps-hud.js';
 import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
 import { seedPark, claim, treeLot, lots, clearDynamic, whyBlocked, dump } from './occupy.js';
 import { claimDrives, replayTrees, placeTree, surveyLog, treeStats } from './organize.js';
+import { claimRide as claimBoard01, RIDE as BOARD01 } from './rides/ride-board-01.js';
+import { claimRide as claimBlock01, RIDE as BLOCK01 } from './rides/ride-block-01.js';
+import { claimRide as claimHours01, RIDE as HOURS01 } from './rides/ride-hours-01.js';
+import { claimRide as claimPocket01, RIDE as POCKET01 } from './rides/ride-pocket-01.js';
+import { claimRide as claimBoard02 } from './rides/ride-board-02.js';
+import { claimRide as claimBlock02 } from './rides/ride-block-02.js';
+import { claimRide as claimHours02 } from './rides/ride-hours-02.js';
+import { claimRide as claimPocket02 } from './rides/ride-pocket-02.js';
+import { claimRide as claimGateSigns } from './rides/ride-gate-signs.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -387,6 +396,22 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   assert.equal(seeded.plates, 4);
   assert.ok(claimDrives() >= 4);
   replayTrees();
+  assert.equal(claimBoard01(), true);
+  assert.equal(claimBlock01(), true);
+  assert.equal(claimHours01(), true);
+  assert.equal(claimPocket01(), true);
+  assert.equal(claimBoard02(), true);
+  assert.equal(claimBlock02(), true);
+  assert.equal(claimHours02(), true);
+  assert.equal(claimPocket02(), true);
+  assert.equal(claimGateSigns(), true);
+  assert.equal(inCanopy(BOARD01.x, BOARD01.z, 'The Board'), true);
+  assert.equal(inCanopy(BLOCK01.x, BLOCK01.z, 'The Block'), true);
+  assert.equal(inCanopy(HOURS01.x, HOURS01.z, 'After Hours'), true);
+  assert.equal(inCanopy(POCKET01.x, POCKET01.z, 'The Pocket'), true);
+  assert.equal(occupiesSpine(BOARD01.x, BOARD01.z, 3), false);
+  assert.equal(occupiesSpine(HOURS01.x, HOURS01.z, 3), false);
+  assert.equal(nearRing(POCKET01.x, POCKET01.z, 10), false);
   const hall = BUILDINGS.find((b) => b.id === 'block-album');
   assert.equal(placeTree('tree-on-hall-2', hall.x, hall.z, 4), null);
   assert.equal(claim(treeLot('tree-on-hall', hall.x, hall.z, 4)), false);
@@ -403,6 +428,13 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   assert.match(src, /seedPark\(LOCK, BUILDINGS, GATE, STATIONS\)/);
   assert.match(src, /claimDrives\(\)/);
   assert.match(src, /placeTree\(/);
+  assert.match(src, /addRideBoard01\(THREE,scene\)/);
+  assert.match(src, /addRideBlock01\(THREE,scene\)/);
+  assert.match(src, /addRideHours01\(THREE,scene\)/);
+  assert.match(src, /addRidePocket01\(THREE,scene\)/);
+  assert.match(src, /addRideBoard02\(THREE,scene\)/);
+  assert.match(src, /addRideGateSigns\(THREE,scene\)/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
   assert.match(src, /whyBlocked\(/);
   assert.match(src, /claimStruct\(/);
   assert.match(src, /__parkOccupyDump=dump\(\)/);
@@ -414,7 +446,7 @@ test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () 
   const map = JSON.parse(readFileSync(join(here, 'occupy-map.json'), 'utf8'));
   assert.equal(map.crs, 'park/CRS.md');
   assert.equal(map.index, '25m-hash');
-  for (const id of ['spine-14', 'block-album', 'gate-west', 'plate-block', 'plate-hours', 'plate-board', 'plate-pocket']) {
+  for (const id of ['spine-14', 'ride-board-01', 'ride-block-01', 'ride-hours-01', 'ride-pocket-01', 'ride-board-02', 'ride-block-02', 'ride-hours-02', 'ride-pocket-02', 'ride-gate-sign-west']) {
     assert.ok(map.lots.some((l) => l.id === id), id);
   }
   for (const l of map.lots) {

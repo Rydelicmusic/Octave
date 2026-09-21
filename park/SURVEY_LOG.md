@@ -22,3 +22,14 @@ A–E otherwise clean — stop
 
 ## Pass 96
 water-calls-off, trees-claimed 97, trees-skipped (belt-thin + cap), cells-over-cap 0
+
+## Pass 99 rides
+G6,0 claim ride-board-01 / x 160 z 14 / 6 × 4 m
+G-8,1 claim ride-block-01 / x -187.5 z 37.5 / 6 × 4 m
+G-2,-7 claim ride-hours-01 / x -36 z -175 / 6 × 4 m (G0,-7 spine skip)
+G2,2 claim ride-pocket-01 / x 70 z 50 / 6 × 4 m (G4,4 rings skip)
+G7,0 claim ride-board-02 / x 187.5 z 14 / 12 × 8 m
+G-8,-1 claim ride-block-02 / x -187.5 z -20 / 12 × 8 m
+G-3,-7 claim ride-hours-02 / x -60 z -175 / 12 × 8 m
+G1,3 claim ride-pocket-02 / x 40 z 80 / 12 × 8 m
+G-1,8 / G0,8 claim ride-gate-signs / x ±24 z 210
