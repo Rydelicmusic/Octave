@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 87 — Block water: one pool + one coping, drive around
+- `park/water-clean.js` The Block only: each locked ellipse is one filled pool + one 0.5×0.32 coping; 4 m berm off the lip
+- Extra concentric rims / figure-8 shore ribbons / roads through water stripped; overlap stays water+coping, no merged flower
+- Block drive T-junctions south around the cluster (x≈−52) with 4 m berm + 9 m half-width clear of water; lock.js / waters XZ unmoved
+
 ## Pass 86 — hub clean: r18 plaza, r32 curb, spine gaps
 - `park/hub-clean.js` strips extras inside r32 (trees, sheds, spokes, beds, torus, hub ring road)
 - Hub is only inner plaza r18, outer curb r32, ±Z 14 m spine gaps; land drives T-junction at r32 and do not cut the disc

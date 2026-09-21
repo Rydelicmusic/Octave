@@ -14,6 +14,7 @@ import {
 import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from './sku-kit.js';
 import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY, hubRingPoints } from './roads.js';
 import { HUB_INNER, HUB_OUTER, HUB_T_JUNCTIONS, inHubDisc } from './hub-clean.js';
+import { BLOCK_WATERS, BLOCK_DRIVE_AROUND, BERM_M, inBlockWater, roadClearsBlockWater } from './water-clean.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -266,6 +267,43 @@ test('hub-clean is r18 plaza + r32 curb T-junctions, no plaza sheds', () => {
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/hub-clean\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addHubClean\(THREE,scene\)/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
+});
+
+test('Block water is one pool per locked ellipse, drive around with 4 m berm', () => {
+  assert.equal(BERM_M, 4);
+  assert.equal(BLOCK_WATERS.length, 5);
+  const expected = LOCK.waters.filter(([x, z]) => inCanopy(x, z, 'The Block'));
+  assert.deepEqual(BLOCK_WATERS, expected);
+  const layout = [
+    [-210, -20, 48, 70],
+    [-165, 10, 55, 42],
+    [-120, 70, 32, 26],
+    [-95, -85, 28, 22],
+    [-150, -40, 24, 18],
+  ];
+  assert.deepEqual(BLOCK_WATERS, layout);
+  assert.ok(BLOCK_DRIVE_AROUND.length >= 4);
+  assert.ok(Math.abs(BLOCK_DRIVE_AROUND[0][0] + 41) < 12, 'T off hub r32');
+  for (let i = 0; i < BLOCK_DRIVE_AROUND.length - 1; i++) {
+    const [x0, z0] = BLOCK_DRIVE_AROUND[i];
+    const [x1, z1] = BLOCK_DRIVE_AROUND[i + 1];
+    const len = Math.hypot(x1 - x0, z1 - z0);
+    const n = Math.max(2, Math.ceil(len / 3));
+    for (let k = 0; k <= n; k++) {
+      const t = k / n;
+      const x = x0 + (x1 - x0) * t;
+      const z = z0 + (z1 - z0) * t;
+      assert.equal(roadClearsBlockWater(x, z), true, `drive ${x.toFixed(1)},${z.toFixed(1)}`);
+      assert.equal(inBlockWater(x, z, BERM_M + ROAD_W / 2), false);
+      assert.equal(occupiesSpine(x, z, ROAD_W / 2), false);
+    }
+  }
+  const end = BLOCK_DRIVE_AROUND[BLOCK_DRIVE_AROUND.length - 1];
+  assert.equal(inCanopy(end[0], end[1], 'The Block'), true);
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /from ['"]\.\/water-clean\.js(\?[^'"]*)?['"]/);
+  assert.match(src, /addWaterClean\(THREE,scene\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 
