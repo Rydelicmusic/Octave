@@ -1,0 +1,8 @@
+{
+  "crs": "park/CRS.md",
+  "index": "25m-hash",
+  "rule": "park/MAP.md",
+  "count": 0,
+  "note": "Build overwrites this after seedLocked + seedSpine + claims. Do not hand-edit positions.",
+  "lots": []
+}
