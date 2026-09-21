@@ -2,10 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Octave</title>
-<script src="cinematic-landing.js" defer></script>
+<meta name="description" content="Octave — Walk in. Don’t press play.">
+<style>html,body{margin:0;background:#0b0b0c;color:#f4efe6;font-family:Georgia,serif}#boot{position:fixed;inset:0;display:grid;place-items:center;letter-spacing:.4em;text-transform:uppercase;font-size:11px;color:#c9b48a}</style>
 </head>
 <body>
-<p>Restoring full lobby next.</p>
+<div id="boot">OCTAVE</div>
+<script>
+(function(){
+  var SRC = "https://cdn.jsdelivr.net/gh/Rydelicmusic/octave@d8e1320be190efc5a8f672d5d4ebb81148defeff/index.html";
+  fetch(SRC, {cache:"force-cache"}).then(function(r){return r.text()}).then(function(html){
+    document.open();
+    document.write(html);
+    document.close();
+    var s = document.createElement("script");
+    s.src = "cinematic-landing.js";
+    s.defer = true;
+    document.body.appendChild(s);
+  }).catch(function(){
+    document.getElementById("boot").textContent = "Could not load lobby";
+  });
+})();
+</script>
 </body>
 </html>
