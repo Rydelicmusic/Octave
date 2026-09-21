@@ -9,9 +9,10 @@ import {
   placementIssues, stationBesideRing, inCanopy, canPlaceBuilding,
   GROUNDS_SCALE, treeMetrics, waterCopingSegments, lakesideRibbonMesh,
   hubBedCenters, occupiesSpine, canPlaceSoft, beltTreePositions,
+  inWater, nearRing,
 } from './lock.js';
 import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from './sku-kit.js';
-import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY } from './roads.js';
+import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY, hubRingPoints } from './roads.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -225,11 +226,22 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
       const mz = (d.pts[i][1] + d.pts[i + 1][1]) / 2;
       assert.equal(roadOk(mx, mz), true, d.id + ' ' + mx + ',' + mz);
       assert.equal(occupiesSpine(mx, mz, ROAD_W / 2), false, d.id + ' second spine');
+      assert.equal(inWater(mx, mz, 0.8), false, d.id + ' water');
+      assert.equal(nearRing(mx, mz, 8), false, d.id + ' rings');
     }
+  }
+  const ring = hubRingPoints();
+  const drawn = ring.filter(Boolean);
+  assert.ok(drawn.length >= 70, 'ring must read from drone, got ' + drawn.length);
+  for (const [x, z] of drawn) {
+    assert.ok(Math.hypot(x, z) >= HUB_RING_R - 0.05, 'inner lip r32');
+    assert.equal(occupiesSpine(x, z, ROAD_W / 2), false);
+    assert.equal(inWater(x, z, 0.8), false);
+    assert.equal(nearRing(x, z, 8), false);
   }
   assert.equal(roadGradeY(), ROAD_DECK);
   const src = readFileSync(join(here, 'index.html'), 'utf8');
-  assert.match(src, /from ['"]\.\/roads\.js['"]/);
+  assert.match(src, /from ['"]\.\/roads\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addParkRoads\(THREE,scene\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });

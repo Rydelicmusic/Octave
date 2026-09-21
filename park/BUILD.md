@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 85 — hub ring inner lip r32, weave lakes
+- `park/roads.js` ring inner lip on hub r=32, centerline 36.5 m, weaves out around hub lakes (no water move)
+- Gaps only at the 14 m spine; one 9 m drive into each land canopy; curbs 0.45×0.48; kits on ROAD_DECK 0.28
+- Waters / ∞ rings / spine width unmoved; not a second 14 m spine
+
 ## Pass 84 — hub ring + 9 m land drives
 - `park/roads.js` asphalt ring on hub r=32 (gaps at 14 m spine + water) and one 9 m drive into each land
 - Curbs 0.45×0.48 m; deck 0.28 m; kits sit on ROAD_DECK; waters / ∞ rings / spine width unmoved
