@@ -1,26 +1,25 @@
-# Occupancy — one lot per structure
-Date: 2026-09-20 22:26 CDT
-Hands: Grok Build. Chat does not scatter trees.
+# Occupancy — Build reads this instead of guessing
+Date: 2026-09-20 22:33 CDT
 
-## Rule
-Nothing is drawn until it **claims a lot**. Two lots never overlap. Tree vs building is the same test.
+Build cannot see the WebGL scene. It reads `occupy.js` queries + dumped lots.
 
-Lot = axis-aligned box on XZ + pad:
-- building / pavilion / kiosk: pad 2.0 m
-- tree / cluster: pad = canopy radius + 1.5 m
-- path / spine: not a lot; `occupiesSpine` still blocks
+## Law
+Claim a lot before any mesh. Fail = do not draw. Never nudge onto the spine.
 
-## API (`park/occupy.js`)
-- `claim(lot)` — false if overlap or off-stadium / on-spine. True reserves it.
-- `fits(lot)` — test only
-- `lots()` — all claimed
-- `clearDynamic()` — sketch masses only; locked PLACEMENTS stay
+Layers (hard vs hard = reject):
+- ground: spine, roads, paths
+- mass: buildings, kiosks, pavilions, gates
+- canopy: trees
 
-Every new structure: `{ id, kind, x, z, w, d, pad, sku? }`.
-`kind` is `building` | `tree` | `prop`.
+Tree on road = reject. Building on tree = reject. Tree on building = reject.
 
-## Build
-1. On boot, claim GATE + STATIONS + BUILDINGS from lock.js.
-2. Trees call `claim({kind:'tree', x,z,w:2r,d:2r,pad:1.5})` or skip.
-3. Sketch / mass.js claims before mesh.
-4. Fail = do not draw. Do not nudge into the spine.
+## Queries (how Build "feels" neighbors)
+- `at(x,z)` — what is on / under / over this point
+- `near(x,z,r)` — lots within r meters, closest first
+- `whyBlocked(lot)` — who overlaps, by id
+- `dump()` — full map Build can print to `park/occupy-map.json`
+
+## Boot
+seedLocked(BUILDINGS+GATE+STATIONS)
+seedSpine(LOCK)
+then trees / sketch masses claim or skip.
