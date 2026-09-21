@@ -1,23 +1,21 @@
-# Director lock — 2026-09-20 20:29 CDT
+# Director lock — 2026-09-20 20:53 CDT
 From: Ryan / Rydelic
-Hands: Grok Build only. Chat does not edit the 3D.
+Hands: Grok Build only. Chat does not rewrite the 3D scene graph.
 
-## This park is a PARK
-Not a lake district. Not overlapping ponds.
+## CRS (new)
+Read `park/CRS.md`. Every change briefs with cell + meters + lat/lng.
+Hub (0,0) = 29.973000 N, 95.694000 W. +X east, +Z south.
+Grid 25 m. Cell `G{floor(x/25)},{floor(z/25)}`.
 
-Dated change (wins over the old water list in LAYOUT.md):
-- Remove every body of water, pond, pool, water disc, water rim, and coping that reads as a lake.
-- Fill those footprints with park grade: grass / pad / path. No holes.
-- Do not add new water.
-- ∞ ride rings may stay as ride geometry only if they are NOT water. If they render as ponds, kill the water material.
+## HUD (new)
+Top-right glass location chip. File already in repo: `park/gps-hud.js`.
+Wire only: `import { mountGpsHud } from './gps-hud.js';` then `mountGpsHud(() => camera.position)` or the walk player object.
+Show live: cell, x z y meters, lat/lng. Do not put it bottom-left. Do not restyle the existing pass card over it.
 
-Still locked XZ:
-- Stadium 760×460, hub (0,0) r18/32, spine 14 m, Gate (0,+230)
-- Land canopies unchanged
-- No hotel / tower
+## Park not lakes
+No water / pond discs. Fill with park grade.
 
-Still true from tonight:
-- Too much grass vs road → hub ring + land drives, not more lawn
-- Hub is messy → only r18 plaza + r32 curb + spine gaps. No extra rings, no trees inside r32, no sheds on the plaza
+## Hub
+Only r18 + r32 + 14 m spine gaps. No extra rings. No trees inside r32.
 
-Ship: new small file under park/ + one wire. Do not rewrite lock.js or index.html in one shot.
+Ship: wire gps-hud.js with one import / one call. Do not rewrite lock.js.
