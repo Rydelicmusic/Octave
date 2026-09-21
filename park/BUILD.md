@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 88 — dry park: strip all water discs, fill grass pads
+- `park/dry-park.js` removes every pond/pool/rim/coping/mist; fills each locked ellipse with a grass pad (no holes, no new water)
+- ∞ rings keep XZ; water material on them swapped to sand-path only
+- Hub trees inside r32 stripped again; r18/r32/spine gaps held; lock.js unmoved
+
 ## Pass 87 — Block water: one pool + one coping, drive around
 - `park/water-clean.js` The Block only: each locked ellipse is one filled pool + one 0.5×0.32 coping; 4 m berm off the lip
 - Extra concentric rims / figure-8 shore ribbons / roads through water stripped; overlap stays water+coping, no merged flower

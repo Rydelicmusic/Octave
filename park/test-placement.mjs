@@ -15,6 +15,7 @@ import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from '.
 import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY, hubRingPoints } from './roads.js';
 import { HUB_INNER, HUB_OUTER, HUB_T_JUNCTIONS, inHubDisc } from './hub-clean.js';
 import { BLOCK_WATERS, BLOCK_DRIVE_AROUND, BERM_M, inBlockWater, roadClearsBlockWater } from './water-clean.js';
+import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -304,6 +305,33 @@ test('Block water is one pool per locked ellipse, drive around with 4 m berm', (
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/water-clean\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addWaterClean\(THREE,scene\)/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
+});
+
+test('dry-park fills every locked water ellipse with grass, no new water, rings unmoved', () => {
+  assert.equal(DRY_FOOTPRINTS.length, LOCK.waters.length);
+  assert.equal(DRY_FOOTPRINTS.length, 12);
+  DRY_FOOTPRINTS.forEach((p, i) => {
+    const [x, z, rx, rz] = LOCK.waters[i];
+    assert.equal(p.x, x);
+    assert.equal(p.z, z);
+    assert.equal(p.rx, rx);
+    assert.equal(p.rz, rz);
+  });
+  assert.equal(RING_XZ[0].x, 95);
+  assert.equal(RING_XZ[0].z, 95);
+  assert.equal(RING_XZ[0].inner, 14);
+  assert.equal(RING_XZ[0].outer, 20);
+  assert.equal(RING_XZ[1].x, 118);
+  assert.equal(RING_XZ[1].z, 108);
+  assert.equal(RING_XZ[1].inner, 6);
+  assert.equal(RING_XZ[1].outer, 11);
+  const drySrc = readFileSync(join(here, 'dry-park.js'), 'utf8');
+  assert.doesNotMatch(drySrc, /new THREE\.MeshPhongMaterial/);
+  assert.match(drySrc, /MATERIALS\.grass/);
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /from ['"]\.\/dry-park\.js(\?[^'"]*)?['"]/);
+  assert.match(src, /addDryPark\(THREE,scene\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 
