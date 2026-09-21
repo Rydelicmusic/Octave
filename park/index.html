@@ -1940,7 +1940,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyV')cycle();});
 addEventListener('keyup',e=>keys[e.code]=false);
 const modes=['walk','third','above'];
 const btns={walk:document.getElementById('b1'),third:document.getElementById('b3'),above:document.getElementById('bM')};
-function setMode(m){mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:900;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(m==='above'){drone.set(pos.x,90,pos.z+12);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}parkGrid.setMode(m);}
+function setMode(m){const was=mode==='above'||mode==='drone';const aerial=m==='above'||m==='drone';if(was&&!aerial){pos.x=drone.x;pos.z=drone.z;pos.y=EYE;}mode=m;Object.keys(btns).forEach(k=>btns[k].classList.toggle('on',k===m));scene.fog.far=m==='above'?1800:900;camera.fov=m==='above'?62:70;camera.updateProjectionMatrix();document.getElementById('lift').style.display=m==='above'?'flex':'none';if(aerial&&!was){drone.set(pos.x,Math.max(24,drone.y||90),pos.z);droneYaw=yaw;dronePitch=-0.72;droneVel.set(0,0,0);}parkGrid.setMode(m);window.__parkGpsGet=()=>((mode==='above'||mode==='drone')?drone:pos);}
 function cycle(){setMode(modes[(modes.indexOf(mode)+1)%3]);}
 btns.walk.onclick=()=>setMode('walk');btns.third.onclick=()=>setMode('third');btns.above.onclick=()=>setMode('above');
 if(location.hash==='#drone')setMode('above');
