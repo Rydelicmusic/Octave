@@ -35,10 +35,11 @@
 <script type="module">
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
-import { addParkRoads } from './roads.js?v=pass85-ring';
+import { addParkRoads } from './roads.js?v=pass94-tidy';
 import { addHubClean } from './hub-clean.js?v=pass86-hub';
 import { addWaterClean } from './water-clean.js?v=pass87-block';
-import { addDryPark } from './dry-park.js?v=pass88-dry';
+import { addDryPark } from './dry-park.js?v=pass94-lawn';
+import { addTidyOval } from './tidy-oval.js?v=pass94-oval';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
 import { claim, seedPark, treeLot, whyBlocked, dump } from './occupy.js';
@@ -1945,6 +1946,7 @@ ropes.forEach((p,i)=>{
 addHubClean(THREE,scene);
 addWaterClean(THREE,scene);
 addDryPark(THREE,scene);
+addTidyOval(THREE,scene);
 const parkGrid=addParkGrid(THREE,scene);
 
 const avatar=new THREE.Group();

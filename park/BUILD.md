@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 94 — tidy After Hours oval: lawn plots, T-drives only
+- Strip leftover lily-pad circles / pale rings / pink discs; stadium grass is the lawn
+- Streets: hub ring on r32 + 14 m spine + one T-drive per land (After Hours turns into the canopy, not a second spine)
+- Trees skip hub r32 and spine asphalt; occupy.js / lock.js / LAYOUT.md untouched
+
 ## Pass 93 — seedPark: masses + spine + land plates, dump cells
 - One boot call `seedPark(LOCK, BUILDINGS, GATE, STATIONS)` (locked masses, 14 m spine, LAYOUT canopy plates)
 - Trees `claim(treeLot)` or skip (no slide, hub r32 empty); `dump()` lots include CRS `cell`; spatial.js via occupy.js

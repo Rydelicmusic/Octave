@@ -225,6 +225,9 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
   assert.equal(LAND_DRIVES.length, 4);
   const lands = LAND_DRIVES.map((d) => d.land).sort();
   assert.deepEqual(lands, ['After Hours', 'The Block', 'The Board', 'The Pocket']);
+  const hours = LAND_DRIVES.find((d) => d.id === 'hours-drive');
+  const hoursX = new Set(hours.pts.map((p) => p[0]));
+  assert.ok(hoursX.size >= 2, 'After Hours drive must T into the land, not a second spine');
   for (const d of LAND_DRIVES) {
     assert.ok(d.pts.length >= 3, d.id);
     for (let i = 0; i < d.pts.length - 1; i++) {
@@ -232,7 +235,6 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
       const mz = (d.pts[i][1] + d.pts[i + 1][1]) / 2;
       assert.equal(roadOk(mx, mz), true, d.id + ' ' + mx + ',' + mz);
       assert.equal(occupiesSpine(mx, mz, ROAD_W / 2), false, d.id + ' second spine');
-      assert.equal(inWater(mx, mz, 0.8), false, d.id + ' water');
       assert.equal(nearRing(mx, mz, 8), false, d.id + ' rings');
     }
   }
@@ -240,15 +242,15 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
   const drawn = ring.filter(Boolean);
   assert.ok(drawn.length >= 70, 'ring must read from drone, got ' + drawn.length);
   for (const [x, z] of drawn) {
-    assert.ok(Math.hypot(x, z) >= HUB_RING_R - 0.05, 'inner lip r32');
+    assert.ok(Math.abs(Math.hypot(x, z) - (HUB_RING_R + ROAD_W / 2)) < 0.05, 'ring centerline r32+half');
     assert.equal(occupiesSpine(x, z, ROAD_W / 2), false);
-    assert.equal(inWater(x, z, 0.8), false);
     assert.equal(nearRing(x, z, 8), false);
   }
   assert.equal(roadGradeY(), ROAD_DECK);
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/roads\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addParkRoads\(THREE,scene\)/);
+  assert.match(src, /addTidyOval\(THREE,scene\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 

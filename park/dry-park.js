@@ -126,16 +126,6 @@ export function addDryPark(THREE, scene) {
   const grass = new THREE.MeshLambertMaterial({ color: MATERIALS.grass });
   const path = new THREE.MeshLambertMaterial({ color: MATERIALS['sand-path'] });
   scene.traverse((o) => dryRingMaterial(o, path));
-
-  for (const { x, z, rx, rz } of DRY_FOOTPRINTS) {
-    const pad = new THREE.Mesh(new THREE.CircleGeometry(1, 48), grass);
-    pad.rotation.x = -Math.PI / 2;
-    pad.position.set(x, Math.hypot(x, z) < HUB_OUTER ? 0.03 : 0.04, z);
-    pad.scale.set(rx, rz, 1);
-    pad.userData.dryKeep = true;
-    pad.name = 'dry-park-pad';
-    scene.add(pad);
-  }
-
+  grass.color.setHex(MATERIALS.grass);
   stripHubTrees(scene);
 }

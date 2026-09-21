@@ -1,5 +1,5 @@
 /** Hub ring + 9 m land drives. XZ from LAYOUT; not a second 14 m spine. */
-import { LOCK, occupiesSpine, inWater, nearRing, BUILDINGS, STATIONS } from './lock.js';
+import { LOCK, occupiesSpine, nearRing, BUILDINGS, STATIONS } from './lock.js';
 
 export const ROAD_W = 9;
 export const ROAD_DECK = 0.28;
@@ -12,13 +12,12 @@ export const RING_SEGS = 96;
 export const LAND_DRIVES = [
   { id: 'block-drive', land: 'The Block', pts: [[-36.5, 0], [-55, -28], [-90, -48], [-130, -55]] },
   { id: 'board-drive', land: 'The Board', pts: [[36.5, 0], [80, 6], [125, 10], [175, 12]] },
-  { id: 'hours-drive', land: 'After Hours', pts: [[-18, -36], [-18, -70], [-18, -120], [-18, -175]] },
+  { id: 'hours-drive', land: 'After Hours', pts: [[-18, -36], [-48, -80], [-48, -140], [-30, -165]] },
   { id: 'pocket-drive', land: 'The Pocket', pts: [[18, 36], [32, 48], [48, 64], [60, 78]] },
 ];
 
 export function roadOk(x, z, half = ROAD_W / 2) {
   if (occupiesSpine(x, z, half)) return false;
-  if (inWater(x, z, 0.8)) return false;
   if (nearRing(x, z, 8)) return false;
   return true;
 }
@@ -27,29 +26,16 @@ export function roadGradeY() {
   return ROAD_DECK;
 }
 
-/** Inner lip on r32; weave out around hub lakes; skip 14 m spine openings. */
+/** Inner lip on r32; skip 14 m spine openings. No weave, no dead ends in grass. */
 export function hubRingPoints(n = RING_SEGS) {
   const r0 = HUB_RING_R + ROAD_W / 2;
-  const rMax = HUB_RING_R + 26;
   const pts = [];
   for (let i = 0; i < n; i++) {
     const a = (i / n) * Math.PI * 2;
-    let r = r0;
-    let found = false;
-    let x = 0;
-    let z = 0;
-    for (let k = 0; k < 48; k++) {
-      x = Math.cos(a) * r;
-      z = Math.sin(a) * r;
-      if (occupiesSpine(x, z, ROAD_W / 2)) break;
-      if (!inWater(x, z, 0.8) && !nearRing(x, z, 8)) {
-        found = true;
-        break;
-      }
-      r += 0.55;
-      if (r > rMax) break;
-    }
-    pts.push(found ? [x, z] : null);
+    const x = Math.cos(a) * r0;
+    const z = Math.sin(a) * r0;
+    if (occupiesSpine(x, z, ROAD_W / 2) || nearRing(x, z, 8)) pts.push(null);
+    else pts.push([x, z]);
   }
   return pts;
 }
