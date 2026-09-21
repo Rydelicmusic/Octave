@@ -10,6 +10,9 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 98 — Walk/3rd free in oval (no nearestWalk)
+- tick() walk: `if (inStadium(nx,nz)) { pos.x=nx; pos.z=nz; }` — no ribbon snap; drone unchanged
+
 ## Pass 97 — walk stays in stadium
 - Walk step: `if(inStadium(nx,nz)){ pos.x=nx; pos.z=nz; }` — no ribbon snap; lock.js untouched
 

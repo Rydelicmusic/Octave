@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> grounds merge — belts, coping 0.5×0.32, beds, lamps</div>
+  <div><b>This pass:</b> walk free in oval — no ribbon snap</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -2011,7 +2011,7 @@ function tick(){
     const stepX=(fx*-mz+rx*mx)*WALK*dt,stepZ=(fz*-mz+rz*mx)*WALK*dt;
     walkVelX=stepX;walkVelZ=stepZ;
     const nx=pos.x+stepX,nz=pos.z+stepZ;
-    if(inStadium(nx,nz)){ pos.x=nx; pos.z=nz; }
+    if (inStadium(nx,nz)) { pos.x=nx; pos.z=nz; }
   }
   pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
   if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}
