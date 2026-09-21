@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
@@ -18,7 +18,7 @@ import { BLOCK_WATERS, BLOCK_DRIVE_AROUND, BERM_M, inBlockWater, roadClearsBlock
 import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
 import { parkToGeo } from './gps-hud.js';
 import { GRID_MINOR, GRID_MAJOR, cellId } from './grid-overlay.js';
-import { seedLocked, claim, treeLot, lots, clearDynamic } from './occupy.js';
+import { seedLocked, seedSpine, claim, treeLot, lots, clearDynamic, whyBlocked, dump } from './occupy.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -376,18 +376,32 @@ test('CRS ground grid is 25 m minor / 100 m major with G-cell labels', () => {
 test('occupy lots: seed locked volumes, trees skip overlap, no spine nudge', () => {
   clearDynamic();
   const n = seedLocked([...BUILDINGS, ...GATE, ...STATIONS]);
+  assert.equal(seedSpine(LOCK), true);
   assert.equal(n, BUILDINGS.length + GATE.length + STATIONS.length);
   const hall = BUILDINGS.find((b) => b.id === 'block-album');
   assert.equal(claim(treeLot('tree-on-hall', hall.x, hall.z, 4)), false);
+  assert.ok(whyBlocked(treeLot('tree-on-hall', hall.x, hall.z, 4)).some((h) => h.id === hall.id));
   assert.equal(occupiesSpine(0, 80, 4), true);
+  const onSpine = { id: 'nudge-spine', kind: 'kiosk', x: 0, z: 80, w: 4, d: 4, pad: 2 };
+  assert.ok(whyBlocked(onSpine).some((h) => h.id === 'spine-14'));
+  assert.equal(claim(onSpine), false);
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/occupy\.js['"]/);
   assert.match(src, /seedLocked\(\[\.\.\.BUILDINGS, \.\.\.GATE, \.\.\.STATIONS\]\)/);
+  assert.match(src, /seedSpine\(LOCK\)/);
+  assert.match(src, /whyBlocked\(/);
   assert.match(src, /claim\(treeLot\(/);
   assert.match(src, /claimStruct\(/);
+  assert.match(src, /__parkOccupyDump=dump\(\)/);
   assert.match(src, /__parkGpsGet/);
   assert.doesNotMatch(src, /\bhotel\b/i);
-  assert.ok(lots().length >= n);
+  assert.ok(lots().length >= n + 1);
+  writeFileSync(join(here, 'occupy-map.json'), JSON.stringify(dump(), null, 2) + '\n');
+  const map = JSON.parse(readFileSync(join(here, 'occupy-map.json'), 'utf8'));
+  assert.equal(map.crs, 'park/CRS.md');
+  assert.ok(map.lots.some((l) => l.id === 'spine-14'));
+  assert.ok(map.lots.some((l) => l.id === 'block-album'));
+  assert.ok(map.lots.some((l) => l.id === 'gate-west'));
 });
 
 test('shipped GROUNDS_SCALE meters are the lock return values drawn in index.html', () => {

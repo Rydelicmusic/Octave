@@ -39,6 +39,7 @@ function blocks(a, b) {
   }
   const xz = a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
   if (!xz) return false;
+  if (a.layer === 'ground' && b.layer === 'mass') return false;
   if (a.layer === 'ground' || b.layer === 'ground') return true;
   if (a.layer === 'mass' || b.layer === 'mass') return true;
   if (a.layer === 'canopy' && b.layer === 'canopy') return true;

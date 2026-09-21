@@ -41,7 +41,7 @@ import { addWaterClean } from './water-clean.js?v=pass87-block';
 import { addDryPark } from './dry-park.js?v=pass88-dry';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
-import { claim, seedLocked, treeLot } from './occupy.js';
+import { claim, seedLocked, seedSpine, treeLot, whyBlocked, dump } from './occupy.js';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -59,11 +59,14 @@ const ITINERARY = LockMod.ITINERARY || {
 };
 const walkById = LockMod.walkById || ((id) => WALKS.find((w) => w.id === id));
 seedLocked([...BUILDINGS, ...GATE, ...STATIONS]);
+seedSpine(LOCK);
 function claimStruct(b, kind='building'){
   if(!b||!b.id) return false;
   const rad=Math.max((b.w||0)/2,(b.d||0)/2);
   if(occupiesSpine(b.x,b.z,rad)) return false;
-  return claim({id:b.id,kind,x:b.x,z:b.z,w:b.w,d:b.d,pad:kind==='tree'?1.5:2,sku:b.sku});
+  const lot={id:b.id,kind,x:b.x,z:b.z,w:b.w,d:b.d,pad:kind==='tree'?1.5:2,sku:b.sku};
+  if(whyBlocked(lot).length) return claim(lot);
+  return claim(lot);
 }
 
 const A=LOCK.A,B=LOCK.B,R=LOCK.capR,S=A-R,WALK=LOCK.walk,EYE=1.72,DRONE=55,DRONE_FAST=110;
@@ -1794,6 +1797,7 @@ function addHall(b){
   g.add(steps,step2);
 }
 BUILDINGS.forEach(b=>{if(b.sku==='kiosk')addKiosk(b);else if(b.sku==='pavilion')addPavilion(b);else addHall(b);});
+window.__parkOccupyDump=dump();
 addParkRoads(THREE,scene);
 // Pass 62 — SKU service/loading aprons at rear doors (BUILDINGS footprints held)
 (function pass62ServiceAprons(){

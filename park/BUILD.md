@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 92 — occupy queries: spine seed, whyBlocked, dump map
+- Boot: `seedLocked([...BUILDINGS,...GATE,...STATIONS]); seedSpine(LOCK)`
+- New structure: `whyBlocked(lot)` first; fail = skip mesh; no spine nudge
+- Trees still `claim(treeLot)` or skip; `dump()` writes `park/occupy-map.json`; spatial.js untouched
+
 ## Pass 91 — occupy lots + cam/GPS handoff
 - `occupy.js` seeded with BUILDINGS/GATE/STATIONS; trees `claim(treeLot)` or skip; kits claim before mesh; no spine nudge
 - setMode keeps Walk/3rd/Drone on the same XZ; GPS getter follows drone vs pos; lock.js untouched
