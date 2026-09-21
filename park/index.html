@@ -2024,7 +2024,8 @@ function tick(){
     drone.x+=droneVel.x*dt;drone.z+=droneVel.z*dt;drone.y=Math.max(8,Math.min(420,drone.y+droneVel.y*dt));
   }else if(len>0){
     mx/=len;mz/=len;const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-    const stepX=(fx*-mz+rx*mx)*WALK*dt,stepZ=(fz*-mz+rz*mx)*WALK*dt;
+    const spd=WALK*((keys.ShiftLeft||keys.ShiftRight)?10:5);
+    const stepX=(fx*-mz+rx*mx)*spd*dt,stepZ=(fz*-mz+rz*mx)*spd*dt;
     walkVelX=stepX;walkVelZ=stepZ;
     const nx=pos.x+stepX,nz=pos.z+stepZ;
     if (inStadium(nx,nz)) { pos.x=nx; pos.z=nz; }
