@@ -13,6 +13,7 @@ import {
 } from './lock.js';
 import { FACADE_PARTS, collectSkuKit, skuKitReport, skuKit, paletteFor } from './sku-kit.js';
 import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY, hubRingPoints } from './roads.js';
+import { HUB_INNER, HUB_OUTER, HUB_T_JUNCTIONS, inHubDisc } from './hub-clean.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -243,6 +244,28 @@ test('hub ring road on r32 and 9 m land drives skip spine water rings', () => {
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/roads\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addParkRoads\(THREE,scene\)/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
+});
+
+test('hub-clean is r18 plaza + r32 curb T-junctions, no plaza sheds', () => {
+  assert.equal(HUB_INNER, 18);
+  assert.equal(HUB_OUTER, 32);
+  assert.equal(HUB_INNER, LOCK.hubInner);
+  assert.equal(HUB_OUTER, LOCK.hubOuter);
+  assert.equal(HUB_T_JUNCTIONS.length, 4);
+  const lands = HUB_T_JUNCTIONS.map((t) => t.land).sort();
+  assert.deepEqual(lands, ['After Hours', 'The Block', 'The Board', 'The Pocket']);
+  for (const t of HUB_T_JUNCTIONS) {
+    assert.ok(Math.abs(Math.hypot(t.x, t.z) - HUB_OUTER) < 0.05, t.land + ' on r32');
+    assert.equal(occupiesSpine(t.x, t.z, ROAD_W / 2), false, t.land + ' cuts spine');
+    assert.equal(inHubDisc(t.x, t.z, HUB_OUTER - 0.05), false, t.land + ' inside disc');
+  }
+  for (const b of BUILDINGS) {
+    assert.equal(inHubDisc(b.x, b.z), false, b.id + ' shed on plaza');
+  }
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /from ['"]\.\/hub-clean\.js(\?[^'"]*)?['"]/);
+  assert.match(src, /addHubClean\(THREE,scene\)/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 

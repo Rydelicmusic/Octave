@@ -10,6 +10,11 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 86 — hub clean: r18 plaza, r32 curb, spine gaps
+- `park/hub-clean.js` strips extras inside r32 (trees, sheds, spokes, beds, torus, hub ring road)
+- Hub is only inner plaza r18, outer curb r32, ±Z 14 m spine gaps; land drives T-junction at r32 and do not cut the disc
+- Waters / ∞ rings / LAYOUT XZ unmoved; lock.js untouched
+
 ## Pass 85 — hub ring inner lip r32, weave lakes
 - `park/roads.js` ring inner lip on hub r=32, centerline 36.5 m, weaves out around hub lakes (no water move)
 - Gaps only at the 14 m spine; one 9 m drive into each land canopy; curbs 0.45×0.48; kits on ROAD_DECK 0.28

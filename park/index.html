@@ -36,6 +36,7 @@
 import * as THREE from 'three';
 import { addSkuKit } from './sku-kit.js';
 import { addParkRoads } from './roads.js?v=pass85-ring';
+import { addHubClean } from './hub-clean.js?v=pass86-hub';
 import * as LockMod from './lock.js?v=pass74-merge';
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
@@ -1920,6 +1921,7 @@ ropes.forEach((p,i)=>{
   rope.position.set((p.x+q.x)/2,0.82,(p.z+q.z)/2);
   rope.rotation.z=Math.atan2(dx,dz);rope.rotation.x=Math.PI/2;scene.add(rope);
 });
+addHubClean(THREE,scene);
 
 const avatar=new THREE.Group();
 const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.38,1.05,4,8),new THREE.MeshLambertMaterial({color:0xc9b48a}));body.position.y=0.9;
