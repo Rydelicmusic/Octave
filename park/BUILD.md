@@ -10,6 +10,10 @@ Director: Ryan / Rydelic. Hands iterate in `park/` only.
 - Water list + land canopies in LAYOUT.md / lock.js
 - No hotel / tower / elevator; no root index.html edits
 
+## Pass 89 — GPS HUD top-right (CRS)
+- Wire only: `import { mountGpsHud } from './gps-hud.js'` then `mountGpsHud(() => pos)` (walk player meters)
+- Chip is top-right; bottom-left pass card unmoved; lock.js untouched
+
 ## Pass 88 — dry park: strip all water discs, fill grass pads
 - `park/dry-park.js` removes every pond/pool/rim/coping/mist; fills each locked ellipse with a grass pad (no holes, no new water)
 - ∞ rings keep XZ; water material on them swapped to sand-path only

@@ -16,6 +16,7 @@ import { ROAD_W, ROAD_DECK, HUB_RING_R, LAND_DRIVES, roadOk, roadGradeY, hubRing
 import { HUB_INNER, HUB_OUTER, HUB_T_JUNCTIONS, inHubDisc } from './hub-clean.js';
 import { BLOCK_WATERS, BLOCK_DRIVE_AROUND, BERM_M, inBlockWater, roadClearsBlockWater } from './water-clean.js';
 import { DRY_FOOTPRINTS, RING_XZ } from './dry-park.js';
+import { parkToGeo } from './gps-hud.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -332,6 +333,26 @@ test('dry-park fills every locked water ellipse with grass, no new water, rings 
   const src = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(src, /from ['"]\.\/dry-park\.js(\?[^'"]*)?['"]/);
   assert.match(src, /addDryPark\(THREE,scene\)/);
+  assert.doesNotMatch(src, /\bhotel\b/i);
+});
+
+test('GPS HUD wires walk player pos, CRS hub/gate, stays top-right', () => {
+  const hub = parkToGeo(0, 0);
+  assert.equal(hub.cell, 'G0,0');
+  assert.ok(Math.abs(hub.lat - 29.973) < 1e-8);
+  assert.ok(Math.abs(hub.lng + 95.694) < 1e-8);
+  const gate = parkToGeo(0, 230);
+  assert.equal(gate.cell, 'G0,9');
+  assert.ok(Math.abs(gate.lat - (29.973 - 230 / 111320)) < 1e-8);
+  assert.ok(Math.abs(gate.lng + 95.694) < 1e-8);
+  const src = readFileSync(join(here, 'index.html'), 'utf8');
+  assert.match(src, /import \{ mountGpsHud \} from '\.\/gps-hud\.js'/);
+  assert.match(src, /mountGpsHud\(\(\) => pos\)/);
+  assert.match(src, /\.hud\{position:fixed;left:12px;bottom:12px/);
+  assert.doesNotMatch(src, /#rydelic-gps\{[^}]*bottom:/);
+  const hudJs = readFileSync(join(here, 'gps-hud.js'), 'utf8');
+  assert.match(hudJs, /top:14px/);
+  assert.match(hudJs, /right:14px/);
   assert.doesNotMatch(src, /\bhotel\b/i);
 });
 
