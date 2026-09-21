@@ -1,25 +1,19 @@
-# Occupancy — Build reads this instead of guessing
-Date: 2026-09-20 22:33 CDT
+# Occupancy + spatial index
+Date: 2026-09-20 22:35 CDT
 
-Build cannot see the WebGL scene. It reads `occupy.js` queries + dumped lots.
+Build cannot see WebGL. It reads occupy queries + occupy-map.json.
+
+## Engine
+- `park/spatial.js` — 25 m hash (same cells as CRS) + AABB collision
+- `park/occupy.js` — claim / at / near / whyBlocked / dump
+
+No CDN. Hash keys are `G` cells: floor(x/25), floor(z/25).
 
 ## Law
-Claim a lot before any mesh. Fail = do not draw. Never nudge onto the spine.
+Claim before mesh. Fail = do not draw. Never nudge onto spine.
 
-Layers (hard vs hard = reject):
-- ground: spine, roads, paths
-- mass: buildings, kiosks, pavilions, gates
-- canopy: trees
+Layers that reject each other: ground (roads/spine) · mass (buildings) · canopy (trees).
+Tree on street = reject.
 
-Tree on road = reject. Building on tree = reject. Tree on building = reject.
-
-## Queries (how Build "feels" neighbors)
-- `at(x,z)` — what is on / under / over this point
-- `near(x,z,r)` — lots within r meters, closest first
-- `whyBlocked(lot)` — who overlaps, by id
-- `dump()` — full map Build can print to `park/occupy-map.json`
-
-## Boot
-seedLocked(BUILDINGS+GATE+STATIONS)
-seedSpine(LOCK)
-then trees / sketch masses claim or skip.
+## Queries
+at(x,z) on/under/over · near(x,z,r) · whyBlocked(lot) · dump() → park/occupy-map.json
