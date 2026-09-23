@@ -556,6 +556,44 @@ export function mountAttractions(THREE, scene) {
 let armed = false;
 let hooked = false;
 let hudDone = false;
+let boardMeshTries = 0;
+
+function parkScene() {
+  for (const id of rideIds()) {
+    const ride = getRide(id);
+    if (!ride) continue;
+    const seeds = [];
+    if (ride.cars) seeds.push(...ride.cars);
+    if (ride.gate) seeds.push(ride.gate);
+    const state = ride.state;
+    if (state) seeds.push(state.cab, state.hub, state.root, state.frame, state.mesh);
+    for (const seed of seeds) {
+      let node = seed;
+      while (node && !node.isScene) node = node.parent;
+      if (node && node.isScene) return node;
+    }
+  }
+  return null;
+}
+
+function ensureBoardMesh() {
+  if (boardMeshTries >= 4 || !liveTHREE) return;
+  const scene = parkScene();
+  if (!scene) return;
+  const family = scene.getObjectByName('ride-board-family-world');
+  const car = scene.getObjectByName('ride-board-family-car');
+  const drop = scene.getObjectByName('ride-board-drop-world');
+  if (family && car && drop) {
+    boardMeshTries = 4;
+    return;
+  }
+  boardMeshTries += 1;
+  const rows = attractionRows().filter((row) => row.ride.id === 'ride-board-family' || row.ride.id === 'ride-board-drop');
+  for (const row of rows) {
+    try { addAttraction(liveTHREE, scene, row.ride, row.type); }
+    catch (err) { console.warn('board-hybrid', row.ride && row.ride.id, err); }
+  }
+}
 
 function showHud() {
   if (hudDone || typeof document === 'undefined') return;
@@ -572,6 +610,7 @@ function publishRideHooks() {
   window.__eStopRide = () => emergencyStop();
   window.__tickRides = () => {
     try {
+      ensureBoardMesh();
       tickMotion(performance.now());
       layoutGuests();
       layoutNpcMesh();
