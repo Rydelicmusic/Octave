@@ -87,6 +87,8 @@ export function attemptBoard(ride) {
   const filled = (ops.passengers || 0) + (ops.dummies || 0);
   if (filled >= rules.seats) return { ok: false, reason: 'full' };
   if (!tryBoard(ops)) return { ok: false, reason: 'phase' };
+  if ((ops.dummies || 0) > 0) ops.dummies -= 1;
+  ops.bots = ops.dummies || 0;
   holdForRide(ride.id);
   ops.doors = 'open';
   return { ok: true, reason: 'board' };

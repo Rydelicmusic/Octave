@@ -91,6 +91,20 @@ export function playLandBed(part) {
   return { part, src: 'oscillator', hz };
 }
 
+/** Distant roar toward The Block, whoosh toward The Board. Silent if audio is blocked. */
+export function faceCue(dir) {
+  const x = dir && dir.x ? dir.x : 0;
+  const block = x < -0.2;
+  const wheel = x > 0.2;
+  const audio = context();
+  if (audio && osc && gain && (block || wheel)) {
+    osc.type = block ? 'sawtooth' : 'sine';
+    osc.frequency.value = block ? 55 : 180;
+    gain.gain.value = 0.008;
+  }
+  return { block, wheel, roar: block, whoosh: wheel };
+}
+
 export function stopRideBed() {
   current = null;
   if (gain) gain.gain.value = 0;

@@ -1,4 +1,5 @@
 /** Wheel, swings, drop tower, spin / bumper orbit. Seats are person scale. */
+import { seatRiders } from '../alive/bots.js';
 
 function lambert(THREE, color, emissive, intensity) {
   return new THREE.MeshLambertMaterial({
@@ -36,6 +37,7 @@ export function buildWheel(THREE, parent, spec) {
     g.add(spoke);
   }
   const cars = [];
+  const bots = [];
   const cabMat = lambert(THREE, 0x6a4030, 0xc45c26, 0.12);
   for (let i = 0; i < gondolas; i++) {
     const cab = new THREE.Group();
@@ -46,13 +48,16 @@ export function buildWheel(THREE, parent, spec) {
     seat.position.set(0, -0.15, 0);
     const roof = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.08, 1.25), lambert(THREE, 0xe8a040, 0xe8a040, 0.2));
     roof.position.y = 0.5;
+    const riders = seatRiders(THREE, cab, [{ x: 0, y: 0.2, z: 0.05 }]);
+    cab.userData.bots = riders;
+    bots.push(...riders);
     cab.add(basket, seat, roof);
     g.add(cab);
     cars.push(cab);
   }
   g.add(legL, legR, axle, rim);
   parent.add(g);
-  return { root: g, cars, radius, hubY, gondolas, phase: 0 };
+  return { root: g, cars, bots, radius, hubY, gondolas, phase: 0 };
 }
 
 export function layoutWheel(state, angle) {
@@ -81,6 +86,7 @@ export function buildSwings(THREE, parent, spec) {
   const chainMat = lambert(THREE, 0xd7dde3);
   const seatMat = lambert(THREE, 0xc45c26, 0x802010, 0.15);
   const seats = [];
+  const bots = [];
   for (let i = 0; i < count; i++) {
     const a = (i / count) * Math.PI * 2;
     const hanger = new THREE.Group();
@@ -91,6 +97,8 @@ export function buildSwings(THREE, parent, spec) {
     const pan = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.12, 0.7), seatMat);
     const back = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.55, 0.1), seatMat);
     back.position.set(0, 0.3, -0.28);
+    const riders = seatRiders(THREE, seat, [{ x: 0, y: 0.2, z: 0 }]);
+    bots.push(...riders);
     seat.add(pan, back);
     hanger.add(chain, seat);
     hanger.position.set(Math.cos(a) * radius, 0, Math.sin(a) * radius);
@@ -99,7 +107,7 @@ export function buildSwings(THREE, parent, spec) {
   }
   g.add(mast, cap, arm);
   parent.add(g);
-  return { root: g, arm, seats, height, radius, phase: 0 };
+  return { root: g, arm, seats, bots, height, radius, phase: 0 };
 }
 
 export function layoutSwings(state, angle, fly) {
@@ -129,6 +137,11 @@ export function buildDrop(THREE, parent, spec) {
   seat.position.set(0, -0.2, 0.2);
   const bar = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.08, 0.08), lambert(THREE, 0xf4efe6));
   bar.position.set(0, 0.35, 0.55);
+  const bots = seatRiders(THREE, cab, [
+    { x: -0.35, y: 0.15, z: 0.1 },
+    { x: 0.35, y: 0.15, z: 0.1 },
+  ]);
+  cab.userData.bots = bots;
   cab.add(shell, seat, bar);
   cab.position.y = 2.2;
   const magnet = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.28, 2.9), lambert(THREE, 0x8aa4b8, 0x9ad7ff, 0.55));
@@ -138,7 +151,7 @@ export function buildDrop(THREE, parent, spec) {
   platform.position.y = 0.15;
   g.add(mast, cap, cab, magnet, platform);
   parent.add(g);
-  return { root: g, cab, height, phase: 0 };
+  return { root: g, cab, bots, height, phase: 0 };
 }
 
 export function layoutDrop(state, phase) {
@@ -163,6 +176,7 @@ export function buildSpin(THREE, parent, spec) {
   const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.4, 12), lambert(THREE, 0xe07a4a, 0xc45c26, 0.2));
   hub.position.y = 1.1;
   const cars = [];
+  const bots = [];
   for (let i = 0; i < count; i++) {
     const a = (i / count) * Math.PI * 2;
     const car = new THREE.Group();
@@ -171,6 +185,9 @@ export function buildSpin(THREE, parent, spec) {
     body.position.y = 0.7;
     const seat = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.4, 0.5), lambert(THREE, 0x241810));
     seat.position.set(0, 0.85, 0);
+    const riders = seatRiders(THREE, car, [{ x: 0, y: 1.05, z: 0 }]);
+    car.userData.bots = riders;
+    bots.push(...riders);
     car.add(body, seat);
     car.position.set(Math.cos(a) * (radius - 1.3), 0, Math.sin(a) * (radius - 1.3));
     car.userData.ang = a;
@@ -179,7 +196,7 @@ export function buildSpin(THREE, parent, spec) {
   }
   g.add(deck, hub);
   parent.add(g);
-  return { root: g, cars, radius, phase: 0 };
+  return { root: g, cars, bots, radius, phase: 0 };
 }
 
 export function layoutSpin(state, angle, lean) {

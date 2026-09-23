@@ -215,3 +215,27 @@ No new land. No new ride type. No water. No hotel. Evidence is park/QC_LOG.md.
 113/115 park/QC_WALK.md. Gate, spine, Block Coaster, board, lap, exit, wheel.
 114/115 node park/qc/qc-run.js — pass 46, fail 0, skip 9. ride-test.js 12 pass. Zero boot FAILs. No feature FAIL left over.
 115/115 Drive 2026-09-23-BINGE-QC. Commit QC 115/115 function check.
+
+### Binge 5 — the park operates — 2026-09-23 00:39 CDT
+No new land. No water. No hotel. Rides run while the park is open. The player is one seat.
+
+116/135 Boot stayed green. stepAlive is called from stepRides after the clock step. Exports still match.
+117/135 park/alive/bots.js. Shared pool, cap 72. Sitting riders parented to cars, gondolas, swing seats, the drop cabin, and bumper cars.
+118/135 Hero train fills dummy seats, closes restraints, and dispatches on its own.
+119/135 Dwell is 3 s. maxIdle on the hero in the test was about 3.1 s, under the 15 s cap. Then it leaves again.
+120/135 Launch, family, kiddie, and both dark rides use the same auto-ops path. They are path rides with ops.
+121/135 Wheel spins at ω 0.28 with a rider in each gondola. The bottom window is still the player load, because ω returns to 0 only on the short dwell.
+122/135 Swings ramp, hold, and rest, with a rider on each seat.
+123/135 Both dark rides keep a vehicle and two riders. Auto dispatch sends them back out.
+124/135 Pocket spin and the kiddie train stay on the same loop. Bumper cars have a seated rider.
+125/135 The drop cabin has two riders and still uses hoist, hang, freefall, and catch when dispatched.
+126/135 Boarding removes one dummy. A player still in the queue holds one seat. The train does not wait on them forever.
+127/135 Esc and the E-stop button stop only the ride you are on. The test e-stopped the hero at s 80 and the wheel stayed in COURSE with eStop false.
+128/135 faceCue: look west for a Block roar, look east for a wheel whoosh. Both are hooks, silent if the browser blocks audio.
+129/135 Gates, restraints, chain dogs, and brake calipers still follow phase. Auto dispatch closes the gate and the restraint before it leaves.
+130/135 park/alive/alive-test.js. After 10 s open, hero s was 13 and still climbing, dummies 2, wheel ω 0.28, no NaN, spine hits 0.
+131/135 The first e-stop sample was still in the station lead, so the existing station snap looked like a full stop. The test now stops the train on the lift. That case stays in BRAKE.
+132/135 Rider pool refuses anything past 72. Shirts share five materials. One skin material.
+133/135 A moving ride keeps its lamps at least 0.62, and the night clock can push them higher. Riders stay visible.
+134/135 From above, the occupied train is the lit chain plus the shirt-colored riders on the cars. The wheel gondolas keep turning.
+135/135 Drive 2026-09-23-BINGE5-alive. Commit binge 5 cycle 135/135 park is operating.

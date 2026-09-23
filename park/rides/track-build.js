@@ -1,5 +1,6 @@
 /** Rails, ties, supports, trim lights, tunnels, brakes. Heartline samples are world-space. */
 import { frameFromTangent, pointAt } from './path-math.js';
+import { seatRiders } from '../alive/bots.js';
 
 function mat(THREE, color, emissive, intensity) {
   return new THREE.MeshLambertMaterial({
@@ -236,6 +237,10 @@ export function buildTrain(THREE, parent, count, colors, id) {
       car.add(w);
     }
     car.add(chassis, nose, seatL, seatR, backL, backR, bar);
+    car.userData.bots = seatRiders(THREE, car, [
+      { x: -0.22, y: 0.12, z: 0.05 },
+      { x: 0.22, y: 0.12, z: 0.05 },
+    ]);
     parent.add(car);
     cars.push(car);
   }

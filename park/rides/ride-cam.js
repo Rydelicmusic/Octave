@@ -5,7 +5,8 @@ import { attemptBoard, attemptDispatch, joinRide, loadRideId, rideStatus, posted
 import { admit, setCheat, takeMerch, isAdmitted } from '../logic/ticket.js';
 import { leaveQueue, queueFor } from '../logic/queue.js';
 import { formatClock, isOpen, getClock } from '../logic/clock.js';
-import { setWeather, weatherHold, resetSafety, tripAll } from '../logic/safety.js';
+import { setWeather, weatherHold, resetSafety } from '../logic/safety.js';
+import { eStop } from './ride-ops.js';
 
 let boarded = null;
 const labels = new Map();
@@ -94,13 +95,15 @@ export function requestDispatch() {
 }
 
 export function emergencyStop() {
-  const all = rideIds().map((id) => getRide(id)).filter(Boolean);
-  tripAll(all);
   const ride = boarded ? getRide(boarded) : null;
-  if (ride && ride.ops) {
-    ride.ops.leaveAfterStop = true;
-    paintOps(ride);
+  if (!ride || !ride.ops) return false;
+  ride.ops.leaveAfterStop = true;
+  eStop(ride.ops);
+  if (ride.machine && (ride.machine.phase === 'COURSE' || ride.machine.phase === 'DISPATCH')) {
+    ride.machine.eStop = true;
+    ride.machine.phase = 'BRAKE';
   }
+  paintOps(ride);
   return true;
 }
 

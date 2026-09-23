@@ -4,6 +4,7 @@ import { stepEnergy, stepCruise, stepWheel, stepSwings, stepDropRide, stepSpin, 
 import { canBoard, tryBoard, advancePhase } from './ride-ops.js';
 import { clickLift, whoosh, dispatchBell, hissBrakes } from './ride-audio.js';
 import { stepParkLogic } from '../logic/ride-logic.js';
+import { stepAlive } from '../alive/auto-ops.js';
 
 const rides = new Map();
 let lastMs = 0;
@@ -67,8 +68,14 @@ function syncVisuals(ride, dt) {
     ride.gate.position.y += (target - ride.gate.position.y) * Math.min(1, (dt || 0) * 6);
   }
   if (ride.attendant) ride.attendant.visible = !!(ops && ops.phase === 'BOARDING' && !ops.fault && ops.phase !== 'CLOSED');
-  if (ride.lamps && ride.lamps.material && ops && ops.light != null) {
-    ride.lamps.material.emissiveIntensity = ops.light;
+  const moving = ops && (ops.phase === 'COURSE' || ops.phase === 'DISPATCH' || ops.phase === 'BRAKE');
+  if (ride.lamps && ride.lamps.material && ops) {
+    const night = ops.light != null ? ops.light : 0.22;
+    ride.lamps.material.emissiveIntensity = moving ? Math.max(night, 0.62) : night;
+  }
+  if (ride.bots) {
+    const show = ((ops && ops.dummies) || 0) > 0 || (ops && ops.passengers === 1);
+    for (const bot of ride.bots) if (bot) bot.visible = !!show && (!ops || ops.phase !== 'CLOSED');
   }
   const drive = !!(ops && ops.lift);
   if (ride.chains && ride.chains.material) {
@@ -239,6 +246,7 @@ export function stepRides(dt) {
     else stepPhase(ride, step);
   }
   stepParkLogic(step, rides.values());
+  stepAlive(step, rides.values());
 }
 
 export function tickMotion(now, dt) {

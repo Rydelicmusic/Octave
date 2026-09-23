@@ -9,7 +9,7 @@ import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain 
 import { createOps } from './ride-ops.js';
 import { mountParkOps } from './park-ops.js';
 import { applyRideCam, mountRideHud, boardRide, exitRide, currentRide, closeRestraint, requestDispatch, emergencyStop } from './ride-cam.js';
-import { playRideBed, playLandBed } from './ride-audio.js';
+import { playRideBed, playLandBed, faceCue } from './ride-audio.js';
 import { tagRide, resetParkLogic } from '../logic/ride-logic.js';
 import { agentList, AGENT_CAP } from '../logic/agents.js';
 import { dayPart, getClock } from '../logic/clock.js';
@@ -127,6 +127,14 @@ function dressLogic(THREE, station, state, track) {
 }
 
 let guestMesh = null;
+let liveTHREE = null;
+let lookV = null;
+
+function cueFacing(camera, riding) {
+  if (riding || !camera || !liveTHREE || !camera.getWorldDirection) return;
+  if (!lookV) lookV = new liveTHREE.Vector3();
+  faceCue(camera.getWorldDirection(lookV));
+}
 
 function layoutGuests() {
   if (!guestMesh) return;
@@ -165,6 +173,7 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
   const table = arcTable(pack.samples);
   const track = buildTrack(THREE, world, table, { name: ride.id, ...colors });
   const cars = buildTrain(THREE, world, pack.cars, colors, ride.id);
+  const trainBots = cars.flatMap((car) => (car.userData && car.userData.bots) || []);
   const station = buildStation(THREE, world, {
     ...ride,
     x: ride.x + 12,
@@ -187,6 +196,7 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     brakes: track.brakes,
     dogs: track.dogs,
     gate: station.getObjectByName('load-gate'),
+    bots: trainBots,
     layout: pathLayout(THREE, cars, table, pack.carGap, null),
     ...attachOps(ride),
   });
@@ -216,6 +226,7 @@ function buildDark(THREE, scene, ride, which) {
   });
   const table = arcTable(pack.samples);
   const cars = buildTrain(THREE, world, 1, { body: 0x3a3058 }, ride.id);
+  const trainBots = cars.flatMap((car) => (car.userData && car.userData.bots) || []);
   const station = buildStation(THREE, world, {
     ...ride,
     z: ride.z + (which === 2 ? 14 : 11),
@@ -236,6 +247,7 @@ function buildDark(THREE, scene, ride, which) {
     shell,
     phys: which === 2 ? PHYS.dark2 : PHYS.dark,
     gate: station.getObjectByName('load-gate'),
+    bots: trainBots,
     waitLen: which === 2 ? 7 : 6,
     layout: pathLayout(THREE, cars, table, 0, { shell }),
     ...attachOps(ride),
@@ -263,6 +275,7 @@ function buildWheelRide(THREE, scene, ride) {
     machine,
     waitLen: 48,
     gate: station.getObjectByName('load-gate'),
+    bots: state.bots || [],
     spec: ride,
     layout(angle, rideState) {
       layoutWheel(state, angle);
@@ -304,6 +317,7 @@ function buildSwingsRide(THREE, scene, ride) {
     machine,
     waitLen: 28,
     gate: station.getObjectByName('load-gate'),
+    bots: state.bots || [],
     layout(angle, rideState) {
       const fly = Math.min(1.35, machine.kick || 0);
       layoutSwings(state, angle, fly);
@@ -349,6 +363,7 @@ function buildDropRide(THREE, scene, ride) {
     machine,
     waitLen: 24,
     gate: station.getObjectByName('load-gate'),
+    bots: state.bots || [],
     layout(y) {
       state.cab.position.y = y;
       state.physY = y;
@@ -391,6 +406,7 @@ function buildSpinRide(THREE, scene, ride) {
     machine,
     waitLen: 16,
     gate: station.getObjectByName('load-gate'),
+    bots: state.bots || [],
     layout(angle, rideState) {
       layoutSpin(state, angle, machine.lean || 0);
       const seat = rideState.boardedSeat || 0;
@@ -483,12 +499,14 @@ function publishRideHooks() {
       const ride = riding ? getRide(currentRide()) : null;
       if (ride) playRideBed(ride.id, ride.speed || 0);
       else playLandBed(dayPart(getClock()));
+      cueFacing(camera, riding);
       window.__parkRideDrew = !!riding;
     } catch (err) { console.warn('ride-cam', err); }
   };
 }
 
 export function hookRideStack(THREE) {
+  if (THREE) liveTHREE = THREE;
   publishRideHooks();
   if (!THREE || !THREE.WebGLRenderer || THREE.WebGLRenderer.prototype.__rydelicRideStack) return;
   const proto = THREE.WebGLRenderer.prototype;
@@ -508,6 +526,7 @@ export function hookRideStack(THREE) {
       const ride = riding ? getRide(currentRide()) : null;
       if (ride) playRideBed(ride.id, ride.speed || 0);
       else playLandBed(dayPart(getClock()));
+      cueFacing(camera, riding);
     } catch (err) { console.warn('ride-cam', err); }
     return orig.call(this, scene, camera);
   };
