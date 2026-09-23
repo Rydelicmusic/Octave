@@ -120,8 +120,11 @@ function addBat(THREE, parent, spec) {
   return g;
 }
 
+let hauntMounted = false;
+
 export function mountHaunt(THREE, scene) {
-  if (!scene || scene.getObjectByName('haunt-scene')) return null;
+  if (hauntMounted || !scene || scene.getObjectByName('haunt-scene')) return null;
+  hauntMounted = true;
   scene.background = new THREE.Color(NIGHT);
   if (scene.fog && scene.fog.color) {
     scene.fog.color.setHex(FOG);

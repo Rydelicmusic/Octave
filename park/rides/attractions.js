@@ -2,6 +2,7 @@
 import { LOCK, occupiesSpine, nearRing, inStadium } from '../lock.js';
 import { arcTable } from './path-math.js';
 import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples } from './coaster-paths.js';
+import { heroBlockPack } from './paths.js';
 import { buildTrack, buildTrain, placeCars } from './track-build.js';
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, buildSpin, layoutSpin } from './ride-fleet.js';
@@ -174,8 +175,30 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
   world.name = ride.id + '-world';
   scene.add(world);
   const table = arcTable(pack.samples);
-  const track = buildTrack(THREE, world, table, { name: ride.id, ...colors });
+  const track = buildTrack(THREE, world, table, {
+    name: ride.id,
+    ...colors,
+    railBulk: pack.railBulk,
+    postBulk: pack.postBulk,
+    support: pack.beacon ? 0xe7e0d4 : colors.tie,
+    supportEmissive: pack.beacon ? 0xffb060 : 0,
+    supportGlow: pack.beacon ? 0.55 : 0,
+  });
   const cars = buildTrain(THREE, world, pack.cars, colors, ride.id);
+  if (pack.carScale) cars.forEach((car) => car.scale.setScalar(pack.carScale));
+  if (pack.beacon) {
+    let crest = pack.samples[0];
+    for (const p of pack.samples) if (p.y > crest.y) crest = p;
+    const beacon = new THREE.Mesh(
+      new THREE.SphereGeometry(1.8, 14, 10),
+      new THREE.MeshLambertMaterial({ color: 0xfff1c9, emissive: 0xffb040, emissiveIntensity: 1.15 }),
+    );
+    beacon.position.set(crest.x, crest.y + 2.4, crest.z);
+    beacon.name = ride.id + '-crest';
+    const glow = new THREE.PointLight(0xffc56a, 2.4, 110);
+    glow.position.copy(beacon.position);
+    world.add(beacon, glow);
+  }
   const trainBots = cars.flatMap((car) => (car.userData && car.userData.bots) || []);
   const station = buildStation(THREE, world, {
     ...ride,
@@ -440,7 +463,10 @@ export function addAttraction(THREE, scene, ride, type) {
   showHud();
   const kind = resolveType(ride, type);
   const spec = anchorFor({ ...ride, name: (RIDE_ANCHORS[ride.id] && RIDE_ANCHORS[ride.id].name) || ride.name });
-  if (kind === 'coaster') return buildCoaster(THREE, scene, spec, { ...blockCoasterSamples(3), phys: 'coaster' }, COLORS.coaster);
+  if (kind === 'coaster') {
+    const pack = ride.id === 'ride-block-01' ? heroBlockPack() : { ...blockCoasterSamples(3), phys: 'coaster' };
+    return buildCoaster(THREE, scene, spec, pack, COLORS.coaster);
+  }
   if (kind === 'launch') return buildCoaster(THREE, scene, spec, { ...launchCoasterSamples(2), phys: 'launch' }, COLORS.launch);
   if (kind === 'kiddie') return buildCoaster(THREE, scene, spec, { ...kiddieSamples(), phys: 'kiddie' }, COLORS.kiddie);
   if (kind === 'family') return buildCoaster(THREE, scene, spec, { ...boardFamilySamples(), phys: 'family' }, COLORS.family);
@@ -526,7 +552,7 @@ export function hookRideStack(THREE) {
       hooked = true;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
-    try { tickMotion(performance.now()); layoutGuests(); layoutNpcMesh(); if (window.__tickWater) window.__tickWater(performance.now() / 1000); } catch (err) { console.warn('tickMotion', err); }
+    try { layoutGuests(); layoutNpcMesh(); if (window.__tickWater) window.__tickWater(performance.now() / 1000); } catch (err) { console.warn('tickMotion', err); }
     try {
       paintBoard();
       const riding = applyRideCam(camera);

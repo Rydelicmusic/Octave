@@ -77,7 +77,7 @@ export function stepNpcs(dt) {
 
 export function mountNpcs(THREE, scene) {
   if (!THREE || !scene || scene.getObjectByName('park-npcs')) return null;
-  bootNpcs(NPC_CAP);
+  bootNpcs(40);
   const geo = new THREE.BoxGeometry(0.42, 1.5, 0.3);
   const mat = new THREE.MeshLambertMaterial({ color: 0xd7c4a4 });
   const mesh = new THREE.InstancedMesh(geo, mat, NPC_CAP);

@@ -5,7 +5,6 @@ import { mountMobile, detectPhone, phoneLayout, cheapPolicy, watchPerformance } 
 import { admit } from '../logic/ticket.js';
 import { loadVisit, saveVisit, welcomeLine } from '../memory/visit.js';
 import { setNpcDrawCap } from '../npc/npc.js';
-import { armShow } from '../show/spectacular.js';
 import { setWaterCheap } from '../water/water.js';
 import { getClock } from '../logic/clock.js';
 import { isAdmitted } from '../logic/ticket.js';
@@ -45,7 +44,6 @@ function install(doc) {
   mountMobile(doc, env);
   if (phoneLayout(env).stick) applyCheap(cheapPolicy('phone'));
   watchPerformance((policy) => applyCheap(policy));
-  armShow();
   doc.addEventListener('visibilitychange', () => {
     if (doc.visibilityState !== 'hidden' || !storage) return;
     saveVisit(storage, { lastOpen: getClock().minutes, admit: isAdmitted() });

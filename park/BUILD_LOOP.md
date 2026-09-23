@@ -311,3 +311,32 @@ No new land. No hotel. No extra lake. One park in the tab. Evidence is park/OCTA
 193/195 60 s at dusk: hero s 394.8 and still finite, show mode show, wheel still turning, buildings left on the spine: 0.
 194/195 OCTAVE_LOG.md table matches that run.
 195/195 Drive 2026-09-23-BINGE7-octave-layer. Commit binge 7 cycle 195/195 song door show phone memory.
+
+### Binge 8 — tighten — 2026-09-23 00:46 CDT
+The Gate was a night lawn and a mirrored sign. The coaster data was real and invisible. This binge makes one loop you can see. Evidence is park/TIGHTEN_LOG.md.
+
+196/220 Status file. tickMotion was on the render wrap and on the index tick.
+197/220 One motion owner. Haunt mounts once. The 25 min sign faces the Gate. HUD drops the 1.2 m pad line.
+198/220 paths.js. Closed Block coaster, crest 36 m, 63 samples, seam 0, off the spine.
+199/220 Thick rails, lit posts to the grade, four cars named ride-block-01-car, crest light.
+200/220 Esc returns to Walk. Dry lap maxY 35.9, no NaN.
+201/220 qc-tighten closed path, car, and lap.
+202/220 Auto dispatch and seat riders stay on that train. 80 s reaches s 214 and dispatches again.
+203/220 Block Launch left STUB.
+204/220 Wheel and swings left STUB.
+205/220 Hero mover is the energy step, not a sine.
+206/220 No board in COURSE.
+207/220 Score stub, no 404.
+208/220 Door admit and documented dev bypass.
+209/220 Phone stick and BOARD.
+210/220 Visit stores admit and last ride.
+211/220 No new land. Spine stays the road.
+212/220 no-water.js keeps the allow-list surfaces. One Pocket pool.
+213/220 Mounted ground crowd is 40. Train bots stay.
+214/220 Spectacular floats not mounted.
+215/220 qc-tighten.js.
+216/220 No fail to fix.
+217/220 Cheap mode does not remove the hero.
+218/220 TIGHTEN_WALK.md.
+219/220 pass 16, fail 0, skip 0. Leftovers named in TIGHTEN_STATUS.md.
+220/220 Drive 2026-09-23-BINGE8-tighten. Commit binge 8 cycle 220/220 tighten — one rideable loop.

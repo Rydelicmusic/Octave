@@ -26,7 +26,7 @@
 <div id="lift"><button id="up">+</button><button id="dn">−</button></div>
 <div id="pad"><div id="knob"></div></div>
 <div class="hud">
-  <div><b>This pass:</b> four land belts — rides on 1.2 m pads</div>
+  <div><b>This pass:</b> Block coaster west of the spine</div>
   <div>14 m spine · hub r18/32 · stadium 760×460</div>
   <div><a href="./door.html">Door</a> · <a href="./blueprint.html">2D grid</a> · Walk / 3rd / Drone</div>
   <div id="dist">Hub — m</div>
@@ -1132,7 +1132,7 @@ function tourMarker(n,label,x,z,yaw=0){
   g.position.set(x,0,z);g.rotation.y=yaw;scene.add(g);
 }
 WALKS.forEach(w=>{if(w.sign)landSign(w.name,w.sign.x,w.sign.z,w.sign.yaw);});
-if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINERARY.sign.x,ITINERARY.sign.z,ITINERARY.sign.yaw);
+if(ITINERARY.sign)landSign(ITINERARY.name+' · '+ITINERARY.totalMin+' min',ITINERARY.sign.x,ITINERARY.sign.z,0);
 // Pass 20 — timed tour markers at each itinerary stop
 (ITINERARY.stops||[]).forEach((s,i)=>{
   const w=walkById(s.walk); if(!w||!w.sign) return;

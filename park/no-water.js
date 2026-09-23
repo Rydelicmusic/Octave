@@ -34,6 +34,7 @@ function keep(obj) {
 export function isWaterMesh(obj) {
   if (keep(obj)) return false;
   const name = String(obj.name || '');
+  if (name === 'park-water' || name.startsWith('water-surface-') || name.startsWith('coping-') || name.startsWith('basin-floor-') || name === 'fountain-jet') return false;
   if (name === 'dry-park-pad' || name.startsWith('block-water')) return true;
   const [x, z] = worldXZ(obj);
   if (atRideRing(x, z)) return false;

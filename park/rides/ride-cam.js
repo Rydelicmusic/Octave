@@ -128,7 +128,6 @@ export function exitRide() {
   const ride = boarded ? getRide(boarded) : null;
   if (ride && ride.ops && (ride.ops.phase === 'COURSE' || ride.ops.phase === 'DISPATCH' || ride.ops.phase === 'BRAKE')) {
     emergencyStop();
-    return false;
   }
   clearBoard();
   return true;
