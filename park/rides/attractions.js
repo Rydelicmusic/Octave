@@ -172,6 +172,8 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
   const anchor = ensureAnchor(THREE, scene, ride);
   const world = new THREE.Group();
   world.name = ride.id + '-world';
+  world.userData.hubKeep = true;
+  world.userData.dryKeep = true;
   scene.add(world);
   const table = arcTable(pack.samples);
   const track = buildTrack(THREE, world, table, {
@@ -243,6 +245,8 @@ function buildDark(THREE, scene, ride, which) {
   const anchor = ensureAnchor(THREE, scene, ride);
   const world = new THREE.Group();
   world.name = ride.id + '-world';
+  world.userData.hubKeep = true;
+  world.userData.dryKeep = true;
   scene.add(world);
   const pack = darkSamples(which);
   const shell = buildDarkShell(THREE, world, {
@@ -295,6 +299,8 @@ function buildWheelRide(THREE, scene, ride) {
   const anchor = ensureAnchor(THREE, scene, ride);
   const world = new THREE.Group();
   world.name = ride.id + '-world';
+  world.userData.hubKeep = true;
+  world.userData.dryKeep = true;
   scene.add(world);
   const state = buildWheel(THREE, world, { id: ride.id, x: ride.x, z: ride.z, radius: 14, gondolas: 16 });
   const station = buildStation(THREE, world, { ...ride, z: ride.z - 10, name: ride.name || 'Board Wheel', roof: 0x5a4030, body: 0xc4b08a, trim: 0xe8a040 });
@@ -336,6 +342,8 @@ function buildSwingsRide(THREE, scene, ride) {
   const anchor = ensureAnchor(THREE, scene, ride);
   const world = new THREE.Group();
   world.name = ride.id + '-world';
+  world.userData.hubKeep = true;
+  world.userData.dryKeep = true;
   scene.add(world);
   const at = { id: ride.id, x: ride.x + 18, z: ride.z + 22, height: 20, radius: 8.5, seats: 12 };
   const state = buildSwings(THREE, world, at);
@@ -380,6 +388,8 @@ function buildDropRide(THREE, scene, ride) {
   const anchor = ensureAnchor(THREE, scene, ride);
   const world = new THREE.Group();
   world.name = ride.id + '-world';
+  world.userData.hubKeep = true;
+  world.userData.dryKeep = true;
   scene.add(world);
   const state = buildDrop(THREE, world, { id: ride.id, x: ride.x, z: ride.z, height: 28 });
   const station = buildStation(THREE, world, { ...ride, name: ride.name || 'Board Drop', x: ride.x, z: ride.z - 8, roof: 0x5a4030, body: 0xc45c26, trim: 0xc4382a });
@@ -421,6 +431,8 @@ function buildSpinRide(THREE, scene, ride) {
   const anchor = ensureAnchor(THREE, scene, ride);
   const world = new THREE.Group();
   world.name = ride.id + '-world';
+  world.userData.hubKeep = true;
+  world.userData.dryKeep = true;
   scene.add(world);
   const state = buildSpin(THREE, world, { id: ride.id, x: ride.x, z: ride.z, radius: 6.5, seats: 8 });
   const station = buildStation(THREE, world, { ...ride, z: ride.z - 10, name: ride.name || 'Pocket Spin', roof: 0x6a5840, body: 0xd2c4a0, trim: 0xe07a4a });
@@ -494,7 +506,10 @@ export function mountAttractions(THREE, scene) {
     root.name = 'park-attractions';
     scene.add(root);
   }
-  for (const row of attractionRows()) addAttraction(THREE, scene, row.ride, row.type);
+  for (const row of attractionRows()) {
+    try { addAttraction(THREE, scene, row.ride, row.type); }
+    catch (err) { console.warn('attraction', row.ride && row.ride.id, err); }
+  }
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
   try { mountGround(THREE, scene); } catch (err) { console.warn('ground', err); }
@@ -561,10 +576,12 @@ export function hookRideStack(THREE) {
   const orig = proto.render;
   proto.__rydelicRideStack = true;
   if (typeof window !== 'undefined') window.__parkRideHook = true;
+  let mountTries = 0;
   proto.render = function renderRideStack(scene, camera) {
-    if (!hooked && scene && scene.isScene) {
-      hooked = true;
+    if (!hooked && scene && scene.isScene && mountTries < 4) {
+      mountTries += 1;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
+      hooked = !!scene.getObjectByName('ride-block-01-rail-l') || mountTries >= 4;
     }
     try { layoutGuests(); layoutNpcMesh(); if (window.__tickWater) window.__tickWater(performance.now() / 1000); } catch (err) { console.warn('tickMotion', err); }
     try {
@@ -583,6 +600,7 @@ export function hookRideStack(THREE) {
 export function armAttractions() {
   if (armed || typeof document === 'undefined') return;
   armed = true;
+  import('three').then((THREE) => hookRideStack(THREE)).catch((err) => console.warn('attractions', err));
 }
 
 armAttractions();
