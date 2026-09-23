@@ -524,8 +524,13 @@ export function addAttraction(THREE, scene, ride, type) {
   const kind = resolveType(ride, type);
   const spec = anchorFor({ ...ride, name: (RIDE_ANCHORS[ride.id] && RIDE_ANCHORS[ride.id].name) || ride.name });
   if (kind === 'coaster') {
-    const pack = ride.id === 'ride-block-01' ? giantBlockPack() : { ...blockCoasterSamples(3), phys: 'coaster' };
-    return buildCoaster(THREE, scene, spec, pack, COLORS.coaster);
+    const pack = ride.id === 'ride-block-01'
+      ? { ...blockCoasterSamples(3), phys: 'coaster', railBulk: 3.2, postBulk: 2.4, gauge: 1.4, support: 0x2c3338 }
+      : { ...blockCoasterSamples(3), phys: 'coaster' };
+    const colors = ride.id === 'ride-block-01'
+      ? { ...COLORS.coaster, rail: 0x5d6d7e, tie: 0x3a3430, railEmissive: 0x9aa8b5 }
+      : COLORS.coaster;
+    return buildCoaster(THREE, scene, spec, pack, colors);
   }
   if (kind === 'giga') return buildCoaster(THREE, scene, spec, gigaBlockPack(), COLORS.giga);
   if (kind === 'lsm') return buildCoaster(THREE, scene, spec, hoursLaunchPack(), COLORS.lsm);
@@ -571,6 +576,36 @@ let armed = false;
 let hooked = false;
 let hudDone = false;
 let boardMeshTries = 0;
+let heroTries = 0;
+
+function scrubPadLine(scene) {
+  const world = scene && scene.getObjectByName('ride-block-01-world');
+  if (!world || !world.children || !world.children.length || typeof document === 'undefined') return;
+  document.querySelectorAll('.hud div, .hud b').forEach((el) => {
+    if (!el.textContent || !el.textContent.includes('1.2 m pads')) return;
+    el.textContent = 'Steel lift west of the spine';
+  });
+}
+
+function ensureHeroRail() {
+  if (heroTries >= 8) return;
+  const scene = (typeof window !== 'undefined' && window.__parkScene) || parkScene();
+  const THREE = liveTHREE || (typeof window !== 'undefined' && window.__parkTHREE);
+  if (!scene || !THREE) return;
+  const world = scene.getObjectByName('ride-block-01-world');
+  const car = scene.getObjectByName('ride-block-01-car');
+  if (world && world.children && world.children.length > 0 && car) {
+    heroTries = 8;
+    scrubPadLine(scene);
+    return;
+  }
+  heroTries += 1;
+  const row = attractionRows().find((item) => item.ride.id === 'ride-block-01');
+  if (!row) return;
+  try { addAttraction(THREE, scene, row.ride, 'coaster'); }
+  catch (err) { console.warn('hero-rail', err); }
+  scrubPadLine(scene);
+}
 
 function parkScene() {
   for (const id of rideIds()) {
@@ -616,7 +651,8 @@ function paintOperating(scene) {
   for (const row of attractionRows()) {
     const dot = document.getElementById('dot-' + row.ride.id);
     if (!dot) continue;
-    const mesh = scene.getObjectByName(row.ride.id + '-world');
+    const world = scene.getObjectByName(row.ride.id + '-world');
+    const mesh = !!(world && world.children && world.children.length > 0);
     const car = scene.getObjectByName(row.ride.id + '-car');
     const ride = getRide(row.ride.id);
     const rail = getRail(row.ride.id);
@@ -645,8 +681,9 @@ function publishRideHooks() {
   window.__eStopRide = () => emergencyStop();
   window.__tickRides = () => {
     try {
+      ensureHeroRail();
       ensureBoardMesh();
-      paintOperating(parkScene());
+      paintOperating((typeof window !== 'undefined' && window.__parkScene) || parkScene());
       tickMotion(performance.now());
       layoutGuests();
       layoutNpcMesh();
@@ -666,6 +703,11 @@ function publishRideHooks() {
   };
   window.__applyRideCam = (camera) => {
     try {
+      if (camera && typeof location !== 'undefined' && location.hash === '#mesh') {
+        camera.position.set(18, 26, 168);
+        camera.up.set(0, 1, 0);
+        camera.lookAt(-220, 24, 28);
+      }
       tickWalkRide(camera);
       paintBoard();
       const riding = applyRideCam(camera);
