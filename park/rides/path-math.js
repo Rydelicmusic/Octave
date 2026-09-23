@@ -19,6 +19,7 @@ export function lerpSample(a, b, t) {
     inversion: t < 0.5 ? !!a.inversion : !!b.inversion,
     crestHold: t < 0.5 ? !!a.crestHold : !!b.crestHold,
     blockBrake: t < 0.5 ? !!a.blockBrake : !!b.blockBrake,
+    lsm: t < 0.5 ? !!a.lsm : !!b.lsm,
     speed: (a.speed || 8) + ((b.speed || 8) - (a.speed || 8)) * t,
   };
 }
@@ -72,6 +73,7 @@ export function pointInto(table, s, out) {
       target.inversion = !!pick.inversion;
       target.crestHold = !!pick.crestHold;
       target.blockBrake = !!pick.blockBrake;
+      target.lsm = !!pick.lsm;
       target.speed = (a.speed || 8) + ((b.speed || 8) - (a.speed || 8)) * clamped;
       return target;
     }
@@ -204,6 +206,7 @@ export function pushSpan(pts, from, to, steps, yAt, bankAt, flags) {
       tunnel: !!(flags && flags.tunnel),
       crestHold: !!(flags && flags.crestHold),
       blockBrake: !!(flags && flags.blockBrake),
+      lsm: !!(flags && flags.lsm),
     };
     pts.push(p);
   }

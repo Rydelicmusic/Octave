@@ -65,6 +65,9 @@ export function buildTrack(THREE, parent, table, opts) {
   const spineWide = opts.spineWide || 1.35;
   const spineHigh = opts.spineHigh || 0.85;
   const postWide = opts.postWide || 0.85;
+  const wantLsm = samples.some((p) => p.lsm);
+  const lsmMat = wantLsm ? mat(THREE, 0x140814, 0xff3ec8, 1.15) : null;
+  const lsmArch = wantLsm ? mat(THREE, 0x2a1840, 0x6a3cff, 0.55) : null;
   const planted = [];
   if (beam) beam.name = (opts.name || 'track') + '-ribbon';
   const ties = new THREE.InstancedMesh(tieGeo, tieMat, n);
@@ -144,6 +147,40 @@ export function buildTrack(THREE, parent, table, opts) {
           post.name = (opts.name || 'track') + '-post';
           planted.push(post);
         }
+      }
+    }
+    if (p.lsm && lsmMat && i % 2 === 0) {
+      dummy.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, fwd));
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.07, Math.max(span, 0.65)), lsmMat);
+      plate.position.copy(heart.clone().addScaledVector(up, -0.58));
+      plate.quaternion.copy(dummy.quaternion);
+      plate.frustumCulled = false;
+      plate.userData.hubKeep = true;
+      plate.userData.dryKeep = true;
+      plate.userData.tidyKeep = true;
+      plate.name = (opts.name || 'track') + '-lsm';
+      planted.push(plate);
+      if (i % 4 === 0 && lsmArch) {
+        for (const side of [-1, 1]) {
+          const fin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.9, 0.4), lsmMat);
+          fin.position.copy(heart.clone().addScaledVector(right, side * (gauge + 0.42)).addScaledVector(up, 0.2));
+          fin.quaternion.copy(dummy.quaternion);
+          fin.frustumCulled = false;
+          fin.userData.hubKeep = true;
+          fin.userData.dryKeep = true;
+          fin.userData.tidyKeep = true;
+          fin.name = (opts.name || 'track') + '-stator';
+          planted.push(fin);
+        }
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(gauge * 2 + 1.5, 0.14, 0.16), lsmArch);
+        bar.position.copy(heart.clone().addScaledVector(up, 2.5));
+        bar.quaternion.copy(dummy.quaternion);
+        bar.frustumCulled = false;
+        bar.userData.hubKeep = true;
+        bar.userData.dryKeep = true;
+        bar.userData.tidyKeep = true;
+        bar.name = (opts.name || 'track') + '-truss';
+        planted.push(bar);
       }
     }
 
@@ -297,6 +334,53 @@ export function buildTrain(THREE, parent, count, colors, id) {
       { x: -0.22, y: 0.12, z: 0.05 },
       { x: 0.22, y: 0.12, z: 0.05 },
     ]);
+    parent.add(car);
+    cars.push(car);
+  }
+  return cars;
+}
+
+/** Low Intamin-style row. Two seats across, three cars. Lead is `${id}-car`. */
+export function buildLaunchTrain(THREE, parent, count, colors, id) {
+  const cars = [];
+  const n = count || 3;
+  const bodyMat = mat(THREE, colors.body || 0x1a1020, 0x5a2080, 0.35);
+  const seatMat = mat(THREE, 0x120810);
+  const neon = mat(THREE, 0xff4ad0, 0xff4ad0, 0.9);
+  const barMat = mat(THREE, 0xe8d8f4, 0xc4a0e0, 0.2);
+  const wheelMat = mat(THREE, 0x101014);
+  for (let i = 0; i < n; i++) {
+    const car = new THREE.Group();
+    car.name = carName(id, i);
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.14, 2.05), bodyMat);
+    chassis.position.y = -0.32;
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.05, 1.7), neon);
+    stripe.position.y = -0.2;
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 0.22), neon);
+    nose.position.set(0, -0.22, 1.02);
+    const seats = [];
+    const riders = [];
+    for (let s = 0; s < 2; s++) {
+      const x = s === 0 ? -0.32 : 0.32;
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.4), seatMat);
+      seat.position.set(x, -0.12, 0.02);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.08), seatMat);
+      back.position.set(x, 0.1, -0.2);
+      seats.push(seat, back);
+      riders.push({ x, y: 0.02, z: 0 });
+    }
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.06, 0.06), barMat);
+    bar.position.set(0, 0.08, 0.28);
+    bar.name = 'restraint';
+    const wheelGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16);
+    const wheels = [];
+    for (const [x, z] of [[-0.62, 0.62], [0.62, 0.62], [-0.62, -0.62], [0.62, -0.62]]) {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.position.set(x, -0.44, z);
+      wheels.push(w);
+    }
+    car.add(chassis, stripe, nose, bar, ...seats, ...wheels);
+    car.userData.bots = seatRiders(THREE, car, riders);
     parent.add(car);
     cars.push(car);
   }

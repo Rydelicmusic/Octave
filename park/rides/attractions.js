@@ -1,8 +1,8 @@
 /** Heavy rides on the locked pads. Does not import ride modules (they import this file). */
 import { LOCK, occupiesSpine, nearRing, inStadium } from '../lock.js';
 import { arcTable } from './path-math.js';
-import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples, giantBlockPack, gigaBlockPack } from './coaster-paths.js';
-import { buildTrack, buildTrain, buildDiveTrain, buildHyperTrain, placeCars } from './track-build.js';
+import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples, giantBlockPack, gigaBlockPack, hoursLaunchPack } from './coaster-paths.js';
+import { buildTrack, buildTrain, buildDiveTrain, buildHyperTrain, buildLaunchTrain, placeCars } from './track-build.js';
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, buildSpin, layoutSpin } from './ride-fleet.js';
 import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain } from './ride-runtime.js';
@@ -26,7 +26,7 @@ const ID_TYPE = {
   'ride-board-01': 'wheel',
   'ride-board-02': 'swings',
   'ride-hours-01': 'dark',
-  'ride-hours-02': 'dark2',
+  'ride-hours-02': 'lsm',
   'ride-pocket-01': 'spin',
   'ride-pocket-02': 'kiddie',
   'ride-board-drop': 'drop',
@@ -37,6 +37,7 @@ const COLORS = {
   coaster: { rail: 0xd5dbe3, body: 0xc45c26, tie: 0x6a5038, lamp: 0xffb060, tunnel: 0x2a241c, roof: 0x3a2a22, bodyPaint: 0x6a4030, trim: 0xc9b48a },
   launch: { rail: 0xf0c040, body: 0xf0c040, tie: 0x4a4030, lamp: 0xffe1b0, tunnel: 0x2a2418, roof: 0x3a3018, bodyPaint: 0x8a7040, trim: 0xf0c040 },
   giga: { rail: 0xb7ecee, body: 0x12828a, tie: 0x146870, lamp: 0x9ee8ea, tunnel: 0x14343c, roof: 0x1a4a52, bodyPaint: 0x1c5c64, trim: 0x8fd8dc },
+  lsm: { rail: 0xd2c4ff, body: 0x1a1020, tie: 0x241428, lamp: 0xff4ad0, tunnel: 0x140818, roof: 0x241030, bodyPaint: 0x3a1848, trim: 0xc45cff },
   kiddie: { rail: 0xe7d3b0, body: 0xe07a4a, tie: 0x8a6040, lamp: 0xffc080, tunnel: 0x3a3028, roof: 0xc45c26, bodyPaint: 0xe7c8a0, trim: 0xe07a4a },
   family: { rail: 0xf4f7fb, body: 0x6a8fbf, tie: 0x5a4630, lamp: 0xffe1b0, tunnel: 0x243044, roof: 0x3a4a60, bodyPaint: 0xc4b08a, trim: 0x9ec4e8 },
 };
@@ -196,11 +197,13 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     supportEmissive: pack.supportEmissive != null ? pack.supportEmissive : (pack.beacon ? 0xffe1b0 : 0),
     supportGlow: pack.supportGlow != null ? pack.supportGlow : (pack.beacon ? 0.85 : 0),
   });
-  const cars = pack.hyper
-    ? buildHyperTrain(THREE, world, pack.cars || 4, colors, ride.id)
-    : pack.dive
-      ? buildDiveTrain(THREE, world, pack.cars || 3, colors, ride.id)
-      : buildTrain(THREE, world, pack.cars, colors, ride.id);
+  const cars = pack.lsm
+    ? buildLaunchTrain(THREE, world, pack.cars || 3, colors, ride.id)
+    : pack.hyper
+      ? buildHyperTrain(THREE, world, pack.cars || 4, colors, ride.id)
+      : pack.dive
+        ? buildDiveTrain(THREE, world, pack.cars || 3, colors, ride.id)
+        : buildTrain(THREE, world, pack.cars, colors, ride.id);
   if (pack.carScale) cars.forEach((car) => car.scale.setScalar(pack.carScale));
   if (pack.beacon) {
     let crest = pack.samples[0];
@@ -248,7 +251,7 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     length: table.length,
     stationHold: pack.stationHold,
     cars,
-    phys: { ...(PHYS[pack.phys] || PHYS.coaster), crestHold: pack.crestHold || 0 },
+    phys: { ...(PHYS[pack.phys] || PHYS.coaster), crestHold: pack.crestHold || 0, lsmA: pack.lsmA || 0, lsmV: pack.lsmV || 0 },
     chains: track.chains,
     brakes: track.brakes,
     dogs: track.dogs,
@@ -509,6 +512,7 @@ export function addAttraction(THREE, scene, ride, type) {
     return buildCoaster(THREE, scene, spec, pack, COLORS.coaster);
   }
   if (kind === 'giga') return buildCoaster(THREE, scene, spec, gigaBlockPack(), COLORS.giga);
+  if (kind === 'lsm') return buildCoaster(THREE, scene, spec, hoursLaunchPack(), COLORS.lsm);
   if (kind === 'launch') return buildCoaster(THREE, scene, spec, { ...launchCoasterSamples(2), phys: 'launch' }, COLORS.launch);
   if (kind === 'kiddie') return buildCoaster(THREE, scene, spec, { ...kiddieSamples(), phys: 'kiddie' }, COLORS.kiddie);
   if (kind === 'family') return buildCoaster(THREE, scene, spec, { ...boardFamilySamples(), phys: 'family' }, COLORS.family);

@@ -8,7 +8,7 @@ export const RIDE_ANCHORS = {
   'ride-board-01': { id: 'ride-board-01', land: 'The Board', x: 160, z: 14, w: 6, d: 4, h: 3.15, name: 'Board Wheel', type: 'wheel', cars: 16 },
   'ride-board-02': { id: 'ride-board-02', land: 'The Board', x: 187.5, z: 14, w: 12, d: 8, h: 4.9, name: 'Board Swings', type: 'swings', cars: 12 },
   'ride-hours-01': { id: 'ride-hours-01', land: 'After Hours', x: -36, z: -175, w: 6, d: 4, h: 3.15, name: 'Hours Dark', type: 'dark', cars: 1 },
-  'ride-hours-02': { id: 'ride-hours-02', land: 'After Hours', x: -60, z: -175, w: 12, d: 8, h: 4.9, name: 'Hours Dark 2', type: 'dark2', cars: 1 },
+  'ride-hours-02': { id: 'ride-hours-02', land: 'After Hours', x: -60, z: -175, w: 12, d: 8, h: 4.9, name: 'Hours Launch', type: 'lsm', cars: 3 },
   'ride-pocket-01': { id: 'ride-pocket-01', land: 'The Pocket', x: 70, z: 50, w: 6, d: 4, h: 3.15, name: 'Pocket Spin', type: 'spin', cars: 8 },
   'ride-pocket-02': { id: 'ride-pocket-02', land: 'The Pocket', x: 40, z: 80, w: 12, d: 8, h: 4.9, name: 'Pocket Kiddie', type: 'kiddie', cars: 3 },
   'ride-board-drop': { id: 'ride-board-drop', land: 'The Board', x: 176, z: 58, w: 6, d: 6, h: 28, name: 'Board Drop', type: 'drop', cars: 1 },
@@ -365,6 +365,75 @@ export function kiddieSamples() {
   }
   const samples = finish(pts, 'The Pocket');
   return { id: 'ride-pocket-02', land: 'The Pocket', version: 1, samples, cars: 3, carGap: 2.6, stationHold: 2, ...meta(samples, 'The Pocket') };
+}
+
+/** Hours Launch. Yard, LSM, loop, second LSM, barrel roll, brakes. No chain lift. */
+export function hoursLaunchSamples() {
+  const pts = [];
+  const station = { x: 76, y: 2.3, z: -150 };
+  const yard = { x: 90, y: 2.35, z: -150 };
+  const hit = { x: 128, y: 2.5, z: -150 };
+  const after = { x: 124, y: 3.4, z: -166 };
+  const launch2In = { x: 112, y: 3.2, z: -176 };
+  const launch2Out = { x: 52, y: 3.2, z: -176 };
+  const brakeIn = { x: 58, y: 2.6, z: -160 };
+  pushSpan(pts, station, yard, 8, (t) => station.y + (yard.y - station.y) * t, () => 0, { speed: () => 4 });
+  pushSpan(pts, yard, hit, 16, (t) => yard.y + (hit.y - yard.y) * t, () => 0, { speed: () => 28, lsm: true, tunnel: true });
+  pushLoop(pts, hit, { x: 1, y: 0, z: 0 }, 8, 40);
+  const loopEnd = pts[pts.length - 1];
+  pushSpan(pts, { x: loopEnd.x, y: loopEnd.y, z: loopEnd.z }, after, 10, (t) => loopEnd.y + (after.y - loopEnd.y) * t, (t) => t * 0.4, { speed: () => 14 });
+  pushSpan(pts, after, launch2In, 8, (t) => after.y + (launch2In.y - after.y) * t, () => 0.2, { speed: () => 12 });
+  pushSpan(pts, launch2In, launch2Out, 14, () => 3.2, () => 0, { speed: () => 30, lsm: true, tunnel: true });
+  pushCorkscrew(pts, launch2Out, { x: -1, y: 0, z: 0 }, 24, 6.5, 28);
+  const rollEnd = pts[pts.length - 1];
+  pushSpan(pts, { x: rollEnd.x, y: rollEnd.y, z: rollEnd.z }, brakeIn, 10, (t) => rollEnd.y + (brakeIn.y - rollEnd.y) * t + Math.sin(t * Math.PI) * 2.2, () => 0, { speed: () => 12 });
+  pushSpan(pts, brakeIn, station, 14, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 8 - t * 5, brake: true });
+  pts.push({
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false, lsm: false,
+  });
+  return densify(pts, 2);
+}
+
+export function hoursLaunchPack() {
+  const samples = hoursLaunchSamples();
+  let maxY = 0;
+  let lsm = 0;
+  let inversion = 0;
+  for (const p of samples) {
+    if (p.y > maxY) maxY = p.y;
+    if (p.lsm) lsm += 1;
+    if (p.inversion) inversion += 1;
+  }
+  return {
+    id: 'ride-hours-02',
+    land: 'After Hours',
+    phys: 'coaster',
+    samples,
+    cars: 3,
+    carGap: 3.5,
+    carScale: 1,
+    stationHold: 2,
+    stationAtPath: true,
+    ribbon: true,
+    lsm: true,
+    lsmA: 36,
+    lsmV: 34,
+    railBulk: 1.7,
+    postBulk: 2.4,
+    gauge: 1.05,
+    spine: 0x1a1024,
+    spineEmissive: 0x3a1860,
+    spineGlow: 0.45,
+    spineWide: 0.55,
+    spineHigh: 0.28,
+    postWide: 0.38,
+    support: 0x241428,
+    supportEmissive: 0x2a1048,
+    supportGlow: 0.35,
+    apex: maxY,
+    lsmCount: lsm,
+    inversionCount: inversion,
+  };
 }
 
 export function darkSamples(which) {

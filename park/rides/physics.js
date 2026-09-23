@@ -77,6 +77,9 @@ export function stepEnergy(state, table, dt, opts = {}) {
   if (launched && (state.phase === 'DISPATCH' || state.phase === 'COURSE')) {
     accel += opts.launchA == null ? 22 : opts.launchA;
   }
+  if (sample.lsm && rollingNow && !state.eStop && state.v < (opts.lsmV || 32)) {
+    accel += opts.lsmA || 28;
+  }
   const rolling = state.phase === 'DISPATCH' || state.phase === 'COURSE';
   if (!brakeZone && !lift && state.v < 1.8 && state.s < length * 0.14 && rolling) accel += 6;
   let trim = false;
