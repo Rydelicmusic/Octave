@@ -12,7 +12,7 @@ export const RIDE_ANCHORS = {
   'ride-pocket-01': { id: 'ride-pocket-01', land: 'The Pocket', x: 70, z: 50, w: 6, d: 4, h: 3.15, name: 'Pocket Spin', type: 'spin', cars: 8 },
   'ride-pocket-02': { id: 'ride-pocket-02', land: 'The Pocket', x: 40, z: 80, w: 12, d: 8, h: 4.9, name: 'Pocket Kiddie', type: 'kiddie', cars: 3 },
   'ride-board-drop': { id: 'ride-board-drop', land: 'The Board', x: 176, z: 58, w: 6, d: 6, h: 28, name: 'Board Drop', type: 'drop', cars: 1 },
-  'ride-board-family': { id: 'ride-board-family', land: 'The Board', x: 208, z: -32, w: 10, d: 6, h: 4.2, name: 'Board Family', type: 'family', cars: 3 },
+  'ride-board-family': { id: 'ride-board-family', land: 'The Board', x: 208, z: -32, w: 10, d: 6, h: 4.2, name: 'Board Hybrid', type: 'hybrid', cars: 2 },
 };
 
 export function landOk(p, land, radius = 2) {
@@ -310,6 +310,96 @@ export function launchCoasterSamples(version = 2) {
   pushSpan(pts, { x: -236, z: -58 }, station, 20, (t) => 6 + (2.2 - 6) * t, () => 0, { speed: (t) => 6 - t * 3.5, brake: true });
   const samples = finish(pts, 'The Block');
   return { id: 'ride-block-02', land: 'The Block', version, samples, cars: 2, carGap: 4.2, stationHold: 2, ...meta(samples, 'The Block') };
+}
+
+/** Tight outer-banked turn. Bank stays short of upside-down. */
+function pushOuterBank(pts, center, radius, a0, a1, yBase, bankPeak, steps) {
+  for (let k = 1; k <= steps; k++) {
+    const u = k / steps;
+    const a = a0 + (a1 - a0) * u;
+    const env = Math.sin(u * Math.PI);
+    const bank = bankPeak * env;
+    pts.push({
+      x: center.x + Math.cos(a) * radius,
+      y: yBase + env * 1.8,
+      z: center.z + Math.sin(a) * radius,
+      bank,
+      speed: 14,
+      lift: false,
+      brake: false,
+      tunnel: false,
+      inversion: Math.abs(bank) > 2.4,
+      crestHold: false,
+      blockBrake: false,
+      lsm: false,
+    });
+  }
+}
+
+/** Board Hybrid. Steep lift, ejector pops, outer bank, zero-g roll. Not a giga. */
+export function hybridBoardSamples() {
+  const pts = [];
+  const station = { x: 188, y: 2.4, z: -18 };
+  const liftFoot = { x: 176, y: 3.2, z: -36 };
+  const crest = { x: 172, y: 22, z: -44 };
+  const valley = { x: 162, y: 2.2, z: -58 };
+  const pop1 = { x: 150, y: 2.2, z: -74 };
+  const turn = { x: 132, y: 4, z: -78 };
+  const pop2 = { x: 158, y: 2.2, z: -52 };
+  const pop3 = { x: 174, y: 2.3, z: -34 };
+  pushSpan(pts, station, liftFoot, 10, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
+  pushSpan(pts, liftFoot, crest, 14, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0, { speed: () => 7, lift: true });
+  pushSpan(pts, crest, valley, 12, (t) => crest.y + (valley.y - crest.y) * t, () => -0.2, { speed: () => 18 });
+  pushSpan(pts, valley, pop1, 10, (t) => 2.2 + Math.sin(t * Math.PI) * 9.6, (t) => Math.sin(t * Math.PI) * 0.35, { speed: () => 14 });
+  pushSpan(pts, pop1, { x: turn.x + Math.cos(0.2) * 13, y: 4, z: turn.z + Math.sin(0.2) * 13 }, 6, (t) => 2.4 + t * 1.4, () => 0.3, { speed: () => 13 });
+  pushOuterBank(pts, turn, 13, 0.2, 0.2 - 1.35 * Math.PI, 4.2, 1.55, 22);
+  const bent = pts[pts.length - 1];
+  pushCorkscrew(pts, bent, { x: 0.85, y: 0, z: 0.45 }, 22, 2.4, 26);
+  const rollEnd = pts[pts.length - 1];
+  pushSpan(pts, { x: rollEnd.x, y: rollEnd.y, z: rollEnd.z }, pop2, 8, (t) => rollEnd.y + (2.2 - rollEnd.y) * t + Math.sin(t * Math.PI) * 7.2, () => -0.15, { speed: () => 13 });
+  pushSpan(pts, pop2, pop3, 8, (t) => 2.2 + Math.sin(t * Math.PI) * 6.4, () => 0.2, { speed: () => 12 });
+  pushSpan(pts, pop3, station, 12, (t) => pop3.y + (station.y - pop3.y) * t, () => 0, { speed: (t) => 8 - t * 5, brake: true });
+  pts.push({
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false, lsm: false,
+  });
+  return densify(pts, 2);
+}
+
+export function hybridBoardPack() {
+  const samples = hybridBoardSamples();
+  let maxY = 0;
+  let inversion = 0;
+  for (const p of samples) {
+    if (p.y > maxY) maxY = p.y;
+    if (p.inversion) inversion += 1;
+  }
+  return {
+    id: 'ride-board-family',
+    land: 'The Board',
+    phys: 'coaster',
+    samples,
+    cars: 2,
+    carGap: 3.2,
+    carScale: 1,
+    stationHold: 2,
+    stationAtPath: true,
+    ribbon: true,
+    hybrid: true,
+    railBulk: 1.5,
+    postBulk: 2.8,
+    gauge: 0.95,
+    spine: 0xd5dce4,
+    spineEmissive: 0x9aa3ac,
+    spineGlow: 0.28,
+    spineWide: 0.42,
+    spineHigh: 0.18,
+    postWide: 0.78,
+    support: 0x6a4224,
+    supportEmissive: 0x3a2412,
+    supportGlow: 0.12,
+    apex: maxY,
+    inversionCount: inversion,
+  };
 }
 
 /** Family coaster on The Board, north of the wheel. Closed. Inside the canopy. */

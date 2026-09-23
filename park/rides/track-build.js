@@ -340,6 +340,53 @@ export function buildTrain(THREE, parent, count, colors, id) {
   return cars;
 }
 
+/** Short hybrid train. Two seats, tall lap bar. Lead is `${id}-car`. */
+export function buildHybridTrain(THREE, parent, count, colors, id) {
+  const cars = [];
+  const n = count || 2;
+  const bodyMat = mat(THREE, colors.body || 0x2a2420, 0x4a3020, 0.2);
+  const seatMat = mat(THREE, 0x1a1410);
+  const steel = mat(THREE, 0xd5dce4, 0x9aa3ac, 0.25);
+  const barMat = mat(THREE, 0xf2efe6, 0xc9b48a, 0.15);
+  const wheelMat = mat(THREE, 0x141414);
+  for (let i = 0; i < n; i++) {
+    const car = new THREE.Group();
+    car.name = carName(id, i);
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.22, 1.7), bodyMat);
+    chassis.position.y = -0.28;
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.06, 1.45), steel);
+    rail.position.y = -0.12;
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.28, 0.22), steel);
+    nose.position.set(0, -0.05, 0.86);
+    const seats = [];
+    const riders = [];
+    for (let s = 0; s < 2; s++) {
+      const x = s === 0 ? -0.28 : 0.28;
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.14, 0.36), seatMat);
+      seat.position.set(x, -0.02, 0);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.55, 0.08), seatMat);
+      back.position.set(x, 0.28, -0.18);
+      seats.push(seat, back);
+      riders.push({ x, y: 0.08, z: 0 });
+    }
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.08, 0.08), barMat);
+    bar.position.set(0, 0.22, 0.32);
+    bar.name = 'restraint';
+    const wheelGeo = new THREE.BoxGeometry(0.16, 0.18, 0.18);
+    const wheels = [];
+    for (const [x, z] of [[-0.55, 0.5], [0.55, 0.5], [-0.55, -0.5], [0.55, -0.5]]) {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.position.set(x, -0.42, z);
+      wheels.push(w);
+    }
+    car.add(chassis, rail, nose, bar, ...seats, ...wheels);
+    car.userData.bots = seatRiders(THREE, car, riders);
+    parent.add(car);
+    cars.push(car);
+  }
+  return cars;
+}
+
 /** Low Intamin-style row. Two seats across, three cars. Lead is `${id}-car`. */
 export function buildLaunchTrain(THREE, parent, count, colors, id) {
   const cars = [];
