@@ -548,6 +548,14 @@ export function mountAttractions(THREE, scene) {
       console.warn('attraction', row.ride && row.ride.id, err);
     }
   }
+  try {
+    if (!scene.getObjectByName('ride-board-family-world')) {
+      addAttraction(THREE, scene, RIDE_ANCHORS['ride-board-family'], 'hybrid');
+    }
+  } catch (err) {
+    if (typeof window !== 'undefined') window.__hybErr = String(err && err.stack || err).slice(0, 500);
+    console.warn('hybrid', err);
+  }
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
   try { mountGround(THREE, scene); } catch (err) { console.warn('ground', err); }
