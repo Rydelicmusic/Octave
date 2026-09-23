@@ -60,8 +60,11 @@ export function buildTrack(THREE, parent, table, opts) {
   const beam = opts.ribbon
     ? new THREE.InstancedMesh(new THREE.BoxGeometry(1.15, 0.55, 1), mat(THREE, 0xf4efe6, 0xffe1b8, 0.75), n)
     : null;
-  const boneMat = opts.ribbon ? mat(THREE, 0xf4efe6, 0xffe1b8, 0.75) : null;
+  const boneMat = opts.ribbon ? mat(THREE, opts.spine == null ? 0xf4efe6 : opts.spine, opts.spineEmissive == null ? 0xffe1b8 : opts.spineEmissive, opts.spineGlow == null ? 0.75 : opts.spineGlow) : null;
   const bonePost = opts.ribbon ? mat(THREE, opts.support || 0xf3efe6, opts.supportEmissive || 0xffe1b0, opts.supportGlow || 0.85) : null;
+  const spineWide = opts.spineWide || 1.35;
+  const spineHigh = opts.spineHigh || 0.85;
+  const postWide = opts.postWide || 0.85;
   const planted = [];
   if (beam) beam.name = (opts.name || 'track') + '-ribbon';
   const ties = new THREE.InstancedMesh(tieGeo, tieMat, n);
@@ -120,7 +123,7 @@ export function buildTrack(THREE, parent, table, opts) {
       dummy.updateMatrix();
       beam.setMatrixAt(i, dummy.matrix);
       if (i % 2 === 0) {
-        const chunk = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.85, Math.max(span, 0.8)), boneMat);
+        const chunk = new THREE.Mesh(new THREE.BoxGeometry(spineWide, spineHigh, Math.max(span, 0.8)), boneMat);
         chunk.position.copy(heart);
         chunk.quaternion.copy(dummy.quaternion);
         chunk.frustumCulled = false;
@@ -131,7 +134,7 @@ export function buildTrack(THREE, parent, table, opts) {
         chunk.name = (opts.name || 'track') + '-bone';
         planted.push(chunk);
         if (p.y > 3.2) {
-          const post = new THREE.Mesh(new THREE.BoxGeometry(0.85, p.y, 0.85), bonePost);
+          const post = new THREE.Mesh(new THREE.BoxGeometry(postWide, p.y, postWide), bonePost);
           post.position.set(p.x, p.y / 2, p.z);
           post.frustumCulled = false;
           post.userData.hubKeep = true;
@@ -294,6 +297,53 @@ export function buildTrain(THREE, parent, count, colors, id) {
       { x: -0.22, y: 0.12, z: 0.05 },
       { x: 0.22, y: 0.12, z: 0.05 },
     ]);
+    parent.add(car);
+    cars.push(car);
+  }
+  return cars;
+}
+
+/** B&M hyper row. Four seats across, floor, lap bar. Lead is `${id}-car`. */
+export function buildHyperTrain(THREE, parent, count, colors, id) {
+  const cars = [];
+  const n = count || 4;
+  const bodyMat = mat(THREE, colors.body || 0x12828a, 0x0c3e46, 0.28);
+  const seatMat = mat(THREE, 0x1c1e24);
+  const floorMat = mat(THREE, 0x243036);
+  const barMat = mat(THREE, 0xd7e4ea, 0x9ec4c8, 0.22);
+  const wheelMat = mat(THREE, 0x1a1a1c);
+  for (let i = 0; i < n; i++) {
+    const car = new THREE.Group();
+    car.name = carName(id, i);
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(3.35, 0.26, 2.25), bodyMat);
+    chassis.position.y = -0.4;
+    const floor = new THREE.Mesh(new THREE.BoxGeometry(3.05, 0.08, 1.65), floorMat);
+    floor.position.y = -0.22;
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(3.05, 0.16, 0.28), bodyMat);
+    nose.position.set(0, -0.18, 1.12);
+    const seats = [];
+    const riders = [];
+    for (let s = 0; s < 4; s++) {
+      const x = -1.14 + s * 0.76;
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.18, 0.46), seatMat);
+      seat.position.set(x, -0.06, 0.04);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.58, 0.1), seatMat);
+      back.position.set(x, 0.26, -0.26);
+      seats.push(seat, back);
+      if (s % 2 === 0) riders.push({ x, y: 0.12, z: 0.02 });
+    }
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(2.85, 0.08, 0.08), barMat);
+    bar.position.set(0, 0.2, 0.36);
+    bar.name = 'restraint';
+    const wheelGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    const wheels = [];
+    for (const [x, z] of [[-1.35, 0.72], [1.35, 0.72], [-1.35, -0.72], [1.35, -0.72]]) {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.position.set(x, -0.58, z);
+      wheels.push(w);
+    }
+    car.add(chassis, floor, nose, bar, ...seats, ...wheels);
+    car.userData.bots = seatRiders(THREE, car, riders);
     parent.add(car);
     cars.push(car);
   }

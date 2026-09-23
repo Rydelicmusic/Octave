@@ -1,8 +1,8 @@
 /** Heavy rides on the locked pads. Does not import ride modules (they import this file). */
 import { LOCK, occupiesSpine, nearRing, inStadium } from '../lock.js';
 import { arcTable } from './path-math.js';
-import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples, giantBlockPack } from './coaster-paths.js';
-import { buildTrack, buildTrain, buildDiveTrain, placeCars } from './track-build.js';
+import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples, giantBlockPack, gigaBlockPack } from './coaster-paths.js';
+import { buildTrack, buildTrain, buildDiveTrain, buildHyperTrain, placeCars } from './track-build.js';
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, buildSpin, layoutSpin } from './ride-fleet.js';
 import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain } from './ride-runtime.js';
@@ -22,7 +22,7 @@ export { tickMotion, boardRide, exitRide, rideIds };
 
 const ID_TYPE = {
   'ride-block-01': 'coaster',
-  'ride-block-02': 'launch',
+  'ride-block-02': 'giga',
   'ride-board-01': 'wheel',
   'ride-board-02': 'swings',
   'ride-hours-01': 'dark',
@@ -36,6 +36,7 @@ const ID_TYPE = {
 const COLORS = {
   coaster: { rail: 0xd5dbe3, body: 0xc45c26, tie: 0x6a5038, lamp: 0xffb060, tunnel: 0x2a241c, roof: 0x3a2a22, bodyPaint: 0x6a4030, trim: 0xc9b48a },
   launch: { rail: 0xf0c040, body: 0xf0c040, tie: 0x4a4030, lamp: 0xffe1b0, tunnel: 0x2a2418, roof: 0x3a3018, bodyPaint: 0x8a7040, trim: 0xf0c040 },
+  giga: { rail: 0xb7ecee, body: 0x12828a, tie: 0x146870, lamp: 0x9ee8ea, tunnel: 0x14343c, roof: 0x1a4a52, bodyPaint: 0x1c5c64, trim: 0x8fd8dc },
   kiddie: { rail: 0xe7d3b0, body: 0xe07a4a, tie: 0x8a6040, lamp: 0xffc080, tunnel: 0x3a3028, roof: 0xc45c26, bodyPaint: 0xe7c8a0, trim: 0xe07a4a },
   family: { rail: 0xf4f7fb, body: 0x6a8fbf, tie: 0x5a4630, lamp: 0xffe1b0, tunnel: 0x243044, roof: 0x3a4a60, bodyPaint: 0xc4b08a, trim: 0x9ec4e8 },
 };
@@ -183,15 +184,23 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     postBulk: pack.postBulk,
     gauge: pack.gauge,
     ribbon: pack.ribbon,
+    spine: pack.spine,
+    spineEmissive: pack.spineEmissive,
+    spineGlow: pack.spineGlow,
+    spineWide: pack.spineWide,
+    spineHigh: pack.spineHigh,
+    postWide: pack.postWide,
     rail: pack.beacon ? 0xf7f8fb : colors.rail,
     railEmissive: pack.beacon ? 0xe4edf8 : (colors.railEmissive || 0xb7c4d4),
-    support: pack.beacon ? 0xf3efe6 : colors.tie,
-    supportEmissive: pack.beacon ? 0xffe1b0 : 0,
-    supportGlow: pack.beacon ? 0.85 : 0,
+    support: pack.support || (pack.beacon ? 0xf3efe6 : colors.tie),
+    supportEmissive: pack.supportEmissive != null ? pack.supportEmissive : (pack.beacon ? 0xffe1b0 : 0),
+    supportGlow: pack.supportGlow != null ? pack.supportGlow : (pack.beacon ? 0.85 : 0),
   });
-  const cars = pack.dive
-    ? buildDiveTrain(THREE, world, pack.cars || 3, colors, ride.id)
-    : buildTrain(THREE, world, pack.cars, colors, ride.id);
+  const cars = pack.hyper
+    ? buildHyperTrain(THREE, world, pack.cars || 4, colors, ride.id)
+    : pack.dive
+      ? buildDiveTrain(THREE, world, pack.cars || 3, colors, ride.id)
+      : buildTrain(THREE, world, pack.cars, colors, ride.id);
   if (pack.carScale) cars.forEach((car) => car.scale.setScalar(pack.carScale));
   if (pack.beacon) {
     let crest = pack.samples[0];
@@ -205,6 +214,19 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     const glow = new THREE.PointLight(0xffc56a, 4.5, 280);
     glow.position.copy(beacon.position);
     world.add(beacon, glow);
+  }
+  if (pack.giga) {
+    let crest = pack.samples[0];
+    for (const p of pack.samples) if (p.y > crest.y) crest = p;
+    const cap = new THREE.Mesh(
+      new THREE.SphereGeometry(1.5, 14, 10),
+      new THREE.MeshLambertMaterial({ color: 0xd8fffb, emissive: 0x3ad0c8, emissiveIntensity: 1.2 }),
+    );
+    cap.position.set(crest.x, crest.y + 2.4, crest.z);
+    cap.name = ride.id + '-crest';
+    const glow = new THREE.PointLight(0x7ef0ea, 3.2, 220);
+    glow.position.copy(cap.position);
+    world.add(cap, glow);
   }
   const trainBots = cars.flatMap((car) => (car.userData && car.userData.bots) || []);
   const home = pack.stationAtPath ? pack.samples[0] : null;
@@ -486,6 +508,7 @@ export function addAttraction(THREE, scene, ride, type) {
     const pack = ride.id === 'ride-block-01' ? giantBlockPack() : { ...blockCoasterSamples(3), phys: 'coaster' };
     return buildCoaster(THREE, scene, spec, pack, COLORS.coaster);
   }
+  if (kind === 'giga') return buildCoaster(THREE, scene, spec, gigaBlockPack(), COLORS.giga);
   if (kind === 'launch') return buildCoaster(THREE, scene, spec, { ...launchCoasterSamples(2), phys: 'launch' }, COLORS.launch);
   if (kind === 'kiddie') return buildCoaster(THREE, scene, spec, { ...kiddieSamples(), phys: 'kiddie' }, COLORS.kiddie);
   if (kind === 'family') return buildCoaster(THREE, scene, spec, { ...boardFamilySamples(), phys: 'family' }, COLORS.family);

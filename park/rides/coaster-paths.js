@@ -4,7 +4,7 @@ import { pushSpan, pushLoop, pushCorkscrew, pushHelix, stats, dryLap, dist3, ler
 
 export const RIDE_ANCHORS = {
   'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15, name: 'Rydelic Dive', type: 'coaster', cars: 3 },
-  'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -187.5, z: -20, w: 12, d: 8, h: 4.9, name: 'Block Launch', type: 'launch', cars: 2 },
+  'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -187.5, z: -20, w: 12, d: 8, h: 4.9, name: 'Block Giga', type: 'giga', cars: 4 },
   'ride-board-01': { id: 'ride-board-01', land: 'The Board', x: 160, z: 14, w: 6, d: 4, h: 3.15, name: 'Board Wheel', type: 'wheel', cars: 16 },
   'ride-board-02': { id: 'ride-board-02', land: 'The Board', x: 187.5, z: 14, w: 12, d: 8, h: 4.9, name: 'Board Swings', type: 'swings', cars: 12 },
   'ride-hours-01': { id: 'ride-hours-01', land: 'After Hours', x: -36, z: -175, w: 6, d: 4, h: 3.15, name: 'Hours Dark', type: 'dark', cars: 1 },
@@ -205,6 +205,90 @@ export function giantBlockPack() {
     railBulk: 3.6,
     postBulk: 5.4,
     gauge: 1.55,
+    apex: maxY,
+  };
+}
+
+/** 180° overbanked turnaround. Angle 0 points east. Not an inversion. */
+function pushHorseshoe(pts, center, radius, a0, a1, yBase, crown, bankPeak, steps) {
+  for (let k = 1; k <= steps; k++) {
+    const u = k / steps;
+    const a = a0 + (a1 - a0) * u;
+    const env = Math.sin(u * Math.PI);
+    pts.push({
+      x: center.x + Math.cos(a) * radius,
+      y: yBase + crown * env,
+      z: center.z + Math.sin(a) * radius,
+      bank: bankPeak * env,
+      speed: 18,
+      lift: false,
+      brake: false,
+      tunnel: false,
+      inversion: false,
+      crestHold: false,
+      blockBrake: false,
+    });
+  }
+}
+
+/** Block Giga. Tall chain, long first drop, two camelbacks, west-fence horseshoe, speed hills home. */
+export function gigaBlockSamples() {
+  const pts = [];
+  const station = { x: -188, y: 3.2, z: 58 };
+  const liftFoot = { x: -192, y: 4.2, z: 86 };
+  const crest = { x: -194, y: 30, z: 91 };
+  const valley = { x: -202, y: 3.2, z: 100 };
+  const camel1 = { x: -228, y: 3.4, z: 78 };
+  const camel2 = { x: -240, y: 4.2, z: 20 };
+  const turn = { x: -240, y: 5, z: -22 };
+  const home = { x: -206, y: 3.4, z: 8 };
+  const brakeIn = { x: -192, y: 3.3, z: 36 };
+  pushSpan(pts, station, liftFoot, 12, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
+  pushSpan(pts, liftFoot, crest, 18, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0, { speed: () => 7, lift: true });
+  pushSpan(pts, crest, valley, 16, (t) => crest.y + (valley.y - crest.y) * t, () => -0.15, { speed: () => 22 });
+  pushSpan(pts, valley, camel1, 14, (t) => 3.3 + Math.sin(t * Math.PI) * 12.5, (t) => Math.sin(t * Math.PI) * 0.28, { speed: () => 16 });
+  pushSpan(pts, camel1, camel2, 14, (t) => 3.5 + Math.sin(t * Math.PI) * 9.5, (t) => Math.sin(t * Math.PI) * -0.22, { speed: () => 15 });
+  pushSpan(pts, camel2, { x: turn.x, y: 5, z: turn.z + 42 }, 10, (t) => 4.2 + (5 - 4.2) * t, () => 0.2, { speed: () => 16 });
+  pushHorseshoe(pts, turn, 42, Math.PI / 2, Math.PI / 2 + Math.PI, 5, 3.2, 1.05, 32);
+  const exit = pts[pts.length - 1];
+  pushSpan(pts, { x: exit.x, y: exit.y, z: exit.z }, home, 12, (t) => 5 + Math.sin(t * Math.PI) * 4.5, () => 0.12, { speed: () => 14 });
+  pushSpan(pts, home, brakeIn, 10, (t) => 3.5 + Math.sin(t * Math.PI) * 3.2, () => 0, { speed: () => 12 });
+  pushSpan(pts, brakeIn, station, 12, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 7 - t * 4, brake: true });
+  pts.push({
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false,
+  });
+  return densify(pts, 2.2);
+}
+
+export function gigaBlockPack() {
+  const samples = gigaBlockSamples();
+  let maxY = 0;
+  for (const p of samples) if (p.y > maxY) maxY = p.y;
+  return {
+    id: 'ride-block-02',
+    land: 'The Block',
+    phys: 'coaster',
+    samples,
+    cars: 4,
+    carGap: 4.4,
+    carScale: 1,
+    stationHold: 2,
+    stationAtPath: true,
+    ribbon: true,
+    hyper: true,
+    giga: true,
+    railBulk: 2.2,
+    postBulk: 3.6,
+    gauge: 1.28,
+    spine: 0x2ec4c6,
+    spineEmissive: 0x0c5c68,
+    spineGlow: 0.7,
+    spineWide: 0.7,
+    spineHigh: 0.38,
+    postWide: 0.52,
+    support: 0x146870,
+    supportEmissive: 0x08343c,
+    supportGlow: 0.45,
     apex: maxY,
   };
 }
