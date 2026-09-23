@@ -2,7 +2,7 @@
 import { getRide, rideIds, boardAllowed } from './ride-runtime.js';
 import { setRestraint, waitMinutes } from './ride-ops.js';
 import { attemptBoard, attemptDispatch, joinRide, loadRideId, rideStatus, postedRideWait, ruleFor } from '../logic/ride-logic.js';
-import { admit, setCheat, takeMerch, isAdmitted } from '../logic/ticket.js';
+import { admit, setCheat, takeMerch, isAdmitted, isDevBypass } from '../logic/ticket.js';
 import { leaveQueue, queueFor } from '../logic/queue.js';
 import { formatClock, isOpen, getClock } from '../logic/clock.js';
 import { setWeather, weatherHold, resetSafety } from '../logic/safety.js';
@@ -23,7 +23,7 @@ function paintOps(ride) {
   if (!hud) return;
   if (!ride || !ride.ops) {
     hud.textContent = boarded ? 'Riding ' + (labels.get(boarded) || boarded) : 'Walk';
-    if (line) line.textContent = 'ticket / queue / board / close restraint / dispatch / exit';
+    if (line) line.textContent = 'E board at the station · F restraint · Esc stop';
     return;
   }
   const ops = ride.ops;
@@ -121,13 +121,19 @@ function clearBoard() {
   const hud = hudNow();
   if (hud) hud.textContent = 'Walk';
   const line = typeof document !== 'undefined' ? document.getElementById('ride-ops') : null;
-  if (line) line.textContent = 'ticket / queue / board / close restraint / dispatch / exit';
+  if (line) line.textContent = 'E board at the station · F restraint · Esc stop';
 }
 
 export function exitRide() {
   const ride = boarded ? getRide(boarded) : null;
-  if (ride && ride.ops && (ride.ops.phase === 'COURSE' || ride.ops.phase === 'DISPATCH' || ride.ops.phase === 'BRAKE')) {
+  if (!ride) {
+    clearBoard();
+    return true;
+  }
+  const phase = ride.ops && ride.ops.phase;
+  if (phase === 'COURSE' || phase === 'DISPATCH' || phase === 'BRAKE') {
     emergencyStop();
+    return true;
   }
   clearBoard();
   return true;
@@ -143,8 +149,10 @@ export function applyRideCam(camera) {
   if (!boarded || !camera) return false;
   const ride = getRide(boarded);
   if (!ride) return false;
-  if (ride.ops && ride.ops.leaveAfterStop && (ride.ops.phase === 'BOARDING' || ride.ops.phase === 'IDLE' || ride.ops.phase === 'DOWN' || ride.ops.phase === 'CLOSED')) {
+  const parked = ride.ops && (ride.ops.phase === 'BOARDING' || ride.ops.phase === 'IDLE' || ride.ops.phase === 'UNLOAD' || ride.ops.phase === 'DOWN' || ride.ops.phase === 'CLOSED');
+  if (ride.ops && ride.ops.leaveAfterStop && parked) {
     clearBoard();
+    camera.up.set(0, 1, 0);
     return false;
   }
   paintOps(ride);
@@ -204,7 +212,7 @@ export function mountRideHud(entries) {
   wrap.appendChild(now);
   const ops = document.createElement('div');
   ops.id = 'ride-ops';
-  ops.textContent = 'ticket / queue / board / close restraint / dispatch / exit';
+  ops.textContent = 'E board at the station · F restraint · Esc stop';
   ops.style.cssText = 'color:#f4efe6;background:rgba(18,16,14,.72);padding:4px 8px;border-radius:8px;max-width:260px;';
   wrap.appendChild(ops);
   for (const entry of entries) {
@@ -277,6 +285,8 @@ export function mountRideHud(entries) {
   window.addEventListener('keydown', (ev) => {
     if (ev.code === 'Escape') exitRide();
     if (ev.code === 'KeyG') {
+      const dev = (typeof location !== 'undefined' && /(?:\?|&)dev=1(?:&|$)/.test(location.search || '')) || isDevBypass();
+      if (!dev) return;
       setCheat(true);
       paintBoard();
     }

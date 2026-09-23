@@ -10,6 +10,7 @@ import { getRail } from './physics.js';
 import { createOps } from './ride-ops.js';
 import { mountParkOps } from './park-ops.js';
 import { applyRideCam, mountRideHud, boardRide, exitRide, currentRide, closeRestraint, requestDispatch, emergencyStop } from './ride-cam.js';
+import { tickWalkRide } from '../input/walk-ride.js';
 import { playRideBed, playLandBed, faceCue } from './ride-audio.js';
 import { tagRide, resetParkLogic } from '../logic/ride-logic.js';
 import { mountGround } from '../terrain/ground.js';
@@ -665,6 +666,7 @@ function publishRideHooks() {
   };
   window.__applyRideCam = (camera) => {
     try {
+      tickWalkRide(camera);
       paintBoard();
       const riding = applyRideCam(camera);
       const ride = riding ? getRide(currentRide()) : null;

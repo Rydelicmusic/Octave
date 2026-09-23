@@ -60,6 +60,22 @@ export function playerAtLoad(id) {
   return !!(q && q.slots[0] === 'player');
 }
 
+/** Player is standing on the load pad. Take the open seat. A bot does not keep it. */
+export function claimLoad(id) {
+  const q = queueFor(id);
+  const mine = q.slots.indexOf('player');
+  if (mine === 0) return true;
+  if (mine > 0) q.slots[mine] = null;
+  const front = q.slots[0];
+  if (front === 'riding') return false;
+  if (front && String(front).startsWith('agent-')) {
+    const hole = q.slots.indexOf(null, 1);
+    if (hole > 0) q.slots[hole] = front;
+  }
+  q.slots[0] = 'player';
+  return true;
+}
+
 export function partiesAhead(q, who) {
   if (!q) return 0;
   const i = q.slots.indexOf(who);
