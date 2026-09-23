@@ -1,14 +1,14 @@
-/** After Hours EP pavilion. G-3,-7 / x -60 z -175 / 12 × 8 m. Queue 4 m toward hours-drive. */
+/** After Hours EP pavilion. G-3,-7 / x -60 z -175 / 12 × 8 m. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-hours-02',
   land: 'After Hours',
   sku: 'pavilion',
-  name: 'Hours EP',
+  name: 'Velvet Crypt Hall',
   x: -60, z: -175, w: 12, d: 8, h: 4.9,
   yaw: Math.PI / 2,
   queueL: 4,
@@ -47,6 +47,6 @@ export function claimRide() {
 
 export function addRideHours02(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'hall');
   return markRide(THREE, scene, RIDE, g);
 }

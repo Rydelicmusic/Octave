@@ -1,14 +1,14 @@
-/** The Pocket song kiosk. G2,2 / x 70 z 50 / 6 × 4 m. Off rings. Queue 4 m toward pocket-drive (x=60). */
+/** The Pocket song kiosk. G2,2 / x 70 z 50 / 6 × 4 m. Off rings. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy, nearRing } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-pocket-01',
   land: 'The Pocket',
   sku: 'kiosk',
-  name: 'Pocket Song',
+  name: 'Spine Bumper Cars',
   x: 70, z: 50, w: 6, d: 4, h: 3.15,
   yaw: -Math.PI / 2,
   queueL: 4,
@@ -48,6 +48,6 @@ export function claimRide() {
 
 export function addRidePocket01(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'bumpers');
   return markRide(THREE, scene, RIDE, g);
 }

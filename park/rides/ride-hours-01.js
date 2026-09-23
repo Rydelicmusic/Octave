@@ -1,14 +1,14 @@
-/** After Hours song kiosk. G-2,-7 / x -36 z -175 / 6 × 4 m. G0,-7 hit spine; next free in land. Queue 4 m toward hours-drive. */
+/** After Hours song kiosk. G-2,-7 / x -36 z -175 / 6 × 4 m. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-hours-01',
   land: 'After Hours',
   sku: 'kiosk',
-  name: 'Hours Song',
+  name: 'Last Call Crypt',
   x: -36, z: -175, w: 6, d: 4, h: 3.15,
   yaw: Math.PI / 2,
   queueL: 4,
@@ -47,6 +47,6 @@ export function claimRide() {
 
 export function addRideHours01(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'crypt');
   return markRide(THREE, scene, RIDE, g);
 }

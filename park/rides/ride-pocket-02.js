@@ -1,14 +1,14 @@
-/** The Pocket EP pavilion. G1,3 / x 40 z 80 / 12 × 8 m. Off rings. Queue 4 m toward pocket-drive. */
+/** The Pocket EP pavilion. G1,3 / x 40 z 80 / 12 × 8 m. Off rings. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy, nearRing } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-pocket-02',
   land: 'The Pocket',
   sku: 'pavilion',
-  name: 'Pocket EP',
+  name: 'Gate Pumpkin Wheel',
   x: 40, z: 80, w: 12, d: 8, h: 4.9,
   yaw: Math.PI / 2,
   queueL: 4,
@@ -48,6 +48,6 @@ export function claimRide() {
 
 export function addRidePocket02(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'wheel');
   return markRide(THREE, scene, RIDE, g);
 }

@@ -1,4 +1,4 @@
-/** Gate wayfinding. Off 14 m spine. G-1,8 / G0,8 / x ±24 z 210 / 1.2 × 0.35 m posts. */
+/** Gate wayfinding. Off 14 m spine. G-1,8 / G0,8 / x ±24 z 210. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine } from '../lock.js';
 
@@ -22,14 +22,17 @@ export function claimRide() {
 export function addRideGateSigns(THREE, scene) {
   if (!claimRide()) return null;
   const g = new THREE.Group();
-  const post = new THREE.MeshLambertMaterial({ color: 0x3d3428 });
-  const blade = new THREE.MeshLambertMaterial({ color: 0xc9b48a });
+  const post = new THREE.MeshLambertMaterial({ color: 0x1c1612 });
+  const blade = new THREE.MeshLambertMaterial({ color: 0x4a1020, emissive: 0xff7a18, emissiveIntensity: 0.35 });
+  const pump = new THREE.MeshLambertMaterial({ color: 0xd35412, emissive: 0xff7a18, emissiveIntensity: 0.55 });
   for (const s of SIGNS) {
-    const p = new THREE.Mesh(new THREE.BoxGeometry(0.16, s.h, 0.16), post);
+    const p = new THREE.Mesh(new THREE.BoxGeometry(0.18, s.h, 0.18), post);
     p.position.set(s.x, s.h / 2, s.z);
-    const b = new THREE.Mesh(new THREE.BoxGeometry(s.w, 0.7, s.d), blade);
-    b.position.set(s.x, s.h - 0.2, s.z);
-    g.add(p, b);
+    const b = new THREE.Mesh(new THREE.BoxGeometry(s.w + 0.4, 0.8, 0.22), blade);
+    b.position.set(s.x, s.h - 0.15, s.z);
+    const jack = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.28, 0.42, 10), pump);
+    jack.position.set(s.x, 0.28, s.z + 0.55);
+    g.add(p, b, jack);
   }
   scene.add(g);
   return g;
