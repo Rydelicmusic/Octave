@@ -335,6 +335,7 @@ export function hookRideStack(THREE) {
   const proto = THREE.WebGLRenderer.prototype;
   const orig = proto.render;
   proto.__rydelicRideStack = true;
+  if (typeof window !== 'undefined') window.__parkRideHook = true;
   proto.render = function renderRideStack(scene, camera) {
     if (!hooked && scene && scene.isScene) {
       hooked = true;
@@ -343,6 +344,7 @@ export function hookRideStack(THREE) {
     try { tickMotion(performance.now()); } catch (err) { console.warn('tickMotion', err); }
     try {
       const riding = applyRideCam(camera);
+      if (typeof window !== 'undefined') window.__parkRideDrew = !!riding;
       const ride = riding ? getRide(currentRide()) : null;
       if (ride) playRideBed(ride.id, ride.speed || 0);
       else stopRideBed();

@@ -25,6 +25,7 @@ export function currentRide() {
 }
 
 export function applyRideCam(camera) {
+  if (typeof window !== 'undefined') window.__parkRideCam = boarded;
   if (!boarded || !camera) return false;
   const ride = getRide(boarded);
   if (!ride) return false;
