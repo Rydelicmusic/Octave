@@ -16,4 +16,4 @@ Train: 3 low cars, two seats across. Lead name ride-hours-02-car.
 Spine is dark. LSM plates and truss are neon. Posts on the high parts reach the ground.
 Lives in the east of After Hours, off the spine and the hub.
 
-Commit: filled in after the push.
+Commit: 4b2ffc6d37aed21fe5214d6348e25f5480d63810
