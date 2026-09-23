@@ -7,7 +7,7 @@ import { arcTable } from './path-math.js';
 import { blockCoasterSamples, launchCoasterSamples, boardFamilySamples, kiddieSamples, darkSamples, giantBlockPack, gigaBlockPack, rimBlockPack, hoursLaunchPack, hybridBoardPack } from './coaster-paths.js';
 import {
   G, stepEnergy, stepCruise, stepDrop, stepPendulum, stepWheel, stepSwings, stepSpin, stepBumper,
-  wheelInWindow, gondolaWorldUp, simulateEnergy,
+  wheelInWindow, gondolaWorldUp, simulateEnergy, registerRail, bindRail, tick, profileForId, aLaunch, climbV,
 } from './physics.js';
 import { createOps, tryBoard, setRestraint, tryDispatch, eStop, advancePhase } from './ride-ops.js';
 
@@ -57,6 +57,59 @@ export function runPhysicsTests() {
   };
 
   check('g', G === 9.81, String(G));
+
+  const specPacks = [giantBlockPack(), gigaBlockPack(), rimBlockPack(), hoursLaunchPack(), hybridBoardPack()];
+  const specNotes = [];
+  for (const pack of specPacks) {
+    const profile = profileForId(pack.id, pack.samples);
+    const table = arcTable(pack.samples);
+    const a0 = pack.samples[0];
+    const a1 = pack.samples[pack.samples.length - 1];
+    const seam = Math.hypot(a0.x - a1.x, a0.y - a1.y, a0.z - a1.z);
+    registerRail(pack.id, pack.samples, profile, { hold: pack.crestHold || 0 });
+    const ops = createOps(pack.id);
+    bindRail(pack.id, ops);
+    tryBoard(ops);
+    setRestraint(ops, true);
+    tryDispatch(ops);
+    let nan = false;
+    let hold = 0;
+    let vCrest = null;
+    let vAfter = 0;
+    let peak = 0;
+    let windows = 0;
+    let prevLaunch = false;
+    let rejected = false;
+    let stalled = false;
+    for (let t = 0; t < 240 && ops.phase !== 'BOARDING'; t += 0.02) {
+      const moving = ops.phase === 'DISPATCH' || ops.phase === 'COURSE' || ops.phase === 'BRAKE';
+      const before = ops.s;
+      if (moving) tick(pack.id, 0.02);
+      else { ops.v = 0; ops.a = 0; }
+      if (ops.holding) hold += 0.02;
+      if (!Number.isFinite(ops.s) || !Number.isFinite(ops.v) || !Number.isFinite(ops.a)) nan = true;
+      if (ops.v > peak) peak = ops.v;
+      if (ops.lift) vCrest = climbV;
+      if (vCrest != null && !ops.lift && !ops.holding && ops.v > vAfter) vAfter = ops.v;
+      const launching = (ops.launchTerm || 0) > 5;
+      if (launching && !prevLaunch) windows += 1;
+      prevLaunch = launching;
+      if (ops.phase === 'COURSE' && !rejected) rejected = tryBoard(ops) === false;
+      advancePhase(ops, table, 0.02);
+      if (ops.phase === 'COURSE' && !ops.lift && !ops.holding && ops.v <= 0.05 && ops.s > 40 && Math.abs(ops.s - before) < 1e-4) {
+        stalled = true;
+        break;
+      }
+    }
+    const home = ops.phase === 'BOARDING' && ops.s < 2 && !nan && !stalled;
+    specNotes.push({ id: pack.id, profile, seam, hold, vCrest, vAfter, peak, windows, rejected, nan, stalled, home, s: ops.s, length: table.length, trim: ops.trimAssist || 0, log: ops.physLog || [] });
+    check(pack.id + ' closed', seam < 2, 'seam ' + seam.toFixed(2));
+    check(pack.id + ' spec lap no NaN', !nan && (home || stalled), home ? 'home' : (stalled ? 'STALL s ' + ops.s.toFixed(1) : ops.phase));
+    if (profile !== 'launch') check(pack.id + ' faster after the drop', vAfter > (vCrest || 0), 'crest ' + vCrest + ' after ' + vAfter.toFixed(2));
+    if (profile === 'dive') check(pack.id + ' hold 2-4 s', hold >= 2 && hold <= 4, hold.toFixed(2));
+    if (profile === 'launch') check(pack.id + ' two launch windows', windows >= 2 && aLaunch > 5, 'windows ' + windows + ' aLaunch ' + aLaunch);
+    check(pack.id + ' board rejected on course', rejected === true);
+  }
 
   const visible = [
     [giantBlockPack(), { drag: 0.004, liftV: 3.2, brake: 9, minLoop: 6, crestHold: 3 }, 420],
@@ -218,11 +271,30 @@ export function runPhysicsTests() {
   md.push('# Physics QC');
   md.push('');
   md.push('Date: 2026-09-23');
-  md.push('Speed owner: stepEnergy in park/rides/physics.js');
-  md.push("v' = -g sin(theta) + a_lift + a_launch + a_brake - c v^2");
-  md.push('g = 9.81. Arc length s. A path with a table does not play sample.speed.');
+  md.push('Live speed owner: tick(id, dt) in park/rides/physics.js. stepEnergy stays for the legacy battery only.');
+  md.push("a = -g sin(theta) + aLaunch on LSM + aBrake on a brake section - dragC v |v|");
+  md.push('g = 9.81, climbV = 3, vMin = 0.3, vMax = 45, dragC = 0.012, aLaunch = 15, aBrake = -28.');
+  md.push('Arc length s. A path with a table does not play sample.speed.');
   md.push('');
-  md.push('## Visible rails');
+  md.push('## Spec tick');
+  md.push('');
+  md.push('Constants: g 9.81, climbV 3, vMin 0.3, vMax 45, dragC 0.012, aLaunch 15, aBrake -28.');
+  md.push('Sling: MISSING. slingshot.js is not mounted and is not called from physics.js.');
+  md.push('');
+  for (const note of specNotes) {
+    md.push('### ' + note.id + ' (' + note.profile + ')');
+    md.push('');
+    md.push('- Seam ' + note.seam.toFixed(2) + ' m');
+    md.push('- Peak ' + note.peak.toFixed(2) + (note.vCrest == null ? '' : ', chain ' + note.vCrest + ', after drop ' + note.vAfter.toFixed(2)));
+    if (note.profile === 'dive') md.push('- Hold ' + note.hold.toFixed(2) + ' s');
+    if (note.profile === 'launch') md.push('- Launch windows with term > 5: ' + note.windows);
+    md.push('- Trim count ' + note.trim);
+    md.push('- Lap ' + (note.home ? 'home, no NaN' : (note.stalled ? 'STALL' : 'not home')) + (note.nan ? ' NaN' : ''));
+    if (note.stalled) md.push('- Stopped at s ' + note.s.toFixed(1) + ' of ' + note.length.toFixed(0) + ' m. dragC 0.012 bled the speed. Not a completed lap, and s was not moved.');
+    if (note.log.length) for (const line of note.log) md.push('- ' + line);
+    md.push('');
+  }
+  md.push('## Visible rails under the legacy stepEnergy opts');
   md.push('');
   for (const note of railNotes) {
     md.push('### ' + note.id);

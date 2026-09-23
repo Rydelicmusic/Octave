@@ -99,6 +99,7 @@ export function dispatchBlockers(ride) {
   const reasons = [];
   if (!ride || !ride.ops) return ['missing'];
   const ops = ride.ops;
+  if (ops.missing) return ['missing'];
   const rules = ruleFor(ride.id);
   if (ops.restraint !== 'closed') reasons.push('restraints');
   if (ops.gateOpen === true) reasons.push('gates');

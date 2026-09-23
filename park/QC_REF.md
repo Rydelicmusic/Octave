@@ -6,7 +6,7 @@ Live: https://rydelicmusic.github.io/octave/park/
 
 ## BOOT
 
-- **SHIPPED** named import matches named export — 51 files
+- **SHIPPED** named import matches named export — 52 files
 - **SHIPPED** Walk / 3rd / Drone exist — three buttons in index
 - **SHIPPED** live page populates — 2026-09-23 look: title, canvas, drone GPS, five coaster worlds
 
@@ -44,7 +44,7 @@ Live: https://rydelicmusic.github.io/octave/park/
 
 ## HUD
 
-- **SHIPPED** OPERATING only when the world and the ride exist — dots start dark and paintOperating requires a world plus a registered ride. The four frames were shot before that change; every coaster in them did have a world
+- **SHIPPED** OPERATING only when the world and the ride exist — dots start MISSING; operating needs the mesh, the lead car, and the rail integrator
 - **SHIPPED** Admit is on the page — Admit button sits under the ride list
 
 ## NOTE

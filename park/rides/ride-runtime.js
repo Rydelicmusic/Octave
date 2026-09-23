@@ -1,6 +1,6 @@
-/** Shared ride clock. Ops rides integrate s and v. Dry laps keep the old speed table. */
+/** Shared ride clock. Rail speed is physics.tick. Cruise rides and flat rides stay on their own integrators. */
 import { pointAt } from './path-math.js';
-import { stepEnergy, stepCruise, stepWheel, stepSwings, stepDropRide, stepSpin, stepBumper, wheelInWindow } from './physics.js';
+import { stepCruise, stepWheel, stepSwings, stepDropRide, stepSpin, stepBumper, wheelInWindow, registerRail, bindRail, profileForId, tick } from './physics.js';
 import { canBoard, tryBoard, advancePhase } from './ride-ops.js';
 import { clickLift, whoosh, dispatchBell, hissBrakes } from './ride-audio.js';
 import { stepParkLogic } from '../logic/ride-logic.js';
@@ -14,7 +14,7 @@ const rides = new Map();
 let lastMs = 0;
 
 export function registerRide(ride) {
-  rides.set(ride.id, {
+  const stored = {
     s: 0,
     phase: 0,
     hold: ride.stationHold || 0,
@@ -25,8 +25,16 @@ export function registerRide(ride) {
     lead: null,
     boardedSeat: 0,
     ...ride,
-  });
-  return rides.get(ride.id);
+  };
+  rides.set(ride.id, stored);
+  const cruise = stored.phys && stored.phys.mode === 'cruise';
+  if (stored.kind === 'path' && stored.table && stored.table.samples && stored.ops && !cruise) {
+    const profile = profileForId(stored.id, stored.table.samples);
+    const hold = stored.phys && stored.phys.crestHold ? stored.phys.crestHold : 0;
+    registerRail(stored.id, stored.table.samples, profile, { hold: hold || (profile === 'dive' ? 3 : 0) });
+    bindRail(stored.id, stored.ops);
+  }
+  return stored;
 }
 
 export function getRide(id) {
@@ -127,7 +135,14 @@ function stepPath(ride, dt) {
     const moving = ops.phase === 'DISPATCH' || ops.phase === 'COURSE' || ops.phase === 'BRAKE';
     if (moving) {
       if (ride.phys && ride.phys.mode === 'cruise') stepCruise(ops, ride.table, dt, ride.phys);
-      else stepEnergy(ops, ride.table, dt, ride.phys || {});
+      else {
+        const stepped = tick(ride.id, dt);
+        if (stepped && stepped.missing) {
+          ops.v = 0;
+          ops.a = 0;
+          ops.missing = true;
+        }
+      }
     } else {
       ops.v = 0;
       ops.a = 0;

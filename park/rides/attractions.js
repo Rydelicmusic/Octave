@@ -6,6 +6,7 @@ import { buildTrack, buildTrain, buildDiveTrain, buildHyperTrain, buildLaunchTra
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, buildSpin, layoutSpin } from './ride-fleet.js';
 import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain } from './ride-runtime.js';
+import { getRail } from './physics.js';
 import { createOps } from './ride-ops.js';
 import { mountParkOps } from './park-ops.js';
 import { applyRideCam, mountRideHud, boardRide, exitRide, currentRide, closeRestraint, requestDispatch, emergencyStop } from './ride-cam.js';
@@ -615,9 +616,13 @@ function paintOperating(scene) {
     const dot = document.getElementById('dot-' + row.ride.id);
     if (!dot) continue;
     const mesh = scene.getObjectByName(row.ride.id + '-world');
+    const car = scene.getObjectByName(row.ride.id + '-car');
     const ride = getRide(row.ride.id);
-    const live = !!(mesh && ride);
-    const word = live ? 'operating' : 'dark';
+    const rail = getRail(row.ride.id);
+    const railRide = !!(ride && ride.kind === 'path' && !(ride.phys && ride.phys.mode === 'cruise'));
+    const live = railRide ? !!(mesh && car && rail && ride.ops) : !!(mesh && ride);
+    if (ride && ride.ops) ride.ops.missing = !live;
+    const word = live ? 'operating' : 'MISSING';
     if (dot.textContent === word) continue;
     dot.textContent = word;
     dot.style.color = live ? '#8dcc8a' : '#a89880';

@@ -213,7 +213,7 @@ export function mountRideHud(entries) {
     row.style.cssText = 'display:flex;gap:6px;align-items:center;';
     const dot = document.createElement('span');
     dot.id = 'dot-' + entry.id;
-    dot.textContent = 'dark';
+    dot.textContent = 'MISSING';
     dot.style.cssText = 'color:#a89880;min-width:72px;';
     const btn = document.createElement('button');
     btn.type = 'button';

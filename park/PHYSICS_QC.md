@@ -1,11 +1,59 @@
 # Physics QC
 
 Date: 2026-09-23
-Speed owner: stepEnergy in park/rides/physics.js
-v' = -g sin(theta) + a_lift + a_launch + a_brake - c v^2
-g = 9.81. Arc length s. A path with a table does not play sample.speed.
+Live speed owner: tick(id, dt) in park/rides/physics.js. stepEnergy stays for the legacy battery only.
+a = -g sin(theta) + aLaunch on LSM + aBrake on a brake section - dragC v |v|
+g = 9.81, climbV = 3, vMin = 0.3, vMax = 45, dragC = 0.012, aLaunch = 15, aBrake = -28.
+Arc length s. A path with a table does not play sample.speed.
 
-## Visible rails
+## Spec tick
+
+Constants: g 9.81, climbV 3, vMin 0.3, vMax 45, dragC 0.012, aLaunch 15, aBrake -28.
+Sling: MISSING. slingshot.js is not mounted and is not called from physics.js.
+
+### ride-block-01 (dive)
+
+- Seam 0.00 m
+- Peak 19.72, chain 3, after drop 19.72
+- Hold 2.98 s
+- Trim count 2
+- Lap home, no NaN
+- ride-block-01 trim s 117.8 v 7.87 -> 8
+- ride-block-01 trim s 135.2 v 7.53 -> 8
+
+### ride-block-02 (giga)
+
+- Seam 0.00 m
+- Peak 19.54, chain 3, after drop 19.54
+- Trim count 0
+- Lap STALL
+- Stopped at s 151.0 of 458 m. dragC 0.012 bled the speed. Not a completed lap, and s was not moved.
+
+### ride-block-rim (rim)
+
+- Seam 0.00 m
+- Peak 24.34, chain 3, after drop 24.34
+- Trim count 0
+- Lap STALL
+- Stopped at s 259.3 of 836 m. dragC 0.012 bled the speed. Not a completed lap, and s was not moved.
+
+### ride-hours-02 (launch)
+
+- Seam 0.00 m
+- Peak 31.28
+- Launch windows with term > 5: 2
+- Trim count 0
+- Lap home, no NaN
+
+### ride-board-family (hybrid)
+
+- Seam 0.00 m
+- Peak 17.17, chain 3, after drop 17.17
+- Trim count 0
+- Lap STALL
+- Stopped at s 182.7 of 251 m. dragC 0.012 bled the speed. Not a completed lap, and s was not moved.
+
+## Visible rails under the legacy stepEnergy opts
 
 ### ride-block-01
 
@@ -52,6 +100,27 @@ g = 9.81. Arc length s. A path with a table does not play sample.speed.
 ## Battery
 
 - pass  g  9.81
+- pass  ride-block-01 closed  seam 0.00
+- pass  ride-block-01 spec lap no NaN  home
+- pass  ride-block-01 faster after the drop  crest 3 after 19.72
+- pass  ride-block-01 hold 2-4 s  2.98
+- pass  ride-block-01 board rejected on course
+- pass  ride-block-02 closed  seam 0.00
+- pass  ride-block-02 spec lap no NaN  STALL s 151.0
+- pass  ride-block-02 faster after the drop  crest 3 after 19.54
+- pass  ride-block-02 board rejected on course
+- pass  ride-block-rim closed  seam 0.00
+- pass  ride-block-rim spec lap no NaN  STALL s 259.3
+- pass  ride-block-rim faster after the drop  crest 3 after 24.34
+- pass  ride-block-rim board rejected on course
+- pass  ride-hours-02 closed  seam 0.00
+- pass  ride-hours-02 spec lap no NaN  home
+- pass  ride-hours-02 two launch windows  windows 2 aLaunch 15
+- pass  ride-hours-02 board rejected on course
+- pass  ride-board-family closed  seam 0.00
+- pass  ride-board-family spec lap no NaN  STALL s 182.7
+- pass  ride-board-family faster after the drop  crest 3 after 17.17
+- pass  ride-board-family board rejected on course
 - pass  ride-block-01 energy lap  phase BOARDING s 0.0 trim 3
 - pass  ride-block-02 energy lap  phase BOARDING s 0.0 trim 1
 - pass  ride-block-rim energy lap  phase BOARDING s 0.0 trim 0

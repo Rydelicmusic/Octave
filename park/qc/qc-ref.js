@@ -102,8 +102,8 @@ export function refRows() {
   const badNames = Object.values(RIDE_ANCHORS).filter((r) => banned.test(r.name)).map((r) => r.name);
   rows.push(row('LAW', 'marquees avoid licensed names', badNames.length ? 'BROKEN' : 'SHIPPED', badNames.length ? badNames.join(', ') : 'Rydelic Dive, Block Giga, Rim Flight, Hours Launch, Board Hybrid, Board Drop'));
 
-  const hudGates = rideCam.includes("dot.textContent = 'dark'") && attractions.includes('function paintOperating') && attractions.includes('mesh && ride');
-  rows.push(row('HUD', 'OPERATING only when the world and the ride exist', hudGates ? 'SHIPPED' : 'BROKEN', hudGates ? 'dots start dark and paintOperating requires a world plus a registered ride. The four frames were shot before that change; every coaster in them did have a world' : 'label is hardcoded'));
+  const hudGates = rideCam.includes("dot.textContent = 'MISSING'") && attractions.includes('function paintOperating') && attractions.includes('mesh && car && rail');
+  rows.push(row('HUD', 'OPERATING only when the world and the ride exist', hudGates ? 'SHIPPED' : 'BROKEN', hudGates ? 'dots start MISSING; operating needs the mesh, the lead car, and the rail integrator' : 'label is hardcoded'));
   rows.push(row('HUD', 'Admit is on the page', index.includes('Admit') || rideCam.includes("'Admit'") ? 'SHIPPED' : 'BROKEN', 'Admit button sits under the ride list'));
 
   rows.push(row('NOTE', 'three Block coasters share a canopy', 'SHIPPED', 'Dive, Giga, and Rim each read as their own machine from x -55. No cut. They are crowded'));

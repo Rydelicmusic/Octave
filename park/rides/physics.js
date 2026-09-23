@@ -1,7 +1,14 @@
 /** Usable ride physics. Gravity, lift, drag, brakes. Not a sine wave. */
-import { pointInto } from './path-math.js';
+import { pointInto, arcTable } from './path-math.js';
 
 export const G = 9.81;
+export const climbV = 3.0;
+export const vMin = 0.3;
+export const vMax = 45;
+export const dragC = 0.012;
+export const vLoopMin = 8;
+export const aLaunch = 15;
+export const aBrake = -28;
 
 const scratchA = { x: 0, y: 0, z: 0 };
 const scratchB = { x: 0, y: 0, z: 0 };
@@ -447,4 +454,240 @@ export function simulateEnergy(table, seconds, opts, phase) {
 
 function lengthSafe(table) {
   return table.length || 1;
+}
+
+const rails = new Map();
+
+export function profileForId(id, samples) {
+  if (id === 'ride-block-01') return 'dive';
+  if (id === 'ride-block-02') return 'giga';
+  if (id === 'ride-block-rim') return 'rim';
+  if (id === 'ride-hours-02') return 'launch';
+  if (id === 'ride-board-family') return 'hybrid';
+  if (samples && samples.some((p) => p.lsm)) return 'launch';
+  return 'giga';
+}
+
+function buildCache(samples) {
+  const table = arcTable(samples);
+  const rows = [];
+  let acc = 0;
+  for (let i = 0; i < samples.length; i++) {
+    const a = samples[i];
+    const b = samples[(i + 1) % samples.length];
+    const ds = table.seg[i] || 1e-6;
+    const theta = Math.asin(Math.max(-1, Math.min(1, (b.y - a.y) / ds)));
+    rows.push({
+      x: a.x, y: a.y, z: a.z, s: acc, theta,
+      kappa: 0,
+      bank: a.bank || 0,
+      lift: !!a.lift,
+      brake: !!a.brake,
+      lsm: !!a.lsm,
+      crestHold: !!a.crestHold,
+      inversion: !!a.inversion,
+      blockBrake: !!a.blockBrake,
+    });
+    acc += ds;
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const prev = rows[(i - 1 + rows.length) % rows.length];
+    const seg = Math.max(0.05, table.seg[(i - 1 + rows.length) % rows.length] || 0.05);
+    let dTheta = rows[i].theta - prev.theta;
+    if (dTheta > Math.PI) dTheta -= Math.PI * 2;
+    if (dTheta < -Math.PI) dTheta += Math.PI * 2;
+    rows[i].kappa = dTheta / seg;
+  }
+  return { table, samples: rows, length: table.length };
+}
+
+function sampleAt(rail, s) {
+  const p = pointInto(rail.cache.table, s, rail.scratch);
+  const rows = rail.cache.samples;
+  const n = rows.length;
+  let u = s % rail.cache.length;
+  if (u < 0) u += rail.cache.length;
+  let acc = 0;
+  let idx = n - 1;
+  for (let i = 0; i < n; i++) {
+    const d = rail.cache.table.seg[i];
+    if (acc + d >= u || i === n - 1) { idx = i; break; }
+    acc += d;
+  }
+  const row = rows[idx];
+  p.theta = row.theta;
+  p.kappa = row.kappa;
+  return p;
+}
+
+export function registerRail(id, samples, profile, opts = {}) {
+  if (!id || !samples || !samples.length) return null;
+  const cache = buildCache(samples);
+  const rail = {
+    id,
+    profile: profile || profileForId(id, samples),
+    cache,
+    scratch: { x: 0, y: 0, z: 0 },
+    state: null,
+    hold: opts.hold != null ? opts.hold : (profile === 'dive' ? 3 : 0),
+    log: [],
+  };
+  rails.set(id, rail);
+  return rail;
+}
+
+export function bindRail(id, state) {
+  const rail = rails.get(id);
+  if (!rail) return null;
+  rail.state = state;
+  return rail;
+}
+
+export function getRail(id) {
+  return rails.get(id) || null;
+}
+
+export function railIds() {
+  return [...rails.keys()];
+}
+
+function note(rail, msg) {
+  rail.log.push(msg);
+  if (rail.state) {
+    if (!rail.state.physLog) rail.state.physLog = [];
+    rail.state.physLog.push(msg);
+  }
+}
+
+/** One rail step. dt is clamped to 1/30. Missing id does not invent a train. */
+export function tick(id, dt) {
+  const rail = rails.get(id);
+  if (!rail || !rail.state || !rail.cache || !rail.cache.length && !rail.cache.samples) {
+    return { missing: true, status: 'MISSING', id };
+  }
+  const state = rail.state;
+  const step = Math.max(0, Math.min(1 / 30, dt || 0));
+  if (!step) return state;
+  const L = rail.cache.length || 1;
+  const sample = sampleAt(rail, state.s || 0);
+  if (!Number.isFinite(sample.x) || !Number.isFinite(sample.y) || !Number.isFinite(sample.theta)) {
+    state.s = 0;
+    state.v = 0;
+    state.a = 0;
+    state.phase = 'BRAKE';
+    note(rail, id + ' NaN sample, held for brakes');
+    return state;
+  }
+  const lap = state.laps || 0;
+  const rolling = state.phase === 'DISPATCH' || state.phase === 'COURSE' || state.phase === 'BRAKE';
+  // The chain dog stays engaged while the rail is still rising. The lift flag
+  // flips at the midpoint of the last uphill segment, a meter short of the drop.
+  if (sample.lift && rail.profile !== 'launch') state.chain = true;
+  const stillUp = (sample.theta || 0) >= -0.04;
+  if (!stillUp) state.chain = false;
+  const onLift = !!state.chain && stillUp && state.phase !== 'BRAKE' && !state.eStop && rail.profile !== 'launch';
+  const onLsm = !!sample.lsm && (state.phase === 'DISPATCH' || state.phase === 'COURSE') && !state.eStop;
+  const holdFor = rail.profile === 'dive' ? Math.max(2, Math.min(4, rail.hold || 3)) : 0;
+  if (holdFor && sample.crestHold && (state.phase === 'DISPATCH' || state.phase === 'COURSE') && !state.eStop && state.crestLap !== lap) {
+    state.phase = 'COURSE';
+    state.crestT = (state.crestT || 0) + step;
+    state.v = 0;
+    state.a = 0;
+    state.holding = true;
+    state.y = sample.y;
+    state.bank = sample.bank || 0;
+    state.kappa = sample.kappa || 0;
+    if (state.crestT < holdFor) return state;
+    state.crestLap = lap;
+    state.crestT = 0;
+    state.holding = false;
+    state.v = vMin;
+    state.releaseS = (state.s || 0) + 30;
+  } else if (!sample.crestHold) {
+    state.holding = false;
+  }
+  if (!rolling && state.phase !== 'BRAKE') {
+    state.v = 0;
+    state.a = 0;
+    return state;
+  }
+  if (onLift) {
+    state.leftStation = true;
+    state.a = 0;
+    state.v = climbV;
+    state.lift = true;
+    state.launchTerm = 0;
+    let s = (state.s || 0) + climbV * step;
+    if (s < state.s) s = state.s;
+    state.s = s;
+    state.y = sample.y;
+    state.bank = sample.bank || 0;
+    state.kappa = sample.kappa || 0;
+    return state;
+  }
+  let a = -G * Math.sin(sample.theta || 0);
+  state.launchTerm = 0;
+  if (onLsm && rail.profile === 'launch') {
+    a += aLaunch;
+    state.launchTerm = aLaunch;
+  }
+  const late = (state.s || 0) > L * 0.5;
+  const onBrakeSection = !!(sample.brake || (sample.blockBrake && rolling));
+  // Full aBrake only while the train is still fast. Below 4 m/s the section
+  // releases, so a block brake trims instead of pinning the only train.
+  const braking = (onBrakeSection && (state.v || 0) > 4) || (state.eStop && (state.v || 0) > 2);
+  if (braking) a += aBrake;
+  a += -dragC * state.v * Math.abs(state.v || 0);
+  let v = (state.v || 0) + a * step;
+  if (!Number.isFinite(v) || !Number.isFinite(a)) {
+    state.s = 0;
+    state.v = 0;
+    state.a = 0;
+    state.phase = 'BRAKE';
+    note(rail, id + ' NaN step, held for brakes');
+    return state;
+  }
+  if (v < 0) v = 0;
+  if (v > vMax) v = vMax;
+  if (onLsm || (sample.theta || 0) < -0.08) state.leftStation = true;
+  if (!state.leftStation && v < vMin && (sample.theta || 0) > -0.05 && !sample.brake && state.phase !== 'BRAKE' && !state.eStop) {
+    v = vMin;
+  }
+  if (state.releaseS && (state.s || 0) < state.releaseS && v < vMin && (sample.theta || 0) > -0.12 && !state.eStop) {
+    v = vMin;
+  }
+  if (state.eStop && v < vMin) v = vMin;
+  // Final brake grade rises into the station. Once speed is gone, roll the platform at vMin.
+  if (sample.brake && late && !state.eStop && v < vMin) v = vMin;
+  if (rail.profile === 'dive' && sample.inversion && v < vLoopMin && v > 0) {
+    if (!state.trimOn) {
+      state.trimAssist = (state.trimAssist || 0) + 1;
+      state.trimOn = true;
+      note(rail, id + ' trim s ' + (state.s || 0).toFixed(1) + ' v ' + v.toFixed(2) + ' -> ' + vLoopMin);
+    }
+    v = vLoopMin;
+  } else if (!sample.inversion) {
+    state.trimOn = false;
+  }
+
+  let s = (state.s || 0) + v * step;
+  if (s >= L) {
+    state.laps = (state.laps || 0) + 1;
+    if (state.phase === 'BRAKE' || state.eStop || sample.brake) {
+      s = 0;
+      v = 0;
+      state.arrived = true;
+    } else {
+      s -= L;
+    }
+  }
+  state.v = v;
+  state.s = s;
+  state.a = a;
+  state.lift = false;
+  state.y = sample.y;
+  state.bank = sample.bank || 0;
+  state.kappa = sample.kappa || 0;
+  state.brakeZone = !!(sample.brake && late) || !!state.eStop;
+  return state;
 }
