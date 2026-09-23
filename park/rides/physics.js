@@ -67,42 +67,49 @@ export function stepEnergy(state, table, dt, opts = {}) {
   const tail = Math.min(42, length * 0.16);
   const finalApproach = state.s > length - tail && state.s > length * 0.72;
   const stationWindow = Math.min(22, length * 0.1);
-  const lift = !!(sample.lift || (state.chain && sinT > 0.02)) && !state.eStop && state.phase !== 'BRAKE';
+  const onLsm = !!(sample.lsm && rollingNow && !state.eStop);
+  const lift = !onLsm && !!(sample.lift || (state.chain && sinT > 0.02)) && !state.eStop && state.phase !== 'BRAKE';
   const braking = (!!sample.brake && late) || finalApproach || state.phase === 'BRAKE' || !!state.eStop;
   const brakeZone = braking && state.s > stationWindow;
-  let accel = -G * sinT - drag * state.v * Math.abs(state.v);
-  if (lift) accel += (liftV - state.v) * 8;
-  const launchEnd = opts.launchUntil == null ? length * 0.28 : opts.launchUntil;
-  const launched = opts.launch && !state.eStop && (state.laps || 0) === 0 && state.s < launchEnd;
-  if (launched && (state.phase === 'DISPATCH' || state.phase === 'COURSE')) {
-    accel += opts.launchA == null ? 22 : opts.launchA;
-  }
-  if (sample.lsm && rollingNow && !state.eStop && state.v < (opts.lsmV || 32)) {
-    accel += opts.lsmA || 28;
-  }
   const rolling = state.phase === 'DISPATCH' || state.phase === 'COURSE';
-  if (!brakeZone && !lift && state.v < 1.8 && state.s < length * 0.14 && rolling) accel += 6;
+  const c = drag;
+  let aLift = 0;
+  let aLaunch = 0;
+  let aBrake = 0;
+  if (lift) aLift = (liftV - state.v) * 8;
+  const launchEnd = opts.launchUntil == null ? length * 0.28 : opts.launchUntil;
+  const launched = opts.launch && !state.eStop && !onLsm && (state.laps || 0) === 0 && state.s < launchEnd;
+  if (launched && rolling) aLaunch += opts.launchA == null ? 22 : opts.launchA;
+  if (onLsm && state.v < (opts.lsmV || 32)) aLaunch += opts.lsmA || 28;
+  if (!brakeZone && !lift && !onLsm && state.v < 1.8 && state.s < length * 0.14 && rolling) aLaunch += 6;
   let trim = false;
-  const uphillSlow = !lift && !brakeZone && sinT > 0.05 && state.v < Math.min(minLoop, 6) && state.s > length * 0.2 && rolling;
-  if ((sample.inversion && state.v < minLoop && rolling) || uphillSlow) {
-    accel += (Math.min(minLoop, 6) - state.v) * 4;
+  const uphillSlow = !lift && !onLsm && !brakeZone && sinT > 0.05 && state.v < Math.min(minLoop, 6) && state.s > length * 0.2 && rolling;
+  if ((sample.inversion && state.v < minLoop && rolling && !onLsm) || uphillSlow) {
+    aLaunch += (Math.min(minLoop, 6) - state.v) * 4;
     trim = true;
     if (!state.trimOn) {
       state.trimAssist = (state.trimAssist || 0) + 1;
       state.trimOn = true;
+      if (!state.trimLog) state.trimLog = [];
+      state.trimLog.push({
+        s: Math.round(state.s * 10) / 10,
+        y: Math.round(sample.y * 10) / 10,
+        v: Math.round(state.v * 100) / 100,
+      });
     }
   } else {
     state.trimOn = false;
   }
-  if (sample.blockBrake && rolling && !state.eStop && state.v > 6) accel -= 16;
+  if (sample.blockBrake && rolling && !state.eStop && state.v > 6) aBrake -= 16;
   if (brakeZone) {
     const creep = state.eStop ? 1.8 : 0.32;
-    if (state.v > creep + 0.4) accel -= Math.sign(state.v || 1) * (state.eStop ? brakeA * 1.3 : brakeA);
-    else if (state.eStop) accel += (creep - state.v) * 8 + G * Math.max(0, sinT);
+    if (state.v > creep + 0.4) aBrake -= Math.sign(state.v || 1) * (state.eStop ? brakeA * 1.3 : brakeA);
+    else if (state.eStop) aBrake += (creep - state.v) * 8 + G * Math.max(0, sinT);
   }
+  const accel = -G * sinT + aLift + aLaunch + aBrake - c * state.v * Math.abs(state.v);
   let v = state.v + accel * dt;
   if (!Number.isFinite(v)) v = 0;
-  if (lift && v < 0.5) v = 0.5;
+  if (lift && !onLsm && v < 0.5) v = 0.5;
   if (brakeZone) {
     const creep = state.eStop ? 1.8 : 0.32;
     if (v < creep) v = creep;

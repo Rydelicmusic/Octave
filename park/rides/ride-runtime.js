@@ -105,7 +105,24 @@ function syncVisuals(ride, dt) {
 }
 
 function stepPath(ride, dt) {
-  if (ride.ops && ride.table) {
+  if (ride.table) {
+    if (!ride.ops) {
+      ride.ops = {
+        id: ride.id,
+        phase: 'COURSE',
+        s: ride.s || 0,
+        v: 0,
+        a: 0,
+        eStop: false,
+        trimAssist: 0,
+        laps: ride.lap || 0,
+        chain: false,
+        clock: 0,
+        passengers: 0,
+        restraint: 'closed',
+        blockOccupied: true,
+      };
+    }
     const ops = ride.ops;
     const moving = ops.phase === 'DISPATCH' || ops.phase === 'COURSE' || ops.phase === 'BRAKE';
     if (moving) {
@@ -125,24 +142,7 @@ function stepPath(ride, dt) {
     cueAudio(ride, ops.phase);
     if (ride.layout) ride.layout(ride.s, ride);
     syncVisuals(ride, dt);
-    return;
   }
-  if (ride.hold > 0) {
-    ride.hold -= dt;
-    ride.speed = 0;
-    if (ride.layout) ride.layout(ride.s, ride);
-    return;
-  }
-  const sample = pointAt(ride.table, ride.s);
-  const speed = Math.max(1.1, sample.speed || 8);
-  ride.speed = speed;
-  ride.s += speed * dt;
-  if (ride.s >= ride.length) {
-    ride.s %= ride.length;
-    ride.hold = ride.stationHold || 2;
-    ride.lap += 1;
-  }
-  if (ride.layout) ride.layout(ride.s, ride);
 }
 
 function stepPhase(ride, dt) {

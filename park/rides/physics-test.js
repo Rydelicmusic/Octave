@@ -1,8 +1,10 @@
 /** Physics battery. Run: node --test park/rides/physics-test.js */
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arcTable } from './path-math.js';
-import { blockCoasterSamples, launchCoasterSamples, boardFamilySamples, kiddieSamples, darkSamples } from './coaster-paths.js';
+import { blockCoasterSamples, launchCoasterSamples, boardFamilySamples, kiddieSamples, darkSamples, giantBlockPack, gigaBlockPack, rimBlockPack, hoursLaunchPack, hybridBoardPack } from './coaster-paths.js';
 import {
   G, stepEnergy, stepCruise, stepDrop, stepPendulum, stepWheel, stepSwings, stepSpin, stepBumper,
   wheelInWindow, gondolaWorldUp, simulateEnergy,
@@ -22,6 +24,7 @@ function rideLap(pack, opts, seconds) {
   let nan = false;
   let vLift = null;
   let vDrop = 0;
+  let peakV = 0;
   let openCourse = false;
   let boardedCourse = false;
   const dt = 0.05;
@@ -38,10 +41,11 @@ function rideLap(pack, opts, seconds) {
     }
     advancePhase(ops, table, dt);
     if (!Number.isFinite(ops.s) || !Number.isFinite(ops.v) || !Number.isFinite(ops.a)) nan = true;
+    if (ops.v > peakV) peakV = ops.v;
     if (ops.lift) vLift = ops.v;
     if (vLift != null && !ops.lift && ops.v > vDrop) vDrop = ops.v;
   }
-  return { ops, vLift, vDrop, nan, openCourse, boardedCourse, length: table.length };
+  return { ops, vLift, vDrop, peakV, nan, openCourse, boardedCourse, length: table.length };
 }
 
 export function runPhysicsTests() {
@@ -53,6 +57,38 @@ export function runPhysicsTests() {
   };
 
   check('g', G === 9.81, String(G));
+
+  const visible = [
+    [giantBlockPack(), { drag: 0.004, liftV: 3.2, brake: 9, minLoop: 6, crestHold: 3 }, 420],
+    [gigaBlockPack(), { drag: 0.004, liftV: 3.2, brake: 9, minLoop: 6 }, 420],
+    [rimBlockPack(), { drag: 0.0011, liftV: 3.2, brake: 9, minLoop: 6 }, 420],
+    [hoursLaunchPack(), { drag: 0.0035, liftV: 3.2, brake: 9, minLoop: 6, lsmA: 36, lsmV: 34 }, 240],
+    [hybridBoardPack(), { drag: 0.004, liftV: 3.2, brake: 9, minLoop: 6 }, 280],
+  ];
+  const railNotes = [];
+  for (const [pack, opts, seconds] of visible) {
+    const lap = rideLap(pack, opts, seconds);
+    const trims = lap.ops.trimLog || [];
+    const home = lap.ops.phase === 'BOARDING' && lap.ops.s < 1.5 && !lap.nan;
+    const lifts = pack.samples.filter((p) => p.lsm).length;
+    railNotes.push({
+      id: pack.id,
+      len: lap.length,
+      home,
+      peak: lap.peakV,
+      drop: lap.vDrop,
+      lift: lap.vLift,
+      trim: lap.ops.trimAssist || 0,
+      trims,
+      lsm: lifts,
+      hold: opts.crestHold || 0,
+    });
+    check(pack.id + ' energy lap', home, 'phase ' + lap.ops.phase + ' s ' + lap.ops.s.toFixed(1) + ' trim ' + (lap.ops.trimAssist || 0));
+  }
+  const dive = railNotes[0];
+  check('block dive hold is 2-4 s', dive.hold >= 2 && dive.hold <= 4, String(dive.hold));
+  const hours = railNotes.find((r) => r.id === 'ride-hours-02');
+  check('hours two lsm windows', hours && hours.lsm > 20, 'lsm samples ' + (hours && hours.lsm));
 
   const heroPack = blockCoasterSamples(3);
   const heroTable = arcTable(heroPack.samples);
@@ -177,6 +213,39 @@ export function runPhysicsTests() {
   const spin = { phase: 'DISPATCH', omega: 0, omegaMax: 0.6, ramp: 0.5, holdTime: 0.4, radius: 6, angle: 0, lean: 0, mode: 'REST' };
   for (let t = 0; t < 2; t += 0.05) stepSpin(spin, 0.05);
   check('spin leans', spin.lean > 0 && spin.omega > 0.2, 'lean ' + spin.lean.toFixed(3));
+
+  const md = [];
+  md.push('# Physics QC');
+  md.push('');
+  md.push('Date: 2026-09-23');
+  md.push('Speed owner: stepEnergy in park/rides/physics.js');
+  md.push("v' = -g sin(theta) + a_lift + a_launch + a_brake - c v^2");
+  md.push('g = 9.81. Arc length s. A path with a table does not play sample.speed.');
+  md.push('');
+  md.push('## Visible rails');
+  md.push('');
+  for (const note of railNotes) {
+    md.push('### ' + note.id);
+    md.push('');
+    md.push('- Length ' + note.len.toFixed(0) + ' m');
+    md.push('- Lap ' + (note.home ? 'home, boarding, s under 1.5, no NaN' : 'DID NOT COME HOME'));
+    md.push('- Peak speed ' + Number(note.peak || 0).toFixed(2) + (note.lift == null ? '' : ', chain ' + Number(note.lift).toFixed(2) + ', after the drop ' + Number(note.drop || 0).toFixed(2)));
+    if (note.hold) md.push('- Crest hold ' + note.hold + ' s');
+    if (note.id === 'ride-hours-02') md.push('- LSM samples ' + note.lsm + '. No chain climb clamp on those windows.');
+    if (!note.trims.length) md.push('- Trim: none');
+    else {
+      md.push('- Trim ' + note.trim + ' (logged, train was not moved to another s):');
+      for (const hit of note.trims) md.push('  - s ' + hit.s + ' y ' + hit.y + ' v ' + hit.v);
+    }
+    md.push('');
+  }
+  md.push('## Battery');
+  md.push('');
+  for (const line of lines) md.push('- ' + line);
+  md.push('');
+  md.push(fail.length ? 'FAIL ' + fail.join(', ') : 'All checks passed.');
+  md.push('');
+  fs.writeFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'PHYSICS_QC.md'), md.join('\n'));
 
   return { ok: fail.length === 0, fail, lines };
 }
