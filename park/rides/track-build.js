@@ -60,6 +60,9 @@ export function buildTrack(THREE, parent, table, opts) {
   const beam = opts.ribbon
     ? new THREE.InstancedMesh(new THREE.BoxGeometry(1.15, 0.55, 1), mat(THREE, 0xf4efe6, 0xffe1b8, 0.75), n)
     : null;
+  const boneMat = opts.ribbon ? mat(THREE, 0xf4efe6, 0xffe1b8, 0.75) : null;
+  const bonePost = opts.ribbon ? mat(THREE, opts.support || 0xf3efe6, opts.supportEmissive || 0xffe1b0, opts.supportGlow || 0.85) : null;
+  const planted = [];
   if (beam) beam.name = (opts.name || 'track') + '-ribbon';
   const ties = new THREE.InstancedMesh(tieGeo, tieMat, n);
   const lights = new THREE.InstancedMesh(lightGeo, lightMat, n);
@@ -116,6 +119,29 @@ export function buildTrack(THREE, parent, table, opts) {
       dummy.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, fwd));
       dummy.updateMatrix();
       beam.setMatrixAt(i, dummy.matrix);
+      if (i % 2 === 0) {
+        const chunk = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.85, Math.max(span, 0.8)), boneMat);
+        chunk.position.copy(heart);
+        chunk.quaternion.copy(dummy.quaternion);
+        chunk.frustumCulled = false;
+        chunk.userData.hubKeep = true;
+        chunk.userData.dryKeep = true;
+        chunk.userData.waterKeep = true;
+        chunk.userData.tidyKeep = true;
+        chunk.name = (opts.name || 'track') + '-bone';
+        planted.push(chunk);
+        if (p.y > 3.2) {
+          const post = new THREE.Mesh(new THREE.BoxGeometry(0.85, p.y, 0.85), bonePost);
+          post.position.set(p.x, p.y / 2, p.z);
+          post.frustumCulled = false;
+          post.userData.hubKeep = true;
+          post.userData.dryKeep = true;
+          post.userData.waterKeep = true;
+          post.userData.tidyKeep = true;
+          post.name = (opts.name || 'track') + '-post';
+          planted.push(post);
+        }
+      }
     }
 
     dummy.position.copy(heart.clone().addScaledVector(up, -0.38));
@@ -168,7 +194,16 @@ export function buildTrack(THREE, parent, table, opts) {
   if (chains) chains.instanceMatrix.needsUpdate = true;
   if (dogs) dogs.instanceMatrix.needsUpdate = true;
   if (brakes) brakes.instanceMatrix.needsUpdate = true;
+  for (const mesh of [railL, railR, ties, lights, beam, supports, chains, dogs, brakes]) {
+    if (!mesh) continue;
+    mesh.frustumCulled = false;
+    mesh.userData.hubKeep = true;
+    mesh.userData.dryKeep = true;
+    mesh.userData.waterKeep = true;
+    mesh.userData.tidyKeep = true;
+  }
   parent.add(railL, railR, ties, lights);
+  if (planted.length) parent.add(...planted);
   if (beam) {
     beam.instanceMatrix.needsUpdate = true;
     parent.add(beam);

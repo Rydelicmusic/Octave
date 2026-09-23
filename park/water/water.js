@@ -63,6 +63,9 @@ export function mountWater(THREE, scene) {
   if (!THREE || !scene || scene.getObjectByName('park-water')) return null;
   const root = new THREE.Group();
   root.name = 'park-water';
+  root.userData.hubKeep = true;
+  root.userData.dryKeep = true;
+  root.userData.tidyKeep = true;
   const surfaces = [];
   for (const b of BASINS) {
     const water = new THREE.Mesh(
