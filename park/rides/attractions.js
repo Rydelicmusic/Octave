@@ -542,8 +542,12 @@ export function mountAttractions(THREE, scene) {
   const rest = rows.filter((row) => row.ride.id !== 'ride-board-family' && row.ride.id !== 'ride-board-drop');
   for (const row of first.concat(rest)) {
     try { addAttraction(THREE, scene, row.ride, row.type); }
-    catch (err) { console.warn('attraction', row.ride && row.ride.id, err); }
+    catch (err) {
+      if (typeof window !== 'undefined') window.__rideErr = (window.__rideErr || '') + (row.ride && row.ride.id) + ' ' + String(err && err.message || err) + ' | ';
+      console.warn('attraction', row.ride && row.ride.id, err);
+    }
   }
+  if (typeof window !== 'undefined') window.__familyNow = !!scene.getObjectByName('ride-board-family-world');
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
   try { mountGround(THREE, scene); } catch (err) { console.warn('ground', err); }
