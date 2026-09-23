@@ -1,5 +1,4 @@
 /** Claim the nine queue rides before trees so canopy skips those lots. */
-import './haunt-boot.js';
 import { claimRide as claimBoard01 } from './ride-board-01.js';
 import { claimRide as claimBlock01 } from './ride-block-01.js';
 import { claimRide as claimHours01 } from './ride-hours-01.js';
@@ -9,6 +8,7 @@ import { claimRide as claimBlock02 } from './ride-block-02.js';
 import { claimRide as claimHours02 } from './ride-hours-02.js';
 import { claimRide as claimPocket02 } from './ride-pocket-02.js';
 import { claimRide as claimGateSigns } from './ride-gate-signs.js';
+import '../park-kit.js';
 
 export function claimAllRides() {
   const fns = [
