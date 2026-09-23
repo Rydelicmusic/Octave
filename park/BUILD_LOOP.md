@@ -340,3 +340,22 @@ The Gate was a night lawn and a mirrored sign. The coaster data was real and inv
 218/220 TIGHTEN_WALK.md.
 219/220 pass 16, fail 0, skip 0. Leftovers named in TIGHTEN_STATUS.md.
 220/220 Drive 2026-09-23-BINGE8-tighten. Commit binge 8 cycle 220/220 tighten — one rideable loop.
+
+### QC-FINAL — pivot gate — 2026-09-23 00:51 CDT
+No new ride. No new land. The tab was already populated. Evidence is park/PIVOT.md and park/QC_FINAL.md.
+
+221/235 Fresh profile. Canvas 1280×633. Sign readable. Train s moved 0 to 1.7. Zero exceptions. Status and PIVOT written from that tab.
+222/235 qc-final.js. 241 import edges resolve.
+223/235 Ride motion is still one tickMotion. Haunt latch still holds. Cameras switched in the tab.
+224/235 HUD does not say 1.2 m pads. Sign text faces the Gate. No copy patch.
+225/235 Allow-list water, hub and spine dry, old lakes gated. Nothing deleted.
+226/235 Hero path already closed. Seam 0. Not a new coaster.
+227/235 Board succeeded in the battery. COURSE refused. Esc cleared the ride. No NaN.
+228/235 E-stop stays on the boarded ride. No freeze to isolate.
+229/235 West view still shows rail above the grass. No mesh reverted.
+230/235 Score stub makes no request. No 404. No new door surface.
+231/235 Full table. First run failed the hotel row because LAYOUT bans a hotel. The check now looks for a hotel mesh. Retest pass 12, fail 0, stub 2.
+232/235 No FAIL left that blocks populate, cameras, or the footprint.
+233/235 QC_FINAL_WALK.md.
+234/235 Re-run matches the table. Leftovers stay in PIVOT.md.
+235/235 Drive 2026-09-23-QC-FINAL-pivot. Commit QC-FINAL 235/235 pivot gate. PIVOT READY = YES.
