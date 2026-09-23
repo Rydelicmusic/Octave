@@ -3,9 +3,8 @@ import { pushSpan, dist3, lerpSample } from './path-math.js';
 
 const DIVE_BOX = { x0: -200, x1: -75, z0: 12.5, z1: 225 };
 const GIGA_BOX = { x0: -200, x1: -75, z0: -200, z1: 12.5 };
-const RIM_BOX = { x0: -200, x1: -175, z0: -200, z1: 225 };
+const RIM_BOX = { x0: -280, x1: -200, z0: -200, z1: 220 };
 const EAST_OF_RIM = -174.6;
-const RIM_EAST = -183.2;
 
 function densify(pts, maxStep) {
   if (pts.length < 2) return pts;
@@ -39,6 +38,14 @@ function clampBox(p, box, xFloor, xCeil) {
 
 function clampPath(pts, box, xFloor, xCeil) {
   return pts.map((p) => clampBox(p, box, xFloor, xCeil));
+}
+
+function clampRim(pts) {
+  return pts.map((p) => ({
+    ...p,
+    x: Math.min(RIM_BOX.x1 - 0.5, Math.max(RIM_BOX.x0 + 0.5, p.x)),
+    z: Math.min(RIM_BOX.z1 - 0.5, Math.max(RIM_BOX.z0 + 0.5, p.z)),
+  }));
 }
 
 /** Rydelic Dive. Center (-137.5, 112.5). Heartline stays east of the Rim strip. */
@@ -93,32 +100,38 @@ export function gigaCellSamples() {
   return clampPath(densify(pts, 2.2), GIGA_BOX, EAST_OF_RIM);
 }
 
-/** Rim Flight. West strip only. Center (-187.5, 12.5). Heartline stays 8 m west of Dive and Giga. */
+/** Rim Flight. West-edge body. Never east of x=-200. */
 export function rimCellSamples() {
   const pts = [];
-  const x = -187.5;
-  const station = { x, y: 3.2, z: 12.5 };
-  const south = { x, y: 3.4, z: 140 };
-  const lift = { x, y: 28, z: 144 };
-  const drop = { x: -192, y: 4, z: 110 };
-  const midS = { x: -192, y: 8, z: 80 };
-  const mid = { x: -186, y: 6, z: 40 };
-  const midN = { x: -192, y: 10, z: -80 };
-  const north = { x, y: 4, z: -150 };
-  const turn = { x, y: 7, z: -158 };
-  const home = { x, y: 3.4, z: -40 };
-  const brakeIn = { x, y: 3.3, z: -8 };
-  pushSpan(pts, station, south, 16, (t) => 3.2 + t * 0.2, () => 0, { speed: () => 8 });
-  pushSpan(pts, south, lift, 14, (t) => 3.4 + t * 24.6, () => 0, { speed: () => 7, lift: true });
-  pushSpan(pts, lift, drop, 12, (t) => 28 - t * 24, () => -0.12, { speed: () => 22 });
-  pushSpan(pts, drop, midS, 12, (t) => 4 + Math.sin(t * Math.PI) * 6, () => 0.1, { speed: () => 16 });
-  pushSpan(pts, midS, mid, 10, (t) => 8 - t * 2, () => 0, { speed: () => 15 });
-  pushSpan(pts, mid, midN, 12, (t) => 6 + Math.sin(t * Math.PI) * 8, () => -0.08, { speed: () => 16 });
-  pushSpan(pts, midN, north, 12, (t) => 10 - t * 6, () => 0, { speed: () => 15 });
-  pushSpan(pts, north, turn, 8, (t) => 4 + t * 3, () => 0.2, { speed: () => 12 });
-  pushSpan(pts, turn, home, 14, (t) => 7 - t * 3.6, () => 0, { speed: () => 14 });
-  pushSpan(pts, home, brakeIn, 8, () => 3.4, () => 0, { speed: () => 8, brake: true });
-  pushSpan(pts, brakeIn, station, 12, () => 3.3, () => 0, { speed: (t) => 6 - t * 3, brake: true });
-  pts.push({ x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false, lsm: false });
-  return clampPath(densify(pts, 1.8), RIM_BOX, null, RIM_EAST);
+  const station = { x: -240, y: 3.2, z: 20 };
+  const stationEnd = { x: -255, y: 3.5, z: 70 };
+  const liftFoot = { x: -262, y: 4.2, z: 110 };
+  const crest = { x: -268, y: 62, z: 155 };
+  const lip = { x: -270, y: 58, z: 175 };
+  const valley = { x: -258, y: 4.0, z: 195 };
+  const sweepS = { x: -220, y: 8.0, z: 160 };
+  const sweepM = { x: -210, y: 12, z: 40 };
+  const sweepN = { x: -218, y: 9.0, z: -80 };
+  const farN = { x: -250, y: 6.0, z: -175 };
+  const turn = { x: -268, y: 7.2, z: -188 };
+  const back = { x: -260, y: 5.0, z: -90 };
+  const brakeIn = { x: -248, y: 3.4, z: -10 };
+  pushSpan(pts, station, stationEnd, 16, (t) => 3.2 + t * 0.3, () => 0, { speed: () => 5 });
+  pushSpan(pts, stationEnd, liftFoot, 10, (t) => 3.5 + t * 0.7, () => 0, { speed: () => 6 });
+  pushSpan(pts, liftFoot, crest, 22, (t) => 4.2 + t * 57.8, () => 0, { speed: () => 7, lift: true });
+  pushSpan(pts, crest, lip, 8, (t) => 62 - t * 4, () => 0.15, { speed: () => 8, crestHold: true });
+  pushSpan(pts, lip, valley, 14, (t) => 58 - t * 54, () => -0.2, { speed: () => 24 });
+  pushSpan(pts, valley, sweepS, 14, (t) => 4 + Math.sin(t * Math.PI) * 10, (t) => Math.sin(t * Math.PI) * 0.25, { speed: () => 18 });
+  pushSpan(pts, sweepS, sweepM, 16, (t) => 8 + Math.sin(t * Math.PI) * 8, () => 0.08, { speed: () => 16 });
+  pushSpan(pts, sweepM, sweepN, 16, (t) => 12 - Math.sin(t * Math.PI) * 4, () => -0.1, { speed: () => 16 });
+  pushSpan(pts, sweepN, farN, 14, (t) => 9 - t * 3, () => 0.12, { speed: () => 15 });
+  pushSpan(pts, farN, turn, 8, (t) => 6 + t * 1.2, () => 0.35, { speed: () => 12 });
+  pushSpan(pts, turn, back, 14, (t) => 7.2 - t * 2.2, () => 0.1, { speed: () => 14 });
+  pushSpan(pts, back, brakeIn, 12, (t) => 5.0 - t * 1.6, () => 0, { speed: () => 10, brake: true });
+  pushSpan(pts, brakeIn, station, 14, () => 3.4, () => 0, { speed: (t) => 7 - t * 4, brake: true });
+  pts.push({
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3,
+    lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false, lsm: false,
+  });
+  return clampRim(densify(pts, 1.8));
 }

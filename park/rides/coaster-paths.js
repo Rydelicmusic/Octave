@@ -6,7 +6,7 @@ import { diveCellSamples, gigaCellSamples, rimCellSamples } from './block-cells.
 export const RIDE_ANCHORS = {
   'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -137.5, z: 112.5, w: 6, d: 4, h: 3.15, name: 'Rydelic Dive', type: 'coaster', cars: 3 },
   'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -137.5, z: -87.5, w: 12, d: 8, h: 4.9, name: 'Block Giga', type: 'giga', cars: 4 },
-  'ride-block-rim': { id: 'ride-block-rim', land: 'The Block', x: -187.5, z: 12.5, w: 10, d: 6, h: 4.2, name: 'Rim Flight', type: 'rim', cars: 6 },
+  'ride-block-rim': { id: 'ride-block-rim', land: 'The Block', x: -240, z: 20, w: 12, d: 6, h: 4.2, name: 'Rim Flight', type: 'rim', cars: 6 },
   'ride-board-01': { id: 'ride-board-01', land: 'The Board', x: 160, z: 14, w: 6, d: 4, h: 3.15, name: 'Board Wheel', type: 'wheel', cars: 16 },
   'ride-board-02': { id: 'ride-board-02', land: 'The Board', x: 187.5, z: 14, w: 12, d: 8, h: 4.9, name: 'Board Swings', type: 'swings', cars: 12 },
   'ride-hours-01': { id: 'ride-hours-01', land: 'After Hours', x: -36, z: -175, w: 6, d: 4, h: 3.15, name: 'Hours Dark', type: 'dark', cars: 1 },
