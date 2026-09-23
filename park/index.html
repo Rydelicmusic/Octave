@@ -2028,9 +2028,9 @@ function tick(){
     const stepX=(fx*-mz+rx*mx)*spd*dt,stepZ=(fz*-mz+rz*mx)*spd*dt;
     walkVelX=stepX;walkVelZ=stepZ;
     const nx=pos.x+stepX,nz=pos.z+stepZ;
-    if (inStadium(nx,nz)) { pos.x=nx; pos.z=nz; }
+    if (inStadium(nx,nz) && !(window.__blockWalk && window.__blockWalk(nx,nz))) { pos.x=nx; pos.z=nz; }
   }
-  pos.y=EYE;avatar.position.set(pos.x,0,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
+  const grade=window.__groundY?window.__groundY(pos.x,pos.z):0;pos.y=EYE+grade;avatar.position.set(pos.x,grade,pos.z);avatar.rotation.y=yaw;avatar.visible=mode!=='walk';
   if(mode==='walk'){camera.position.copy(pos);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;}
   else if(mode==='third'){camera.position.set(pos.x+Math.sin(yaw)*5.2,pos.y+2.1+pitch*-1.2,pos.z+Math.cos(yaw)*5.2);camera.lookAt(pos.x,pos.y-0.1,pos.z);}
   else{camera.position.copy(drone);camera.rotation.order='YXZ';camera.rotation.y=droneYaw;camera.rotation.x=dronePitch;}

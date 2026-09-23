@@ -239,3 +239,27 @@ No new land. No water. No hotel. Rides run while the park is open. The player is
 133/135 A moving ride keeps its lamps at least 0.62, and the night clock can push them higher. Riders stay visible.
 134/135 From above, the occupied train is the lit chain plus the shirt-colored riders on the cars. The wheel gondolas keep turning.
 135/135 Drive 2026-09-23-BINGE5-alive. Commit binge 5 cycle 135/135 park is operating.
+
+### Binge 6 — terrain, designed water, ground NPCs — 2026-09-23 00:40 CDT
+The old concentric lakes stay behind __PARK_DRY. This binge adds grade and four shaped basins. Rails were not moved.
+
+136/155 sampleHeight. Hub is 0. Spine crown stays under 0.06 m. No trench.
+137/155 Eight berms: Block terrace, Hours pocket and neon berm, Board deck, Pocket family berm. Retaining edges on the downhill face.
+138/155 Grade paths sit on the height field between waypoints in the same land. Segments that jump lands are skipped.
+139/155 Walk eye is EYE plus sampleHeight. Spine and hub stay at the old grade, so the street does not become a canyon.
+140/155 Coaster posts use supportSpan. They start at the berm and stop under the rail. Hero clearance stayed at least 1.64 m.
+141/155 Board lagoon at (238, 72), one ellipse, stone coping, dark floor. Off the spine, inside The Board.
+142/155 One fountain at the Block plaza (-118, 62). One disk, one jet. Not rings.
+143/155 Hours canal is a 5.5 by 1.1 m channel at the dark-ride anchor. Not a lake.
+144/155 One Pocket pool at (52, 158). Single shape. No second ring.
+145/155 blocksWalk rejects those ellipses. The walk step will not enter them.
+146/155 56 instanced guests. Cap 56, inside 40–80. One material.
+147/155 14 legal waypoints. Walk steps that would hit a rail, the spine, or water are refused.
+148/155 Roles: guest, queue, watch, attendant, op. Watch and attendants hold. Guests walk their land.
+149/155 Load-gate attendants from the ride rigs stay. A slice of the ground NPCs are marked attendant.
+150/155 Train, gondola, swing, drop, and bumper riders from binge 5 are still parented to the vehicles.
+151/155 terrain-test and npc-test. Spine, water, pocket pool, rail clearance, and motion.
+152/155 Four NPCs were clipping a rail while crossing a waypoint gap. Steps that fail pointLegal now retarget. bad 0.
+153/155 NPCs are one InstancedMesh. Water is four planes with a shared ripple, not unique materials per vertex.
+154/155 Basin floors are dark. Coping reads as stone. Night lamps on moving rides stay at least 0.62. Berms are solid masses in Walk.
+155/155 Drive 2026-09-23-BINGE6-terrain-water-npc. Commit binge 6 cycle 155/155 depth water npcs.

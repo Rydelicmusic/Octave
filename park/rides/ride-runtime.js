@@ -5,6 +5,7 @@ import { canBoard, tryBoard, advancePhase } from './ride-ops.js';
 import { clickLift, whoosh, dispatchBell, hissBrakes } from './ride-audio.js';
 import { stepParkLogic } from '../logic/ride-logic.js';
 import { stepAlive } from '../alive/auto-ops.js';
+import { stepNpcs } from '../npc/npc.js';
 
 const rides = new Map();
 let lastMs = 0;
@@ -247,6 +248,7 @@ export function stepRides(dt) {
   }
   stepParkLogic(step, rides.values());
   stepAlive(step, rides.values());
+  stepNpcs(step);
 }
 
 export function tickMotion(now, dt) {

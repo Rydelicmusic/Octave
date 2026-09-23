@@ -11,6 +11,9 @@ import { mountParkOps } from './park-ops.js';
 import { applyRideCam, mountRideHud, boardRide, exitRide, currentRide, closeRestraint, requestDispatch, emergencyStop } from './ride-cam.js';
 import { playRideBed, playLandBed, faceCue } from './ride-audio.js';
 import { tagRide, resetParkLogic } from '../logic/ride-logic.js';
+import { mountGround } from '../terrain/ground.js';
+import { mountWater } from '../water/water.js';
+import { mountNpcs, layoutNpcMesh } from '../npc/npc.js';
 import { agentList, AGENT_CAP } from '../logic/agents.js';
 import { dayPart, getClock } from '../logic/clock.js';
 import { paintBoard } from './ride-cam.js';
@@ -461,6 +464,9 @@ export function mountAttractions(THREE, scene) {
   for (const row of attractionRows()) addAttraction(THREE, scene, row.ride, row.type);
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
+  try { mountGround(THREE, scene); } catch (err) { console.warn('ground', err); }
+  try { mountWater(THREE, scene); } catch (err) { console.warn('water', err); }
+  try { mountNpcs(THREE, scene); } catch (err) { console.warn('npcs', err); }
   showHud();
   return root;
 }
@@ -486,6 +492,8 @@ function publishRideHooks() {
     try {
       tickMotion(performance.now());
       layoutGuests();
+      layoutNpcMesh();
+      if (typeof window !== 'undefined' && window.__tickWater) window.__tickWater(performance.now() / 1000);
       const hero = getRide('ride-block-01');
       if (hero && hero.lead && hero.lead.p) {
         window.__blockS = { s: hero.s, y: hero.lead.p.y, hold: hero.hold, lap: hero.lap };
@@ -518,7 +526,7 @@ export function hookRideStack(THREE) {
       hooked = true;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
-    try { tickMotion(performance.now()); layoutGuests(); } catch (err) { console.warn('tickMotion', err); }
+    try { tickMotion(performance.now()); layoutGuests(); layoutNpcMesh(); if (window.__tickWater) window.__tickWater(performance.now() / 1000); } catch (err) { console.warn('tickMotion', err); }
     try {
       paintBoard();
       const riding = applyRideCam(camera);

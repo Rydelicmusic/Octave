@@ -1,5 +1,6 @@
 /** Rails, ties, supports, trim lights, tunnels, brakes. Heartline samples are world-space. */
 import { frameFromTangent, pointAt } from './path-math.js';
+import { sampleHeight, supportSpan } from '../terrain/height.js';
 import { seatRiders } from '../alive/bots.js';
 
 function mat(THREE, color, emissive, intensity) {
@@ -118,9 +119,9 @@ export function buildTrack(THREE, parent, table, opts) {
     lights.setMatrixAt(i, dummy.matrix);
 
     if (supports && p.y > 2.4) {
-      const foot = p.y - 0.4;
-      dummy.position.set(p.x, foot / 2, p.z);
-      dummy.scale.set(0.62, Math.max(0.4, foot), 0.62);
+      const span = supportSpan(p.y, sampleHeight(p.x, p.z));
+      dummy.position.set(p.x, span.foot + span.height / 2, p.z);
+      dummy.scale.set(0.62, span.height, 0.62);
       dummy.quaternion.identity();
       dummy.updateMatrix();
       supports.setMatrixAt(si++, dummy.matrix);
