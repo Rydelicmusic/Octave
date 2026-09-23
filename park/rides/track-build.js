@@ -137,8 +137,9 @@ export function buildTrack(THREE, parent, table, opts) {
         chunk.name = (opts.name || 'track') + '-bone';
         planted.push(chunk);
         if (p.y > 3.2) {
-          const post = new THREE.Mesh(new THREE.BoxGeometry(postWide, p.y, postWide), bonePost);
-          post.position.set(p.x, p.y / 2, p.z);
+          const span = supportSpan(p.y, sampleHeight(p.x, p.z));
+          const post = new THREE.Mesh(new THREE.BoxGeometry(postWide, Math.max(0.8, span.height), postWide), bonePost);
+          post.position.set(p.x, span.foot + span.height / 2, p.z);
           post.frustumCulled = false;
           post.userData.hubKeep = true;
           post.userData.dryKeep = true;
