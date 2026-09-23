@@ -14,5 +14,6 @@ Heartline stays east of x = 119, off the spine. Closest approach to the wheel, s
 Train: 2 short cars, two seats across. Lead name ride-board-family-car.
 Rail is silver. Posts are brown and reach the ground.
 A full energy run came home: one lap, phase boarding, speed 0, no NaN.
+The live ride list shows Board Hybrid. On a normal load the scene still had the wheel and the swings, and it did not keep ride-board-family-world, so the drone frame did not show the twisted steel.
 
-Commit: filled in after the push.
+Commit: 4cda8e1241199c1ccd0c020564eba69b2e7eba5e
