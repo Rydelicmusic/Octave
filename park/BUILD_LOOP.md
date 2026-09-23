@@ -34,3 +34,10 @@ Checked: four pumpkins and four bat orbits pass hauntClear (occupiesSpine, hub r
 Pass: night clear, moon orbit, pumpkin bob and flicker, bat orbit. Land materials untouched.
 Fail: ride vehicles still static; land beds absent.
 Next: park/rides/attractions.js motion on the eight claimed pads, one wire.
+
+## Cycle 4 — 2026-09-22
+File: park/rides/attractions.js. Wire: one import in park/rides/seed-rides.js.
+Checked: eight existing ids kept. Exit photos pass rideClear and sit in their land canopy, outside the mass pad. Types: Block launch/coaster, Hours dark, Board wheel/swings, Pocket spin/kiddie. Motion registry self-starts. claimRide/markRide untouched. No new spine or hub lot. No water.
+Pass: queue already in the kit; load posts, moving vehicle, unload posts, exit frame on each pad.
+Fail: land beds absent.
+Next: park/land-beds.js emissive trim and music-bed stub, one wire.

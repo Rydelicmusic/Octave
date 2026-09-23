@@ -1,361 +1,224 @@
-/** Animated theme-park machines. Pads / ids stay locked. No Math.random x/z. */
-export const MOTION = [];
-export function motion(fn) {
-  MOTION.push(fn);
-}
-export function tickMotion(t, dt) {
-  for (let i = 0; i < MOTION.length; i++) MOTION[i](t, dt);
+/** Ride motion on claimed pads. Same ids. No new lots on the spine or hub. */
+import { LAND_PALETTE, occupiesSpine, nearRing, LOCK, inStadium, inCanopy } from '../lock.js';
+import { claim, whyBlocked, lots } from '../occupy.js';
+import { RIDE as board01 } from './ride-board-01.js';
+import { RIDE as board02 } from './ride-board-02.js';
+import { RIDE as block01 } from './ride-block-01.js';
+import { RIDE as block02 } from './ride-block-02.js';
+import { RIDE as hours01 } from './ride-hours-01.js';
+import { RIDE as hours02 } from './ride-hours-02.js';
+import { RIDE as pocket01 } from './ride-pocket-01.js';
+import { RIDE as pocket02 } from './ride-pocket-02.js';
+
+const PAD = 1.2;
+
+export const ATTRACTIONS = [
+  { ride: block01, type: 'launch' },
+  { ride: block02, type: 'coaster' },
+  { ride: hours01, type: 'dark' },
+  { ride: hours02, type: 'dark' },
+  { ride: board01, type: 'wheel' },
+  { ride: board02, type: 'swings' },
+  { ride: pocket01, type: 'spin' },
+  { ride: pocket02, type: 'kiddie' },
+];
+
+const motions = [];
+
+export function rideClear(x, z, radius = 0) {
+  if (!inStadium(x, z)) return false;
+  if (occupiesSpine(x, z, radius)) return false;
+  if (Math.hypot(x, z) < LOCK.hubOuter + radius) return false;
+  if (nearRing(x, z, 8)) return false;
+  return true;
 }
 
-const IRON = 0x1c1612;
-const IRON2 = 0x2a2118;
-const BONE = 0xe4d6c0;
-const PUMP = 0xd35412;
-const PUMP2 = 0x7a2e08;
-const GOLD = 0xc9a227;
-const BLOOD = 0x4a1020;
-const GLOW = 0xff7a18;
-const TEAL = 0x1a4a4a;
-const CREAM = 0xf2e6c8;
+export function exitWorld(ride) {
+  const yaw = ride.yaw || 0;
+  const side = ride.w / 2 + 3.2;
+  return {
+    x: ride.x + Math.cos(yaw) * side,
+    z: ride.z - Math.sin(yaw) * side,
+  };
+}
 
-function mat(THREE, color, emissive, intensity) {
+function mat(THREE, color, emissive) {
   return new THREE.MeshLambertMaterial({
     color,
     emissive: emissive || 0x000000,
-    emissiveIntensity: intensity || 0,
+    emissiveIntensity: emissive ? 0.4 : 0,
   });
 }
 
-function box(THREE, w, h, d, color, em, ei) {
-  return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(THREE, color, em, ei));
+function posts(THREE, parent, z, color) {
+  const m = mat(THREE, color);
+  for (const x of [-0.7, 0.7]) {
+    const p = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.3, 0.12), m);
+    p.position.set(x, PAD + 0.65, z);
+    parent.add(p);
+  }
 }
 
-function cyl(THREE, rTop, rBot, h, segs, color, em, ei) {
-  return new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, segs || 12), mat(THREE, color, em, ei));
-}
-
-function queueRails(THREE, g, p) {
-  const qL = p.queueL || 4;
-  const qW = p.queueW || 2.2;
-  const d = p.d || 4;
-  const rail = mat(THREE, GOLD, GLOW, 0.12);
-  const h = 1.05;
-  [-qW / 2, qW / 2].forEach((x) => {
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, qL), rail);
-    bar.position.set(x, 0.92, d / 2 + qL / 2);
-    g.add(bar);
-    const n = Math.max(2, Math.round(qL / 1.1) + 1);
-    for (let i = 0; i < n; i++) {
-      const post = new THREE.Mesh(new THREE.BoxGeometry(0.1, h, 0.1), rail);
-      post.position.set(x, h / 2, d / 2 + (i / (n - 1)) * qL);
-      g.add(post);
-    }
-  });
-}
-
-function lantern(THREE, g, x, y, z) {
-  const post = cyl(THREE, 0.06, 0.08, 2.2, 8, IRON);
-  post.position.set(x, 1.1, z);
-  const lamp = box(THREE, 0.28, 0.36, 0.28, PUMP, GLOW, 0.85);
-  lamp.position.set(x, 2.28, z);
-  g.add(post, lamp);
-  motion((t) => {
-    const k = 0.55 + 0.45 * Math.abs(Math.sin(t * 6 + x * 0.2 + z * 0.13));
-    lamp.material.emissiveIntensity = k;
-  });
-}
-
-function pumpkin(THREE, g, x, z, s) {
-  const body = cyl(THREE, 0.42 * s, 0.38 * s, 0.5 * s, 10, PUMP, GLOW, 0.35);
-  body.position.set(x, 0.28 * s, z);
-  const stem = cyl(THREE, 0.05 * s, 0.07 * s, 0.18 * s, 6, 0x3d5a20);
-  stem.position.set(x, 0.58 * s, z);
-  const eyeL = box(THREE, 0.08 * s, 0.08 * s, 0.06 * s, 0x120800, 0xffee88, 0.9);
-  eyeL.position.set(x - 0.12 * s, 0.34 * s, z + 0.36 * s);
-  const eyeR = eyeL.clone();
-  eyeR.position.x = x + 0.12 * s;
-  const mouth = box(THREE, 0.2 * s, 0.06 * s, 0.05 * s, 0x120800, 0xffee88, 0.7);
-  mouth.position.set(x, 0.2 * s, z + 0.36 * s);
-  g.add(body, stem, eyeL, eyeR, mouth);
-}
-
-export function addAttraction(THREE, scene, p, type) {
+function car(THREE, color) {
   const g = new THREE.Group();
-  g.name = p.id;
-  queueRails(THREE, g, p);
-  pumpkin(THREE, g, -(p.w || 6) * 0.42, (p.d || 4) * 0.55, 0.9);
-  pumpkin(THREE, g, (p.w || 6) * 0.42, (p.d || 4) * 0.55, 0.75);
-  lantern(THREE, g, -(p.w || 6) * 0.55, 0, -0.4);
-  lantern(THREE, g, (p.w || 6) * 0.55, 0, -0.4);
-
-  if (type === 'teacups') buildTeacups(THREE, g, p);
-  else if (type === 'carousel') buildCarousel(THREE, g, p);
-  else if (type === 'drop') buildDrop(THREE, g, p);
-  else if (type === 'ship') buildShip(THREE, g, p);
-  else if (type === 'crypt') buildCrypt(THREE, g, p);
-  else if (type === 'hall') buildHall(THREE, g, p);
-  else if (type === 'bumpers') buildBumpers(THREE, g, p);
-  else if (type === 'wheel') buildWheel(THREE, g, p);
-  else buildTeacups(THREE, g, p);
-
-  g.position.set(p.x, 0, p.z);
-  g.rotation.y = p.yaw || 0;
-  scene.add(g);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.55, 1.5), mat(THREE, color, color));
+  body.position.y = 0.45;
+  const nose = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.28, 0.35), mat(THREE, 0xf4efe6));
+  nose.position.set(0, 0.55, 0.7);
+  g.add(body, nose);
   return g;
 }
 
-function buildTeacups(THREE, root, p) {
-  const plate = cyl(THREE, 2.35, 2.35, 0.18, 24, IRON2, GLOW, 0.08);
-  plate.position.y = 0.22;
-  root.add(plate);
-  const hub = cyl(THREE, 0.28, 0.35, 1.1, 10, GOLD, GLOW, 0.4);
-  hub.position.y = 0.8;
-  root.add(hub);
-  const spin = new THREE.Group();
-  spin.position.y = 0.4;
-  root.add(spin);
-  const colors = [PUMP, BLOOD, TEAL, GOLD, CREAM];
-  for (let i = 0; i < 5; i++) {
-    const a = (i / 5) * Math.PI * 2;
-    const cup = new THREE.Group();
-    const body = cyl(THREE, 0.42, 0.28, 0.42, 12, colors[i], colors[i], 0.18);
-    const rim = cyl(THREE, 0.46, 0.46, 0.06, 12, BONE);
-    rim.position.y = 0.22;
-    const seat = box(THREE, 0.22, 0.08, 0.22, IRON);
-    seat.position.y = 0.02;
-    cup.add(body, rim, seat);
-    cup.position.set(Math.cos(a) * 1.55, 0, Math.sin(a) * 1.55);
-    spin.add(cup);
-    motion((t) => {
-      cup.rotation.y = t * 1.8 + i;
-    });
-  }
-  motion((t) => {
-    spin.rotation.y = t * 0.55;
-  });
+function exitPhoto(THREE, parent, ride) {
+  const at = exitWorld(ride);
+  if (!rideClear(at.x, at.z, 0.6) || !inCanopy(at.x, at.z, ride.land)) return null;
+  const lot = {
+    id: ride.id + '-exit', kind: 'prop', layer: 'prop',
+    x: at.x, z: at.z, w: 1.0, d: 0.4, h: 2.2, pad: 0.3,
+  };
+  if (lots().some((c) => c.id === lot.id)) return null;
+  if (whyBlocked(lot).length || !claim(lot)) return null;
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.6, 0.12), mat(THREE, 0x2a241c));
+  frame.position.set(ride.w / 2 + 3.2, PAD + 1.1, 0);
+  frame.name = lot.id;
+  const back = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.06), mat(THREE, 0xc9b48a, 0xc9b48a));
+  back.position.set(ride.w / 2 + 3.2, PAD + 1.2, 0.08);
+  parent.add(frame, back);
+  return frame;
 }
 
-function buildCarousel(THREE, root) {
-  const floor = cyl(THREE, 4.4, 4.4, 0.22, 28, IRON2);
-  floor.position.y = 0.14;
-  root.add(floor);
-  const pole = cyl(THREE, 0.22, 0.28, 5.2, 12, GOLD, GLOW, 0.35);
-  pole.position.y = 2.7;
-  root.add(pole);
-  const canopy = cyl(THREE, 0.3, 4.6, 0.55, 20, BLOOD, PUMP, 0.25);
-  canopy.position.y = 5.15;
-  root.add(canopy);
-  const cap = cyl(THREE, 0.05, 1.1, 0.7, 12, GOLD, GLOW, 0.5);
-  cap.position.y = 5.6;
-  root.add(cap);
-  const spin = new THREE.Group();
-  root.add(spin);
-  for (let i = 0; i < 10; i++) {
-    const a = (i / 10) * Math.PI * 2;
-    const mount = new THREE.Group();
-    const horse = box(THREE, 0.28, 0.55, 0.85, i % 2 ? BONE : CREAM);
-    horse.position.y = 1.15;
-    const head = box(THREE, 0.18, 0.22, 0.28, i % 2 ? BONE : CREAM);
-    head.position.set(0, 1.48, 0.42);
-    const poleH = cyl(THREE, 0.04, 0.04, 4.4, 6, GOLD);
-    poleH.position.y = 2.3;
-    mount.add(horse, head, poleH);
-    mount.position.set(Math.cos(a) * 3.15, 0, Math.sin(a) * 3.15);
-    mount.rotation.y = -a + Math.PI / 2;
-    spin.add(mount);
-    motion((t) => {
-      mount.position.y = 0.18 * Math.sin(t * 2.4 + i);
-    });
-  }
-  motion((t) => {
-    spin.rotation.y = t * 0.42;
-    canopy.rotation.y = t * 0.42;
-  });
-}
+export function addAttraction(THREE, parent, ride, type) {
+  const pal = LAND_PALETTE[ride.land] || LAND_PALETTE.Gate;
+  const g = new THREE.Group();
+  g.name = ride.id + '-attraction';
+  g.position.set(ride.x, 0, ride.z);
+  g.rotation.y = ride.yaw || 0;
+  const front = ride.d / 2 + 0.85;
+  posts(THREE, g, ride.d / 2 + 0.15, pal.trim);
+  posts(THREE, g, -ride.d / 2 + 0.2, pal.marquee);
+  exitPhoto(THREE, g, ride);
 
-function buildDrop(THREE, root) {
-  const base = box(THREE, 2.4, 0.4, 2.4, IRON);
-  base.position.y = 0.2;
-  root.add(base);
-  const mast = box(THREE, 0.38, 16.5, 0.38, IRON2, GLOW, 0.12);
-  mast.position.y = 8.4;
-  root.add(mast);
-  const cap = box(THREE, 1.1, 0.35, 1.1, GOLD, GLOW, 0.55);
-  cap.position.y = 16.8;
-  root.add(cap);
-  const cabin = new THREE.Group();
-  const body = box(THREE, 1.7, 1.5, 1.7, BLOOD, PUMP, 0.2);
-  const rail = box(THREE, 1.85, 0.12, 1.85, GOLD);
-  rail.position.y = 0.7;
-  cabin.add(body, rail);
-  cabin.position.y = 2.2;
-  root.add(cabin);
-  motion((t) => {
-    const cycle = (t % 8) / 8;
-    let u;
-    if (cycle < 0.45) u = cycle / 0.45;
-    else if (cycle < 0.55) u = 1;
-    else u = Math.max(0, 1 - (cycle - 0.55) / 0.12);
-    cabin.position.y = 2.1 + u * 13.4;
-  });
-}
-
-function buildShip(THREE, root) {
-  const posts = [-2.6, 2.6];
-  posts.forEach((x) => {
-    const p = box(THREE, 0.28, 6.2, 0.28, IRON);
-    p.position.set(x, 3.1, 0);
-    root.add(p);
-  });
-  const axle = box(THREE, 5.6, 0.18, 0.18, GOLD, GLOW, 0.3);
-  axle.position.y = 4.4;
-  root.add(axle);
-  const boom = new THREE.Group();
-  boom.position.y = 4.4;
-  const hull = box(THREE, 5.4, 1.15, 1.7, 0x5a2a12, PUMP, 0.08);
-  hull.position.y = -2.35;
-  const bow = box(THREE, 0.7, 0.7, 1.1, PUMP2);
-  bow.position.set(2.9, -2.15, 0);
-  const stern = box(THREE, 0.55, 1.6, 0.18, IRON);
-  stern.position.set(-2.7, -1.6, 0);
-  const mast = box(THREE, 0.12, 2.4, 0.12, IRON2);
-  mast.position.set(0, -0.7, 0);
-  boom.add(hull, bow, stern, mast);
-  root.add(boom);
-  motion((t) => {
-    boom.rotation.z = Math.sin(t * 0.85) * 0.72;
-  });
-}
-
-function buildCrypt(THREE, root, p) {
-  const w = p.w || 6;
-  const d = p.d || 4;
-  const body = box(THREE, w, 3.4, d, 0x2a1a22, BLOOD, 0.12);
-  body.position.y = 1.85;
-  const roof = box(THREE, w + 0.5, 0.35, d + 0.5, IRON, GLOW, 0.2);
-  roof.position.y = 3.7;
-  const peak = box(THREE, w * 0.4, 0.7, 0.35, GOLD, GLOW, 0.45);
-  peak.position.set(0, 4.2, d / 2 + 0.1);
-  const door = box(THREE, 1.3, 2.1, 0.12, IRON, GLOW, 0.25);
-  door.position.set(0, 1.15, d / 2 + 0.08);
-  root.add(body, roof, peak, door);
-  for (let i = -1; i <= 1; i++) {
-    const win = box(THREE, 0.55, 0.8, 0.08, 0x140808, GLOW, 0.7);
-    win.position.set(i * 1.55, 2.35, d / 2 + 0.08);
-    root.add(win);
-    motion((t) => {
-      win.material.emissiveIntensity = 0.35 + 0.55 * Math.abs(Math.sin(t * 5 + i));
-    });
-  }
-  const arm = new THREE.Group();
-  const blade = box(THREE, 0.12, 1.8, 0.12, IRON2);
-  blade.position.y = -0.9;
-  arm.add(blade);
-  arm.position.set(w * 0.45, 3.3, d / 2 + 0.2);
-  root.add(arm);
-  motion((t) => {
-    arm.rotation.z = Math.sin(t * 1.3) * 0.5;
-    door.position.x = Math.sin(t * 0.4) * 0.08;
-  });
-}
-
-function buildHall(THREE, root, p) {
-  const w = p.w || 12;
-  const d = p.d || 8;
-  const body = box(THREE, w, 5.2, d, 0x24141c, BLOOD, 0.1);
-  body.position.y = 2.75;
-  const roof = box(THREE, w + 0.8, 0.45, d + 0.8, IRON, PUMP, 0.18);
-  roof.position.y = 5.5;
-  const tower = box(THREE, 2.2, 3.4, 2.2, 0x1a1014, GLOW, 0.15);
-  tower.position.set(-w * 0.28, 7.0, -d * 0.1);
-  const spire = cyl(THREE, 0.05, 0.7, 1.6, 8, GOLD, GLOW, 0.5);
-  spire.position.set(-w * 0.28, 9.2, -d * 0.1);
-  root.add(body, roof, tower, spire);
-  const L = box(THREE, 0.7, 2.6, 0.1, IRON2);
-  const R = box(THREE, 0.7, 2.6, 0.1, IRON2);
-  L.position.set(-0.72, 1.4, d / 2 + 0.08);
-  R.position.set(0.72, 1.4, d / 2 + 0.08);
-  root.add(L, R);
-  motion((t) => {
-    const a = (0.55 + 0.45 * Math.sin(t * 0.7)) * 1.15;
-    L.rotation.y = a;
-    R.rotation.y = -a;
-  });
-  for (let i = 0; i < 4; i++) {
-    const win = box(THREE, 0.7, 1.15, 0.08, 0x3a1008, GLOW, 0.8);
-    win.position.set(-w * 0.32 + i * 2.1, 3.4, d / 2 + 0.06);
-    root.add(win);
-    motion((t) => {
-      win.material.emissiveIntensity = 0.4 + 0.6 * Math.abs(Math.sin(t * 3.1 + i * 0.9));
-    });
-  }
-}
-
-function buildBumpers(THREE, root) {
-  const floor = cyl(THREE, 2.6, 2.6, 0.16, 24, 0x2a2420);
-  floor.position.y = 0.12;
-  root.add(floor);
-  const wall = new THREE.Mesh(
-    new THREE.TorusGeometry(2.55, 0.16, 8, 28),
-    mat(THREE, GOLD, GLOW, 0.2),
-  );
-  wall.rotation.x = Math.PI / 2;
-  wall.position.y = 0.38;
-  root.add(wall);
-  const cars = [];
-  const cols = [PUMP, TEAL, BLOOD, CREAM];
-  for (let i = 0; i < 4; i++) {
-    const car = box(THREE, 0.7, 0.32, 0.95, cols[i], cols[i], 0.2);
-    root.add(car);
-    cars.push(car);
-  }
-  motion((t) => {
-    for (let i = 0; i < cars.length; i++) {
-      const a = t * 0.7 + i * (Math.PI / 2);
-      const r = 1.35 + 0.25 * Math.sin(t * 1.4 + i);
-      cars[i].position.set(Math.cos(a) * r, 0.38, Math.sin(a) * r);
-      cars[i].rotation.y = -a + Math.PI / 2;
+  if (type === 'wheel') {
+    const radius = Math.min(3.2, ride.w * 0.42);
+    const wheel = new THREE.Group();
+    wheel.position.set(0, PAD + ride.h + radius, 0);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.12, 8, 20), mat(THREE, pal.marquee, pal.marquee));
+    wheel.add(rim);
+    for (let i = 0; i < 6; i++) {
+      const cab = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.4, 0.45), mat(THREE, pal.body));
+      const a = (i / 6) * Math.PI * 2;
+      cab.position.set(Math.cos(a) * radius, Math.sin(a) * radius, 0);
+      wheel.add(cab);
     }
-  });
+    g.add(wheel);
+    motions.push((t) => { wheel.rotation.z = t * 0.0004; });
+  } else if (type === 'swings') {
+    const arm = new THREE.Group();
+    const radius = Math.min(3.4, ride.w * 0.32);
+    arm.position.y = PAD + ride.h + 1.8;
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.3, 8), mat(THREE, pal.trim));
+    arm.add(hub);
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const chain = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.4, 0.05), mat(THREE, pal.trim));
+      chain.position.set(Math.cos(a) * radius, -0.7, Math.sin(a) * radius);
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 0.4), mat(THREE, pal.marquee, pal.marquee));
+      seat.position.set(Math.cos(a) * radius, -1.45, Math.sin(a) * radius);
+      arm.add(chain, seat);
+    }
+    g.add(arm);
+    motions.push((t) => { arm.rotation.y = t * 0.0007; });
+  } else if (type === 'dark') {
+    const ring = new THREE.Group();
+    ring.position.y = PAD + 1.6;
+    const r = Math.max(ride.w, ride.d) * 0.55;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.12), mat(THREE, pal.window, pal.marquee));
+      panel.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      panel.rotation.y = -a - Math.PI / 2;
+      ring.add(panel);
+    }
+    const cabin = car(THREE, pal.body);
+    cabin.position.set(0, PAD + 0.15, front);
+    g.add(ring, cabin);
+    motions.push((t) => {
+      ring.rotation.y = t * 0.00035;
+      cabin.position.z = front + Math.sin(t * 0.0012) * 0.7;
+    });
+  } else if (type === 'spin' || type === 'kiddie') {
+    const radius = type === 'kiddie' ? 0.9 : 1.35;
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.22, 16), mat(THREE, pal.marquee, pal.marquee));
+    disc.position.set(0, PAD + 0.2, front);
+    const rider = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.4, 0.35), mat(THREE, pal.body));
+    rider.position.y = 0.3;
+    disc.add(rider);
+    g.add(disc);
+    const speed = type === 'kiddie' ? 0.0022 : 0.0011;
+    motions.push((t) => { disc.rotation.y = t * speed; });
+  } else {
+    const cabin = car(THREE, type === 'coaster' ? pal.marquee : pal.body);
+    if (type === 'coaster') {
+      const y = PAD + ride.h + 0.4;
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, ride.d), mat(THREE, pal.trim));
+      rail.position.set(0, y, 0);
+      cabin.position.set(0, y, 0);
+      g.add(rail, cabin);
+      motions.push((t) => {
+        cabin.position.z = Math.sin(t * 0.0016) * (ride.d * 0.35);
+      });
+    } else {
+      cabin.position.set(0, PAD + 0.15, front);
+      g.add(cabin);
+      motions.push((t) => {
+        cabin.position.z = front + Math.sin(t * 0.002) * 0.8;
+      });
+    }
+  }
+
+  parent.add(g);
+  return g;
 }
 
-function buildWheel(THREE, root) {
-  const aFrameL = box(THREE, 0.28, 7.2, 0.28, IRON);
-  const aFrameR = aFrameL.clone();
-  aFrameL.position.set(-1.1, 3.6, 0);
-  aFrameR.position.set(1.1, 3.6, 0);
-  aFrameL.rotation.z = 0.18;
-  aFrameR.rotation.z = -0.18;
-  root.add(aFrameL, aFrameR);
-  const axle = box(THREE, 2.6, 0.22, 0.22, GOLD, GLOW, 0.4);
-  axle.position.y = 6.4;
-  root.add(axle);
-  const wheel = new THREE.Group();
-  wheel.position.y = 6.4;
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(4.6, 0.1, 8, 36), mat(THREE, GOLD, GLOW, 0.28));
-  wheel.add(rim);
-  const rim2 = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.07, 8, 28), mat(THREE, IRON2));
-  wheel.add(rim2);
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
-    const spoke = box(THREE, 0.07, 9.2, 0.07, IRON2);
-    spoke.rotation.z = a;
-    wheel.add(spoke);
-    const gond = new THREE.Group();
-    const cab = box(THREE, 0.7, 0.55, 0.7, i % 2 ? PUMP : BLOOD, GLOW, 0.22);
-    cab.position.y = -0.2;
-    gond.add(cab);
-    gond.position.set(Math.cos(a) * 4.6, Math.sin(a) * 4.6, 0);
-    gond.userData.a0 = a;
-    wheel.add(gond);
-    motion((t) => {
-      const ang = gond.userData.a0 + wheel.rotation.z;
-      gond.rotation.z = -wheel.rotation.z;
-      gond.position.set(Math.cos(ang) * 4.6, Math.sin(ang) * 4.6, 0);
-    });
-  }
-  root.add(wheel);
-  motion((t, dt) => {
-    wheel.rotation.z += dt * 0.28;
-  });
+let looping = false;
+
+function loop(t) {
+  for (const fn of motions) fn(t);
+  requestAnimationFrame(loop);
 }
+
+export function mountAttractions(THREE, scene) {
+  if (!scene || scene.getObjectByName('park-attractions')) return null;
+  const root = new THREE.Group();
+  root.name = 'park-attractions';
+  for (const row of ATTRACTIONS) addAttraction(THREE, root, row.ride, row.type);
+  scene.add(root);
+  if (!looping && motions.length && typeof requestAnimationFrame === 'function') {
+    looping = true;
+    requestAnimationFrame(loop);
+  }
+  return root;
+}
+
+let armed = false;
+
+export function armAttractions() {
+  if (armed || typeof document === 'undefined') return;
+  armed = true;
+  import('three').then((THREE) => {
+    const proto = THREE.WebGLRenderer && THREE.WebGLRenderer.prototype;
+    if (!proto || proto.__rydelicAttractions) return;
+    const orig = proto.render;
+    proto.__rydelicAttractions = true;
+    let done = false;
+    proto.render = function renderAttractions(scene, camera) {
+      if (!done && scene && scene.isScene) {
+        done = true;
+        try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
+      }
+      return orig.call(this, scene, camera);
+    };
+  }).catch(() => {});
+}
+
+armAttractions();
