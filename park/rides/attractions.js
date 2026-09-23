@@ -542,12 +542,8 @@ export function mountAttractions(THREE, scene) {
   const rest = rows.filter((row) => row.ride.id !== 'ride-board-family' && row.ride.id !== 'ride-board-drop');
   for (const row of first.concat(rest)) {
     try { addAttraction(THREE, scene, row.ride, row.type); }
-    catch (err) {
-      if (typeof window !== 'undefined') window.__rideErr = (window.__rideErr || '') + (row.ride && row.ride.id) + ' ' + String(err && err.message || err) + ' | ';
-      console.warn('attraction', row.ride && row.ride.id, err);
-    }
+    catch (err) { console.warn('attraction', row.ride && row.ride.id, err); }
   }
-  if (typeof window !== 'undefined') window.__familyNow = !!scene.getObjectByName('ride-board-family-world');
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
   try { mountGround(THREE, scene); } catch (err) { console.warn('ground', err); }
@@ -609,9 +605,10 @@ function publishRideHooks() {
 export function hookRideStack(THREE) {
   if (THREE) liveTHREE = THREE;
   publishRideHooks();
-  if (!THREE || !THREE.WebGLRenderer || THREE.WebGLRenderer.prototype.__rydelicRideStack) return;
+  if (!THREE || !THREE.WebGLRenderer) return;
   const proto = THREE.WebGLRenderer.prototype;
-  const orig = proto.render;
+  if (!proto.__rydelicRideOrig) proto.__rydelicRideOrig = proto.render;
+  const orig = proto.__rydelicRideOrig;
   proto.__rydelicRideStack = true;
   if (typeof window !== 'undefined') window.__parkRideHook = true;
   let mountTries = 0;
@@ -620,18 +617,12 @@ export function hookRideStack(THREE) {
   proto.render = function renderRideStack(scene, camera) {
     if (!hooked && scene && scene.isScene && mountTries < 4) {
       mountTries += 1;
-      try { mountAttractions(THREE, scene); } catch (err) {
-        if (typeof window !== 'undefined') window.__attrErr = String(err && err.stack || err).slice(0, 400);
-        console.warn('attractions', err);
-      }
+      try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
       hooked = !!scene.getObjectByName('ride-block-01-bone') || mountTries >= 4;
     }
     if (scene && scene.isScene && hybridTries < 4 && !scene.getObjectByName('ride-board-family-world')) {
       hybridTries += 1;
-      try { mountAttractions(THREE, scene); } catch (err) {
-        if (typeof window !== 'undefined') window.__attrErr = String(err && err.stack || err).slice(0, 400);
-        console.warn('attractions', err);
-      }
+      try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
     if (scene && scene.isScene && splashTries < 8 && !scene.getObjectByName('water-surface-block-dive-splash')) {
       splashTries += 1;
