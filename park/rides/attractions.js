@@ -537,24 +537,12 @@ export function mountAttractions(THREE, scene) {
     root.name = 'park-attractions';
     scene.add(root);
   }
-  if (typeof window !== 'undefined') {
-    window.__mountIds = attractionRows().map((row) => row.ride.id);
-    window.__mountN = (window.__mountN || 0) + 1;
-  }
-  for (const row of attractionRows()) {
+  const rows = attractionRows();
+  const first = rows.filter((row) => row.ride.id === 'ride-board-family' || row.ride.id === 'ride-board-drop');
+  const rest = rows.filter((row) => row.ride.id !== 'ride-board-family' && row.ride.id !== 'ride-board-drop');
+  for (const row of first.concat(rest)) {
     try { addAttraction(THREE, scene, row.ride, row.type); }
-    catch (err) {
-      if (typeof window !== 'undefined') window.__mountErr = (row.ride && row.ride.id) + ' ' + String(err && err.message || err);
-      console.warn('attraction', row.ride && row.ride.id, err);
-    }
-  }
-  try {
-    if (!scene.getObjectByName('ride-board-family-world')) {
-      addAttraction(THREE, scene, RIDE_ANCHORS['ride-board-family'], 'hybrid');
-    }
-  } catch (err) {
-    if (typeof window !== 'undefined') window.__hybErr = String(err && err.stack || err).slice(0, 500);
-    console.warn('hybrid', err);
+    catch (err) { console.warn('attraction', row.ride && row.ride.id, err); }
   }
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
@@ -633,7 +621,6 @@ export function hookRideStack(THREE) {
     }
     if (scene && scene.isScene && hybridTries < 4 && !scene.getObjectByName('ride-board-family-world')) {
       hybridTries += 1;
-      if (typeof window !== 'undefined') window.__hybridTries = hybridTries;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
     if (scene && scene.isScene && splashTries < 8 && !scene.getObjectByName('water-surface-block-dive-splash')) {
