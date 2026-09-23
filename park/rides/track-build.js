@@ -47,7 +47,9 @@ export function buildTrack(THREE, parent, table, opts) {
   const supportGeo = new THREE.BoxGeometry(1, 1, 1);
   const lightGeo = new THREE.SphereGeometry(0.09, 6, 5);
   const chainGeo = new THREE.BoxGeometry(0.08, 0.08, 0.35);
-  const brakeGeo = new THREE.BoxGeometry(0.12, 0.55, 0.7);
+  const dogGeo = new THREE.BoxGeometry(0.16, 0.22, 0.12);
+  const brakeGeo = new THREE.BoxGeometry(0.22, 0.28, 0.55);
+  const dogMat = mat(THREE, 0xd7c4a4, 0xc9b48a, 0.15);
 
   const railL = new THREE.InstancedMesh(railGeo, railMat, n);
   const railR = new THREE.InstancedMesh(railGeo, railMat, n);
@@ -63,13 +65,18 @@ export function buildTrack(THREE, parent, table, opts) {
   }
   const supports = supportCount ? new THREE.InstancedMesh(supportGeo, supportMat, supportCount) : null;
   const chains = chainCount ? new THREE.InstancedMesh(chainGeo, chainMat, chainCount) : null;
+  const dogs = chainCount ? new THREE.InstancedMesh(dogGeo, dogMat, chainCount) : null;
   const brakes = brakeCount ? new THREE.InstancedMesh(brakeGeo, brakeMat, brakeCount) : null;
+  if (chains) chains.name = (opts.name || 'track') + '-chain';
+  if (dogs) dogs.name = (opts.name || 'track') + '-dogs';
+  if (brakes) brakes.name = (opts.name || 'track') + '-brakes';
   railL.name = (opts.name || 'track') + '-rail-l';
   railR.name = (opts.name || 'track') + '-rail-r';
 
   const dummy = new THREE.Object3D();
   let si = 0;
   let ci = 0;
+  let di = 0;
   let bi = 0;
   let prevRight = null;
   for (let i = 0; i < n; i++) {
@@ -123,6 +130,12 @@ export function buildTrack(THREE, parent, table, opts) {
       dummy.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, fwd));
       dummy.updateMatrix();
       chains.setMatrixAt(ci++, dummy.matrix);
+      if (dogs) {
+        dummy.position.copy(heart.clone().addScaledVector(up, -0.02).addScaledVector(right, 0.22));
+        dummy.scale.set(1, 1, 1);
+        dummy.updateMatrix();
+        dogs.setMatrixAt(di++, dummy.matrix);
+      }
     }
     if (brakes && p.brake) {
       dummy.position.copy(heart.clone().addScaledVector(up, -0.15).addScaledVector(right, gauge * 0.4));
@@ -138,10 +151,12 @@ export function buildTrack(THREE, parent, table, opts) {
   lights.instanceMatrix.needsUpdate = true;
   if (supports) supports.instanceMatrix.needsUpdate = true;
   if (chains) chains.instanceMatrix.needsUpdate = true;
+  if (dogs) dogs.instanceMatrix.needsUpdate = true;
   if (brakes) brakes.instanceMatrix.needsUpdate = true;
   parent.add(railL, railR, ties, lights);
   if (supports) parent.add(supports);
   if (chains) parent.add(chains);
+  if (dogs) parent.add(dogs);
   if (brakes) parent.add(brakes);
 
   let tunnel = 0;
@@ -181,7 +196,7 @@ export function buildTrack(THREE, parent, table, opts) {
     light.position.set(p.x, p.y + 0.4, p.z);
     parent.add(light);
   }
-  return { poseAt: (s) => poseAt(table, s) };
+  return { poseAt: (s) => poseAt(table, s), chains, brakes, dogs, chainMat, brakeMat };
 }
 
 export function buildTrain(THREE, parent, count, colors) {
@@ -221,18 +236,33 @@ export function buildTrain(THREE, parent, count, colors) {
   return cars;
 }
 
-export function placeCars(THREE, cars, table, s, gap) {
+let carBasis = null;
+let carRight = null;
+let carUp = null;
+let carFwd = null;
+
+export function placeCars(THREE, cars, table, s, gap, restraintClosed) {
+  if (!carBasis) {
+    carBasis = new THREE.Matrix4();
+    carRight = new THREE.Vector3();
+    carUp = new THREE.Vector3();
+    carFwd = new THREE.Vector3();
+  }
+  let lead = null;
   for (let i = 0; i < cars.length; i++) {
     const pose = poseAt(table, s - i * gap);
+    if (i === 0) lead = pose;
     const car = cars[i];
     car.position.set(pose.p.x, pose.p.y, pose.p.z);
-    car.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(
-      new THREE.Vector3(pose.right.x, pose.right.y, pose.right.z),
-      new THREE.Vector3(pose.up.x, pose.up.y, pose.up.z),
-      new THREE.Vector3(pose.forward.x, pose.forward.y, pose.forward.z),
-    ));
+    carRight.set(pose.right.x, pose.right.y, pose.right.z);
+    carUp.set(pose.up.x, pose.up.y, pose.up.z);
+    carFwd.set(pose.forward.x, pose.forward.y, pose.forward.z);
+    car.quaternion.setFromRotationMatrix(carBasis.makeBasis(carRight, carUp, carFwd));
     const bar = car.getObjectByName('restraint');
-    if (bar) bar.position.y = 0.22 + Math.sin((s + i) * 0.4) * 0.04;
+    if (bar) {
+      bar.rotation.x = restraintClosed ? -1.05 : 0.15;
+      bar.position.y = restraintClosed ? 0.16 : 0.32;
+    }
   }
-  return poseAt(table, s);
+  return lead || poseAt(table, s);
 }

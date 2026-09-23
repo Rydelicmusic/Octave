@@ -16,6 +16,7 @@ export function lerpSample(a, b, t) {
     lift: t < 0.5 ? a.lift : b.lift,
     brake: t < 0.5 ? a.brake : b.brake,
     tunnel: t < 0.5 ? a.tunnel : b.tunnel,
+    inversion: t < 0.5 ? !!a.inversion : !!b.inversion,
     speed: (a.speed || 8) + ((b.speed || 8) - (a.speed || 8)) * t,
   };
 }
@@ -32,10 +33,22 @@ export function arcTable(samples) {
   return { samples, seg, length, n };
 }
 
-/** s and s+length are the same point. Wrap is modulo, so the seam is zero. */
-export function pointAt(table, s) {
+/** Write the sample at arc length s into out. No allocation on the hot path. */
+export function pointInto(table, s, out) {
+  const target = out || { x: 0, y: 0, z: 0 };
   const n = table.n;
-  if (!n) return { x: 0, y: 0, z: 0, bank: 0, speed: 0 };
+  if (!n) {
+    target.x = 0;
+    target.y = 0;
+    target.z = 0;
+    target.bank = 0;
+    target.speed = 0;
+    target.lift = false;
+    target.brake = false;
+    target.tunnel = false;
+    target.inversion = false;
+    return target;
+  }
   let u = s % table.length;
   if (u < 0) u += table.length;
   let acc = 0;
@@ -44,11 +57,28 @@ export function pointAt(table, s) {
     if (acc + d >= u || i === n - 1) {
       const t = d > 1e-8 ? (u - acc) / d : 0;
       const clamped = Math.max(0, Math.min(1, t));
-      return lerpSample(table.samples[i], table.samples[(i + 1) % n], clamped);
+      const a = table.samples[i];
+      const b = table.samples[(i + 1) % n];
+      target.x = a.x + (b.x - a.x) * clamped;
+      target.y = a.y + (b.y - a.y) * clamped;
+      target.z = a.z + (b.z - a.z) * clamped;
+      target.bank = (a.bank || 0) + ((b.bank || 0) - (a.bank || 0)) * clamped;
+      const pick = clamped < 0.5 ? a : b;
+      target.lift = !!pick.lift;
+      target.brake = !!pick.brake;
+      target.tunnel = !!pick.tunnel;
+      target.inversion = !!pick.inversion;
+      target.speed = (a.speed || 8) + ((b.speed || 8) - (a.speed || 8)) * clamped;
+      return target;
     }
     acc += d;
   }
-  return table.samples[0];
+  return pointInto(table, 0, target);
+}
+
+/** s and s+length are the same point. Wrap is modulo, so the seam is zero. */
+export function pointAt(table, s) {
+  return pointInto(table, s, {});
 }
 
 function sub(a, b) {

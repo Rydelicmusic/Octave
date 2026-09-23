@@ -131,15 +131,22 @@ export function buildDrop(THREE, parent, spec) {
   bar.position.set(0, 0.35, 0.55);
   cab.add(shell, seat, bar);
   cab.position.y = 2.2;
+  const magnet = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.28, 2.9), lambert(THREE, 0x8aa4b8, 0x9ad7ff, 0.55));
+  magnet.position.y = 6.2;
+  magnet.name = spec.id + '-magnet';
   const platform = new THREE.Mesh(new THREE.BoxGeometry(6, 0.3, 6), lambert(THREE, 0xc4b49a));
   platform.position.y = 0.15;
-  g.add(mast, cap, cab, platform);
+  g.add(mast, cap, cab, magnet, platform);
   parent.add(g);
   return { root: g, cab, height, phase: 0 };
 }
 
 export function layoutDrop(state, phase) {
   state.phase = phase;
+  if (state.physY != null) {
+    state.cab.position.y = state.physY;
+    return;
+  }
   const climb = phase < 0.55 ? phase / 0.55 : phase < 0.7 ? 1 : Math.max(0, 1 - (phase - 0.7) / 0.12);
   const bounce = phase > 0.82 ? Math.sin((phase - 0.82) * 40) * 0.15 * (1 - phase) : 0;
   state.cab.position.y = 2.2 + climb * (state.height - 4.2) + bounce;
@@ -175,7 +182,14 @@ export function buildSpin(THREE, parent, spec) {
   return { root: g, cars, radius, phase: 0 };
 }
 
-export function layoutSpin(state, angle) {
+export function layoutSpin(state, angle, lean) {
   state.phase = angle;
   state.root.rotation.y = angle;
+  const tilt = lean || 0;
+  for (const car of state.cars) {
+    const a = car.userData.ang || 0;
+    const r = car.userData.orbitR;
+    if (r != null) car.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+    car.rotation.z = Math.sin(a + angle) * Math.min(0.35, tilt * 0.15);
+  }
 }

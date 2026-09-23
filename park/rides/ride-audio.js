@@ -42,6 +42,20 @@ export function clickLift(id) {
   return { id, click: true };
 }
 
+/** Drop whoosh. Pitch follows speed. No sample file. */
+export function whoosh(id, speed) {
+  const audio = context();
+  if (!audio || !osc || !gain) return { id, whoosh: false };
+  const hz = 42 + Math.min(90, Math.abs(speed || 0) * 3);
+  osc.type = 'sawtooth';
+  osc.frequency.value = hz;
+  const now = audio.currentTime;
+  gain.gain.cancelScheduledValues(now);
+  gain.gain.setValueAtTime(0.02, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+  return { id, whoosh: true, hz };
+}
+
 export function stopRideBed() {
   current = null;
   if (gain) gain.gain.value = 0;

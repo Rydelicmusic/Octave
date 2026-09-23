@@ -138,3 +138,32 @@ Second closed coaster: ride-board-family on The Board. Sequential board only (on
 49/50 Walk audit: open the park in Walk. Gate is (0, +230), spawn looks north down the 14 m spine. Turn left into The Block or press Block Coaster. The train holds 2 s, climbs the lit lift, drops, takes the loop, corkscrew, helix, and second loop, then brakes into the station. Esc returns to Walk. Press Board Wheel and the view sits in a gondola. Ride again only works when the train is back in the station.
 50/50 Drive 2026-09-23-BINGE2-ops. Commit binge 2/2 cycle 50/50 park ops. No hotel. No water. No third binge.
 Shipped both binges. Live park must still load.
+
+### Binge 3 — physics and function — 2026-09-23 00:34 CDT
+The hero was already a closed coaster, so cycle 51 started on that path. No new land. No water. No hotel. Same ride ids.
+
+51/75 park/rides/physics.js and ride-ops.js. Hero train steps s and v from the integrator. Prescribed sample.speed remains only in dryRunRide so the old lap test still times the speed table.
+52/75 Block coaster energy: chain lift about 2.5 m/s, gravity on the drop to about 23.6 m/s, drag, brakes, station snap inside 1.5 m. The chain stays on until the slope goes downhill, so the crest does not stall.
+53/75 IDLE/BOARDING/DISPATCH/COURSE/BRAKE/UNLOAD. Board only in BOARDING. Dispatch refused while the restraint is open.
+54/75 Launch physics on ride-block-02 (Block Launch), not the hero. Hold, tangent accel spike, then the same energy model. Peak clamped at 38 m/s. Lap returns to s = 0.
+55/75 Loop and helix floor. If speed would die on an inversion or a later uphill, trim assist adds force and increments trimAssist. Hero logged 2. No teleport.
+56/75 blockOccupied on the hero. A second dispatch returns false. One train. Sequential board only.
+57/75 Wheel ω is constant on COURSE, zero in the station. Gondola local rotation stays 0 so world up stays +Y. Board only the gondola inside the bottom 20° while ω is 0.
+58/75 Swings ramp, hold, ramp down. Kick is ω²r/g. Board only at ω = 0.
+59/75 Board Drop: hoist, hang, freefall under g, magnetic catch, reset. Fall rate about 21 m/s versus hoist 2.4 m/s. Pendulum θ'' = -(g/L)sinθ - drag is tested. It is not a new ride.
+60/75 Dark rides cruise. Two waypoint holds (v = 0 for 0.6 s). Show panels still light from arc fraction. Board only in the station.
+61/75 Pocket spin ramps and leans. Bumper cars bounce inside the ring, not against the spine. Kiddie uses the energy model and returns to load.
+62/75 HUD row: phase, v, wait minutes, restraint, block. Buttons: board, Close restraint, Dispatch, E-stop, exit.
+63/75 Load-gate mesh on each station. Open (y 2.35) in BOARDING, IDLE, UNLOAD. Closed (y 1.15) on the course.
+64/75 Lift chain and anti-rollback dogs brighten and jog only while the chain is driving. Brake calipers glow in BRAKE.
+65/75 Ride camera looks along the tangent, blends camera.up from the physics bank, and shakes with |a|. The look height stays near the rail.
+66/75 park/rides/physics-test.js. runPhysicsTests() is the hook.
+67/75 node --test physics-test.js ride-test.js: 13 pass, 0 fail. No new ride type.
+68/75 ride-board-family uses the same integrator. Lift about 3.3 m/s, drop about 15.9 m/s, back to s = 0.
+69/75 Lift click spacing follows chain speed. Drop whoosh pitch follows |v| when acceleration is strongly downhill.
+70/75 Restraint close arms a 3 s auto dispatch if the guest is aboard and the block is clear. Unload dwell is 1.4 s, then BOARDING.
+71/75 Integrator samples through pointInto into two reused vectors. placeCars reuses one basis matrix per frame.
+72/75 Esc on COURSE, DISPATCH, or BRAKE calls e-stop. The train is towed forward to the station and unloads there. A stop at s = 181 m returned to s = 0 after the brake run. It does not jump off a loop.
+73/75 Drop catch has a magnet box at 6.2 m. Brake meshes are calipers. Lift dogs refuse a negative step: s does not decrease while the chain is on.
+74/75 Walk script: spawn at the Gate (0, +230) looking north. Turn left into The Block or press Block Coaster. That boards only while the phase is BOARDING. Press Close restraint. Press Dispatch (or wait 3 s). The train climbs the lit chain, drops, runs the loop, corkscrew, helix, and second loop, then brakes to s = 0 and opens the restraint. Esc mid-lap e-stops and finishes at the station. Press Board Wheel only while a gondola is parked at the bottom.
+75/75 Drive folder 2026-09-23-BINGE3-physics. Commit binge 3/3 cycle 75/75 physics layer. Live park must still load.
