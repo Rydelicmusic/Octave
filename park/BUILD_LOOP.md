@@ -263,3 +263,22 @@ The old concentric lakes stay behind __PARK_DRY. This binge adds grade and four 
 153/155 NPCs are one InstancedMesh. Water is four planes with a shared ripple, not unique materials per vertex.
 154/155 Basin floors are dark. Coping reads as stone. Night lamps on moving rides stay at least 0.62. Berms are solid masses in Walk.
 155/155 Drive 2026-09-23-BINGE6-terrain-water-npc. Commit binge 6 cycle 155/155 depth water npcs.
+
+### QC2 — terrain, water, NPCs, function — 2026-09-23 00:41 CDT
+No new land. No new lake. No hotel. No sample was moved. Evidence is park/QC2_LOG.md.
+
+156/170 Boot: 58 files, named imports match. Walk, 3rd, and Drone are still in index. The scene constructor and the ride hook are still there. The previous live page was not blank.
+157/170 qc2-terrain.js. Land spread 1.27 m. Spine worst 0.060 m. Hub is 0.
+158/170 No terrain FAIL. Berms, posts, and the rail clearance were left as Binge 6 built them.
+159/170 qc2-water.js. Four basins, each named on the allow list. Pocket pools: 1. Hub and spine hits: 0.
+160/170 No illegal water to delete. Old LOCK.waters stays behind __PARK_DRY.
+161/170 qc2-npc.js. 56 guests, cap 56. After 10 s, 45 are guests in plazas. Rail, spine, and water hits: 0.
+162/170 No NPC FAIL. Nobody was despawned.
+163/170 qc2-rides.js. Hero seam 0. Dry lap maxY 37.7. After 10 s open, s is 13.06 and the wheel ω is 0.28.
+164/170 No ride FAIL from the grade. Clearance stays 1.64 m. Cars were not re-snapped.
+165/170 Alive-ops is present. The hero still leaves the station with the bot pool cap at 72. Train seatRiders is still in track-build.js.
+166/170 qc2-run.js 30 s soak. 17 ms. No NaN.
+167/170 Soak is already cheap. NPC count was not cut. Water planes were not cut. The coaster was not touched.
+168/170 park/QC2_WALK.md. Gate, spine, berms, Board water edge, Block train with riders, board, plaza guests.
+169/170 Re-run: pass 32, fail 0, skip 0. Every row is an assertion. Nothing was skipped because the features exist.
+170/170 Drive 2026-09-23-BINGE-QC2. Commit QC2 170/170 terrain water npc function.
