@@ -291,6 +291,7 @@ function buildSpinRide(THREE, scene, ride) {
 
 export function addAttraction(THREE, scene, ride, type) {
   if (!THREE || !scene || !ride) return null;
+  publishRideHooks();
   hookRideStack(THREE);
   showHud();
   const kind = resolveType(ride, type);
@@ -330,7 +331,24 @@ function showHud() {
   mountRideHud(attractionRows().map((row) => ({ id: row.ride.id, name: row.ride.name })));
 }
 
+function publishRideHooks() {
+  if (typeof window === 'undefined') return;
+  window.__tickRides = () => {
+    try { tickMotion(performance.now()); } catch (err) { console.warn('tickMotion', err); }
+  };
+  window.__applyRideCam = (camera) => {
+    try {
+      const riding = applyRideCam(camera);
+      const ride = riding ? getRide(currentRide()) : null;
+      if (ride) playRideBed(ride.id, ride.speed || 0);
+      else stopRideBed();
+      window.__parkRideDrew = !!riding;
+    } catch (err) { console.warn('ride-cam', err); }
+  };
+}
+
 export function hookRideStack(THREE) {
+  publishRideHooks();
   if (!THREE || !THREE.WebGLRenderer || THREE.WebGLRenderer.prototype.__rydelicRideStack) return;
   const proto = THREE.WebGLRenderer.prototype;
   const orig = proto.render;
