@@ -620,12 +620,18 @@ export function hookRideStack(THREE) {
   proto.render = function renderRideStack(scene, camera) {
     if (!hooked && scene && scene.isScene && mountTries < 4) {
       mountTries += 1;
-      try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
+      try { mountAttractions(THREE, scene); } catch (err) {
+        if (typeof window !== 'undefined') window.__attrErr = String(err && err.stack || err).slice(0, 400);
+        console.warn('attractions', err);
+      }
       hooked = !!scene.getObjectByName('ride-block-01-bone') || mountTries >= 4;
     }
     if (scene && scene.isScene && hybridTries < 4 && !scene.getObjectByName('ride-board-family-world')) {
       hybridTries += 1;
-      try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
+      try { mountAttractions(THREE, scene); } catch (err) {
+        if (typeof window !== 'undefined') window.__attrErr = String(err && err.stack || err).slice(0, 400);
+        console.warn('attractions', err);
+      }
     }
     if (scene && scene.isScene && splashTries < 8 && !scene.getObjectByName('water-surface-block-dive-splash')) {
       splashTries += 1;
