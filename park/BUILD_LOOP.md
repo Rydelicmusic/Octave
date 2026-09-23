@@ -137,3 +137,4 @@ Second closed coaster: ride-board-family on The Board. Sequential board only (on
 48/50 Rails, ties, supports, parade lamps, and fences are InstancedMesh. One tab, one clock.
 49/50 Walk audit: open the park in Walk. Gate is (0, +230), spawn looks north down the 14 m spine. Turn left into The Block or press Block Coaster. The train holds 2 s, climbs the lit lift, drops, takes the loop, corkscrew, helix, and second loop, then brakes into the station. Esc returns to Walk. Press Board Wheel and the view sits in a gondola. Ride again only works when the train is back in the station.
 50/50 Drive 2026-09-23-BINGE2-ops. Commit binge 2/2 cycle 50/50 park ops. No hotel. No water. No third binge.
+Shipped both binges. Live park must still load.
