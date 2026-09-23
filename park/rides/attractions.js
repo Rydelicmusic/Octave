@@ -12,16 +12,19 @@ import { RIDE as pocket02 } from './ride-pocket-02.js';
 
 const PAD = 1.2;
 
-export const ATTRACTIONS = [
-  { ride: block01, type: 'launch' },
-  { ride: block02, type: 'coaster' },
-  { ride: hours01, type: 'dark' },
-  { ride: hours02, type: 'dark' },
-  { ride: board01, type: 'wheel' },
-  { ride: board02, type: 'swings' },
-  { ride: pocket01, type: 'spin' },
-  { ride: pocket02, type: 'kiddie' },
-];
+/** Read ride records only after those modules finish initializing. */
+export function attractionRows() {
+  return [
+    { ride: block01, type: 'launch' },
+    { ride: block02, type: 'coaster' },
+    { ride: hours01, type: 'dark' },
+    { ride: hours02, type: 'dark' },
+    { ride: board01, type: 'wheel' },
+    { ride: board02, type: 'swings' },
+    { ride: pocket01, type: 'spin' },
+    { ride: pocket02, type: 'kiddie' },
+  ];
+}
 
 const motions = [];
 
@@ -191,7 +194,7 @@ export function mountAttractions(THREE, scene) {
   if (!scene || scene.getObjectByName('park-attractions')) return null;
   const root = new THREE.Group();
   root.name = 'park-attractions';
-  for (const row of ATTRACTIONS) addAttraction(THREE, root, row.ride, row.type);
+  for (const row of attractionRows()) addAttraction(THREE, root, row.ride, row.type);
   scene.add(root);
   if (!looping && motions.length && typeof requestAnimationFrame === 'function') {
     looping = true;
