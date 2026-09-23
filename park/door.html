@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>RYDELIC — Door</title>
+<style>
+  html,body{margin:0;min-height:100%;min-height:100dvh;background:#1a1612;color:#f4efe6;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+  body{display:grid;place-items:center;padding:24px}
+  .card{width:min(440px,100%);background:#2a241c;border:1px solid #c9b48a;border-radius:18px;padding:28px 26px 22px}
+  p.kicker{margin:0;letter-spacing:.28em;font-size:11px;color:#c9b48a}
+  h1{margin:8px 0 0;font-weight:600;letter-spacing:.18em;font-size:32px}
+  .lands{margin:14px 0 0;line-height:1.5;color:#e7dcc8}
+  .row{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  button,a.enter{appearance:none;border:1px solid #c9b48a;background:#3d3428;color:#f4efe6;text-decoration:none;border-radius:999px;padding:12px 18px;letter-spacing:.14em;font-size:13px}
+  a.enter{background:#c9b48a;color:#1a1612}
+  .note{margin:18px 0 0;font-size:12px;line-height:1.45;color:#cbbfa8}
+</style>
+</head>
+<body>
+<main class="card">
+  <p class="kicker">OCTAVE</p>
+  <h1>RYDELIC</h1>
+  <p class="lands">One park. Four lands. The Block, After Hours, The Board, The Pocket. The spine is a road.</p>
+  <div class="row">
+    <button id="ticket" type="button">TICKET</button>
+    <a id="enter" class="enter" href="./index.html?admit=1">ENTER PARK</a>
+  </div>
+  <p class="note" id="note">Directory: RYDELIC. Map: occupy-map.json · MAP.md.</p>
+  <p class="note">Work mode, documented: park/index.html?dev=1 boards without a ticket. G is still the comp key inside the park.</p>
+</main>
+<script type="module">
+import { doorHref } from './door/ticket.js';
+import { directoryFromMap } from './door/occupy-link.js';
+import { loadVisit, saveVisit } from './memory/visit.js';
+
+const rows = directoryFromMap(null);
+const note = document.getElementById('note');
+note.textContent = 'Directory: ' + rows.map((row) => row.id).join(', ') + '. Map: ' + rows[0].map + ' · ' + rows[0].rule + '.';
+document.getElementById('enter').href = doorHref();
+const prior = loadVisit(localStorage);
+if (prior.lastRideId || prior.spectacularSeen || prior.lastOpen) {
+  document.getElementById('enter').textContent = 'ENTER PARK';
+}
+document.getElementById('ticket').addEventListener('click', () => {
+  saveVisit(localStorage, { admit: true });
+  location.href = doorHref();
+});
+fetch('./occupy-map.json').then((res) => res.json()).then((map) => {
+  const one = directoryFromMap(map);
+  note.textContent = 'Directory: ' + one[0].id + '. Lots on the map: ' + (map.count || 0) + '. This tab loads ' + one[0].id + ' only.';
+}).catch(() => {});
+</script>
+</body>
+</html>

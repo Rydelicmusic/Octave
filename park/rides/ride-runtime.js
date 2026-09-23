@@ -6,6 +6,9 @@ import { clickLift, whoosh, dispatchBell, hissBrakes } from './ride-audio.js';
 import { stepParkLogic } from '../logic/ride-logic.js';
 import { stepAlive } from '../alive/auto-ops.js';
 import { stepNpcs } from '../npc/npc.js';
+import { stepScore } from '../audio/ride-score.js';
+import { stepSpectacular } from '../show/spectacular.js';
+import { dayPart, getClock } from '../logic/clock.js';
 
 const rides = new Map();
 let lastMs = 0;
@@ -249,6 +252,8 @@ export function stepRides(dt) {
   stepParkLogic(step, rides.values());
   stepAlive(step, rides.values());
   stepNpcs(step);
+  stepScore(rides.values());
+  stepSpectacular(step, dayPart(getClock()));
 }
 
 export function tickMotion(now, dt) {

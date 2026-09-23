@@ -7,6 +7,8 @@ import { leaveQueue, queueFor } from '../logic/queue.js';
 import { formatClock, isOpen, getClock } from '../logic/clock.js';
 import { setWeather, weatherHold, resetSafety } from '../logic/safety.js';
 import { eStop } from './ride-ops.js';
+import { setScoreEar } from '../audio/ride-score.js';
+import { rememberRide } from '../memory/visit.js';
 
 let boarded = null;
 const labels = new Map();
@@ -72,6 +74,7 @@ export function boardRide(id) {
   boarded = id;
   ride.guest = true;
   ride.boardedSeat = 0;
+  rememberRide(id);
   paintOps(ride);
   return true;
 }
@@ -137,6 +140,7 @@ export function currentRide() {
 
 export function applyRideCam(camera) {
   if (typeof window !== 'undefined') window.__parkRideCam = boarded;
+  if (camera) setScoreEar({ x: camera.position.x, z: camera.position.z, boardedId: boarded });
   if (!boarded || !camera) return false;
   const ride = getRide(boarded);
   if (!ride) return false;
@@ -216,6 +220,11 @@ export function mountRideHud(entries) {
     btn.type = 'button';
     btn.textContent = entry.name || entry.id;
     btn.style.cssText = 'appearance:none;border:1px solid rgba(201,180,138,.45);background:rgba(40,32,24,.72);color:#f4efe6;padding:5px 8px;border-radius:999px;text-align:left;flex:1;';
+    const visit = typeof window !== 'undefined' ? window.__octaveVisit : null;
+    if (visit && visit.lastRideId === entry.id) {
+      btn.dataset.lastRide = '1';
+      btn.style.boxShadow = '0 0 0 1px #e0c36a';
+    }
     btn.addEventListener('click', () => {
       const res = joinRide(entry.id);
       const note = document.getElementById('ride-ops');
@@ -257,6 +266,15 @@ export function mountRideHud(entries) {
   });
   wrap.appendChild(again);
   document.body.appendChild(wrap);
+  window.__octaveBoard = () => {
+    const id = loadRideId();
+    if (id) boardRide(id);
+  };
+  window.__octaveExit = () => { exitRide(); };
+  if (window.__octaveWelcome) {
+    ops.textContent = 'welcome back';
+    window.__octaveWelcome = false;
+  }
   window.addEventListener('keydown', (ev) => {
     if (ev.code === 'Escape') exitRide();
     if (ev.code === 'KeyG') {

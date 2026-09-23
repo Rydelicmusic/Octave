@@ -282,3 +282,32 @@ No new land. No new lake. No hotel. No sample was moved. Evidence is park/QC2_LO
 168/170 park/QC2_WALK.md. Gate, spine, berms, Board water edge, Block train with riders, board, plaza guests.
 169/170 Re-run: pass 32, fail 0, skip 0. Every row is an assertion. Nothing was skipped because the features exist.
 170/170 Drive 2026-09-23-BINGE-QC2. Commit QC2 170/170 terrain water npc function.
+
+### Binge 7 — octave layer — 2026-09-23 00:44 CDT
+No new land. No hotel. No extra lake. One park in the tab. Evidence is park/OCTAVE_LOG.md and park/OCTAVE_WALK.md.
+
+171/195 Boot. The park scene, canvas, and Walk / 3rd / Drone were still there. One import in seed-rides.js loads park/octave/boot.js.
+172/195 park/audio/ride-score.js. One AudioContext, created on the first gesture. No stem files, so every ride id is a stub. Nothing sets an audio src.
+173/195 Hero cue follows arc length. First big drop is at s 107.9. Lift before it, drop hook for the next 48 m, brakes are the outro.
+174/195 The other nine anchors get an idle, course, or outro bed. Same stub label.
+175/195 Rider gain 0.2. Within 80 m the plaza hears 0.03. The Gate hears 0.
+176/195 park/door.html. Artist card, TICKET, ENTER PARK. Link from the park HUD.
+177/195 park/door/ticket.js. ?admit=1 sets the existing admit flag. ?dev=1 is the documented bypass.
+178/195 park/door/occupy-link.js. A 200-row list still returns RYDELIC only. occupy-map.json is the lot map, not a second park.
+179/195 Board without admit still returns reason admit. Dev gets past that gate and still has to be at the load.
+180/195 Spectacular starts when the clock is dusk or night. Day leaves the floats parked.
+181/195 Spine chase lights and an arch flash while a float is near the Gate. Fog is not rewritten.
+182/195 Four thin floats parade the centerline for 240 s, then sit at x ±26, off the 14 m spine. They are not claimed buildings.
+183/195 park/input/mobile.js. Coarse pointer uses the existing pad plus BOARD and EXIT.
+184/195 100dvh and overscroll-behavior sit beside the existing touch-action and the blue-gray background.
+185/195 Cheap mode draws 16 NPCs and skips the water ripple. The hero, the score, and boarding stay.
+186/195 park/memory/visit.js. Key octave-rydelic-visit. Admit, last ride, photo stub, last open, spectacular seen.
+187/195 A successful board writes lastRideId and a photo path hash. No account server.
+188/195 Welcome back is one line, and only when a prior ride, show, or clock was stored. The first ticket does not say it.
+189/195 park/qc/qc-octave.js. pass 20, fail 0, skip 0.
+190/195 No audio 404. No admit hole. Floats leave the spine when the cycle idles.
+191/195 Phone cheap mode does not delete terrain, water meshes, or the coaster. QC2 stayed pass 32, fail 0, skip 0. QC stayed pass 46, fail 0, skip 9.
+192/195 park/OCTAVE_WALK.md. Door, ticket, Gate, Block plaza, scored lap, dusk show, refresh.
+193/195 60 s at dusk: hero s 394.8 and still finite, show mode show, wheel still turning, buildings left on the spine: 0.
+194/195 OCTAVE_LOG.md table matches that run.
+195/195 Drive 2026-09-23-BINGE7-octave-layer. Commit binge 7 cycle 195/195 song door show phone memory.

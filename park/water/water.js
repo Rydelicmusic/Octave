@@ -35,6 +35,17 @@ export function waterHitsHubOrSpine() {
 
 if (typeof window !== 'undefined') window.__blockWalk = blocksWalk;
 
+let cheapWater = false;
+
+export function setWaterCheap(on) {
+  cheapWater = !!on;
+  return cheapWater;
+}
+
+export function waterIsCheap() {
+  return cheapWater;
+}
+
 function ripple(mesh, time) {
   const pos = mesh.geometry.attributes.position;
   const base = mesh.userData.base;
@@ -84,7 +95,7 @@ export function mountWater(THREE, scene) {
       root.add(jet);
     }
   }
-  root.userData.tick = (t) => { for (const mesh of surfaces) ripple(mesh, t); };
+  root.userData.tick = (t) => { if (cheapWater) return; for (const mesh of surfaces) ripple(mesh, t); };
   scene.add(root);
   if (typeof window !== 'undefined') {
     window.__tickWater = (t) => root.userData.tick(t || 0);

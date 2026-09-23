@@ -2,11 +2,13 @@
 
 let admitted = false;
 let cheat = false;
+let devBypass = false;
 const merch = [];
 
 export function resetTicket() {
   admitted = false;
   cheat = false;
+  devBypass = false;
   merch.length = 0;
 }
 
@@ -21,8 +23,18 @@ export function setCheat(on) {
   return cheat;
 }
 
+/** ?dev=1 on the park URL. Documented on the door. Not a guest comp. */
+export function setDevBypass(on) {
+  devBypass = !!on;
+  return devBypass;
+}
+
+export function isDevBypass() {
+  return devBypass;
+}
+
 export function isAdmitted() {
-  return admitted || cheat;
+  return admitted || cheat || devBypass;
 }
 
 export function cheatOn() {

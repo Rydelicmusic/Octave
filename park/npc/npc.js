@@ -5,6 +5,17 @@ import { sampleHeight } from '../terrain/height.js';
 
 export const NPC_CAP = 56;
 
+let drawCap = NPC_CAP;
+
+export function setNpcDrawCap(n) {
+  drawCap = Math.max(8, Math.min(NPC_CAP, n || NPC_CAP));
+  return drawCap;
+}
+
+export function npcDrawCap() {
+  return drawCap;
+}
+
 const npcs = [];
 let npcMesh = null;
 
@@ -87,7 +98,7 @@ export function layoutNpcs(mesh) {
   const dummy = mesh.userData.dummy;
   const list = npcList();
   for (let i = 0; i < NPC_CAP; i++) {
-    const npc = list[i];
+    const npc = i < drawCap ? list[i] : null;
     if (!npc) {
       dummy.position.set(0, -8, 0);
       dummy.scale.set(0.001, 0.001, 0.001);

@@ -17,6 +17,7 @@ import './ride-runtime.js';
 import './ride-audio.js';
 import './park-ops.js';
 import '../land-beds.js';
+import '../octave/boot.js';
 
 export function claimAllRides() {
   const fns = [

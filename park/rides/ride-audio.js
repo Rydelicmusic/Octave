@@ -1,25 +1,24 @@
-/** Per-ride audio hook. Uses an oscillator when the browser allows it. No audio files. */
+/** Per-ride audio hook. Uses the one shared context after a gesture. No audio files. */
+import { sharedAudio } from '../audio/ride-score.js';
 
-let ctx = null;
 let osc = null;
 let gain = null;
 let current = null;
 
 function context() {
-  const AC = typeof AudioContext !== 'undefined' ? AudioContext : typeof webkitAudioContext !== 'undefined' ? webkitAudioContext : null;
-  if (!AC) return null;
-  if (!ctx) {
-    ctx = new AC();
-    osc = ctx.createOscillator();
-    gain = ctx.createGain();
+  const audio = sharedAudio();
+  if (!audio || typeof audio.createOscillator !== 'function') return null;
+  if (!osc) {
+    osc = audio.createOscillator();
+    gain = audio.createGain();
     osc.type = 'square';
     osc.frequency.value = 70;
     gain.gain.value = 0;
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    if (audio.destination) gain.connect(audio.destination);
     osc.start();
   }
-  return ctx;
+  return audio;
 }
 
 export function playRideBed(id, speed) {
