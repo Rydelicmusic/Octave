@@ -334,7 +334,13 @@ function showHud() {
 function publishRideHooks() {
   if (typeof window === 'undefined') return;
   window.__tickRides = () => {
-    try { tickMotion(performance.now()); } catch (err) { console.warn('tickMotion', err); }
+    try {
+      tickMotion(performance.now());
+      const hero = getRide('ride-block-01');
+      if (hero && hero.lead && hero.lead.p) {
+        window.__blockS = { s: hero.s, y: hero.lead.p.y, hold: hero.hold, lap: hero.lap };
+      }
+    } catch (err) { console.warn('tickMotion', err); }
   };
   window.__applyRideCam = (camera) => {
     try {
