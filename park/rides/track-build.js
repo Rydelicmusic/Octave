@@ -33,8 +33,8 @@ function poseAt(table, s) {
 export function buildTrack(THREE, parent, table, opts) {
   const samples = table.samples;
   const n = samples.length;
-  const gauge = opts.gauge || 0.62;
-  const railMat = mat(THREE, opts.rail || 0xd5dbe3, opts.railEmissive || 0x000000, 0.05);
+  const gauge = opts.gauge || 1.05;
+  const railMat = mat(THREE, opts.rail || 0xf4f7fb, opts.railEmissive || 0xb7c4d4, 0.45);
   const tieMat = mat(THREE, opts.tie || 0x6a5038);
   const spineMat = mat(THREE, opts.spine || 0x8d939c);
   const supportMat = mat(THREE, opts.support || 0x4a4038);
@@ -42,7 +42,7 @@ export function buildTrack(THREE, parent, table, opts) {
   const brakeMat = mat(THREE, 0xc4382a, 0x802018, 0.35);
   const chainMat = mat(THREE, 0xf0c040, 0xc48a10, 0.25);
 
-  const railGeo = new THREE.BoxGeometry(0.09, 0.1, 1);
+  const railGeo = new THREE.BoxGeometry(0.22, 0.18, 1);
   const tieGeo = new THREE.BoxGeometry(gauge * 2 + 0.35, 0.08, 0.18);
   const supportGeo = new THREE.BoxGeometry(1, 1, 1);
   const lightGeo = new THREE.SphereGeometry(0.09, 6, 5);
@@ -112,7 +112,7 @@ export function buildTrack(THREE, parent, table, opts) {
     if (supports && p.y > 2.4) {
       const foot = p.y - 0.4;
       dummy.position.set(p.x, foot / 2, p.z);
-      dummy.scale.set(0.38, Math.max(0.4, foot), 0.38);
+      dummy.scale.set(0.62, Math.max(0.4, foot), 0.62);
       dummy.quaternion.identity();
       dummy.updateMatrix();
       supports.setMatrixAt(si++, dummy.matrix);

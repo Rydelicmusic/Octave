@@ -12,6 +12,7 @@ export const RIDE_ANCHORS = {
   'ride-pocket-01': { id: 'ride-pocket-01', land: 'The Pocket', x: 70, z: 50, w: 6, d: 4, h: 3.15, name: 'Pocket Spin', type: 'spin', cars: 8 },
   'ride-pocket-02': { id: 'ride-pocket-02', land: 'The Pocket', x: 40, z: 80, w: 12, d: 8, h: 4.9, name: 'Pocket Kiddie', type: 'kiddie', cars: 3 },
   'ride-board-drop': { id: 'ride-board-drop', land: 'The Board', x: 176, z: 58, w: 6, d: 6, h: 28, name: 'Board Drop', type: 'drop', cars: 1 },
+  'ride-board-family': { id: 'ride-board-family', land: 'The Board', x: 208, z: -32, w: 10, d: 6, h: 4.2, name: 'Board Family', type: 'family', cars: 3 },
 };
 
 export function landOk(p, land, radius = 2) {
@@ -81,10 +82,10 @@ function violations(samples, land) {
 export function blockCoasterSamples(version = 3) {
   const pts = [];
   const station = { x: -187.5, z: 37.5 };
-  pushSpan(pts, station, { x: -230, z: 48 }, 28, (t) => 2.1 + t * 1.2, () => 0, { speed: () => 2.4, lift: false, brake: true });
-  pushSpan(pts, { x: -230, z: 48 }, { x: -258, z: 18 }, 36, (t) => 3.3 + t * 30, () => 0.05, { speed: () => 3.4, lift: true });
-  pushSpan(pts, { x: -258, z: 18 }, { x: -248, z: -8 }, 22, (t) => 33.3 - t * 29, () => -0.08, { speed: () => 16 });
-  pushSpan(pts, { x: -248, z: -8 }, { x: -210, z: -18 }, 18, (t) => 4.3 + Math.sin(t * Math.PI) * 11, () => 0.2, { speed: () => 13 });
+  pushSpan(pts, station, { x: -230, z: 48 }, 28, (t) => 2.4 + t * 1.4, () => 0, { speed: () => 9, lift: false, brake: true });
+  pushSpan(pts, { x: -230, z: 48 }, { x: -258, z: 18 }, 36, (t) => 3.8 + t * 34, () => 0.05, { speed: () => 8, lift: true });
+  pushSpan(pts, { x: -258, z: 18 }, { x: -248, z: -8 }, 22, (t) => 37.8 - t * 33, () => -0.08, { speed: () => 18 });
+  pushSpan(pts, { x: -248, z: -8 }, { x: -210, z: -18 }, 18, (t) => 4.8 + Math.sin(t * Math.PI) * 12, () => 0.2, { speed: () => 14 });
   if (version >= 3) {
     pushSpan(pts, { x: -210, z: -18 }, { x: -186, z: -6 }, 16, (t) => 4 + Math.sin(t * Math.PI) * 9, () => -0.25, { speed: () => 12 });
     pushSpan(pts, { x: -186, z: -6 }, { x: -172, z: 12 }, 14, (t) => 3.2 + Math.sin(t * Math.PI) * 7, () => 0.15, { speed: () => 11 });
@@ -128,6 +129,39 @@ export function launchCoasterSamples(version = 2) {
   pushSpan(pts, { x: -236, z: -58 }, station, 20, (t) => 6 + (2.2 - 6) * t, () => 0, { speed: (t) => 6 - t * 3.5, brake: true });
   const samples = finish(pts, 'The Block');
   return { id: 'ride-block-02', land: 'The Block', version, samples, cars: 2, carGap: 4.2, stationHold: 2, ...meta(samples, 'The Block') };
+}
+
+/** Family coaster on The Board, north of the wheel. Closed. Inside the canopy. */
+export function boardFamilySamples() {
+  const pts = [];
+  const c = { x: 208, z: -32 };
+  const steps = 96;
+  for (let i = 0; i < steps; i++) {
+    const a = (i / steps) * Math.PI * 2;
+    const climbing = a > 0.35 && a < 1.7;
+    const hill = climbing ? Math.sin(((a - 0.35) / 1.35) * Math.PI) * 14 : 0;
+    pts.push({
+      x: c.x + Math.cos(a) * 24,
+      z: c.z + Math.sin(a) * 15,
+      y: 2.2 + hill + Math.max(0, Math.sin(a * 3)) * 1.4,
+      bank: Math.sin(a) * 0.28,
+      speed: climbing && a < 1.05 ? 6.5 : 10,
+      lift: climbing && a < 1.05,
+      brake: a > 5.8,
+      tunnel: a > 3.3 && a < 4.0,
+    });
+  }
+  const samples = finish(pts, 'The Board');
+  return {
+    id: 'ride-board-family',
+    land: 'The Board',
+    version: 1,
+    samples,
+    cars: 3,
+    carGap: 3.1,
+    stationHold: 2,
+    ...meta(samples, 'The Board'),
+  };
 }
 
 export function kiddieSamples() {
@@ -188,6 +222,7 @@ export function allPaths() {
     blockCoasterSamples(3),
     launchCoasterSamples(2),
     kiddieSamples(),
+    boardFamilySamples(),
     darkSamples(1),
     darkSamples(2),
   ];

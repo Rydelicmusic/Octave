@@ -15,6 +15,7 @@ import './attractions.js';
 import './ride-cam.js';
 import './ride-runtime.js';
 import './ride-audio.js';
+import './park-ops.js';
 import '../land-beds.js';
 
 export function claimAllRides() {

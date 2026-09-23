@@ -78,3 +78,62 @@ Hero coaster v3: 558 samples, apex 33.3 m, length about 494 m, seam 0, 4 cars, l
 23/25 Extra inversion. Hero version 3 adds a second loop after the helix.
 24/25 Integration. seed-rides.js imports attractions, ride-cam, ride-runtime, ride-audio. Import scan of park/rides found zero missing names.
 25/25 Ship. Same battery still 8/8. Commit cycle 25/25 heavy rides. Drive folder 2026-09-23-0030-CDT-rides-heavy.
+
+## Binge queue — 2026-09-23 00:33 CDT
+Battery this pass: `node --test park/rides/ride-test.js` — 12 pass, 0 fail.
+Hero lap returns to the station, climbs above 28 m, seam 0, no spine or hub hits.
+Second closed coaster: ride-board-family on The Board. Sequential board only (one train, canDispatch blocks a second dispatch while the first is out).
+
+### Binge 1 — ride the park
+1/25 Boot. tickMotion, addAttraction, armAttractions, hookRideStack, publishRideHooks. Import scan of park/rides clean.
+2/25 ride-test.js wired. 12 tests, including lap, seam, NaN, frame, dispatch.
+3/25 Block coaster. Thicker emissive rails, 0.62 m supports, 4-car train, station offset off the heartline so the track reads.
+4/25 Loop, corkscrew, helix, second loop still on version 3. Inversion sample required.
+5/25 Block launch v2. Spike, twist, airtime, closed return, 2 cars.
+6/25 Board wheel. Radius 14 m, 16 gondolas.
+7/25 Board swings. 20 m mast, 12 seats.
+8/25 Hours dark 1. Six timed show beats, interior path, board the car.
+9/25 Hours dark 2. Seven beats, wider hall.
+10/25 Pocket spin. Eight bumper cars.
+11/25 Pocket kiddie. Person-scale seats, apex under 4 m, closed lap.
+12/25 Board drop on ride-board-drop. Climb, hang, drop, reset.
+13/25 HUD lists every id including Board Family and Board Drop. Esc calls exitRide. Ride again only when the block is clear.
+14/25 Stations keep queue rails, load gate, exit photo, merch stub. Coaster shed shifted +12 m so it does not swallow the rails.
+15/25 Ties, lift dogs, brake fins, tunnel shells, trim lights.
+16/25 Arc-length step, 2 s hold, seam 0. Lap elapsed landed between 15 s and 180 s in the dry run.
+17/25 Launch v2 airtime kept. Hero opening speed raised so the lift is reachable.
+18/25 Night steel. Rail emissive, parade practicals, no water.
+19/25 playRideBed / clickLift / stopRideBed.
+20/25 Support samples are the heartline feet. landOk violations 0 on hero, launch, family, kiddie, both darks.
+21/25 Battery 12/12 after the speed and family additions.
+22/25 Fence posts and banners. Parade lamps at x=±9.2, outside occupiesSpine.
+23/25 Camera shake with speed. Lift click while boarded.
+24/25 Second loop remains the extra inversion on the hero.
+25/25 Integration. seed-rides imports the ride stack and park-ops. Drive 2026-09-23-BINGE1-rides-heavy.
+
+### Binge 2 — park ops
+26/50 Hero lap confirmed in ride-test (ok, maxY > 28, seam 0). No boot break. Did not open a new land.
+27/50 canDispatch. One train. rideAgain refuses while the train is on the course.
+28/50 Ride again resets s to 0 and the 2 s hold. Same samples. POV stays on ride.lead.
+29/50 Storage siding rails beside the Block station. Points that fail landOk are skipped.
+30/50 ride-board-family. Closed oval north of the wheel, lift to about 16 m, 3 cars.
+31/50 Family coaster uses the same rail, support, tie, and station builder.
+32/50 Games row: Ring Toss, Balloon Pop, Bottle Stand. Only plazas that pass landOk.
+33/50 Food carts, shade, trash on Block, After Hours, Board, Pocket.
+34/50 Parade lamps down the existing spine at x=±9.2. spineSideOk required. No building on the 14 m road.
+35/50 Wait stubs: YOU ARE HERE 12 MIN at Block, WHEEL 8 MIN at Board.
+36/50 Photo pass boxes at two exits that pass landOk.
+37/50 Wheel still 16 gondolas with a station shed north of the axle.
+38/50 Dark show beats: 6 and 7 timed events.
+39/50 Lift click plus the oscillator bed on the boarded ride. Brakes are the slow samples at each station.
+40/50 Sequential board only. A second camera is not parented. canDispatch documents the block.
+41/50 Drop phase: climb to 0.55, hang to 0.70, drop, bounce, reset.
+42/50 Pocket spin bumper mesh is the orbit you board.
+43/50 Station queues stay 4 lanes, about 6 m, off the spine.
+44/50 ride-test v2 covers lap time, second coaster closed, parade spine, show-beat count.
+45/50 Same run, 12 pass, 0 fail. Nothing left red.
+46/50 Chain dogs, brake fins, station roof and open walls, rail cross-section 0.22 m.
+47/50 Gate MAP and TURNSTILE blades at x=±16, z=206. Skipped if they hit the spine.
+48/50 Rails, ties, supports, parade lamps, and fences are InstancedMesh. One tab, one clock.
+49/50 Walk audit: open the park in Walk. Gate is (0, +230), spawn looks north down the 14 m spine. Turn left into The Block or press Block Coaster. The train holds 2 s, climbs the lit lift, drops, takes the loop, corkscrew, helix, and second loop, then brakes into the station. Esc returns to Walk. Press Board Wheel and the view sits in a gondola. Ride again only works when the train is back in the station.
+50/50 Drive 2026-09-23-BINGE2-ops. Commit binge 2/2 cycle 50/50 park ops. No hotel. No water. No third binge.

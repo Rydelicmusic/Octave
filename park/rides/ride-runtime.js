@@ -65,7 +65,7 @@ function stepPhase(ride, dt) {
 }
 
 export function stepRides(dt) {
-  const step = Math.max(0, Math.min(0.05, dt || 0));
+  const step = Math.max(0, Math.min(0.12, dt || 0));
   if (!step) return;
   for (const ride of rides.values()) {
     ride.clock += step;
@@ -78,7 +78,7 @@ export function tickMotion(now, dt) {
   let seconds = dt;
   const stamp = typeof now === 'number' ? (now > 200 ? now : now * 1000) : 0;
   if (seconds == null || !Number.isFinite(seconds)) {
-    seconds = lastMs ? Math.min(0.05, (stamp - lastMs) / 1000) : 0.016;
+    seconds = lastMs ? Math.min(0.12, (stamp - lastMs) / 1000) : 0.016;
   }
   if (stamp) lastMs = stamp;
   stepRides(seconds);
@@ -89,11 +89,13 @@ export function dryRunRide(table, cars, gap, stationHold) {
   let s = 0;
   let hold = stationHold || 0;
   let lap = 0;
+  let maxY = -Infinity;
   const seen = [];
   const length = table.length;
   const dt = 0.05;
   const budget = (length / 1.1 + (stationHold || 0) + 3) * 2;
-  for (let elapsed = 0; elapsed < budget && lap < 1; elapsed += dt) {
+  let elapsed = 0;
+  for (; elapsed < budget && lap < 1; elapsed += dt) {
     if (hold > 0) {
       hold -= dt;
       seen.push(pointAt(table, s));
@@ -107,10 +109,34 @@ export function dryRunRide(table, cars, gap, stationHold) {
       lap += 1;
     }
     const p = pointAt(table, s - Math.max(0, cars - 1) * (gap || 0));
+    if (p.y > maxY) maxY = p.y;
     seen.push(p);
     if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || !Number.isFinite(p.z)) {
-      return { ok: false, lap, seen, cars };
+      return { ok: false, lap, seen, cars, elapsed, maxY };
     }
   }
-  return { ok: lap >= 1 && seen.length > 10, lap, seen, cars };
+  return { ok: lap >= 1 && seen.length > 10, lap, seen, cars, elapsed, maxY };
+}
+
+export function stepRideSeconds(seconds) {
+  const dt = 0.05;
+  const n = Math.max(1, Math.round((seconds || 0) / dt));
+  for (let i = 0; i < n; i++) stepRides(dt);
+}
+
+export function canDispatch(id) {
+  const ride = rides.get(id);
+  if (!ride || ride.kind !== 'path') return true;
+  return ride.hold > 0 || ride.s < 6 || ride.s > ride.length - 8;
+}
+
+export function rideAgain(id) {
+  const ride = rides.get(id);
+  if (!ride) return false;
+  if (!canDispatch(id)) return false;
+  ride.s = 0;
+  ride.phase = 0;
+  ride.hold = ride.stationHold || 2;
+  if (ride.layout) ride.layout(ride.kind === 'path' ? 0 : 0, ride);
+  return true;
 }

@@ -1,11 +1,12 @@
 /** Heavy rides on the locked pads. Does not import ride modules (they import this file). */
 import { LOCK, occupiesSpine, nearRing, inStadium } from '../lock.js';
 import { arcTable, pointAt } from './path-math.js';
-import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples } from './coaster-paths.js';
+import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples } from './coaster-paths.js';
 import { buildTrack, buildTrain, placeCars } from './track-build.js';
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, layoutDrop, buildSpin, layoutSpin } from './ride-fleet.js';
-import { registerRide, tickMotion, getRide, rideIds } from './ride-runtime.js';
+import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain } from './ride-runtime.js';
+import { mountParkOps } from './park-ops.js';
 import { applyRideCam, mountRideHud, boardRide, exitRide, currentRide } from './ride-cam.js';
 import { playRideBed, clickLift, stopRideBed } from './ride-audio.js';
 
@@ -21,12 +22,14 @@ const ID_TYPE = {
   'ride-pocket-01': 'spin',
   'ride-pocket-02': 'kiddie',
   'ride-board-drop': 'drop',
+  'ride-board-family': 'family',
 };
 
 const COLORS = {
   coaster: { rail: 0xd5dbe3, body: 0xc45c26, tie: 0x6a5038, lamp: 0xffb060, tunnel: 0x2a241c, roof: 0x3a2a22, bodyPaint: 0x6a4030, trim: 0xc9b48a },
   launch: { rail: 0xf0c040, body: 0xf0c040, tie: 0x4a4030, lamp: 0xffe1b0, tunnel: 0x2a2418, roof: 0x3a3018, bodyPaint: 0x8a7040, trim: 0xf0c040 },
   kiddie: { rail: 0xe7d3b0, body: 0xe07a4a, tie: 0x8a6040, lamp: 0xffc080, tunnel: 0x3a3028, roof: 0xc45c26, bodyPaint: 0xe7c8a0, trim: 0xe07a4a },
+  family: { rail: 0xf4f7fb, body: 0x6a8fbf, tie: 0x5a4630, lamp: 0xffe1b0, tunnel: 0x243044, roof: 0x3a4a60, bodyPaint: 0xc4b08a, trim: 0x9ec4e8 },
 };
 
 export function rideClear(x, z, radius = 0) {
@@ -92,7 +95,14 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
   const table = arcTable(pack.samples);
   buildTrack(THREE, world, table, { name: ride.id, ...colors });
   const cars = buildTrain(THREE, world, pack.cars, colors);
-  buildStation(THREE, world, { ...ride, name: ride.name, roof: colors.roof, body: colors.bodyPaint, trim: colors.trim });
+  buildStation(THREE, world, {
+    ...ride,
+    x: ride.x + 12,
+    name: ride.name,
+    roof: colors.roof,
+    body: colors.bodyPaint,
+    trim: colors.trim,
+  });
   buildFence(THREE, world, pack.samples, ride.id);
   const state = registerRide({
     id: ride.id,
@@ -299,6 +309,7 @@ export function addAttraction(THREE, scene, ride, type) {
   if (kind === 'coaster') return buildCoaster(THREE, scene, spec, blockCoasterSamples(3), COLORS.coaster);
   if (kind === 'launch') return buildCoaster(THREE, scene, spec, launchCoasterSamples(2), COLORS.launch);
   if (kind === 'kiddie') return buildCoaster(THREE, scene, spec, kiddieSamples(), COLORS.kiddie);
+  if (kind === 'family') return buildCoaster(THREE, scene, spec, boardFamilySamples(), COLORS.family);
   if (kind === 'dark') return buildDark(THREE, scene, spec, 1);
   if (kind === 'dark2') return buildDark(THREE, scene, spec, 2);
   if (kind === 'wheel') return buildWheelRide(THREE, scene, spec);
@@ -317,6 +328,7 @@ export function mountAttractions(THREE, scene) {
     scene.add(root);
   }
   for (const row of attractionRows()) addAttraction(THREE, scene, row.ride, row.type);
+  try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   showHud();
   return root;
 }
@@ -333,6 +345,8 @@ function showHud() {
 
 function publishRideHooks() {
   if (typeof window === 'undefined') return;
+  window.__stepRideSeconds = (n) => stepRideSeconds(n);
+  window.__rideAgain = (id) => rideAgain(id || (typeof currentRide === 'function' ? currentRide() : null));
   window.__tickRides = () => {
     try {
       tickMotion(performance.now());

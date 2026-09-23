@@ -1,5 +1,5 @@
 /** Board a ride. While boarded, the park camera sits in the seat and looks along travel. Esc walks. */
-import { getRide, rideIds } from './ride-runtime.js';
+import { getRide, rideIds, rideAgain } from './ride-runtime.js';
 
 let boarded = null;
 const labels = new Map();
@@ -38,9 +38,9 @@ export function applyRideCam(camera) {
     camera.position.set(px, py, pz);
     camera.up.set(pose.up.x, pose.up.y, pose.up.z);
     camera.lookAt(
-      pose.p.x + pose.forward.x * 9,
-      pose.p.y + pose.forward.y * 9 + pose.up.y * 0.3,
-      pose.p.z + pose.forward.z * 9,
+      pose.p.x + pose.forward.x * 16,
+      pose.p.y + pose.forward.y * 16 + pose.up.y * 1.2,
+      pose.p.z + pose.forward.z * 16,
     );
     return true;
   }
@@ -74,6 +74,15 @@ export function mountRideHud(entries) {
     btn.addEventListener('click', () => boardRide(entry.id));
     wrap.appendChild(btn);
   }
+  const again = document.createElement('button');
+  again.type = 'button';
+  again.textContent = 'Ride again';
+  again.style.cssText = 'appearance:none;border:1px solid rgba(201,180,138,.45);background:rgba(90,40,24,.8);color:#f4efe6;padding:5px 8px;border-radius:999px;text-align:left;';
+  again.addEventListener('click', () => {
+    const id = currentRide();
+    if (id && rideAgain(id)) boardRide(id);
+  });
+  wrap.appendChild(again);
   document.body.appendChild(wrap);
   window.addEventListener('keydown', (ev) => {
     if (ev.code === 'Escape') exitRide();

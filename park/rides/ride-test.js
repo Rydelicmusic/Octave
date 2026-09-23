@@ -5,9 +5,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { frameFromTangent, dryLap, hasNaN, arcTable, pointAt } from './path-math.js';
-import { allPaths, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples } from './coaster-paths.js';
-import { dryRunRide, tickMotion } from './ride-runtime.js';
+import { allPaths, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples } from './coaster-paths.js';
+import { dryRunRide, tickMotion, canDispatch, rideAgain } from './ride-runtime.js';
 import { boardRide, exitRide, currentRide } from './ride-cam.js';
+import { paradePosts, spineSideOk, legalProps, CARTS, GAMES, PHOTOS } from './park-ops.js';
+import { darkShows } from './ride-show.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const parkDir = path.dirname(here);
@@ -153,6 +155,42 @@ test('pointAt seam is the station point', () => {
   const c = pointAt(table, table.length * 3);
   assert.ok(Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) < 0.05);
   assert.ok(Math.hypot(a.x - c.x, a.y - c.y, a.z - c.z) < 0.05);
+});
+
+test('hero lap time stays inside a rideable bound and climbs', () => {
+  const hero = blockCoasterSamples(3);
+  const table = arcTable(hero.samples);
+  const run = dryRunRide(table, hero.cars, hero.carGap, hero.stationHold);
+  assert.equal(run.ok, true);
+  assert.ok(run.elapsed > 15 && run.elapsed < 180, 'elapsed ' + run.elapsed);
+  assert.ok(run.maxY > 28, 'maxY ' + run.maxY);
+});
+
+test('board family coaster is closed, legal, and a second coaster', () => {
+  const fam = boardFamilySamples();
+  assert.equal(fam.violations.length, 0, JSON.stringify(fam.violations[0]));
+  assert.equal(fam.stats.nan, false);
+  assert.ok(fam.lap.seam < 0.05);
+  assert.ok(fam.stats.maxY > 10);
+  assert.ok(fam.cars >= 3);
+  const run = dryRunRide(arcTable(fam.samples), fam.cars, fam.carGap, fam.stationHold);
+  assert.equal(run.ok, true);
+});
+
+test('parade lights stay off the 14 m spine and plazas stay in lands', () => {
+  const posts = paradePosts();
+  assert.ok(posts.length > 8);
+  for (const p of posts) assert.equal(spineSideOk(p.x, p.z), true);
+  assert.ok(legalProps(CARTS).length >= 3);
+  assert.ok(legalProps(GAMES).length >= 2);
+  assert.ok(legalProps(PHOTOS).length >= 1);
+});
+
+test('dark rides have at least six show beats and dispatch is single-train', () => {
+  assert.ok(darkShows(1).length >= 6);
+  assert.ok(darkShows(2).length >= 6);
+  assert.equal(canDispatch('missing'), true);
+  assert.equal(rideAgain('missing'), false);
 });
 
 test('camera board api is safe with no scene', () => {
