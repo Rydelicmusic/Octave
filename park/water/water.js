@@ -75,6 +75,9 @@ export function mountWater(THREE, scene) {
     water.geometry.rotateX(-Math.PI / 2);
     water.position.set(b.x, b.y, b.z);
     water.name = 'water-surface-' + b.id;
+    water.userData.hubKeep = true;
+    water.userData.dryKeep = true;
+    water.userData.tidyKeep = true;
     const attr = water.geometry.attributes.position;
     water.userData.base = new Float32Array(attr.array);
     root.add(water);
@@ -85,12 +88,18 @@ export function mountWater(THREE, scene) {
     );
     cope.position.set(b.x, b.y - 0.05, b.z);
     cope.name = 'coping-' + b.id;
+    cope.userData.hubKeep = true;
+    cope.userData.dryKeep = true;
+    cope.userData.tidyKeep = true;
     const inner = new THREE.Mesh(
       new THREE.BoxGeometry(b.rx * 2 - 0.3, 0.5, b.rz * 2 - 0.3),
       new THREE.MeshLambertMaterial({ color: 0x1a3034 }),
     );
     inner.position.set(b.x, b.y - 0.35, b.z);
     inner.name = 'basin-floor-' + b.id;
+    inner.userData.hubKeep = true;
+    inner.userData.dryKeep = true;
+    inner.userData.tidyKeep = true;
     root.add(cope, inner);
     if (b.kind === 'fountain') {
       const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 1.4, 8), new THREE.MeshLambertMaterial({ color: 0xd5eef2, emissive: 0x9ad0dc, emissiveIntensity: 0.4 }));

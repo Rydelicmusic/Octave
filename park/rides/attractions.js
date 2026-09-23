@@ -577,11 +577,16 @@ export function hookRideStack(THREE) {
   proto.__rydelicRideStack = true;
   if (typeof window !== 'undefined') window.__parkRideHook = true;
   let mountTries = 0;
+  let splashTries = 0;
   proto.render = function renderRideStack(scene, camera) {
     if (!hooked && scene && scene.isScene && mountTries < 4) {
       mountTries += 1;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
-      hooked = !!scene.getObjectByName('ride-block-01-rail-l') || mountTries >= 4;
+      hooked = !!scene.getObjectByName('ride-block-01-bone') || mountTries >= 4;
+    }
+    if (scene && scene.isScene && splashTries < 8 && !scene.getObjectByName('water-surface-block-dive-splash')) {
+      splashTries += 1;
+      try { mountWater(THREE, scene); } catch (err) { console.warn('water', err); }
     }
     try { layoutGuests(); layoutNpcMesh(); if (window.__tickWater) window.__tickWater(performance.now() / 1000); } catch (err) { console.warn('tickMotion', err); }
     try {
