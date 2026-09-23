@@ -9,6 +9,7 @@ import { claimRide as claimHours02 } from './ride-hours-02.js';
 import { claimRide as claimPocket02 } from './ride-pocket-02.js';
 import { claimRide as claimGateSigns } from './ride-gate-signs.js';
 import '../park-kit.js';
+import '../gate-icon.js';
 
 export function claimAllRides() {
   const fns = [

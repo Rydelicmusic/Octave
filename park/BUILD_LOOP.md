@@ -20,3 +20,10 @@ Checked: kitClear vs occupiesSpine, hub r32, nearRing; land names The Block / Af
 Pass: arches, plaza paint, lamps, trash, path edges, queue switchbacks stay off spine and hub.
 Fail: gate landmark absent; ride vehicles still static; Halloween skin absent; main not updated until this commit.
 Next: park/gate-icon.js at Gate (0,+230), one wire.
+
+## Cycle 2 — 2026-09-22
+File: park/gate-icon.js. Wire: one import in park/rides/seed-rides.js.
+Checked: piers (±10, 216) and map/ticket props pass gateClear (occupiesSpine, hub r32, nearRing). Crown mesh anchor is (0, +230) overhead in the wing opening. No ground foot on the spine. No water. Cameras untouched. Crown spins on its own RAF.
+Pass: first view is the RYDELIC PARK arch; tickets and map are props, not a new building SKU.
+Fail: ride vehicles still static; Halloween skin absent; land beds absent.
+Next: park/halloween/haunt-scene.js night skin, one wire.
