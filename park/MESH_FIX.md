@@ -13,4 +13,4 @@ Date: 2026-09-23
 
 Fix: `addRideBlock01` stores that scene. The existing frame loop calls `ensureHeroRail()`, which runs `buildTrack` on `blockCoasterSamples(3)` into it. Rail cross-section is 0.70 m by 0.58 m. Supports use `H(x,z)`. Lead car is `ride-block-01-car`. OPERATING requires that group to have children.
 
-VISIBLE. Local Gate-corridor view, same scene as Walk: the lift stands above the trees, the world group has 39 children, the crest mesh is at 36.3 m, and the Rydelic Dive dot says operating only after that group exists.
+VISIBLE. Live https://rydelicmusic.github.io/octave/park/#mesh , same scene as Walk: the lift stands above the trees west of the spine. ride-block-01-world has 39 children, the crest is at 36.3 m, and the dot says operating only after that group exists. The corner does not say “1.2 m pads”.

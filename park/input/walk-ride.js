@@ -312,7 +312,7 @@ export function tickWalkRide(camera) {
     const btn = typeof document !== 'undefined' ? document.getElementById('b1') : null;
     if (btn && btn.click) btn.click();
   }
-  last = stateFrom(mode, player, look, trigger);
+  last = stateFrom(mode, player, null, trigger);
   paintPrompt(last);
   return last;
 }
