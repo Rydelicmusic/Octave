@@ -9,7 +9,7 @@ export const RIDE = {
   land: 'The Block',
   sku: 'pavilion',
   name: 'Concrete Hymn Ship',
-  x: -187.5, z: -20, w: 12, d: 8, h: 4.9,
+  x: -137.5, z: -87.5, w: 12, d: 8, h: 4.9,
   yaw: 0,
   queueL: 4,
   queueW: 3.2,

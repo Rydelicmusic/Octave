@@ -525,10 +525,10 @@ export function addAttraction(THREE, scene, ride, type) {
   const spec = anchorFor({ ...ride, name: (RIDE_ANCHORS[ride.id] && RIDE_ANCHORS[ride.id].name) || ride.name });
   if (kind === 'coaster') {
     const pack = ride.id === 'ride-block-01'
-      ? { ...blockCoasterSamples(3), phys: 'coaster', railBulk: 3.2, postBulk: 2.4, gauge: 1.4, support: 0x2c3338 }
+      ? { ...giantBlockPack(), beacon: false, ribbon: false, railBulk: 3.2, postBulk: 2.6, gauge: 1.4, support: 0x1a1e22 }
       : { ...blockCoasterSamples(3), phys: 'coaster' };
     const colors = ride.id === 'ride-block-01'
-      ? { ...COLORS.coaster, rail: 0x5d6d7e, tie: 0x3a3430, railEmissive: 0x9aa8b5 }
+      ? { ...COLORS.coaster, rail: 0x1a1e22, tie: 0x2a2e32, railEmissive: 0x6a7380 }
       : COLORS.coaster;
     return buildCoaster(THREE, scene, spec, pack, colors);
   }

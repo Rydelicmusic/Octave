@@ -9,7 +9,7 @@ export const RIDE = {
   land: 'The Block',
   sku: 'kiosk',
   name: 'Block Song',
-  x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15,
+  x: -137.5, z: 112.5, w: 6, d: 4, h: 3.15,
   yaw: Math.PI,
   queueL: 4,
   queueW: 2.2,

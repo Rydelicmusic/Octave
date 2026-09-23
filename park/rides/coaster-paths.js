@@ -1,11 +1,12 @@
 /** World-space ride paths. Samples stay in their land, off the 14 m spine and hub r32. */
 import { LOCK, inCanopy, inStadium, occupiesSpine, nearRing } from '../lock.js';
 import { pushSpan, pushLoop, pushCorkscrew, pushHelix, stats, dryLap, dist3, lerpSample, norm } from './path-math.js';
+import { diveCellSamples, gigaCellSamples, rimCellSamples } from './block-cells.js';
 
 export const RIDE_ANCHORS = {
-  'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15, name: 'Rydelic Dive', type: 'coaster', cars: 3 },
-  'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -187.5, z: -20, w: 12, d: 8, h: 4.9, name: 'Block Giga', type: 'giga', cars: 4 },
-  'ride-block-rim': { id: 'ride-block-rim', land: 'The Block', x: -186, z: 118, w: 18, d: 6, h: 4.2, name: 'Rim Flight', type: 'rim', cars: 6 },
+  'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -137.5, z: 112.5, w: 6, d: 4, h: 3.15, name: 'Rydelic Dive', type: 'coaster', cars: 3 },
+  'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -137.5, z: -87.5, w: 12, d: 8, h: 4.9, name: 'Block Giga', type: 'giga', cars: 4 },
+  'ride-block-rim': { id: 'ride-block-rim', land: 'The Block', x: -187.5, z: 12.5, w: 10, d: 6, h: 4.2, name: 'Rim Flight', type: 'rim', cars: 6 },
   'ride-board-01': { id: 'ride-board-01', land: 'The Board', x: 160, z: 14, w: 6, d: 4, h: 3.15, name: 'Board Wheel', type: 'wheel', cars: 16 },
   'ride-board-02': { id: 'ride-board-02', land: 'The Board', x: 187.5, z: 14, w: 12, d: 8, h: 4.9, name: 'Board Swings', type: 'swings', cars: 12 },
   'ride-hours-01': { id: 'ride-hours-01', land: 'After Hours', x: -36, z: -175, w: 6, d: 4, h: 3.15, name: 'Hours Dark', type: 'dark', cars: 1 },
@@ -156,33 +157,9 @@ function pushImmelmann(pts, entry, forward, radius) {
   }
 }
 
-/** Rydelic Dive. Near-vertical lift, hang at the crest, dive, Immelmann, block brake, second dive, skim, station. */
+/** Rydelic Dive. South of the shared row. Geometry lives in block-cells.js. */
 export function giantBlockSamples() {
-  const pts = [];
-  const station = { x: -132, y: 3.2, z: 74 };
-  const liftFoot = { x: -104, y: 4.2, z: 104 };
-  const crest = { x: -101, y: 32, z: 107 };
-  const lip = { x: -99, y: 30.2, z: 111 };
-  const valley = { x: -103, y: 4.4, z: 116 };
-  pushSpan(pts, station, liftFoot, 12, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
-  pushSpan(pts, liftFoot, crest, 18, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0, { speed: () => 7, lift: true });
-  pushSpan(pts, crest, lip, 8, (t) => crest.y + (lip.y - crest.y) * t, () => 0.4, { speed: () => 4, crestHold: true });
-  pushSpan(pts, lip, valley, 14, (t) => lip.y + (valley.y - lip.y) * t, () => -0.2, { speed: () => 20 });
-  pushImmelmann(pts, valley, { x: valley.x - lip.x, y: 0, z: valley.z - lip.z }, 11);
-  const mid = pts[pts.length - 1];
-  const block = { x: -128, y: mid.y - 1, z: 96 };
-  const dive2 = { x: -146, y: 20, z: 84 };
-  const skim = { x: -148, y: 1.5, z: 78 };
-  const brakeIn = { x: -138, y: 3.4, z: 70 };
-  pushSpan(pts, { x: mid.x, y: mid.y, z: mid.z }, block, 10, (t) => mid.y + (block.y - mid.y) * t, () => 0, { speed: () => 10, blockBrake: true });
-  pushSpan(pts, block, dive2, 10, (t) => block.y + (dive2.y - block.y) * t, () => 0.1, { speed: () => 12 });
-  pushSpan(pts, dive2, skim, 12, (t) => dive2.y + (skim.y - dive2.y) * t, () => -0.15, { speed: () => 16 });
-  pushSpan(pts, skim, brakeIn, 8, (t) => skim.y + (brakeIn.y - skim.y) * t, () => 0, { speed: () => 8, brake: true });
-  pushSpan(pts, brakeIn, station, 12, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 6 - t * 3, brake: true });
-  pts.push({
-    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, crestHold: false, blockBrake: false,
-  });
-  return densify(pts, 2.2);
+  return diveCellSamples();
 }
 
 export function giantBlockPack() {
@@ -232,33 +209,9 @@ function pushHorseshoe(pts, center, radius, a0, a1, yBase, crown, bankPeak, step
   }
 }
 
-/** Block Giga. Tall chain, long first drop, two camelbacks, west-fence horseshoe, speed hills home. */
+/** Block Giga. North of the shared row. Geometry lives in block-cells.js. */
 export function gigaBlockSamples() {
-  const pts = [];
-  const station = { x: -188, y: 3.2, z: 58 };
-  const liftFoot = { x: -192, y: 4.2, z: 86 };
-  const crest = { x: -194, y: 30, z: 91 };
-  const valley = { x: -202, y: 3.2, z: 100 };
-  const camel1 = { x: -228, y: 3.4, z: 78 };
-  const camel2 = { x: -240, y: 4.2, z: 20 };
-  const turn = { x: -240, y: 5, z: -22 };
-  const home = { x: -206, y: 3.4, z: 8 };
-  const brakeIn = { x: -192, y: 3.3, z: 36 };
-  pushSpan(pts, station, liftFoot, 12, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
-  pushSpan(pts, liftFoot, crest, 18, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0, { speed: () => 7, lift: true });
-  pushSpan(pts, crest, valley, 16, (t) => crest.y + (valley.y - crest.y) * t, () => -0.15, { speed: () => 22 });
-  pushSpan(pts, valley, camel1, 14, (t) => 3.3 + Math.sin(t * Math.PI) * 12.5, (t) => Math.sin(t * Math.PI) * 0.28, { speed: () => 16 });
-  pushSpan(pts, camel1, camel2, 14, (t) => 3.5 + Math.sin(t * Math.PI) * 9.5, (t) => Math.sin(t * Math.PI) * -0.22, { speed: () => 15 });
-  pushSpan(pts, camel2, { x: turn.x, y: 5, z: turn.z + 42 }, 10, (t) => 4.2 + (5 - 4.2) * t, () => 0.2, { speed: () => 16 });
-  pushHorseshoe(pts, turn, 42, Math.PI / 2, Math.PI / 2 + Math.PI, 5, 3.2, 1.05, 32);
-  const exit = pts[pts.length - 1];
-  pushSpan(pts, { x: exit.x, y: exit.y, z: exit.z }, home, 12, (t) => 5 + Math.sin(t * Math.PI) * 4.5, () => 0.12, { speed: () => 14 });
-  pushSpan(pts, home, brakeIn, 10, (t) => 3.5 + Math.sin(t * Math.PI) * 3.2, () => 0, { speed: () => 12 });
-  pushSpan(pts, brakeIn, station, 12, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 7 - t * 4, brake: true });
-  pts.push({
-    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false,
-  });
-  return densify(pts, 2.2);
+  return gigaCellSamples();
 }
 
 export function gigaBlockPack() {
@@ -433,42 +386,11 @@ function pushRim(pts, th0, th1, s0, s1, yAt, bankAt, steps, flags) {
   }
 }
 
-/** Rim Flight. Long station, chain to the south-west rim, cliff drop, desert out-and-back. */
+/** Rim Flight. West strip. Geometry lives in block-cells.js. */
 export function rimBlockSamples() {
-  const pts = [];
-  const station = { x: -186, y: 3.2, z: 118 };
-  const stationEnd = { x: -214, y: 3.5, z: 130 };
-  pushSpan(pts, station, stationEnd, 18, (t) => station.y + (stationEnd.y - station.y) * t, () => 0, { speed: () => 5 });
-  pushRim(pts, 1.92, 2.32, 0.90, 0.95, (t) => 3.5 + t * 60.5, () => 0, 28, { speed: () => 7, lift: true });
-  pushRim(pts, 2.32, 2.52, 0.95, 0.975, (t) => 64 - t * 60.2, () => -0.18, 12, { speed: () => 24 });
-  pushRim(pts, 2.52, 2.90, 0.975, 0.975, (t) => 3.8 + Math.sin(t * Math.PI) * 6.4, (t) => Math.sin(t * Math.PI) * 0.22, 16, { speed: () => 20 });
-  pushRim(pts, 2.90, 3.52, 0.985, 0.99, (t) => 4.2 + Math.sin(t * Math.PI) * 16, (t) => Math.sin(t * Math.PI) * 0.32, 18, { speed: () => 16 });
-  pushRim(pts, 3.52, 4.42, 0.97, 0.93, (t) => 4.6 + Math.sin(t * Math.PI) * 5.2, () => 0.12, 20, { speed: () => 18 });
-  const north = pts[pts.length - 1];
-  const turnFar = { x: -162, y: 7.2, z: -146 };
-  const turnBack = { x: -170, y: 5.4, z: -124 };
-  pushSpan(pts, { x: north.x, y: north.y, z: north.z }, turnFar, 10, (t) => north.y + (turnFar.y - north.y) * t, (t) => 0.45 * Math.sin(t * Math.PI), { speed: () => 14 });
-  pushSpan(pts, turnFar, turnBack, 8, (t) => turnFar.y + (turnBack.y - turnFar.y) * t, (t) => 0.5 * Math.sin(t * Math.PI), { speed: () => 13 });
-  const eastA = { x: -168, y: 5.2, z: -90 };
-  const eastB = { x: -160, y: 4.8, z: -16 };
-  const eastC = { x: -164, y: 4.6, z: 52 };
-  const pastDive = { x: -176, y: 4.4, z: 74 };
-  const eastOfCart = { x: -164, y: 4.2, z: 82 };
-  const pastCart = { x: -164, y: 4.0, z: 112 };
-  pushSpan(pts, turnBack, eastA, 12, (t) => turnBack.y + (eastA.y - turnBack.y) * t, () => 0.08, { speed: () => 16 });
-  pushSpan(pts, eastA, eastB, 14, (t) => 5.1 + Math.sin(t * Math.PI) * 1.6, () => 0, { speed: () => 18 });
-  pushSpan(pts, eastB, eastC, 12, (t) => 4.8 + Math.sin(t * Math.PI) * 1.4, () => -0.06, { speed: () => 17 });
-  pushSpan(pts, eastC, pastDive, 8, (t) => 4.5, () => 0, { speed: () => 15 });
-  pushSpan(pts, pastDive, eastOfCart, 6, (t) => 4.3, () => 0, { speed: () => 14 });
-  pushSpan(pts, eastOfCart, pastCart, 8, (t) => 4.1, () => 0, { speed: () => 13 });
-  const brakeIn = { x: -204, y: 3.6, z: 122 };
-  pushSpan(pts, pastCart, brakeIn, 8, (t) => pastCart.y + (brakeIn.y - pastCart.y) * t, () => 0, { speed: () => 10, brake: true });
-  pushSpan(pts, brakeIn, station, 14, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 7 - t * 4, brake: true });
-  pts.push({
-    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false, lsm: false,
-  });
-  return densify(pts, 1.8);
+  return rimCellSamples();
 }
+
 
 export function rimBlockPack() {
   const samples = rimBlockSamples();
