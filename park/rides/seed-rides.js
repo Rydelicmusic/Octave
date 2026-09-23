@@ -10,6 +10,7 @@ import { claimRide as claimPocket02 } from './ride-pocket-02.js';
 import { claimRide as claimGateSigns } from './ride-gate-signs.js';
 import '../park-kit.js';
 import '../gate-icon.js';
+import '../halloween/haunt-scene.js';
 
 export function claimAllRides() {
   const fns = [

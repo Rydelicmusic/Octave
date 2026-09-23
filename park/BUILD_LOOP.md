@@ -27,3 +27,10 @@ Checked: piers (±10, 216) and map/ticket props pass gateClear (occupiesSpine, h
 Pass: first view is the RYDELIC PARK arch; tickets and map are props, not a new building SKU.
 Fail: ride vehicles still static; Halloween skin absent; land beds absent.
 Next: park/halloween/haunt-scene.js night skin, one wire.
+
+## Cycle 3 — 2026-09-22
+File: park/halloween/haunt-scene.js. Wire: one import in park/rides/seed-rides.js.
+Checked: four pumpkins and four bat orbits pass hauntClear (occupiesSpine, hub r32, nearRing). Pumpkins sit inside their land canopies. Moon stays in the sky. Fog color/near only; fog.far left for Walk / 3rd / Above. No water.
+Pass: night clear, moon orbit, pumpkin bob and flicker, bat orbit. Land materials untouched.
+Fail: ride vehicles still static; land beds absent.
+Next: park/rides/attractions.js motion on the eight claimed pads, one wire.
