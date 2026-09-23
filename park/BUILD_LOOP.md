@@ -196,3 +196,22 @@ Same footprint. No new land. No water. No hotel. Physics from binge 3 stays the 
 98/100 Walk script in logic-test: admit, join Block Coaster, board, close restraint, dispatch, lap, photo id, then join the wheel queue.
 99/100 60 s soak at 60× clock. No NaN. Clock lands at 11:00, still open.
 100/100 Drive 2026-09-23-BINGE4-logic. Commit binge 4/4 cycle 100/100 logic realism. Live park must still load. Stop. No binge 5 until the director pastes it.
+
+### QC — function check — 2026-09-23 00:36 CDT
+No new land. No new ride type. No water. No hotel. Evidence is park/QC_LOG.md.
+
+101/115 Boot files are present. index sets __PARK_DRY, imports seed-rides, and calls __tickRides before render. Haunt-boot does not static-import tickMotion.
+102/115 park/qc/qc-boot.js. 45 files, named imports match exports.
+103/115 park/qc/qc-layout.js. Four land names. Water forEach is behind __PARK_DRY. Path samples: canopy violations 0, spine hits 0, hub hits 0.
+104/115 No layout FAIL. No sample was moved.
+105/115 park/qc/qc-paths.js. Eight closed paths, seam 0.000. Wheel, swings, spin, and drop are SKIP because they have no rail.
+106/115 No open path and no missing path car. Nothing to move.
+107/115 park/qc/qc-ride.js. Six path dry laps, no NaN. Hero maxY 37.7. Wheel, swings, drop, and spin each finish a period.
+108/115 Lead car name is now `${id}-car` via carName(). ride-block-01-car. Fleet vehicles stay SKIP: gondola, swing seat, drop cabin, bumper.
+109/115 park/qc/qc-physics.js. Station v 0 after the lap. Drop 23.6 m/s from a 2.5 m/s lift. E-stop at s 180 stays on the rail at s 189 in BRAKE.
+110/115 park/qc/qc-logic.js. Board at load. COURSE rejects board. Open restraints refuse dispatch. Queue advances. E-stop is BRAKE. Close-of-day ends CLOSED.
+111/115 park/qc/qc-perf.js. Agent cap 28. 60 s soak, 2 ms, no NaN, spine hits 0. 1899 path samples. Live mesh count is SKIP in headless.
+112/115 The same soak is inside qc-run.js. No NaN.
+113/115 park/QC_WALK.md. Gate, spine, Block Coaster, board, lap, exit, wheel.
+114/115 node park/qc/qc-run.js — pass 46, fail 0, skip 9. ride-test.js 12 pass. Zero boot FAILs. No feature FAIL left over.
+115/115 Drive 2026-09-23-BINGE-QC. Commit QC 115/115 function check.

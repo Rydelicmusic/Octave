@@ -199,14 +199,20 @@ export function buildTrack(THREE, parent, table, opts) {
   return { poseAt: (s) => poseAt(table, s), chains, brakes, dogs, lamps: lights, chainMat, brakeMat };
 }
 
-export function buildTrain(THREE, parent, count, colors) {
+/** Lead car is `${id}-car`. Following cars are `${id}-car-1`, and so on. */
+export function carName(id, index) {
+  const base = id || 'car';
+  return index ? base + '-car-' + index : base + '-car';
+}
+
+export function buildTrain(THREE, parent, count, colors, id) {
   const cars = [];
   const bodyMat = mat(THREE, colors.body || 0xc45c26, colors.body || 0x802010, 0.15);
   const seatMat = mat(THREE, 0x241810);
   const barMat = mat(THREE, 0xf2efe6, 0xc9b48a, 0.2);
   for (let i = 0; i < count; i++) {
     const car = new THREE.Group();
-    car.name = 'car-' + i;
+    car.name = carName(id, i);
     const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.42, 2.15), bodyMat);
     chassis.position.y = -0.35;
     const nose = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.28, 0.35), barMat);

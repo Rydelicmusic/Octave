@@ -164,7 +164,7 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
   scene.add(world);
   const table = arcTable(pack.samples);
   const track = buildTrack(THREE, world, table, { name: ride.id, ...colors });
-  const cars = buildTrain(THREE, world, pack.cars, colors);
+  const cars = buildTrain(THREE, world, pack.cars, colors, ride.id);
   const station = buildStation(THREE, world, {
     ...ride,
     x: ride.x + 12,
@@ -215,7 +215,7 @@ function buildDark(THREE, scene, ride, which) {
     shows: darkShows(which),
   });
   const table = arcTable(pack.samples);
-  const cars = buildTrain(THREE, world, 1, { body: 0x3a3058 });
+  const cars = buildTrain(THREE, world, 1, { body: 0x3a3058 }, ride.id);
   const station = buildStation(THREE, world, {
     ...ride,
     z: ride.z + (which === 2 ? 14 : 11),
