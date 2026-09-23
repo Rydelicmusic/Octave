@@ -41,3 +41,10 @@ Checked: eight existing ids kept. Exit photos pass rideClear and sit in their la
 Pass: queue already in the kit; load posts, moving vehicle, unload posts, exit frame on each pad.
 Fail: land beds absent.
 Next: park/land-beds.js emissive trim and music-bed stub, one wire.
+
+## Cycle 5 — 2026-09-22
+File: park/land-beds.js. Wire: one import in park/rides/seed-rides.js.
+Checked: four trims pass bedClear (occupiesSpine, hub r32, nearRing) and sit in their canopy. playLandBed returns src null. No rings. No water. Cameras untouched. Emissive pulse is its own RAF.
+Pass: music-bed hook stubbed. Trim is land color, not a new lot on the spine.
+Ship gates: footprint still the locked park; gate arch + crown, spine untouched, four land arches, eight rides moving; ground not removed; no water added; motion does not need an index.html rewrite.
+Next: none. Five cycles spent. Drive copy of these files is the handoff, not another park rewrite.

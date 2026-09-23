@@ -12,6 +12,7 @@ import '../park-kit.js';
 import '../gate-icon.js';
 import '../halloween/haunt-scene.js';
 import './attractions.js';
+import '../land-beds.js';
 
 export function claimAllRides() {
   const fns = [
