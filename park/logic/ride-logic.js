@@ -10,6 +10,7 @@ import { bootAgents, stepAgents, agentList, resetAgents } from './agents.js';
 export const RIDE_RULES = {
   'ride-block-01': { kind: 'coaster', seats: 4, thrill: 'extreme', height: 48, cycle: 140, blocks: true },
   'ride-block-02': { kind: 'launch', seats: 2, thrill: 'extreme', height: 48, cycle: 90, blocks: true },
+  'ride-block-rim': { kind: 'coaster', seats: 24, thrill: 'extreme', height: 54, cycle: 210, blocks: true },
   'ride-board-family': { kind: 'family', seats: 3, thrill: 'family', height: 36, cycle: 70, blocks: true },
   'ride-board-01': { kind: 'wheel', seats: 16, thrill: 'gentle', height: 0, cycle: 48 },
   'ride-board-02': { kind: 'swings', seats: 12, thrill: 'moderate', height: 42, cycle: 36 },

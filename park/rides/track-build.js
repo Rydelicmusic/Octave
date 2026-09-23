@@ -526,6 +526,39 @@ export function buildDiveTrain(THREE, parent, count, colors, id) {
   return cars;
 }
 
+/** Sand cliff under the tall rim, and a low shelf under the desert run. */
+export function buildRimBerm(THREE, parent, samples, id) {
+  const cliffMat = mat(THREE, 0xd7c4a2, 0xc4b08a, 0.08);
+  const shelfMat = mat(THREE, 0xc6b48e);
+  const n = samples.length;
+  const tag = id || 'rim';
+  for (let i = 0; i < n; i += 4) {
+    const p = samples[i];
+    const q = samples[Math.min(n - 1, i + 4)];
+    const span = Math.max(4, Math.hypot(q.x - p.x, q.z - p.z));
+    const yaw = Math.atan2(q.x - p.x, q.z - p.z);
+    let mesh = null;
+    if (p.y > 28) {
+      const height = Math.max(8, Math.min(p.y * 0.55, p.y - 10));
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(18, height, span * 1.15), cliffMat);
+      mesh.position.set(p.x, height / 2, p.z);
+      mesh.name = tag + '-berm';
+    } else if (p.y < 12 && p.y > 2.4 && i > n * 0.16 && i < n * 0.84) {
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(8, 2.4, span * 1.2), shelfMat);
+      mesh.position.set(p.x, 1.2, p.z);
+      mesh.name = tag + '-shelf';
+    }
+    if (!mesh) continue;
+    mesh.rotation.y = yaw;
+    mesh.frustumCulled = false;
+    mesh.userData.hubKeep = true;
+    mesh.userData.dryKeep = true;
+    mesh.userData.tidyKeep = true;
+    mesh.userData.waterKeep = true;
+    parent.add(mesh);
+  }
+}
+
 let carBasis = null;
 let carRight = null;
 let carUp = null;

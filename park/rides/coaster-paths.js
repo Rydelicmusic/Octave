@@ -5,6 +5,7 @@ import { pushSpan, pushLoop, pushCorkscrew, pushHelix, stats, dryLap, dist3, ler
 export const RIDE_ANCHORS = {
   'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15, name: 'Rydelic Dive', type: 'coaster', cars: 3 },
   'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -187.5, z: -20, w: 12, d: 8, h: 4.9, name: 'Block Giga', type: 'giga', cars: 4 },
+  'ride-block-rim': { id: 'ride-block-rim', land: 'The Block', x: -186, z: 118, w: 18, d: 6, h: 4.2, name: 'Rim Flight', type: 'rim', cars: 6 },
   'ride-board-01': { id: 'ride-board-01', land: 'The Board', x: 160, z: 14, w: 6, d: 4, h: 3.15, name: 'Board Wheel', type: 'wheel', cars: 16 },
   'ride-board-02': { id: 'ride-board-02', land: 'The Board', x: 187.5, z: 14, w: 12, d: 8, h: 4.9, name: 'Board Swings', type: 'swings', cars: 12 },
   'ride-hours-01': { id: 'ride-hours-01', land: 'After Hours', x: -36, z: -175, w: 6, d: 4, h: 3.15, name: 'Hours Dark', type: 'dark', cars: 1 },
@@ -402,6 +403,108 @@ export function hybridBoardPack() {
   };
 }
 
+function rimPoint(theta, scale) {
+  return {
+    x: -165 + Math.cos(theta) * 130 * scale,
+    z: -10 + Math.sin(theta) * 160 * scale,
+  };
+}
+
+function pushRim(pts, th0, th1, s0, s1, yAt, bankAt, steps, flags) {
+  for (let k = 0; k < steps; k++) {
+    const t = steps === 1 ? 0 : k / steps;
+    const th = th0 + (th1 - th0) * t;
+    const s = s0 + (s1 - s0) * t;
+    const p = rimPoint(th, s);
+    pts.push({
+      x: p.x,
+      z: p.z,
+      y: yAt(t),
+      bank: bankAt ? bankAt(t) : 0,
+      speed: flags && flags.speed ? flags.speed(t) : 14,
+      lift: !!(flags && flags.lift),
+      brake: !!(flags && flags.brake),
+      tunnel: false,
+      inversion: false,
+      crestHold: false,
+      blockBrake: false,
+      lsm: false,
+    });
+  }
+}
+
+/** Rim Flight. Long station, chain to the south-west rim, cliff drop, desert out-and-back. */
+export function rimBlockSamples() {
+  const pts = [];
+  const station = { x: -186, y: 3.2, z: 118 };
+  const stationEnd = { x: -214, y: 3.5, z: 130 };
+  pushSpan(pts, station, stationEnd, 18, (t) => station.y + (stationEnd.y - station.y) * t, () => 0, { speed: () => 5 });
+  pushRim(pts, 1.92, 2.32, 0.90, 0.95, (t) => 3.5 + t * 60.5, () => 0, 28, { speed: () => 7, lift: true });
+  pushRim(pts, 2.32, 2.52, 0.95, 0.975, (t) => 64 - t * 60.2, () => -0.18, 12, { speed: () => 24 });
+  pushRim(pts, 2.52, 2.90, 0.975, 0.975, (t) => 3.8 + Math.sin(t * Math.PI) * 6.4, (t) => Math.sin(t * Math.PI) * 0.22, 16, { speed: () => 20 });
+  pushRim(pts, 2.90, 3.52, 0.985, 0.99, (t) => 4.2 + Math.sin(t * Math.PI) * 16, (t) => Math.sin(t * Math.PI) * 0.32, 18, { speed: () => 16 });
+  pushRim(pts, 3.52, 4.42, 0.97, 0.93, (t) => 4.6 + Math.sin(t * Math.PI) * 5.2, () => 0.12, 20, { speed: () => 18 });
+  const north = pts[pts.length - 1];
+  const turnFar = { x: -162, y: 7.2, z: -146 };
+  const turnBack = { x: -170, y: 5.4, z: -124 };
+  pushSpan(pts, { x: north.x, y: north.y, z: north.z }, turnFar, 10, (t) => north.y + (turnFar.y - north.y) * t, (t) => 0.45 * Math.sin(t * Math.PI), { speed: () => 14 });
+  pushSpan(pts, turnFar, turnBack, 8, (t) => turnFar.y + (turnBack.y - turnFar.y) * t, (t) => 0.5 * Math.sin(t * Math.PI), { speed: () => 13 });
+  const eastA = { x: -168, y: 5.2, z: -90 };
+  const eastB = { x: -160, y: 4.8, z: -16 };
+  const eastC = { x: -164, y: 4.6, z: 52 };
+  const pastDive = { x: -176, y: 4.4, z: 74 };
+  const eastOfCart = { x: -164, y: 4.2, z: 82 };
+  const pastCart = { x: -164, y: 4.0, z: 112 };
+  pushSpan(pts, turnBack, eastA, 12, (t) => turnBack.y + (eastA.y - turnBack.y) * t, () => 0.08, { speed: () => 16 });
+  pushSpan(pts, eastA, eastB, 14, (t) => 5.1 + Math.sin(t * Math.PI) * 1.6, () => 0, { speed: () => 18 });
+  pushSpan(pts, eastB, eastC, 12, (t) => 4.8 + Math.sin(t * Math.PI) * 1.4, () => -0.06, { speed: () => 17 });
+  pushSpan(pts, eastC, pastDive, 8, (t) => 4.5, () => 0, { speed: () => 15 });
+  pushSpan(pts, pastDive, eastOfCart, 6, (t) => 4.3, () => 0, { speed: () => 14 });
+  pushSpan(pts, eastOfCart, pastCart, 8, (t) => 4.1, () => 0, { speed: () => 13 });
+  const brakeIn = { x: -204, y: 3.6, z: 122 };
+  pushSpan(pts, pastCart, brakeIn, 8, (t) => pastCart.y + (brakeIn.y - pastCart.y) * t, () => 0, { speed: () => 10, brake: true });
+  pushSpan(pts, brakeIn, station, 14, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 7 - t * 4, brake: true });
+  pts.push({
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, inversion: false, crestHold: false, blockBrake: false, lsm: false,
+  });
+  return densify(pts, 1.8);
+}
+
+export function rimBlockPack() {
+  const samples = rimBlockSamples();
+  let maxY = 0;
+  for (const p of samples) if (p.y > maxY) maxY = p.y;
+  return {
+    id: 'ride-block-rim',
+    land: 'The Block',
+    phys: 'coaster',
+    samples,
+    cars: 6,
+    carGap: 4.8,
+    carScale: 1,
+    stationHold: 2.4,
+    stationAtPath: true,
+    ribbon: true,
+    hyper: true,
+    rim: true,
+    drag: 0.0011,
+    railBulk: 2.4,
+    postBulk: 4.2,
+    gauge: 1.35,
+    spine: 0xe7eaee,
+    spineEmissive: 0xb7c0b0,
+    spineGlow: 0.22,
+    spineWide: 0.95,
+    spineHigh: 0.42,
+    postWide: 1.25,
+    support: 0xd2c4a4,
+    supportEmissive: 0x8a7860,
+    supportGlow: 0.12,
+    apex: maxY,
+    lap: dryLap(samples, 240),
+  };
+}
+
 /** Family coaster on The Board, north of the wheel. Closed. Inside the canopy. */
 export function boardFamilySamples() {
   const pts = [];
@@ -565,5 +668,6 @@ export function allPaths() {
     boardFamilySamples(),
     darkSamples(1),
     darkSamples(2),
+    rimBlockPack(),
   ];
 }
