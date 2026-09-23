@@ -2,7 +2,7 @@
 import { LOCK, occupiesSpine, nearRing, inStadium } from '../lock.js';
 import { arcTable } from './path-math.js';
 import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples, giantBlockPack } from './coaster-paths.js';
-import { buildTrack, buildTrain, placeCars } from './track-build.js';
+import { buildTrack, buildTrain, buildDiveTrain, placeCars } from './track-build.js';
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, buildSpin, layoutSpin } from './ride-fleet.js';
 import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain } from './ride-runtime.js';
@@ -187,7 +187,9 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     supportEmissive: pack.beacon ? 0xffe1b0 : 0,
     supportGlow: pack.beacon ? 0.85 : 0,
   });
-  const cars = buildTrain(THREE, world, pack.cars, colors, ride.id);
+  const cars = pack.dive
+    ? buildDiveTrain(THREE, world, pack.cars || 3, colors, ride.id)
+    : buildTrain(THREE, world, pack.cars, colors, ride.id);
   if (pack.carScale) cars.forEach((car) => car.scale.setScalar(pack.carScale));
   if (pack.beacon) {
     let crest = pack.samples[0];
@@ -222,7 +224,7 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     length: table.length,
     stationHold: pack.stationHold,
     cars,
-    phys: PHYS[pack.phys] || PHYS.coaster,
+    phys: { ...(PHYS[pack.phys] || PHYS.coaster), crestHold: pack.crestHold || 0 },
     chains: track.chains,
     brakes: track.brakes,
     dogs: track.dogs,
@@ -527,7 +529,14 @@ function publishRideHooks() {
       if (typeof window !== 'undefined' && window.__tickWater) window.__tickWater(performance.now() / 1000);
       const hero = getRide('ride-block-01');
       if (hero && hero.lead && hero.lead.p) {
-        window.__blockS = { s: hero.s, y: hero.lead.p.y, hold: hero.hold, lap: hero.lap };
+        window.__blockS = {
+          s: hero.s,
+          y: hero.lead.p.y,
+          hold: hero.hold,
+          lap: hero.lap,
+          holding: !!(hero.ops && hero.ops.holding),
+          v: hero.ops ? hero.ops.v : hero.speed,
+        };
       }
     } catch (err) { console.warn('tickMotion', err); }
   };

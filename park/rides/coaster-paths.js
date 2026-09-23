@@ -1,9 +1,9 @@
 /** World-space ride paths. Samples stay in their land, off the 14 m spine and hub r32. */
 import { LOCK, inCanopy, inStadium, occupiesSpine, nearRing } from '../lock.js';
-import { pushSpan, pushLoop, pushCorkscrew, pushHelix, stats, dryLap, dist3, lerpSample } from './path-math.js';
+import { pushSpan, pushLoop, pushCorkscrew, pushHelix, stats, dryLap, dist3, lerpSample, norm } from './path-math.js';
 
 export const RIDE_ANCHORS = {
-  'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15, name: 'Block Coaster', type: 'coaster', cars: 4 },
+  'ride-block-01': { id: 'ride-block-01', land: 'The Block', x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15, name: 'Rydelic Dive', type: 'coaster', cars: 3 },
   'ride-block-02': { id: 'ride-block-02', land: 'The Block', x: -187.5, z: -20, w: 12, d: 8, h: 4.9, name: 'Block Launch', type: 'launch', cars: 2 },
   'ride-board-01': { id: 'ride-board-01', land: 'The Board', x: 160, z: 14, w: 6, d: 4, h: 3.15, name: 'Board Wheel', type: 'wheel', cars: 16 },
   'ride-board-02': { id: 'ride-board-02', land: 'The Board', x: 187.5, z: 14, w: 12, d: 8, h: 4.9, name: 'Board Swings', type: 'swings', cars: 12 },
@@ -112,31 +112,76 @@ export function blockCoasterSamples(version = 3) {
   return { id: 'ride-block-01', land: 'The Block', version, samples, cars: 4, carGap: 3.4, stationHold: 2, ...meta(samples, 'The Block') };
 }
 
-/** Giant Block circuit. Crest sits on the south rim, the side the Gate can see.
- *  Station, lift, drop, vertical loop, airtime hill, brakes, same station. */
+function pushImmelmann(pts, entry, forward, radius) {
+  const T = norm({ x: forward.x, y: 0, z: forward.z });
+  const steps = 24;
+  for (let k = 1; k <= steps; k++) {
+    const phi = (k / steps) * Math.PI;
+    const along = Math.sin(phi) * radius;
+    const y = entry.y + radius * (1 - Math.cos(phi));
+    pts.push({
+      x: entry.x + T.x * along,
+      y,
+      z: entry.z + T.z * along,
+      bank: phi > 2.4 ? Math.PI : 0,
+      speed: 16,
+      lift: false,
+      brake: false,
+      tunnel: false,
+      inversion: phi > 1.4 && phi < 2.9,
+      crestHold: false,
+      blockBrake: false,
+    });
+  }
+  const top = pts[pts.length - 1];
+  const roll = 16;
+  const n = 10;
+  for (let k = 1; k <= n; k++) {
+    const u = k / n;
+    const bank = Math.PI * (1 - u);
+    pts.push({
+      x: top.x - T.x * roll * u,
+      y: top.y - u * 2,
+      z: top.z - T.z * roll * u,
+      bank,
+      speed: 12,
+      lift: false,
+      brake: false,
+      tunnel: false,
+      inversion: bank > 0.9,
+      crestHold: false,
+      blockBrake: false,
+    });
+  }
+}
+
+/** Rydelic Dive. Near-vertical lift, hang at the crest, dive, Immelmann, block brake, second dive, skim, station. */
 export function giantBlockSamples() {
   const pts = [];
-  const station = { x: -122, y: 3.6, z: 78 };
-  const liftFoot = { x: -112, y: 5, z: 94 };
-  const crest = { x: -98, y: 42, z: 112 };
-  const loopEntry = { x: -136, y: 8.2, z: 86 };
-  pushSpan(pts, station, liftFoot, 10, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
-  pushSpan(pts, liftFoot, crest, 22, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0.04, { speed: () => 7, lift: true });
-  pushSpan(pts, crest, loopEntry, 16, (t) => crest.y + (loopEntry.y - crest.y) * t, () => -0.12, { speed: () => 18 });
-  const fwd = { x: loopEntry.x - crest.x, y: 0, z: loopEntry.z - crest.z };
-  pushLoop(pts, loopEntry, fwd, 12, 36);
-  const afterLoop = pts[pts.length - 1];
-  const air = { x: -158, y: 16, z: 62 };
-  const valley = { x: -150, y: 4.8, z: 48 };
-  const brakeIn = { x: -132, y: 4.2, z: 64 };
-  pushSpan(pts, { x: afterLoop.x, y: afterLoop.y, z: afterLoop.z }, air, 14, (t) => afterLoop.y + (16 - afterLoop.y) * Math.sin(t * Math.PI * 0.85), () => 0.2, { speed: () => 13 });
-  pushSpan(pts, air, valley, 12, (t) => air.y + (valley.y - air.y) * t, () => -0.15, { speed: () => 14 });
-  pushSpan(pts, valley, brakeIn, 12, (t) => valley.y + (brakeIn.y - valley.y) * t, () => 0.1, { speed: () => 10 });
-  pushSpan(pts, brakeIn, station, 14, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 8 - t * 5, brake: true });
+  const station = { x: -132, y: 3.2, z: 74 };
+  const liftFoot = { x: -104, y: 4.2, z: 104 };
+  const crest = { x: -101, y: 32, z: 107 };
+  const lip = { x: -99, y: 30.2, z: 111 };
+  const valley = { x: -103, y: 4.4, z: 116 };
+  pushSpan(pts, station, liftFoot, 12, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
+  pushSpan(pts, liftFoot, crest, 18, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0, { speed: () => 7, lift: true });
+  pushSpan(pts, crest, lip, 8, (t) => crest.y + (lip.y - crest.y) * t, () => 0.4, { speed: () => 4, crestHold: true });
+  pushSpan(pts, lip, valley, 14, (t) => lip.y + (valley.y - lip.y) * t, () => -0.2, { speed: () => 20 });
+  pushImmelmann(pts, valley, { x: valley.x - lip.x, y: 0, z: valley.z - lip.z }, 11);
+  const mid = pts[pts.length - 1];
+  const block = { x: -128, y: mid.y - 1, z: 96 };
+  const dive2 = { x: -146, y: 20, z: 84 };
+  const skim = { x: -148, y: 1.5, z: 78 };
+  const brakeIn = { x: -138, y: 3.4, z: 70 };
+  pushSpan(pts, { x: mid.x, y: mid.y, z: mid.z }, block, 10, (t) => mid.y + (block.y - mid.y) * t, () => 0, { speed: () => 10, blockBrake: true });
+  pushSpan(pts, block, dive2, 10, (t) => block.y + (dive2.y - block.y) * t, () => 0.1, { speed: () => 12 });
+  pushSpan(pts, dive2, skim, 12, (t) => dive2.y + (skim.y - dive2.y) * t, () => -0.15, { speed: () => 16 });
+  pushSpan(pts, skim, brakeIn, 8, (t) => skim.y + (brakeIn.y - skim.y) * t, () => 0, { speed: () => 8, brake: true });
+  pushSpan(pts, brakeIn, station, 12, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 6 - t * 3, brake: true });
   pts.push({
-    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false,
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false, crestHold: false, blockBrake: false,
   });
-  return densify(pts, 2.4);
+  return densify(pts, 2.2);
 }
 
 export function giantBlockPack() {
@@ -148,16 +193,18 @@ export function giantBlockPack() {
     land: 'The Block',
     phys: 'coaster',
     samples,
-    cars: 4,
-    carGap: 4.6,
-    carScale: 1.35,
+    cars: 3,
+    carGap: 3.8,
+    carScale: 1,
     stationHold: 2,
     stationAtPath: true,
     beacon: true,
     ribbon: true,
-    railBulk: 4.2,
-    postBulk: 6.2,
-    gauge: 1.42,
+    dive: true,
+    crestHold: 3,
+    railBulk: 3.6,
+    postBulk: 5.4,
+    gauge: 1.55,
     apex: maxY,
   };
 }

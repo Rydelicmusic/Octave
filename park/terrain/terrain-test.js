@@ -34,7 +34,7 @@ export function runTerrainTests() {
   const pools = pocketPools();
   check('one pocket pool', pools.length === 1 && !pools[0].rings, pools.map((p) => p.id).join(','));
   check('no stacked rings', BASINS.every((b) => !b.rings && b.rx > 0 && b.rz > 0));
-  check('four designed basins', BASINS.length === 4, String(BASINS.length));
+  check('designed basins', BASINS.length === 5 && BASINS.some((b) => b.id === 'block-dive-splash'), String(BASINS.length));
 
   let sunk = 0;
   let minClear = Infinity;

@@ -6,6 +6,7 @@ export const BASINS = [
   { id: 'plaza-fountain', kind: 'fountain', land: 'The Block', x: -118, z: 62, rx: 4.2, rz: 4.2, y: 0.35 },
   { id: 'hours-canal', kind: 'canal', land: 'After Hours', x: -36, z: -178, rx: 5.5, rz: 1.1, y: 0.08 },
   { id: 'pocket-pool', kind: 'pool', land: 'The Pocket', x: 52, z: 158, rx: 7, rz: 4.2, y: 0.05 },
+  { id: 'block-dive-splash', kind: 'splash', land: 'The Block', x: -148, z: 78, rx: 11, rz: 6.5, y: -0.2 },
 ];
 
 export function pocketPools() {

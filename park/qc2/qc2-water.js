@@ -11,6 +11,7 @@ const ALLOW = {
   'plaza-fountain': 'one plaza fountain',
   'hours-canal': 'Hours canal inside the dark volume',
   'pocket-pool': 'single Pocket pool',
+  'block-dive-splash': 'one dive skim basin under the Block dive',
 };
 
 function row(name, status, detail) {

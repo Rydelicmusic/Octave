@@ -138,7 +138,8 @@ export function finalRows() {
   const hits = waterHitsHubOrSpine();
   const rings = pools.some((pool) => pool.rings) || BASINS.some((basin) => basin.rings);
   const allowIds = BASINS.map((basin) => basin.id).join(', ');
-  const legal = pools.length === 1 && !rings && hits.length === 0 && BASINS.length === 4;
+  const ids = BASINS.map((basin) => basin.id);
+  const legal = pools.length === 1 && !rings && hits.length === 0 && ids.includes('block-dive-splash') && ids.length === 5;
   rows.push(row('law', 'allow-list water, hub and spine dry', legal ? 'PASS' : 'FAIL', allowIds + ' hits ' + hits.length));
 
   const contradicts = strip.includes("name.startsWith('water-surface-')") && strip.includes("return false");

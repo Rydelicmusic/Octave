@@ -265,6 +265,51 @@ export function buildTrain(THREE, parent, count, colors, id) {
   return cars;
 }
 
+/** Wide floorless row. Three cars, eight seats across, no side walls. Lead is `${id}-car`. */
+export function buildDiveTrain(THREE, parent, count, colors, id) {
+  const cars = [];
+  const n = count || 3;
+  const bodyMat = mat(THREE, colors.body || 0xc45c26, 0x8a3018, 0.2);
+  const seatMat = mat(THREE, 0x2a2118);
+  const steel = mat(THREE, 0xf4f7fb, 0xd5deea, 0.35);
+  const barMat = mat(THREE, 0xf2efe6, 0xc9b48a, 0.25);
+  for (let i = 0; i < n; i++) {
+    const car = new THREE.Group();
+    car.name = carName(id, i);
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.22, 2.35), steel);
+    chassis.position.y = -0.42;
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.16, 0.28), bodyMat);
+    nose.position.set(0, -0.22, 1.15);
+    const seats = [];
+    const riders = [];
+    for (let s = 0; s < 8; s++) {
+      const x = -2.45 + s * 0.7;
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.16, 0.42), seatMat);
+      seat.position.set(x, -0.18, 0.05);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.55, 0.1), seatMat);
+      back.position.set(x, 0.12, -0.22);
+      seats.push(seat, back);
+      if (s % 2 === 0) riders.push({ x, y: 0.05, z: 0.02 });
+    }
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.08, 0.08), barMat);
+    bar.position.set(0, 0.28, 0.42);
+    bar.name = 'restraint';
+    const wheelGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
+    const wheelMat = mat(THREE, 0x1a1a1c);
+    const wheels = [];
+    for (const [x, z] of [[-2.8, 0.75], [2.8, 0.75], [-2.8, -0.75], [2.8, -0.75]]) {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.position.set(x, -0.62, z);
+      wheels.push(w);
+    }
+    car.add(chassis, nose, bar, ...seats, ...wheels);
+    car.userData.bots = seatRiders(THREE, car, riders);
+    parent.add(car);
+    cars.push(car);
+  }
+  return cars;
+}
+
 let carBasis = null;
 let carRight = null;
 let carUp = null;

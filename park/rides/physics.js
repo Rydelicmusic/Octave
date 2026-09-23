@@ -40,6 +40,29 @@ export function stepEnergy(state, table, dt, opts = {}) {
   const sinT = probe.sinT;
   if (sample.lift) state.chain = true;
   if (sinT < -0.04) state.chain = false;
+  const rollingNow = state.phase === 'DISPATCH' || state.phase === 'COURSE';
+  const holdFor = opts.crestHold || 0;
+  if (holdFor && sample.crestHold && rollingNow && !state.eStop) {
+    const lap = state.laps || 0;
+    if (state.crestLap !== lap) {
+      state.crestT = (state.crestT || 0) + dt;
+      state.v = 0;
+      state.a = 0;
+      state.chain = false;
+      state.lift = false;
+      state.brakeZone = false;
+      state.holding = true;
+      state.y = sample.y;
+      state.bank = sample.bank || 0;
+      if (state.crestT < holdFor) return state;
+      state.crestLap = lap;
+      state.crestT = 0;
+      state.holding = false;
+      state.v = 0.35;
+    }
+  } else if (!sample.crestHold) {
+    state.holding = false;
+  }
   const late = state.s > length * 0.5;
   const tail = Math.min(42, length * 0.16);
   const finalApproach = state.s > length - tail && state.s > length * 0.72;
@@ -68,6 +91,7 @@ export function stepEnergy(state, table, dt, opts = {}) {
   } else {
     state.trimOn = false;
   }
+  if (sample.blockBrake && rolling && !state.eStop && state.v > 6) accel -= 16;
   if (brakeZone) {
     const creep = state.eStop ? 1.8 : 0.32;
     if (state.v > creep + 0.4) accel -= Math.sign(state.v || 1) * (state.eStop ? brakeA * 1.3 : brakeA);
