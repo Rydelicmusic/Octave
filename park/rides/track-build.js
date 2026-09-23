@@ -540,11 +540,11 @@ export function buildRimBerm(THREE, parent, samples, id) {
     let mesh = null;
     if (p.y > 28) {
       const height = Math.max(8, Math.min(p.y * 0.55, p.y - 10));
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(18, height, span * 1.15), cliffMat);
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(9, height, span * 1.15), cliffMat);
       mesh.position.set(p.x, height / 2, p.z);
       mesh.name = tag + '-berm';
     } else if (p.y < 12 && p.y > 2.4 && i > n * 0.16 && i < n * 0.84) {
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(8, 2.4, span * 1.2), shelfMat);
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(6, 2.4, span * 1.2), shelfMat);
       mesh.position.set(p.x, 1.2, p.z);
       mesh.name = tag + '-shelf';
     }

@@ -606,6 +606,22 @@ function ensureBoardMesh() {
     try { addAttraction(liveTHREE, scene, row.ride, row.type); }
     catch (err) { console.warn('board-hybrid', row.ride && row.ride.id, err); }
   }
+  paintOperating(scene);
+}
+
+function paintOperating(scene) {
+  if (!scene || typeof document === 'undefined') return;
+  for (const row of attractionRows()) {
+    const dot = document.getElementById('dot-' + row.ride.id);
+    if (!dot) continue;
+    const mesh = scene.getObjectByName(row.ride.id + '-world');
+    const ride = getRide(row.ride.id);
+    const live = !!(mesh && ride);
+    const word = live ? 'operating' : 'dark';
+    if (dot.textContent === word) continue;
+    dot.textContent = word;
+    dot.style.color = live ? '#8dcc8a' : '#a89880';
+  }
 }
 
 function showHud() {
@@ -624,6 +640,7 @@ function publishRideHooks() {
   window.__tickRides = () => {
     try {
       ensureBoardMesh();
+      paintOperating(parkScene());
       tickMotion(performance.now());
       layoutGuests();
       layoutNpcMesh();
