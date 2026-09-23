@@ -48,3 +48,33 @@ Checked: four trims pass bedClear (occupiesSpine, hub r32, nearRing) and sit in 
 Pass: music-bed hook stubbed. Trim is land color, not a new lot on the spine.
 Ship gates: footprint still the locked park; gate arch + crown, spine untouched, four land arches, eight rides moving; ground not removed; no water added; motion does not need an index.html rewrite.
 Next: none. Five cycles spent. Drive copy of these files is the handoff, not another park rewrite.
+
+## Heavy rides — 2026-09-23 00:30 CDT
+25 cycles. Battery at the end of the stack: `node --test park/rides/ride-test.js` — 8 pass, 0 fail.
+Hero coaster v3: 558 samples, apex 33.3 m, length about 494 m, seam 0, 4 cars, loop + corkscrew + helix + second loop. Off spine, off hub, inside The Block.
+
+1/25 Boot. attractions.js exports tickMotion, addAttraction, armAttractions, mountAttractions, attractionRows. No ride-module import cycle. path-math, ride-cam, ride-runtime, ride-test added.
+2/25 Block coaster v1. Lift to 33 m, drop, airtime, brakes, station, ribbon rails, ties, supports, 4-car train.
+3/25 Block coaster v2/v3. Vertical loop, corkscrew, helix, second wraparound loop. Test requires an inversion sample.
+4/25 Block launch v2. Spike to 30 m, full twist, extra airtime hill, closed return, 2-car train.
+5/25 Board wheel. Radius 14 m, 16 gondolas, 12 spokes, station, boardable gondola eye.
+6/25 Board swings. 20 m mast, 12 chains and seats, fly-out, boardable seat.
+7/25 After Hours dark 1. Show building, interior path, timed props, one car.
+8/25 After Hours dark 2. Wider hall, five show beats, different path.
+9/25 Pocket spin. 8 bumper cars on a 6.5 m deck.
+10/25 Pocket kiddie. Closed figure track, apex under 4 m, 3 cars, still a lap.
+11/25 Board drop. 28 m mast, climb-hold-drop cabin, id ride-board-drop.
+12/25 ride-cam HUD lists all 9 ids. Esc clears the board. Look vector follows the tangent. Bank uses the track up.
+13/25 Stations. Queue rails, load gate, name sign, exit frame, merch stub on every built ride.
+14/25 Track dress. Trim lamps, chain dogs, brake fins, tunnel shells, point lights.
+15/25 Motion. Arc-length step, per-sample speed, 2 s station hold, lap wrap with seam 0.
+16/25 Launch path v2. Extra airtime between the spike and the return. blockCoaster v3 kept as the hero.
+17/25 Night practicals. Emissive rails, lamps, dark-ride show beats. No water.
+18/25 Audio stub. playRideBed / clickLift / stopRideBed. Oscillator if AudioContext exists, otherwise a silent hook.
+19/25 Support feet. Every heartline sample passed landOk (stadium, canopy, occupiesSpine, hub, Pocket rings). Violations 0.
+20/25 Full battery. 8 tests, 8 pass: named exports, tickMotion, hero lap, launch/kiddie/dark, south-facing right is west, dry-run lap, seam, camera api.
+21/25 Density. Perimeter fence posts and banners along the coaster samples.
+22/25 Feel. Camera shake scales with speed. Lift click while boarded.
+23/25 Extra inversion. Hero version 3 adds a second loop after the helix.
+24/25 Integration. seed-rides.js imports attractions, ride-cam, ride-runtime, ride-audio. Import scan of park/rides found zero missing names.
+25/25 Ship. Same battery still 8/8. Commit cycle 25/25 heavy rides. Drive folder 2026-09-23-0030-CDT-rides-heavy.

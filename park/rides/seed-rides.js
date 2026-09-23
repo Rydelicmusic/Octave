@@ -12,6 +12,9 @@ import '../park-kit.js';
 import '../gate-icon.js';
 import '../halloween/haunt-scene.js';
 import './attractions.js';
+import './ride-cam.js';
+import './ride-runtime.js';
+import './ride-audio.js';
 import '../land-beds.js';
 
 export function claimAllRides() {
