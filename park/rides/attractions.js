@@ -537,9 +537,16 @@ export function mountAttractions(THREE, scene) {
     root.name = 'park-attractions';
     scene.add(root);
   }
+  if (typeof window !== 'undefined') {
+    window.__mountIds = attractionRows().map((row) => row.ride.id);
+    window.__mountN = (window.__mountN || 0) + 1;
+  }
   for (const row of attractionRows()) {
     try { addAttraction(THREE, scene, row.ride, row.type); }
-    catch (err) { console.warn('attraction', row.ride && row.ride.id, err); }
+    catch (err) {
+      if (typeof window !== 'undefined') window.__mountErr = (row.ride && row.ride.id) + ' ' + String(err && err.message || err);
+      console.warn('attraction', row.ride && row.ride.id, err);
+    }
   }
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
   try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
@@ -618,6 +625,7 @@ export function hookRideStack(THREE) {
     }
     if (scene && scene.isScene && hybridTries < 4 && !scene.getObjectByName('ride-board-family-world')) {
       hybridTries += 1;
+      if (typeof window !== 'undefined') window.__hybridTries = hybridTries;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
     if (scene && scene.isScene && splashTries < 8 && !scene.getObjectByName('water-surface-block-dive-splash')) {
