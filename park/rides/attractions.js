@@ -291,6 +291,8 @@ function buildSpinRide(THREE, scene, ride) {
 
 export function addAttraction(THREE, scene, ride, type) {
   if (!THREE || !scene || !ride) return null;
+  hookRideStack(THREE);
+  showHud();
   const kind = resolveType(ride, type);
   const spec = anchorFor({ ...ride, name: (RIDE_ANCHORS[ride.id] && RIDE_ANCHORS[ride.id].name) || ride.name });
   if (kind === 'coaster') return buildCoaster(THREE, scene, spec, blockCoasterSamples(3), COLORS.coaster);
@@ -314,37 +316,44 @@ export function mountAttractions(THREE, scene) {
     scene.add(root);
   }
   for (const row of attractionRows()) addAttraction(THREE, scene, row.ride, row.type);
-  const names = attractionRows().map((row) => ({ id: row.ride.id, name: row.ride.name }));
-  mountRideHud(names);
+  showHud();
   return root;
 }
 
 let armed = false;
 let hooked = false;
+let hudDone = false;
+
+function showHud() {
+  if (hudDone || typeof document === 'undefined') return;
+  hudDone = true;
+  mountRideHud(attractionRows().map((row) => ({ id: row.ride.id, name: row.ride.name })));
+}
+
+export function hookRideStack(THREE) {
+  if (!THREE || !THREE.WebGLRenderer || THREE.WebGLRenderer.prototype.__rydelicRideStack) return;
+  const proto = THREE.WebGLRenderer.prototype;
+  const orig = proto.render;
+  proto.__rydelicRideStack = true;
+  proto.render = function renderRideStack(scene, camera) {
+    if (!hooked && scene && scene.isScene) {
+      hooked = true;
+      try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
+    }
+    try { tickMotion(performance.now()); } catch (err) { console.warn('tickMotion', err); }
+    try {
+      const riding = applyRideCam(camera);
+      const ride = riding ? getRide(currentRide()) : null;
+      if (ride) playRideBed(ride.id, ride.speed || 0);
+      else stopRideBed();
+    } catch (err) { console.warn('ride-cam', err); }
+    return orig.call(this, scene, camera);
+  };
+}
 
 export function armAttractions() {
   if (armed || typeof document === 'undefined') return;
   armed = true;
-  import('three').then((THREE) => {
-    const proto = THREE.WebGLRenderer && THREE.WebGLRenderer.prototype;
-    if (!proto || proto.__rydelicRideStack) return;
-    const orig = proto.render;
-    proto.__rydelicRideStack = true;
-    proto.render = function renderRideStack(scene, camera) {
-      if (!hooked && scene && scene.isScene) {
-        hooked = true;
-        try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
-      }
-      try { tickMotion(performance.now()); } catch (err) { console.warn('tickMotion', err); }
-      try {
-        const riding = applyRideCam(camera);
-        const ride = riding ? getRide(currentRide()) : null;
-        if (ride) playRideBed(ride.id, ride.speed || 0);
-        else stopRideBed();
-      } catch (err) { console.warn('ride-cam', err); }
-      return orig.call(this, scene, camera);
-    };
-  }).catch(() => {});
 }
 
 armAttractions();
