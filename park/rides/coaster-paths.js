@@ -118,7 +118,7 @@ export function giantBlockSamples() {
   const pts = [];
   const station = { x: -122, y: 3.6, z: 78 };
   const liftFoot = { x: -112, y: 5, z: 94 };
-  const crest = { x: -98, y: 34, z: 112 };
+  const crest = { x: -98, y: 42, z: 112 };
   const loopEntry = { x: -136, y: 8.2, z: 86 };
   pushSpan(pts, station, liftFoot, 10, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
   pushSpan(pts, liftFoot, crest, 22, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0.04, { speed: () => 7, lift: true });
@@ -155,8 +155,8 @@ export function giantBlockPack() {
     stationAtPath: true,
     beacon: true,
     ribbon: true,
-    railBulk: 3.4,
-    postBulk: 4.4,
+    railBulk: 4.2,
+    postBulk: 6.2,
     gauge: 1.42,
     apex: maxY,
   };
