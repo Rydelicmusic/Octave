@@ -3,6 +3,7 @@ import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
 import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
+import { bootHaunt } from './haunt-boot.js';
 
 export const RIDE = {
   id: 'ride-board-01',
@@ -48,5 +49,6 @@ export function claimRide() {
 export function addRideBoard01(THREE, scene) {
   if (!claimRide()) return null;
   const g = addAttraction(THREE, scene, RIDE, 'teacups');
+  bootHaunt(THREE, scene);
   return markRide(THREE, scene, RIDE, g);
 }
