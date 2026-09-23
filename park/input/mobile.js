@@ -57,7 +57,7 @@ function ensureButtons(doc) {
   if (!doc || !doc.body || doc.getElementById('phone-board')) return;
   const bar = doc.createElement('div');
   bar.id = 'phone-actions';
-  bar.style.cssText = 'position:fixed;left:12px;bottom:16px;z-index:5;display:flex;gap:8px;touch-action:none';
+  bar.style.cssText = 'position:fixed;left:12px;top:132px;z-index:5;display:flex;gap:8px;touch-action:none';
   const board = doc.createElement('button');
   board.id = 'phone-board';
   board.type = 'button';

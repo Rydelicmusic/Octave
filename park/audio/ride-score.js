@@ -192,7 +192,7 @@ export function mountScoreHud(doc) {
   const el = doc.createElement('div');
   el.id = 'score-note';
   el.textContent = 'score: stub';
-  el.style.cssText = 'position:fixed;left:12px;bottom:96px;z-index:4;font:11px/1.3 sans-serif;color:#f4efe6;background:rgba(18,16,14,.72);padding:4px 8px;border-radius:8px;pointer-events:none';
+  el.style.cssText = 'position:fixed;left:12px;top:96px;z-index:4;font:11px/1.3 sans-serif;color:#f4efe6;background:rgba(18,16,14,.72);padding:4px 8px;border-radius:8px;pointer-events:none';
   doc.body.appendChild(el);
   return el;
 }
