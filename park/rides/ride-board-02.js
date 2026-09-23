@@ -1,14 +1,14 @@
 /** The Board EP pavilion. G7,0 / x 187.5 z 14 / 12 × 8 m. Queue 4 m toward board-drive. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-board-02',
   land: 'The Board',
   sku: 'pavilion',
-  name: 'Board EP',
+  name: 'Bone Carousel',
   x: 187.5, z: 14, w: 12, d: 8, h: 4.9,
   yaw: Math.PI,
   queueL: 4,
@@ -47,6 +47,6 @@ export function claimRide() {
 
 export function addRideBoard02(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'carousel');
   return markRide(THREE, scene, RIDE, g);
 }

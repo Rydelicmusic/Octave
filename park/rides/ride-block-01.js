@@ -1,16 +1,16 @@
-/** The Block song kiosk. G-8,1 / x -187.5 z 37.5 / 6 × 4 m. Queue 4 m toward block-drive (z=0). */
+/** The Block song kiosk. G-8,1 / x -187.5 z 37.5 / 6 × 4 m. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-block-01',
   land: 'The Block',
   sku: 'kiosk',
-  name: 'Block Song',
+  name: 'Ledger Drop',
   x: -187.5, z: 37.5, w: 6, d: 4, h: 3.15,
-  yaw: Math.PI,
+  yaw: 0,
   queueL: 4,
   queueW: 2.2,
 };
@@ -47,6 +47,6 @@ export function claimRide() {
 
 export function addRideBlock01(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'drop');
   return markRide(THREE, scene, RIDE, g);
 }

@@ -1,14 +1,14 @@
 /** The Board song kiosk. G6,0 / x 160 z 14 / 6 × 4 m. Queue 4 m toward board-drive (z=0). */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-board-01',
   land: 'The Board',
   sku: 'kiosk',
-  name: 'Board Song',
+  name: 'Harvest Cups',
   x: 160, z: 14, w: 6, d: 4, h: 3.15,
   yaw: Math.PI,
   queueL: 4,
@@ -47,6 +47,6 @@ export function claimRide() {
 
 export function addRideBoard01(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'teacups');
   return markRide(THREE, scene, RIDE, g);
 }

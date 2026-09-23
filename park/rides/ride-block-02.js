@@ -1,14 +1,14 @@
-/** The Block EP pavilion. G-8,-1 / x -187.5 z -20 / 12 × 8 m. Queue 4 m toward block-drive. */
+/** The Block EP pavilion. G-8,-1 / x -187.5 z -20 / 12 × 8 m. */
 import { claim, whyBlocked, lots } from '../occupy.js';
 import { occupiesSpine, inCanopy } from '../lock.js';
-import { addSkuKit } from '../sku-kit.js';
+import { addAttraction } from './attractions.js';
 import { markRide } from './ride-mark.js';
 
 export const RIDE = {
   id: 'ride-block-02',
   land: 'The Block',
   sku: 'pavilion',
-  name: 'Block EP',
+  name: 'Concrete Hymn Ship',
   x: -187.5, z: -20, w: 12, d: 8, h: 4.9,
   yaw: 0,
   queueL: 4,
@@ -47,6 +47,6 @@ export function claimRide() {
 
 export function addRideBlock02(THREE, scene) {
   if (!claimRide()) return null;
-  const g = addSkuKit(THREE, scene, RIDE);
+  const g = addAttraction(THREE, scene, RIDE, 'ship');
   return markRide(THREE, scene, RIDE, g);
 }
