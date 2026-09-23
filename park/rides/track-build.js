@@ -196,7 +196,7 @@ export function buildTrack(THREE, parent, table, opts) {
     light.position.set(p.x, p.y + 0.4, p.z);
     parent.add(light);
   }
-  return { poseAt: (s) => poseAt(table, s), chains, brakes, dogs, chainMat, brakeMat };
+  return { poseAt: (s) => poseAt(table, s), chains, brakes, dogs, lamps: lights, chainMat, brakeMat };
 }
 
 export function buildTrain(THREE, parent, count, colors) {

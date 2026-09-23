@@ -2,7 +2,8 @@
 import { pointAt } from './path-math.js';
 import { stepEnergy, stepCruise, stepWheel, stepSwings, stepDropRide, stepSpin, stepBumper, wheelInWindow } from './physics.js';
 import { canBoard, tryBoard, advancePhase } from './ride-ops.js';
-import { clickLift, whoosh } from './ride-audio.js';
+import { clickLift, whoosh, dispatchBell, hissBrakes } from './ride-audio.js';
+import { stepParkLogic } from '../logic/ride-logic.js';
 
 const rides = new Map();
 let lastMs = 0;
@@ -49,12 +50,25 @@ export function rideSnapshot() {
   });
 }
 
+function cueAudio(ride, phase) {
+  if (!phase || ride._audioPhase === phase) return;
+  if (phase === 'DISPATCH') dispatchBell(ride.id);
+  if (phase === 'BRAKE') hissBrakes(ride.id);
+  ride._audioPhase = phase;
+}
+
 function syncVisuals(ride, dt) {
   const ops = ride.ops;
-  const open = !ops || ops.phase === 'BOARDING' || ops.phase === 'IDLE' || ops.phase === 'UNLOAD';
+  const loading = ops && (ops.phase === 'BOARDING' || ops.phase === 'IDLE' || ops.phase === 'UNLOAD');
+  const open = !!(loading && ops.restraint !== 'closed' && !ops.gateHold && !ops.eStop);
+  if (ops) ops.gateOpen = open;
   if (ride.gate) {
     const target = open ? 2.35 : 1.15;
     ride.gate.position.y += (target - ride.gate.position.y) * Math.min(1, (dt || 0) * 6);
+  }
+  if (ride.attendant) ride.attendant.visible = !!(ops && ops.phase === 'BOARDING' && !ops.fault && ops.phase !== 'CLOSED');
+  if (ride.lamps && ride.lamps.material && ops && ops.light != null) {
+    ride.lamps.material.emissiveIntensity = ops.light;
   }
   const drive = !!(ops && ops.lift);
   if (ride.chains && ride.chains.material) {
@@ -97,6 +111,7 @@ function stepPath(ride, dt) {
     ride.phase = ops.phase;
     ride.hold = ops.phase === 'UNLOAD' ? 1 : 0;
     ride.lap = ops.laps || 0;
+    cueAudio(ride, ops.phase);
     if (ride.layout) ride.layout(ride.s, ride);
     syncVisuals(ride, dt);
     return;
@@ -210,6 +225,7 @@ function stepMachine(ride, dt) {
     if (ride.kind === 'drop') ride.layout(m.y, ride);
     else ride.layout(m.angle || 0, ride);
   }
+  cueAudio(ride, ops.phase);
   syncVisuals(ride, dt);
 }
 
@@ -222,6 +238,7 @@ export function stepRides(dt) {
     else if (ride.machine && ride.ops) stepMachine(ride, step);
     else stepPhase(ride, step);
   }
+  stepParkLogic(step, rides.values());
 }
 
 export function tickMotion(now, dt) {

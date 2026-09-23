@@ -9,7 +9,11 @@ import { registerRide, tickMotion, getRide, rideIds, stepRideSeconds, rideAgain 
 import { createOps } from './ride-ops.js';
 import { mountParkOps } from './park-ops.js';
 import { applyRideCam, mountRideHud, boardRide, exitRide, currentRide, closeRestraint, requestDispatch, emergencyStop } from './ride-cam.js';
-import { playRideBed, stopRideBed } from './ride-audio.js';
+import { playRideBed, playLandBed } from './ride-audio.js';
+import { tagRide, resetParkLogic } from '../logic/ride-logic.js';
+import { agentList, AGENT_CAP } from '../logic/agents.js';
+import { dayPart, getClock } from '../logic/clock.js';
+import { paintBoard } from './ride-cam.js';
 
 export { tickMotion, boardRide, exitRide, rideIds };
 
@@ -97,6 +101,61 @@ function attachOps(ride, extra) {
   return { ops, ...extra };
 }
 
+function addAttendant(THREE, station) {
+  if (!station) return null;
+  const found = station.getObjectByName('attendant');
+  if (found) return found;
+  const fig = new THREE.Group();
+  fig.name = 'attendant';
+  const cloth = new THREE.MeshLambertMaterial({ color: 0xc45c26 });
+  const skin = new THREE.MeshLambertMaterial({ color: 0xe7c4a8 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.28), cloth);
+  body.position.y = 1.35;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 6, 5), skin);
+  head.position.y = 1.95;
+  fig.add(body, head);
+  fig.position.set(1.35, 0, 3.6);
+  fig.visible = false;
+  station.add(fig);
+  return fig;
+}
+
+function dressLogic(THREE, station, state, track) {
+  tagRide(state);
+  state.attendant = addAttendant(THREE, station);
+  if (track && track.lamps) state.lamps = track.lamps;
+}
+
+let guestMesh = null;
+
+function layoutGuests() {
+  if (!guestMesh) return;
+  const dummy = guestMesh.userData.dummy;
+  const list = agentList();
+  for (let i = 0; i < AGENT_CAP; i++) {
+    const agent = list[i];
+    const riding = agent && agent.mode === 'ride';
+    dummy.position.set(agent ? agent.x : -150, riding ? -6 : 0.78, agent ? agent.z : 30);
+    dummy.scale.set(agent && !riding ? 1 : 0.001, agent && !riding ? 1 : 0.001, agent && !riding ? 1 : 0.001);
+    dummy.rotation.set(0, agent ? agent.yaw || 0 : 0, 0);
+    dummy.updateMatrix();
+    guestMesh.setMatrixAt(i, dummy.matrix);
+  }
+  guestMesh.instanceMatrix.needsUpdate = true;
+}
+
+function mountGuests(THREE, scene) {
+  if (!THREE || !scene || scene.getObjectByName('park-guests')) return;
+  resetParkLogic();
+  const geo = new THREE.BoxGeometry(0.46, 1.55, 0.32);
+  const mat = new THREE.MeshLambertMaterial({ color: 0xd7c4a4 });
+  guestMesh = new THREE.InstancedMesh(geo, mat, AGENT_CAP);
+  guestMesh.name = 'park-guests';
+  guestMesh.userData.dummy = new THREE.Object3D();
+  scene.add(guestMesh);
+  layoutGuests();
+}
+
 function buildCoaster(THREE, scene, ride, pack, colors) {
   if (scene.getObjectByName(ride.id + '-world')) return scene.getObjectByName(ride.id + '-anchor');
   const anchor = ensureAnchor(THREE, scene, ride);
@@ -131,6 +190,7 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     layout: pathLayout(THREE, cars, table, pack.carGap, null),
     ...attachOps(ride),
   });
+  dressLogic(THREE, station, state, track);
   state.layout(0, state);
   return anchor;
 }
@@ -180,6 +240,7 @@ function buildDark(THREE, scene, ride, which) {
     layout: pathLayout(THREE, cars, table, 0, { shell }),
     ...attachOps(ride),
   });
+  dressLogic(THREE, station, state, null);
   state.layout(0, state);
   return anchor;
 }
@@ -219,6 +280,7 @@ function buildWheelRide(THREE, scene, ride) {
     },
     ...attachOps(ride),
   });
+  dressLogic(THREE, station, reg, null);
   reg.layout(machine.angle, reg);
   return anchor;
 }
@@ -261,6 +323,7 @@ function buildSwingsRide(THREE, scene, ride) {
     },
     ...attachOps(ride),
   });
+  dressLogic(THREE, station, reg, null);
   reg.layout(0, reg);
   return anchor;
 }
@@ -300,6 +363,7 @@ function buildDropRide(THREE, scene, ride) {
     },
     ...attachOps(ride),
   });
+  dressLogic(THREE, station, reg, null);
   reg.layout(machine.y, reg);
   return anchor;
 }
@@ -345,6 +409,7 @@ function buildSpinRide(THREE, scene, ride) {
     },
     ...attachOps(ride),
   });
+  dressLogic(THREE, station, reg, null);
   reg.layout(0, reg);
   return anchor;
 }
@@ -379,6 +444,7 @@ export function mountAttractions(THREE, scene) {
   }
   for (const row of attractionRows()) addAttraction(THREE, scene, row.ride, row.type);
   try { mountParkOps(THREE, scene); } catch (err) { console.warn('park-ops', err); }
+  try { mountGuests(THREE, scene); } catch (err) { console.warn('guests', err); }
   showHud();
   return root;
 }
@@ -403,6 +469,7 @@ function publishRideHooks() {
   window.__tickRides = () => {
     try {
       tickMotion(performance.now());
+      layoutGuests();
       const hero = getRide('ride-block-01');
       if (hero && hero.lead && hero.lead.p) {
         window.__blockS = { s: hero.s, y: hero.lead.p.y, hold: hero.hold, lap: hero.lap };
@@ -411,10 +478,11 @@ function publishRideHooks() {
   };
   window.__applyRideCam = (camera) => {
     try {
+      paintBoard();
       const riding = applyRideCam(camera);
       const ride = riding ? getRide(currentRide()) : null;
       if (ride) playRideBed(ride.id, ride.speed || 0);
-      else stopRideBed();
+      else playLandBed(dayPart(getClock()));
       window.__parkRideDrew = !!riding;
     } catch (err) { console.warn('ride-cam', err); }
   };
@@ -432,13 +500,14 @@ export function hookRideStack(THREE) {
       hooked = true;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
-    try { tickMotion(performance.now()); } catch (err) { console.warn('tickMotion', err); }
+    try { tickMotion(performance.now()); layoutGuests(); } catch (err) { console.warn('tickMotion', err); }
     try {
+      paintBoard();
       const riding = applyRideCam(camera);
       if (typeof window !== 'undefined') window.__parkRideDrew = !!riding;
       const ride = riding ? getRide(currentRide()) : null;
       if (ride) playRideBed(ride.id, ride.speed || 0);
-      else stopRideBed();
+      else playLandBed(dayPart(getClock()));
     } catch (err) { console.warn('ride-cam', err); }
     return orig.call(this, scene, camera);
   };

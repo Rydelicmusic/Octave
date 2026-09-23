@@ -42,11 +42,15 @@ export function setRestraint(ops, closed) {
     if (ops.passengers !== 1) return false;
     if (ops.phase !== 'BOARDING' && ops.phase !== 'IDLE') return false;
     ops.restraint = 'closed';
+    ops.gateOpen = false;
+    ops.doors = 'closed';
     ops.autoAt = ops.clock + 3;
     return true;
   }
   if (ops.phase === 'COURSE' || ops.phase === 'DISPATCH' || ops.phase === 'BRAKE') return false;
   ops.restraint = 'open';
+  ops.doors = 'open';
+  ops.gateOpen = true;
   ops.autoAt = 0;
   return true;
 }
@@ -56,6 +60,10 @@ export function tryDispatch(ops) {
   if (ops.restraint !== 'closed') return false;
   if (ops.passengers !== 1) return false;
   if (ops.blockOccupied) return false;
+  if (ops.gateOpen === true) return false;
+  if (ops.weatherHold) return false;
+  if (ops.parkClosed || ops.phase === 'CLOSED' || ops.phase === 'DOWN') return false;
+  if (ops.fault || ops.eStop || ops.hoistFault) return false;
   if (ops.phase !== 'BOARDING' && ops.phase !== 'IDLE') return false;
   ops.phase = 'DISPATCH';
   ops.blockOccupied = true;
@@ -68,6 +76,8 @@ export function eStop(ops) {
   if (!ops) return false;
   ops.eStop = true;
   ops.leaveAfterStop = true;
+  ops.gateHold = true;
+  ops.gateOpen = false;
   if (ops.phase === 'COURSE' || ops.phase === 'DISPATCH') ops.phase = 'BRAKE';
   return true;
 }
@@ -75,8 +85,14 @@ export function eStop(ops) {
 export function advancePhase(ops, table, dt) {
   if (!ops) return ops;
   ops.clock += dt;
+  if (ops.phase === 'CLOSED' || ops.phase === 'DOWN') {
+    ops.v = 0;
+    ops.gateOpen = false;
+    return ops;
+  }
   const length = table ? table.length : 0;
-  if (ops.phase === 'BOARDING' && ops.passengers === 1 && ops.restraint === 'closed' && ops.autoAt && ops.clock >= ops.autoAt && !ops.blockOccupied) {
+  const autoOk = ops.gateOpen !== true && !ops.weatherHold && !ops.parkClosed && !ops.fault && !ops.eStop && !ops.hoistFault;
+  if (ops.phase === 'BOARDING' && ops.passengers === 1 && ops.restraint === 'closed' && ops.autoAt && ops.clock >= ops.autoAt && !ops.blockOccupied && autoOk) {
     tryDispatch(ops);
   }
   const courseMark = Math.min(18, Math.max(4, length * 0.08));
@@ -102,9 +118,19 @@ export function advancePhase(ops, table, dt) {
   }
   if (ops.phase === 'UNLOAD' && ops.clock >= (ops.unloadUntil || 0)) {
     ops.passengers = 0;
-    ops.phase = 'BOARDING';
     ops.autoAt = 0;
     ops.unloadUntil = 0;
+    ops.seatFreed = true;
+    if ((ops.laps || 0) > 0) ops.photo = (ops.id || 'ride') + ':' + ops.laps;
+    if (ops.fault) {
+      ops.phase = 'DOWN';
+      ops.statusNote = 'temporarily closed';
+    } else if (ops.parkClosed || ops.closeAfter) {
+      ops.phase = 'CLOSED';
+      ops.parkClosed = true;
+    } else {
+      ops.phase = 'BOARDING';
+    }
   }
   if ((ops.phase === 'COURSE' || ops.phase === 'DISPATCH' || ops.phase === 'BRAKE') && ops.restraint !== 'closed') {
     ops.restraint = 'closed';

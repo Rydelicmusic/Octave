@@ -167,3 +167,32 @@ The hero was already a closed coaster, so cycle 51 started on that path. No new 
 73/75 Drop catch has a magnet box at 6.2 m. Brake meshes are calipers. Lift dogs refuse a negative step: s does not decrease while the chain is on.
 74/75 Walk script: spawn at the Gate (0, +230) looking north. Turn left into The Block or press Block Coaster. That boards only while the phase is BOARDING. Press Close restraint. Press Dispatch (or wait 3 s). The train climbs the lit chain, drops, runs the loop, corkscrew, helix, and second loop, then brakes to s = 0 and opens the restraint. Esc mid-lap e-stops and finishes at the station. Press Board Wheel only while a gondola is parked at the bottom.
 75/75 Drive folder 2026-09-23-BINGE3-physics. Commit binge 3/3 cycle 75/75 physics layer. Live park must still load.
+
+### Binge 4 — logic and realism — 2026-09-23 00:35 CDT
+Same footprint. No new land. No water. No hotel. Physics from binge 3 stays the mover. These rules sit in front of dispatch.
+
+76/100 park/logic/clock.js. Park opens 09:00 and closes 22:00. HUD clock shows the time and OPEN or CLOSED. Day, dusk, and night come from the same clock.
+77/100 ride-logic.js tables for all ten ids: hero, launch, family, wheel, swings, drop, both dark rides, spin, kiddie. Seats, thrill, height, cycle.
+78/100 attemptDispatch runs before tryDispatch. Restraints, gates, block, e-stop, weather, closed, and a drop hoist fault can all refuse.
+79/100 queue.js slots on every load. Join, leave, and advance when the seat frees. Posted wait is parties ahead times the cycle.
+80/100 The ride button joins the queue. Board is offered only at slot 0. Leave queue frees the slot.
+81/100 ticket.js Admit at the gate. Rides refuse board without it. G is the comp key.
+82/100 safety.js trips every ride to brake, holds the gates shut, and a weather flag blocks dispatch until Reset safety.
+83/100 Hero block sections: station, lift, course, brake. One train. A hot section refuses a second entry.
+84/100 markFault sets temporarily closed and e-stops. The train keeps its arc length and brakes toward the station. It does not jump.
+85/100 agents.js boots 28 guests on four land loops. After 30 s, occupiesSpine hits are 0.
+86/100 Agents step into dummy seats while one seat stays open for the player. On unload they return to the plaza and the queue advances.
+87/100 An attendant mesh stands at each load gate only during BOARDING.
+88/100 Close-of-day sets closeAfter. The current cycle unloads, then the phase is CLOSED.
+89/100 Ride lamp intensity follows day, dusk, and night. The land bed oscillator follows the same part.
+90/100 A finished lap writes a photo id on the ops record. The HUD says photo ready.
+91/100 Dispatch plays a bell. BRAKE hisses. Lift clicks still follow chain speed. Drop whoosh still follows speed.
+92/100 Status dots for every ride: operating and cycling green, down red, closed gray.
+93/100 logic-test.js battery, including the 60 s accelerated soak.
+94/100 node --test logic-test.js physics-test.js ride-test.js. The course-board check now rejects COURSE before it checks the queue. No new land.
+95/100 Guest cap is 28. One InstancedMesh. Riders scale out instead of spawning meshes.
+96/100 Load gates open only while the station is accepting guests and the restraint is open. Chain dogs still drive only on the lift. Brake calipers still glow in BRAKE.
+97/100 Board from anywhere but the load slot is refused. Mid-course board is refused.
+98/100 Walk script in logic-test: admit, join Block Coaster, board, close restraint, dispatch, lap, photo id, then join the wheel queue.
+99/100 60 s soak at 60× clock. No NaN. Clock lands at 11:00, still open.
+100/100 Drive 2026-09-23-BINGE4-logic. Commit binge 4/4 cycle 100/100 logic realism. Live park must still load. Stop. No binge 5 until the director pastes it.

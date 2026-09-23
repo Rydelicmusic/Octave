@@ -56,6 +56,41 @@ export function whoosh(id, speed) {
   return { id, whoosh: true, hz };
 }
 
+export function dispatchBell(id) {
+  const audio = context();
+  if (!audio || !osc || !gain) return { id, bell: false };
+  const now = audio.currentTime;
+  osc.type = 'sine';
+  osc.frequency.value = 880;
+  gain.gain.cancelScheduledValues(now);
+  gain.gain.setValueAtTime(0.03, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+  return { id, bell: true };
+}
+
+export function hissBrakes(id) {
+  const audio = context();
+  if (!audio || !osc || !gain) return { id, hiss: false };
+  const now = audio.currentTime;
+  osc.type = 'square';
+  osc.frequency.value = 90;
+  gain.gain.cancelScheduledValues(now);
+  gain.gain.setValueAtTime(0.012, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+  return { id, hiss: true };
+}
+
+/** Land bed follows the park clock: day, dusk, night. Not a second park. */
+export function playLandBed(part) {
+  const audio = context();
+  if (!audio || !osc || !gain) return { part, src: null };
+  const hz = part === 'night' ? 48 : part === 'dusk' ? 62 : 74;
+  osc.type = 'sine';
+  osc.frequency.value = hz;
+  gain.gain.value = 0.008;
+  return { part, src: 'oscillator', hz };
+}
+
 export function stopRideBed() {
   current = null;
   if (gain) gain.gain.value = 0;
