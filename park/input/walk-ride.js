@@ -65,9 +65,23 @@ export function triggerFromSamples(id, samples, radius = RADIUS) {
   return { id, x: p.x, z: p.z, y: 0, trackY: Number.isFinite(p.y) ? p.y : 0, r: radius };
 }
 
-export function inTrigger(trigger, x, z) {
+export function inTrigger(trigger, x, z, y) {
   if (!trigger || !Number.isFinite(x) || !Number.isFinite(z)) return false;
-  return Math.hypot(x - trigger.x, z - trigger.z) <= trigger.r + 1e-6;
+  if (Math.hypot(x - trigger.x, z - trigger.z) >= trigger.r) return false;
+  if (y != null && Number.isFinite(y) && Number.isFinite(trigger.trackY)) {
+    if (Math.abs(y - trigger.trackY) >= 2) return false;
+  }
+  return true;
+}
+
+/** Admit ∧ BOARDING ∧ InTrigger ∧ Walk/3rd ∧ v ≤ 1. Moving rides are not boardable. */
+export function boardPermitted(state) {
+  if (!state || state.admitted !== true) return false;
+  if (state.phase !== 'BOARDING') return false;
+  if (!state.inTrigger) return false;
+  if (state.mode !== 'walk' && state.mode !== 'third') return false;
+  if ((state.v || 0) > 1) return false;
+  return true;
 }
 
 export function facingTarget(px, pz, lx, lz, tx, tz) {
@@ -89,13 +103,13 @@ export function escPlan(phase) {
 
 export function promptFor(state) {
   if (!state || state.mode === 'drone' || state.mode === 'above') return '';
-  if (state.missing || !state.inTrigger || !state.facing) return '';
+  if (state.missing || !state.inTrigger) return '';
   if (!state.admitted) return '[E] Admit here';
   if (state.boarded && (state.phase === 'BOARDING' || state.phase === 'IDLE') && state.restraint !== 'closed') return '[F] Close restraint';
   if (state.boarded && (state.phase === 'BOARDING' || state.phase === 'IDLE') && state.restraint === 'closed') return '[E] Dispatch';
   if (state.boarded && (state.phase === 'COURSE' || state.phase === 'DISPATCH' || state.phase === 'BRAKE')) return '[Esc] Stop';
   if (state.phase === 'COURSE' || state.phase === 'DISPATCH' || state.phase === 'BRAKE' || state.phase === 'UNLOAD') return 'Wait for train';
-  if ((state.v || 0) > 3) return 'Wait for train';
+  if ((state.v || 0) > 1) return 'Wait for train';
   if (state.phase === 'BOARDING' || state.phase === 'IDLE') return '[E] Board';
   return '';
 }
@@ -103,19 +117,13 @@ export function promptFor(state) {
 export function promptSub(state) {
   if (!state || state.admitted || state.missing) return '';
   if (state.mode === 'drone' || state.mode === 'above') return '';
-  if (!state.inTrigger || !state.facing) return '';
+  if (!state.inTrigger) return '';
   return 'or walk to the Gate';
 }
 
 export function boardAllowedHere(state) {
-  if (!state) return false;
-  if (state.mode === 'drone' || state.mode === 'above') return false;
-  if (state.missing || state.boarded) return false;
-  if (!state.inTrigger || !state.facing) return false;
-  if (!state.admitted) return false;
-  if (state.phase !== 'BOARDING' && state.phase !== 'IDLE') return false;
-  if ((state.v || 0) > 3) return false;
-  return true;
+  if (!state || state.missing || state.boarded) return false;
+  return boardPermitted(state);
 }
 
 export function keyAction(code, state) {
@@ -123,7 +131,7 @@ export function keyAction(code, state) {
   if (code === 'KeyG') return here.dev ? 'cheat' : 'noop';
   if (code === 'Escape') return escPlan(here.phase).brake ? 'estop' : 'walk';
   if ((code === 'KeyE' || code === 'KeyF') && (here.mode === 'drone' || here.mode === 'above')) return 'noop';
-  if (code === 'KeyF' && here.boarded && here.restraint !== 'closed' && (here.phase === 'BOARDING' || here.phase === 'IDLE')) return 'restraint';
+  if (code === 'KeyF' && here.boarded && here.phase === 'BOARDING' && (here.mode === 'walk' || here.mode === 'third')) return 'bar';
   if (code === 'KeyE' && here.boarded && here.restraint === 'closed' && (here.phase === 'BOARDING' || here.phase === 'IDLE')) return 'dispatch';
   if (code === 'KeyE' && !here.admitted && here.inTrigger && here.facing) return 'admit';
   if (code === 'KeyE' && boardAllowedHere(here)) return 'board';
@@ -165,7 +173,7 @@ function playerXZ() {
   if (typeof window === 'undefined' || !window.__parkGpsGet) return null;
   const gps = window.__parkGpsGet();
   if (!gps || !Number.isFinite(gps.x) || !Number.isFinite(gps.z)) return null;
-  return { x: gps.x, z: gps.z };
+  return { x: gps.x, y: Number.isFinite(gps.y) ? gps.y : 1.72, z: gps.z };
 }
 
 function lookXZ(camera) {
@@ -174,12 +182,11 @@ function lookXZ(camera) {
   return { x: dir.x, z: dir.z };
 }
 
-function nearest(triggers, player, look) {
+function nearest(triggers, player) {
   let best = null;
   let bestD = Infinity;
   for (const trigger of triggers) {
-    if (!inTrigger(trigger, player.x, player.z)) continue;
-    if (!facingTarget(player.x, player.z, look.x, look.z, trigger.x, trigger.z)) continue;
+    if (!inTrigger(trigger, player.x, player.z, player.y)) continue;
     const d = Math.hypot(player.x - trigger.x, player.z - trigger.z);
     if (d < bestD) {
       best = trigger;
@@ -299,8 +306,12 @@ export function tickWalkRide(camera) {
     if (ride) ensurePad(ride, trigger);
   }
   const player = playerXZ();
-  const look = lookXZ(camera);
-  const trigger = player ? nearest(triggers, player, look) : null;
+  const trigger = player ? nearest(triggers, player) : null;
+  if (typeof window !== 'undefined' && window.__parkForceWalk && !currentRide()) {
+    window.__parkForceWalk = false;
+    const btn = typeof document !== 'undefined' ? document.getElementById('b1') : null;
+    if (btn && btn.click) btn.click();
+  }
   last = stateFrom(mode, player, look, trigger);
   paintPrompt(last);
   return last;
@@ -314,12 +325,11 @@ function doBoard() {
   return ok;
 }
 
-function doRestraint() {
-  const ok = closeRestraint();
+function doBar() {
   const id = currentRide();
   const ride = id ? getRide(id) : null;
-  if (ok && ride && ride.ops) ride.ops.autoAt = (ride.ops.clock || 0) + 0.5;
-  return ok;
+  if (ride && ride.ops && ride.ops.restraint !== 'closed') closeRestraint();
+  return requestDispatch();
 }
 
 function onKey(ev) {
@@ -335,7 +345,7 @@ function onKey(ev) {
   }
   if (action === 'board') doBoard();
   else if (action === 'dispatch') requestDispatch();
-  else if (action === 'restraint') doRestraint();
+  else if (action === 'bar') doBar();
 }
 
 if (typeof window !== 'undefined' && window.addEventListener) {

@@ -31,7 +31,7 @@ Walk and 3rd can board at the load pad. Drone E does not board. A prompt exists 
 
 ## Boot
 
-- **PASS** named import matches named export — 53 files
+- **PASS** named import matches named export — 54 files
 - **PASS** Walk / 3rd / Drone still switch — buttons b1 b3 bM
 - **PASS** one ride RAF — tickMotion calls 1
 - **PASS** OPERATING only with mesh and motion — paintOperating requires world, car, and rail

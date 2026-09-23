@@ -131,6 +131,7 @@ export function exitRide() {
     return true;
   }
   const phase = ride.ops && ride.ops.phase;
+  if (typeof window !== 'undefined') window.__parkForceWalk = true;
   if (phase === 'COURSE' || phase === 'DISPATCH' || phase === 'BRAKE') {
     emergencyStop();
     return true;
