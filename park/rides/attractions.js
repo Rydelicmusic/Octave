@@ -609,11 +609,16 @@ export function hookRideStack(THREE) {
   if (typeof window !== 'undefined') window.__parkRideHook = true;
   let mountTries = 0;
   let splashTries = 0;
+  let hybridTries = 0;
   proto.render = function renderRideStack(scene, camera) {
     if (!hooked && scene && scene.isScene && mountTries < 4) {
       mountTries += 1;
       try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
       hooked = !!scene.getObjectByName('ride-block-01-bone') || mountTries >= 4;
+    }
+    if (scene && scene.isScene && hybridTries < 4 && !scene.getObjectByName('ride-board-family-world')) {
+      hybridTries += 1;
+      try { mountAttractions(THREE, scene); } catch (err) { console.warn('attractions', err); }
     }
     if (scene && scene.isScene && splashTries < 8 && !scene.getObjectByName('water-surface-block-dive-splash')) {
       splashTries += 1;
