@@ -56,7 +56,6 @@ function animate(now) {
     bat.mesh.rotation.y = -a;
     bat.wing.rotation.z = Math.sin(now * 0.01 + bat.phase) * 0.5;
   }
-  requestAnimationFrame(animate);
 }
 
 function addPumpkin(THREE, parent, spec) {
@@ -147,9 +146,9 @@ export function mountHaunt(THREE, scene) {
   for (const spec of PUMPKINS) addPumpkin(THREE, root, spec);
   for (const spec of BATS) addBat(THREE, root, spec);
   scene.add(root);
-  if (!moving && typeof requestAnimationFrame === 'function') {
+  if (!moving) {
     moving = true;
-    requestAnimationFrame(animate);
+    if (typeof window !== 'undefined') window.__tickHaunt = animate;
   }
   return root;
 }
@@ -170,6 +169,7 @@ export function armHaunt() {
         done = true;
         try { mountHaunt(THREE, scene); } catch (err) { console.warn('haunt-scene', err); }
       }
+      if (typeof window !== 'undefined' && window.__tickHaunt) window.__tickHaunt(performance.now());
       return orig.call(this, scene, camera);
     };
   }).catch(() => {});
