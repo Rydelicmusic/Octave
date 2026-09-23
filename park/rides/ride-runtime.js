@@ -122,6 +122,10 @@ export function stepRideSeconds(seconds) {
   const dt = 0.05;
   const n = Math.max(1, Math.round((seconds || 0) / dt));
   for (let i = 0; i < n; i++) stepRides(dt);
+  const hero = rides.get('ride-block-01');
+  if (hero && typeof window !== 'undefined' && hero.lead && hero.lead.p) {
+    window.__blockS = { s: hero.s, y: hero.lead.p.y, hold: hero.hold, lap: hero.lap };
+  }
 }
 
 export function canDispatch(id) {

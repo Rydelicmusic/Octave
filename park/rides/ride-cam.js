@@ -32,15 +32,15 @@ export function applyRideCam(camera) {
   if (ride.kind === 'path' && ride.lead && ride.lead.p) {
     const pose = ride.lead;
     const shake = Math.sin(ride.clock * 42) * 0.018 * Math.min(1.2, (ride.speed || 0) / 12);
-    const px = pose.p.x + pose.up.x * 1.35 - pose.forward.x * 3.2;
-    const py = pose.p.y + pose.up.y * 1.35 - pose.forward.y * 3.2 + shake;
-    const pz = pose.p.z + pose.up.z * 1.35 - pose.forward.z * 3.2;
+    const px = pose.p.x - pose.forward.x * 8 + pose.right.x * 1.4;
+    const py = pose.p.y + 4.2 + shake;
+    const pz = pose.p.z - pose.forward.z * 8 + pose.right.z * 1.4;
     camera.position.set(px, py, pz);
-    camera.up.set(pose.up.x, pose.up.y, pose.up.z);
+    camera.up.set(pose.right.x * 0.25, 1, pose.right.z * 0.25);
     camera.lookAt(
-      pose.p.x + pose.forward.x * 16,
-      pose.p.y + pose.forward.y * 16 + pose.up.y * 1.2,
-      pose.p.z + pose.forward.z * 16,
+      pose.p.x + pose.forward.x * 18,
+      pose.p.y + pose.forward.y * 10 + 1.5,
+      pose.p.z + pose.forward.z * 18,
     );
     return true;
   }
