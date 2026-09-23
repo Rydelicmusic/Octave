@@ -1,8 +1,7 @@
 /** Heavy rides on the locked pads. Does not import ride modules (they import this file). */
 import { LOCK, occupiesSpine, nearRing, inStadium } from '../lock.js';
 import { arcTable } from './path-math.js';
-import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples } from './coaster-paths.js';
-import { heroBlockPack } from './paths.js';
+import { RIDE_ANCHORS, blockCoasterSamples, launchCoasterSamples, kiddieSamples, darkSamples, boardFamilySamples, giantBlockPack } from './coaster-paths.js';
 import { buildTrack, buildTrain, placeCars } from './track-build.js';
 import { buildStation, buildDarkShell, darkShows, paintShows, buildFence } from './ride-show.js';
 import { buildWheel, layoutWheel, buildSwings, layoutSwings, buildDrop, buildSpin, layoutSpin } from './ride-fleet.js';
@@ -180,9 +179,13 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     ...colors,
     railBulk: pack.railBulk,
     postBulk: pack.postBulk,
-    support: pack.beacon ? 0xe7e0d4 : colors.tie,
-    supportEmissive: pack.beacon ? 0xffb060 : 0,
-    supportGlow: pack.beacon ? 0.55 : 0,
+    gauge: pack.gauge,
+    ribbon: pack.ribbon,
+    rail: pack.beacon ? 0xf7f8fb : colors.rail,
+    railEmissive: pack.beacon ? 0xe4edf8 : (colors.railEmissive || 0xb7c4d4),
+    support: pack.beacon ? 0xf3efe6 : colors.tie,
+    supportEmissive: pack.beacon ? 0xffe1b0 : 0,
+    supportGlow: pack.beacon ? 0.85 : 0,
   });
   const cars = buildTrain(THREE, world, pack.cars, colors, ride.id);
   if (pack.carScale) cars.forEach((car) => car.scale.setScalar(pack.carScale));
@@ -190,19 +193,21 @@ function buildCoaster(THREE, scene, ride, pack, colors) {
     let crest = pack.samples[0];
     for (const p of pack.samples) if (p.y > crest.y) crest = p;
     const beacon = new THREE.Mesh(
-      new THREE.SphereGeometry(1.8, 14, 10),
-      new THREE.MeshLambertMaterial({ color: 0xfff1c9, emissive: 0xffb040, emissiveIntensity: 1.15 }),
+      new THREE.SphereGeometry(2.6, 16, 12),
+      new THREE.MeshLambertMaterial({ color: 0xfff6e4, emissive: 0xffc56a, emissiveIntensity: 1.4 }),
     );
-    beacon.position.set(crest.x, crest.y + 2.4, crest.z);
+    beacon.position.set(crest.x, crest.y + 3.2, crest.z);
     beacon.name = ride.id + '-crest';
-    const glow = new THREE.PointLight(0xffc56a, 2.4, 110);
+    const glow = new THREE.PointLight(0xffc56a, 4.5, 280);
     glow.position.copy(beacon.position);
     world.add(beacon, glow);
   }
   const trainBots = cars.flatMap((car) => (car.userData && car.userData.bots) || []);
+  const home = pack.stationAtPath ? pack.samples[0] : null;
   const station = buildStation(THREE, world, {
     ...ride,
-    x: ride.x + 12,
+    x: home ? home.x : ride.x + 12,
+    z: home ? home.z : ride.z,
     name: ride.name,
     roof: colors.roof,
     body: colors.bodyPaint,
@@ -464,7 +469,7 @@ export function addAttraction(THREE, scene, ride, type) {
   const kind = resolveType(ride, type);
   const spec = anchorFor({ ...ride, name: (RIDE_ANCHORS[ride.id] && RIDE_ANCHORS[ride.id].name) || ride.name });
   if (kind === 'coaster') {
-    const pack = ride.id === 'ride-block-01' ? heroBlockPack() : { ...blockCoasterSamples(3), phys: 'coaster' };
+    const pack = ride.id === 'ride-block-01' ? giantBlockPack() : { ...blockCoasterSamples(3), phys: 'coaster' };
     return buildCoaster(THREE, scene, spec, pack, COLORS.coaster);
   }
   if (kind === 'launch') return buildCoaster(THREE, scene, spec, { ...launchCoasterSamples(2), phys: 'launch' }, COLORS.launch);

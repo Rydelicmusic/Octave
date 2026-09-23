@@ -112,6 +112,56 @@ export function blockCoasterSamples(version = 3) {
   return { id: 'ride-block-01', land: 'The Block', version, samples, cars: 4, carGap: 3.4, stationHold: 2, ...meta(samples, 'The Block') };
 }
 
+/** Giant Block circuit. Crest sits on the south rim, the side the Gate can see.
+ *  Station, lift, drop, vertical loop, airtime hill, brakes, same station. */
+export function giantBlockSamples() {
+  const pts = [];
+  const station = { x: -122, y: 3.6, z: 78 };
+  const liftFoot = { x: -112, y: 5, z: 94 };
+  const crest = { x: -98, y: 34, z: 112 };
+  const loopEntry = { x: -136, y: 8.2, z: 86 };
+  pushSpan(pts, station, liftFoot, 10, (t) => station.y + (liftFoot.y - station.y) * t, () => 0, { speed: () => 6 });
+  pushSpan(pts, liftFoot, crest, 22, (t) => liftFoot.y + (crest.y - liftFoot.y) * t, () => 0.04, { speed: () => 7, lift: true });
+  pushSpan(pts, crest, loopEntry, 16, (t) => crest.y + (loopEntry.y - crest.y) * t, () => -0.12, { speed: () => 18 });
+  const fwd = { x: loopEntry.x - crest.x, y: 0, z: loopEntry.z - crest.z };
+  pushLoop(pts, loopEntry, fwd, 12, 36);
+  const afterLoop = pts[pts.length - 1];
+  const air = { x: -158, y: 16, z: 62 };
+  const valley = { x: -150, y: 4.8, z: 48 };
+  const brakeIn = { x: -132, y: 4.2, z: 64 };
+  pushSpan(pts, { x: afterLoop.x, y: afterLoop.y, z: afterLoop.z }, air, 14, (t) => afterLoop.y + (16 - afterLoop.y) * Math.sin(t * Math.PI * 0.85), () => 0.2, { speed: () => 13 });
+  pushSpan(pts, air, valley, 12, (t) => air.y + (valley.y - air.y) * t, () => -0.15, { speed: () => 14 });
+  pushSpan(pts, valley, brakeIn, 12, (t) => valley.y + (brakeIn.y - valley.y) * t, () => 0.1, { speed: () => 10 });
+  pushSpan(pts, brakeIn, station, 14, (t) => brakeIn.y + (station.y - brakeIn.y) * t, () => 0, { speed: (t) => 8 - t * 5, brake: true });
+  pts.push({
+    x: station.x, y: station.y, z: station.z, bank: 0, speed: 3, lift: false, brake: true, tunnel: false,
+  });
+  return densify(pts, 2.4);
+}
+
+export function giantBlockPack() {
+  const samples = giantBlockSamples();
+  let maxY = 0;
+  for (const p of samples) if (p.y > maxY) maxY = p.y;
+  return {
+    id: 'ride-block-01',
+    land: 'The Block',
+    phys: 'coaster',
+    samples,
+    cars: 4,
+    carGap: 4.6,
+    carScale: 1.35,
+    stationHold: 2,
+    stationAtPath: true,
+    beacon: true,
+    ribbon: true,
+    railBulk: 3.4,
+    postBulk: 4.4,
+    gauge: 1.42,
+    apex: maxY,
+  };
+}
+
 export function launchCoasterSamples(version = 2) {
   const pts = [];
   const station = { x: -187.5, z: -48 };

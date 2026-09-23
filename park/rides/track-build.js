@@ -57,6 +57,10 @@ export function buildTrack(THREE, parent, table, opts) {
 
   const railL = new THREE.InstancedMesh(railGeo, railMat, n);
   const railR = new THREE.InstancedMesh(railGeo, railMat, n);
+  const beam = opts.ribbon
+    ? new THREE.InstancedMesh(new THREE.BoxGeometry(1.15, 0.55, 1), mat(THREE, 0xf4efe6, 0xffe1b8, 0.75), n)
+    : null;
+  if (beam) beam.name = (opts.name || 'track') + '-ribbon';
   const ties = new THREE.InstancedMesh(tieGeo, tieMat, n);
   const lights = new THREE.InstancedMesh(lightGeo, lightMat, n);
   let supportCount = 0;
@@ -105,6 +109,13 @@ export function buildTrack(THREE, parent, table, opts) {
       dummy.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, fwd));
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
+    }
+    if (beam) {
+      dummy.position.copy(heart.clone().addScaledVector(up, -0.85));
+      dummy.scale.set(1, 1, span * 1.05);
+      dummy.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, fwd));
+      dummy.updateMatrix();
+      beam.setMatrixAt(i, dummy.matrix);
     }
 
     dummy.position.copy(heart.clone().addScaledVector(up, -0.38));
@@ -158,6 +169,10 @@ export function buildTrack(THREE, parent, table, opts) {
   if (dogs) dogs.instanceMatrix.needsUpdate = true;
   if (brakes) brakes.instanceMatrix.needsUpdate = true;
   parent.add(railL, railR, ties, lights);
+  if (beam) {
+    beam.instanceMatrix.needsUpdate = true;
+    parent.add(beam);
+  }
   if (supports) parent.add(supports);
   if (chains) parent.add(chains);
   if (dogs) parent.add(dogs);
