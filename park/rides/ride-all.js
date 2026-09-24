@@ -5,6 +5,7 @@ import { boardRide, exitRide, currentRide, applyRideCam, closeRestraint, request
 import { admit, setCheat, setDevBypass } from '../logic/ticket.js';
 import { claimLoad } from '../logic/queue.js';
 import { pointAt } from './path-math.js';
+import { holdStations, tickStationHold } from './station-hold.js';
 
 let mounted = false;
 let tries = 0;
@@ -119,7 +120,9 @@ function eyeFromSamples(ride) {
 
 export function tickRideAll(camera) {
   const t = typeof camera === 'number' ? camera : (typeof performance !== 'undefined' ? performance.now() : 0);
+  tickStationHold();
   tickMotion(t);
+  tickStationHold();
   if (!camera || typeof camera !== 'object' || !camera.position) return false;
   if (typeof window !== 'undefined') window.__parkCamera = camera;
   const id = currentRide() || (typeof window !== 'undefined' ? window.__parkRideCam : null);
@@ -199,6 +202,7 @@ function mountNow() {
   try {
     mountAttractions(THREE, scene);
     mounted = !!(scene.getObjectByName('ride-block-01-world') || scene.getObjectByName('ride-block-02-world') || scene.getObjectByName('ride-block-rim-world'));
+    if (mounted) holdStations();
   } catch (err) {
     console.warn('ride-all', err);
   }
