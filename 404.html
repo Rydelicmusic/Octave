@@ -3,11 +3,20 @@
 <head>
 <meta charset="utf-8">
 <title>Octave</title>
-<meta http-equiv="refresh" content="0; url=./">
-<script>location.replace('./');</script>
+<script>
+(function () {
+  var p = (location.pathname || '').toLowerCase();
+  if (/rydelic|rydellic/.test(p)) {
+    location.replace('./rydelic.html');
+    return;
+  }
+  location.replace('./');
+})();
+</script>
 <link rel="canonical" href="./">
 </head>
 <body>
-<p><a href="./">Continue to Octave</a></p>
+<p><a href="./rydelic.html">Rydelic — enter the park</a></p>
+<p><a href="./">Octave house</a></p>
 </body>
 </html>

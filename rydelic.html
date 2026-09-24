@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rydelic · How to enter the park</title>
+<meta name="description" content="Type Rydelic. This is the tutorial door into the amusement park.">
+<style>
+  :root { --ink:#f4efe6; --mute:#c9b48a; --bg:#0b0b0c; --line:#2a2620; }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,serif;}
+  .wrap{max-width:42rem;margin:0 auto;padding:4rem 1.5rem 6rem;}
+  .eyebrow{letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;color:var(--mute);font-family:-apple-system,sans-serif;}
+  h1{font-weight:400;font-size:2.4rem;line-height:1.15;margin:.6rem 0 1rem;}
+  p{line-height:1.55;color:#ddd6c8;}
+  form{display:flex;gap:.5rem;margin:1.5rem 0 2rem;flex-wrap:wrap;}
+  input{flex:1;min-width:12rem;background:#161412;border:1px solid var(--line);color:var(--ink);padding:.8rem 1rem;font:inherit;}
+  button,.btn{background:#c9b48a;color:#111;border:0;padding:.8rem 1.1rem;font:600 .85rem/-apple-system,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;display:inline-block;cursor:pointer;}
+  .btn-ghost{background:transparent;color:var(--mute);border:1px solid var(--line);margin-left:.4rem;}
+  .card{border:1px solid var(--line);padding:1.25rem 1.35rem;margin:1rem 0;}
+  .steps{padding-left:1.1rem;}
+  .steps li{margin:.45rem 0;}
+  a{color:var(--mute);}
+  #miss{display:none;color:#c9b48a;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Tutorial artist · first park</p>
+  <h1>Rydelic</h1>
+  <p>Type the name. This room is how you enter the amusement park. Rydelic is the first artist park — the tutorial walk, not a mock roster name.</p>
+  <form id="find" action="rydelic.html" method="get">
+    <input id="q" name="q" type="search" placeholder="Type Rydelic" autocomplete="off" autofocus>
+    <button type="submit">Find</button>
+  </form>
+  <p id="miss">No match. Type <strong>Rydelic</strong> (Rydellic works too).</p>
+
+  <div class="card" id="hit">
+    <p class="eyebrow">Match</p>
+    <h2 style="font-weight:400;margin:.4rem 0 0.6rem">Rydelic Park</h2>
+    <p>Open the grounds. Walk first. Then 3rd. Then Drone. Gate is south. Hub is origin.</p>
+    <p>
+      <a class="btn" href="park/">View the amusement park</a>
+      <a class="btn btn-ghost" href="park-site/">Luxury site</a>
+    </p>
+  </div>
+
+  <h2 style="font-weight:400;font-size:1.2rem">How to access the park</h2>
+  <ol class="steps">
+    <li>Arrive at the house or type <em>Rydelic</em> in the find field.</li>
+    <li>Take <strong>View the amusement park</strong> — that is the live 3D walk.</li>
+    <li>Stay on Walk until the spine reads. Lands: Block west, After Hours north, Board east, Pocket south.</li>
+    <li>Song = kiosk. EP = pavilion. Album = building. This park is the Rydelic tutorial. Other artist names on the site are MOCK.</li>
+  </ol>
+  <p><a href="./">Back to the house</a></p>
+</div>
+<script>
+(function () {
+  var form = document.getElementById('find');
+  var input = document.getElementById('q');
+  var miss = document.getElementById('miss');
+  var hit = document.getElementById('hit');
+  function norm(s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); }
+  function isRydelic(s) {
+    var n = norm(s);
+    return n === 'rydelic' || n === 'rydellic' || n.indexOf('rydelic') === 0;
+  }
+  var params = new URLSearchParams(location.search);
+  var q = params.get('q') || '';
+  if (q) {
+    input.value = q;
+    if (isRydelic(q)) {
+      miss.style.display = 'none';
+      hit.style.display = 'block';
+    } else {
+      hit.style.display = 'none';
+      miss.style.display = 'block';
+    }
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = input.value;
+    if (isRydelic(v)) {
+      miss.style.display = 'none';
+      hit.style.display = 'block';
+      history.replaceState(null, '', 'rydelic.html?q=' + encodeURIComponent(v.trim()));
+    } else {
+      hit.style.display = 'none';
+      miss.style.display = 'block';
+    }
+  });
+})();
+</script>
+</body>
+</html>

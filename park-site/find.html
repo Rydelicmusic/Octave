@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find · Rydelic Park</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="index.html"><span class="brand-mark">Rydelic Park</span><span class="brand-sub">Luxury Site</span></a>
+    <nav aria-label="Primary">
+      <ul class="nav-primary">
+        <li><a href="index.html">Gate</a></li>
+        <li><a href="find.html" aria-current="page">Find</a></li>
+        <li><a href="artists/index.html">Artists</a></li>
+        <li><a href="directory.html">Directory</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <ul class="crumbs"><li><a href="index.html">Home</a></li><li>Find</li></ul>
+    <header class="page-hero">
+      <p class="eyebrow">Tutorial name</p>
+      <h1>Find an artist</h1>
+      <p class="sub">Type <strong>Rydelic</strong>. That name is the tutorial door into the live amusement park. MOCK roster names stay Vale, Juniper, Solenne, Ori.</p>
+    </header>
+    <form id="find" class="cta-row" style="gap:.6rem;align-items:center;flex-wrap:wrap">
+      <input id="q" name="q" type="search" placeholder="Rydelic" style="min-width:16rem;padding:.8rem 1rem;background:#161412;border:1px solid #2a2620;color:#f4efe6;font:inherit">
+      <button class="btn" type="submit">Find</button>
+    </form>
+    <p id="miss" hidden>No park door for that name. Type Rydelic.</p>
+    <article class="card" id="hit" style="margin-top:1.5rem">
+      <p class="card-kicker">Tutorial artist</p>
+      <h3>Rydelic</h3>
+      <p>First park. How you learn the grounds. Walk → 3rd → Drone.</p>
+      <div class="card-links">
+        <a class="btn" href="https://rydelicmusic.github.io/octave/park/">View the amusement park</a>
+        <a href="artists/rydelic/index.html">Tutorial room</a>
+        <a href="../rydelic.html">House door</a>
+      </div>
+    </article>
+  </div>
+</main>
+<script>
+(function () {
+  var form = document.getElementById('find');
+  var input = document.getElementById('q');
+  var miss = document.getElementById('miss');
+  var hit = document.getElementById('hit');
+  function norm(s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); }
+  function isRydelic(s) {
+    var n = norm(s);
+    return n === 'rydelic' || n === 'rydellic' || n.indexOf('rydelic') === 0;
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (isRydelic(input.value)) { miss.hidden = true; hit.hidden = false; }
+    else { hit.hidden = true; miss.hidden = false; }
+  });
+})();
+</script>
+</body>
+</html>
