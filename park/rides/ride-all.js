@@ -5,8 +5,9 @@ import { tickMotion } from './ride-runtime.js';
 let mounted = false;
 let tries = 0;
 
-export function tickRideAll(now) {
-  const t = typeof now === 'number' ? now : (typeof performance !== 'undefined' ? performance.now() : 0);
+export function tickRideAll(camera) {
+  if (camera && typeof camera === 'object' && typeof window !== 'undefined') window.__parkCamera = camera;
+  const t = typeof camera === 'number' ? camera : (typeof performance !== 'undefined' ? performance.now() : 0);
   tickMotion(t);
 }
 

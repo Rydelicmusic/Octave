@@ -19,6 +19,7 @@ import { mountNpcs, layoutNpcMesh } from '../npc/npc.js';
 import { agentList, AGENT_CAP } from '../logic/agents.js';
 import { dayPart, getClock } from '../logic/clock.js';
 import { paintBoard } from './ride-cam.js';
+import { tickRideAll } from './ride-all.js';
 
 export { tickMotion, boardRide, exitRide, rideIds };
 
@@ -684,7 +685,6 @@ function publishRideHooks() {
       ensureHeroRail();
       ensureBoardMesh();
       paintOperating((typeof window !== 'undefined' && window.__parkScene) || parkScene());
-      tickMotion(performance.now());
       layoutGuests();
       layoutNpcMesh();
       if (typeof window !== 'undefined' && window.__tickWater) window.__tickWater(performance.now() / 1000);
@@ -703,6 +703,7 @@ function publishRideHooks() {
   };
   window.__applyRideCam = (camera) => {
     try {
+      tickRideAll(camera);
       if (camera && typeof location !== 'undefined' && location.hash === '#mesh') {
         camera.position.set(18, 26, 168);
         camera.up.set(0, 1, 0);
