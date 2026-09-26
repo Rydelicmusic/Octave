@@ -50,6 +50,7 @@ import { addRideBlock02 } from './rides/ride-block-02.js';
 import { addRideHours02 } from './rides/ride-hours-02.js';
 import { addRidePocket02 } from './rides/ride-pocket-02.js';
 import { addRideGateSigns } from './rides/ride-gate-signs.js';
+import { mountHarvestCups, tickHarvestCups } from './rides/harvest-cups.js?v=cups1';
 import { mountGpsHud } from './gps-hud.js';
 import { addParkGrid } from './grid-overlay.js';
 import { claim, seedPark, whyBlocked, dump } from './occupy.js';
@@ -1824,6 +1825,7 @@ addRideBlock02(THREE,scene);
 addRideHours02(THREE,scene);
 addRidePocket02(THREE,scene);
 addRideGateSigns(THREE,scene);
+mountHarvestCups(THREE,scene);
 window.__parkOccupyDump=dump();
 addParkRoads(THREE,scene);
 // Pass 62 — SKU service/loading aprons at rear doors (BUILDINGS footprints held)
@@ -2037,7 +2039,7 @@ function tick(){
   const hx=mode==='above'?drone.x:pos.x,hz=mode==='above'?drone.z:pos.z;
   landEl.textContent=whichLand(hx,hz)+' · '+(mode==='walk'?'WALK':mode==='third'?'3RD':'DRONE');
   distEl.textContent=mode==='above'?('Alt '+drone.y.toFixed(0)+' m · hub '+Math.hypot(drone.x,drone.z).toFixed(0)+' m'):('Hub '+Math.hypot(pos.x,pos.z).toFixed(0)+' m');
-  if(window.__tickRides)window.__tickRides();if(window.__applyRideCam)window.__applyRideCam(camera);renderer.render(scene,camera);requestAnimationFrame(tick);
+  if(window.__tickRides)window.__tickRides();if(window.__applyRideCam)window.__applyRideCam(camera);tickHarvestCups(THREE,camera,pos,mode,dt,keys,yaw);renderer.render(scene,camera);requestAnimationFrame(tick);
 }
 tick();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
