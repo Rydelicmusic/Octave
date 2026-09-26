@@ -636,3 +636,11 @@ Gate→Hub poles sit at z=18,32,46,… so `z%28===0` / `z%42<1` never matched a 
 - ORDERED Site Luxury: Pass 192+ densify; keep MOCK roster; no self-STOP; no new html↔dir collisions
 - ORDERED Quality GATE: live https://rydelicmusic.github.io/octave/park/ Walk + park-site hubs; flag Pages errored vs 200 probes
 - No STOP
+
+## VIME slice — Ori Hale artist-room door (2026-09-25 CDT)
+- Spec: `handoff/2026-09-25-VIME-RESTART.md` (dadd8bc). One door, one mock artist, nothing else.
+- New `park/artist-door.js` (`installArtistDoor`), one import + one call in `park/index.html`.
+- Door at (x 10.4, z 196): The Pocket Gate-arrival stretch, east edge of the 14 m spine (|x|<7 clear), 34 m inside the Gate, 28 m from spawn. Face looks west onto the spine. Clears BUILDINGS/GATE/STATIONS/rings/waters; claims an occupancy lot.
+- In-world sign "Ori Hale — room" + lit door; DOM prompt "Enter Ori Hale — room · E" within 4 m (Walk/3rd only; hidden in Drone where E = descend; inert while riding).
+- E, prompt click, or door click → `../vime/?artist=ori-hale`. `vime/index.html`: static fixed "← Back to park" link (`../park/`), no rebuild. Artist name inside Realm One skipped (needs vime source/rebuild).
+- Test: `node park/artist-door.test.mjs`.

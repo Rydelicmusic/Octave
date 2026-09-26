@@ -57,6 +57,7 @@ import { claim, seedPark, whyBlocked, dump } from './occupy.js';
 import { claimDrives, placeTree, placeProp, beltSlots, landDriveBelts } from './organize.js';
 import { claimAllRides } from './rides/seed-rides.js';
 import * as LockMod from './lock.js?v=pass74-merge';
+import { installArtistDoor } from './artist-door.js?v=ori-hale-1'; // VIME slice: one artist-room door
 // FIX-ITINERARY — namespace import so a stale lock.js without ITINERARY cannot blank Walk
 const {
   LOCK, BUILDINGS, nearRing, GATE, STATIONS, LAND_PALETTE, inStadium, spineCadPolyline, northSpineCadPolyline,
@@ -1992,6 +1993,7 @@ function setMode(m){const was=mode==='above'||mode==='drone';const aerial=m==='a
 function cycle(){setMode(modes[(modes.indexOf(mode)+1)%3]);}
 btns.walk.onclick=()=>setMode('walk');btns.third.onclick=()=>setMode('third');btns.above.onclick=()=>setMode('above');
 if(location.hash==='#drone')setMode('above');
+installArtistDoor({THREE,scene,camera,canvas,getPos:()=>pos,getMode:()=>mode,claim}); // Ori Hale — room → ../vime/?artist=ori-hale
 let look=false,lx=0,ly=0;
 canvas.addEventListener('pointerdown',e=>{look=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId);});
 canvas.addEventListener('pointerup',()=>look=false);
